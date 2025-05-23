@@ -30,7 +30,7 @@ const AboutHero = () => {
           style={{ animationDelay: "0.5s" }} 
           className="section-subtitle mt-4 sm:mt-6 leading-relaxed text-gray-100 max-w-3xl mx-auto opacity-0 animate-fade-in" // Lighter text for better readability
         >
-          At Pulse Robot, we're not just building robots; we're crafting the future of collaboration. Atlas is the culmination of relentless innovation, designed to seamlessly integrate with and elevate human potential.
+          At Sweeply, we're not just building robots; we're crafting the future of collaboration. Atlas is the culmination of relentless innovation, designed to seamlessly integrate with and elevate human potential.
         </p>
         {/* New Tagline */}
         <p 

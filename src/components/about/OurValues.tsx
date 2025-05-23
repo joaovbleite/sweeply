@@ -16,7 +16,7 @@ const OurValues = () => {
         <div className="text-center mb-10 sm:mb-16 opacity-0 animate-fade-in">
           <h2 className="section-title text-white">Our Guiding Principles</h2>
           <p className="section-subtitle max-w-2xl mx-auto text-gray-100"> {/* Lighter subtitle */}
-            These core tenets are embedded in every decision, every design, and every line of code at Pulse Robot.
+            These core tenets are embedded in every decision, every design, and every line of code at Sweeply.
           </p>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8"> {/* Slightly reduced gap for tighter look */}

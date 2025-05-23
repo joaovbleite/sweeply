@@ -17,7 +17,7 @@ const OurTeam = () => {
             <Briefcase size={16} className="mr-2 text-pulse-500" />
             <span>Our Architects of Innovation</span>
           </div>
-          <h2 className="section-title text-gray-900">Meet the Pulse Pioneers</h2>
+          <h2 className="section-title text-gray-900">Meet the Sweeply Pioneers</h2>
           <p className="section-subtitle max-w-2xl mx-auto text-gray-700">
             The dedicated individuals shaping the future of robotics. (Content is illustrative)
           </p>

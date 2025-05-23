@@ -91,11 +91,11 @@ const Navbar = () => {
             e.preventDefault();
             handleNavigate("/");
           }}
-          aria-label="Pulse Robot"
+          aria-label="Sweeply"
         >
           <img 
             src="/logo.svg" 
-            alt="Pulse Robot Logo" 
+            alt="Sweeply Logo" 
             className="h-7 sm:h-8" 
           />
         </a>

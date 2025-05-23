@@ -38,7 +38,7 @@ const OurStory = () => {
              <Milestone size={16} className="mr-2 text-pulse-500" /> {/* Added Milestone icon */}
             <span>Our Evolutionary Milestones</span>
           </div>
-          <h2 className="section-title text-gray-900">The Story of Pulse Robot</h2>
+          <h2 className="section-title text-gray-900">The Story of Sweeply</h2>
           <p className="section-subtitle max-w-2xl mx-auto text-gray-700"> {/* Slightly different subtitle */}
             From a visionary concept to a leader in humanoid robotics, trace our path of innovation.
           </p>
