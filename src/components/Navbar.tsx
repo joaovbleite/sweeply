@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
@@ -82,7 +83,7 @@ const Navbar = () => {
           : "bg-transparent"
       )}
     >
-      <div className="container flex items-center justify-between px-4 sm:px-6 lg:px-8 py-0.5">
+      <div className="container flex items-center justify-between px-4 sm:px-6 lg:px-8 pb-0">
         <a 
           href="/"
           className="flex items-center space-x-2"
@@ -95,7 +96,7 @@ const Navbar = () => {
           <img 
             src="/lovable-uploads/64f9ad74-6bcc-41ac-85ed-b821343cc480.png" 
             alt="Sweeply Logo" 
-            className="h-36 sm:h-40" 
+            className="h-40 sm:h-44" 
           />
         </a>
 
