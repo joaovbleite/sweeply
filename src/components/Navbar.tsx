@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
@@ -76,13 +77,13 @@ const Navbar = () => {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 -mt-12 transition-all duration-300", // Increased negative margin to reduce space
+        "fixed top-0 left-0 right-0 z-50 -mt-20 transition-all duration-300", // Increased negative margin significantly
         isScrolled 
           ? "bg-white/80 backdrop-blur-md shadow-sm" 
           : "bg-transparent"
       )}
     >
-      <div className="container flex items-center justify-between px-4 sm:px-6 lg:px-8 py-0">
+      <div className="container flex items-center justify-between px-4 sm:px-6 lg:px-8 -py-2"> {/* Added negative padding */}
         <a 
           href="/"
           className="flex items-center space-x-2"
