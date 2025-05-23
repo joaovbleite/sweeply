@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
@@ -77,13 +76,13 @@ const Navbar = () => {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 -mt-8 py-0 transition-all duration-300",
+        "fixed top-0 left-0 right-0 z-50 -mt-10 transition-all duration-300",
         isScrolled 
           ? "bg-white/80 backdrop-blur-md shadow-sm" 
           : "bg-transparent"
       )}
     >
-      <div className="container flex items-center justify-between px-4 sm:px-6 lg:px-8 py-1">
+      <div className="container flex items-center justify-between px-4 sm:px-6 lg:px-8 py-0.5">
         <a 
           href="/"
           className="flex items-center space-x-2"
@@ -96,7 +95,7 @@ const Navbar = () => {
           <img 
             src="/lovable-uploads/64f9ad74-6bcc-41ac-85ed-b821343cc480.png" 
             alt="Sweeply Logo" 
-            className="h-30 sm:h-32" 
+            className="h-36 sm:h-40" 
           />
         </a>
 
@@ -109,11 +108,11 @@ const Navbar = () => {
 
         {/* Mobile menu button - increased touch target */}
         <button 
-          className="md:hidden text-gray-700 p-2 focus:outline-none" 
+          className="md:hidden text-gray-700 p-1 focus:outline-none" 
           onClick={toggleMenu}
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
         >
-          {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          {isMenuOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
       </div>
 
