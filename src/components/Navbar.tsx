@@ -94,7 +94,7 @@ const Navbar = () => {
           aria-label="Sweeply"
         >
           <img 
-            src="/logo.svg" 
+            src="/lovable-uploads/64f9ad74-6bcc-41ac-85ed-b821343cc480.png" 
             alt="Sweeply Logo" 
             className="h-7 sm:h-8" 
           />
