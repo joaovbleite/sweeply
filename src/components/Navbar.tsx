@@ -83,7 +83,7 @@ const Navbar = () => {
           : "bg-transparent"
       )}
     >
-      <div className="container flex items-center justify-between px-4 sm:px-6 lg:px-8 py-2">
+      <div className="container flex items-center justify-between px-4 sm:px-6 lg:px-8 py-1">
         <a 
           href="/"
           className="flex items-center space-x-2"
@@ -96,7 +96,7 @@ const Navbar = () => {
           <img 
             src="/lovable-uploads/64f9ad74-6bcc-41ac-85ed-b821343cc480.png" 
             alt="Sweeply Logo" 
-            className="h-36 sm:h-40" 
+            className="h-30 sm:h-32" 
           />
         </a>
 
@@ -109,11 +109,11 @@ const Navbar = () => {
 
         {/* Mobile menu button - increased touch target */}
         <button 
-          className="md:hidden text-gray-700 p-3 focus:outline-none" 
+          className="md:hidden text-gray-700 p-2 focus:outline-none" 
           onClick={toggleMenu}
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
         >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
 
