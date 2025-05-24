@@ -55,7 +55,7 @@ const plans = [
   {
     name: "Enterprise",
     priceMonthly: "Custom",
-    priceAnnual: "Custom",
+    priceAnnual: "Custom", // Ensure this is handled as a string
     features: [
       "Unlimited Team Members",
       "White-label Options",
@@ -93,7 +93,14 @@ const PricingCards: React.FC<PricingCardsProps> = ({ isAnnual }) => {
               <h3 className="text-2xl font-bold font-display mb-1">{plan.name}</h3>
               <div className="mb-6">
                 <span className="text-4xl font-extrabold text-gray-900">
-                  {typeof plan.priceMonthly === 'number' ? `$${(isAnnual ? plan.priceAnnual / 12 : plan.priceMonthly).toFixed(0)}` : plan.priceMonthly}
+                  {isAnnual
+                    ? typeof plan.priceAnnual === 'number'
+                      ? `$${(plan.priceAnnual / 12).toFixed(0)}`
+                      : plan.priceAnnual
+                    : typeof plan.priceMonthly === 'number'
+                      ? `$${plan.priceMonthly.toFixed(0)}`
+                      : plan.priceMonthly
+                  }
                 </span>
                 <span className="text-sm text-gray-500">
                   {typeof plan.priceMonthly === 'number' ? "/month" : ""}
@@ -109,7 +116,7 @@ const PricingCards: React.FC<PricingCardsProps> = ({ isAnnual }) => {
                 ))}
               </ul>
               <a
-                href="#"
+                href="#" // Placeholder link
                 className={cn(
                   plan.isPopular || plan.isEnterprise ? "button-primary w-full text-center" : "button-secondary w-full text-center",
                 )}
@@ -125,3 +132,4 @@ const PricingCards: React.FC<PricingCardsProps> = ({ isAnnual }) => {
 };
 
 export default PricingCards;
+
