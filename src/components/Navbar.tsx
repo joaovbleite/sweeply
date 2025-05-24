@@ -76,26 +76,25 @@ const Navbar = () => {
   }}>
       {children}
     </a>;
-  return <header className={cn("fixed top-0 left-0 right-0 z-50 transition-all duration-300", isScrolled || isMenuOpen ? "bg-white/80 backdrop-blur-md shadow-sm" : "bg-transparent")}>
-      <div className="container flex items-center justify-between sm:px-6 lg:px-8 px-[31px] rounded-none">
+  return <header className={cn("fixed top-0 left-0 right-0 z-50 -mt-8 py-0 transition-all duration-300", isScrolled ? "bg-white/80 backdrop-blur-md shadow-sm" : "bg-transparent")}>
+      <div className="container flex items-center justify-between sm:px-6 lg:px-8 px-[31px] py-0 my-0 rounded-none">
         <a href="/" className="flex items-center space-x-2" onClick={e => {
         e.preventDefault();
         handleNavigate("/");
       }} aria-label="Sweeply">
-          <img src="/lovable-uploads/64f9ad74-6bcc-41ac-85ed-b821343cc480.png" alt="Sweeply Logo" className="h-8 sm:h-10" />
+          <img src="/lovable-uploads/64f9ad74-6bcc-41ac-85ed-b821343cc480.png" alt="Sweeply Logo" className="h-30 sm:h-32" />
         </a>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-8">
           <NavLink to="/">Home</NavLink>
-          <NavLink to="/about">About</NavLink>
-          <NavLink to="/pricing">Pricing</NavLink>
-          <NavLink to="/" hash="#details">Contact</NavLink>
+          <NavLink to="/about">About</NavLink> {/* Updated Link */}
+          <NavLink to="/" hash="#details">Contact</NavLink> {/* Assuming contact is on home page */}
         </nav>
 
         {/* Mobile menu button - increased touch target */}
         <button className="md:hidden text-gray-700 p-2 focus:outline-none" onClick={toggleMenu} aria-label={isMenuOpen ? "Close menu" : "Open menu"}>
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
 
@@ -103,9 +102,8 @@ const Navbar = () => {
       <div className={cn("fixed inset-0 z-40 bg-white flex flex-col pt-16 px-6 md:hidden transition-all duration-300 ease-in-out", isMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full pointer-events-none")}>
         <nav className="flex flex-col space-y-8 items-center mt-8">
           <MobileNavLink to="/">Home</MobileNavLink>
-          <MobileNavLink to="/about">About</MobileNavLink>
-          <MobileNavLink to="/pricing">Pricing</MobileNavLink>
-          <MobileNavLink to="/" hash="#details">Contact</MobileNavLink>
+          <MobileNavLink to="/about">About</MobileNavLink> {/* Updated Link */}
+          <MobileNavLink to="/" hash="#details">Contact</MobileNavLink> {/* Assuming contact is on home page */}
         </nav>
       </div>
     </header>;
