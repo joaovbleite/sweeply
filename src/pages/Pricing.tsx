@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CTA from "@/components/CTA";
 import PricingHero from "@/components/pricing/PricingHero";
 import PricingCards from "@/components/pricing/PricingCards";
+import PricingTable from "@/components/pricing/PricingTable"; // Import PricingTable
 import PricingFAQ from "@/components/pricing/PricingFAQ";
 
 const PricingPage = () => {
@@ -40,11 +42,12 @@ const PricingPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-green-50"> {/* Updated background */}
       <Navbar />
       <main className="pt-20 sm:pt-24 md:pt-28"> {/* Adjusted padding for fixed navbar */}
         <PricingHero isAnnual={isAnnual} setIsAnnual={setIsAnnual} />
         <PricingCards isAnnual={isAnnual} />
+        <PricingTable /> {/* Add PricingTable here */}
         <PricingFAQ />
         <CTA />
       </main>
