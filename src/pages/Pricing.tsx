@@ -1,11 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CTA from "@/components/CTA";
 import PricingHero from "@/components/pricing/PricingHero";
 import PricingCards from "@/components/pricing/PricingCards";
-import PricingTable from "@/components/pricing/PricingTable"; // Import the new table
 import PricingFAQ from "@/components/pricing/PricingFAQ";
 
 const PricingPage = () => {
@@ -47,7 +45,6 @@ const PricingPage = () => {
       <main className="pt-20 sm:pt-24 md:pt-28"> {/* Adjusted padding for fixed navbar */}
         <PricingHero isAnnual={isAnnual} setIsAnnual={setIsAnnual} />
         <PricingCards isAnnual={isAnnual} />
-        <PricingTable /> {/* Add the new pricing table here */}
         <PricingFAQ />
         <CTA />
       </main>
