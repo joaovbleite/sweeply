@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Accordion,
@@ -43,7 +44,7 @@ const PricingFAQ: React.FC = () => {
           <Accordion type="single" collapsible className="w-full">
             {faqItems.map((item, index) => (
               <AccordionItem value={`item-${index + 1}`} key={index} className="border-b border-gray-200">
-                <AccordionTrigger className="py-5 text-lg font-medium text-gray-800 hover:text-emerald-600 text-left">
+                <AccordionTrigger className="py-5 text-lg font-medium text-gray-800 hover:text-pulse-500 text-left">
                   {item.question}
                 </AccordionTrigger>
                 <AccordionContent className="pb-5 pt-0 text-gray-600">

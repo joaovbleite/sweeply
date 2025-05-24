@@ -2,7 +2,6 @@
 import React from "react";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button"; // Import Button for consistent styling base
 
 interface PricingCardsProps {
   isAnnual: boolean;
@@ -56,7 +55,7 @@ const plans = [
   {
     name: "Enterprise",
     priceMonthly: "Custom",
-    priceAnnual: "Custom", // Ensure this is handled as a string
+    priceAnnual: "Custom",
     features: [
       "Unlimited Team Members",
       "White-label Options",
@@ -80,28 +79,21 @@ const PricingCards: React.FC<PricingCardsProps> = ({ isAnnual }) => {
             <div
               key={plan.name}
               className={cn(
-                "bg-white rounded-xl shadow-lg p-6 sm:p-8 flex flex-col text-left relative overflow-hidden transition-all duration-300 hover:shadow-xl",
-                plan.isPopular ? "border-emerald-500 border-2 ring-2 ring-emerald-500 ring-offset-2" : "border border-gray-200",
-                `animate-on-scroll stagger-${index + 1}`
+                "glass-card p-6 sm:p-8 flex flex-col text-left relative overflow-hidden animate-on-scroll",
+                plan.isPopular ? "border-pulse-500 border-2 shadow-elegant-hover" : "border-gray-200",
+                `stagger-${index + 1}` // For staggered animation
               )}
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               {plan.isPopular && (
-                <div className="absolute top-0 -right-10 transform rotate-45 bg-emerald-500 text-white text-xs font-semibold px-10 py-1.5">
+                <div className="absolute top-0 -right-10 transform rotate-45 bg-pulse-500 text-white text-xs font-semibold px-10 py-1.5">
                   Most Popular
                 </div>
               )}
-              <h3 className="text-2xl font-bold font-display mb-1 text-gray-800">{plan.name}</h3>
+              <h3 className="text-2xl font-bold font-display mb-1">{plan.name}</h3>
               <div className="mb-6">
                 <span className="text-4xl font-extrabold text-gray-900">
-                  {isAnnual
-                    ? typeof plan.priceAnnual === 'number'
-                      ? `$${(plan.priceAnnual / 12).toFixed(0)}`
-                      : plan.priceAnnual
-                    : typeof plan.priceMonthly === 'number'
-                      ? `$${plan.priceMonthly.toFixed(0)}`
-                      : plan.priceMonthly
-                  }
+                  {typeof plan.priceMonthly === 'number' ? `$${(isAnnual ? plan.priceAnnual / 12 : plan.priceMonthly).toFixed(0)}` : plan.priceMonthly}
                 </span>
                 <span className="text-sm text-gray-500">
                   {typeof plan.priceMonthly === 'number' ? "/month" : ""}
@@ -111,22 +103,19 @@ const PricingCards: React.FC<PricingCardsProps> = ({ isAnnual }) => {
               <ul className="space-y-3 mb-8 flex-grow">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-start">
-                    <Check className="h-5 w-5 text-emerald-500 mr-2 shrink-0 mt-0.5" />
+                    <Check className="h-5 w-5 text-pulse-500 mr-2 shrink-0 mt-0.5" />
                     <span className="text-gray-700">{feature}</span>
                   </li>
                 ))}
               </ul>
-              <Button
-                asChild={false} // Ensure it's a button, not a slot for an <a> for now
+              <a
+                href="#"
                 className={cn(
-                  "w-full text-center py-3 px-6 rounded-lg font-semibold transition-colors",
-                  (plan.isPopular || plan.isEnterprise) 
-                    ? "bg-emerald-600 text-white hover:bg-emerald-700" 
-                    : "bg-white text-emerald-600 border border-emerald-600 hover:bg-emerald-50"
+                  plan.isPopular || plan.isEnterprise ? "button-primary w-full text-center" : "button-secondary w-full text-center",
                 )}
               >
                 {plan.cta}
-              </Button>
+              </a>
             </div>
           ))}
         </div>

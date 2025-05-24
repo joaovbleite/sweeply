@@ -2,10 +2,9 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import CTA from "@/components/CTA";
+import CTA from "@/components/CTA"; // Reusing the existing CTA
 import PricingHero from "@/components/pricing/PricingHero";
 import PricingCards from "@/components/pricing/PricingCards";
-import PricingTable from "@/components/pricing/PricingTable"; // Import PricingTable
 import PricingFAQ from "@/components/pricing/PricingFAQ";
 
 const PricingPage = () => {
@@ -17,12 +16,7 @@ const PricingPage = () => {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add("animate-fade-in"); // General fade-in
-            // Check for specific scroll-triggered animations if needed
-            if (entry.target.classList.contains("animate-on-scroll")) {
-              // Add more specific animation classes if desired
-              // entry.target.classList.add("some-other-animation");
-            }
+            entry.target.classList.add("animate-fade-in");
             observer.unobserve(entry.target);
           }
         });
@@ -30,26 +24,22 @@ const PricingPage = () => {
       { threshold: 0.1 }
     );
 
-    // Query for all elements that should animate on scroll
-    const elements = document.querySelectorAll(".animate-on-scroll, .animate-fade-in");
+    const elements = document.querySelectorAll(".animate-on-scroll");
     elements.forEach((el) => observer.observe(el));
 
     return () => {
-      elements.forEach((el) => {
-        if (el) observer.unobserve(el); // Check if el still exists
-      });
+      elements.forEach((el) => observer.unobserve(el));
     };
   }, []);
 
   return (
-    <div className="min-h-screen bg-green-50"> {/* Updated background */}
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
       <main className="pt-20 sm:pt-24 md:pt-28"> {/* Adjusted padding for fixed navbar */}
         <PricingHero isAnnual={isAnnual} setIsAnnual={setIsAnnual} />
         <PricingCards isAnnual={isAnnual} />
-        <PricingTable /> {/* Add PricingTable here */}
         <PricingFAQ />
-        <CTA />
+        <CTA /> {/* Re-using the existing CTA component */}
       </main>
       <Footer />
     </div>
