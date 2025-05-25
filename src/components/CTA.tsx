@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from "react";
 import { ArrowRight } from "lucide-react";
 
@@ -40,25 +39,25 @@ const CTA = () => {
           <div className="absolute bottom-0 left-0 w-24 sm:w-32 h-24 sm:h-32 bg-gray-100/50 rounded-full -translate-x-1/2 translate-y-1/2 blur-2xl"></div>
           
           <div className="pulse-chip mx-auto mb-4 sm:mb-6">
-            <span>Limited Availability</span>
+            <span>Free to Start</span>
           </div>
           
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6">
-            Be Among the First to <br className="hidden sm:inline" />
-            <span className="text-pulse-500">Experience Atlas</span>
+            Transform Your Cleaning Business <br className="hidden sm:inline" />
+            <span className="text-pulse-500">Experience Sweeply</span>
           </h2>
           
           <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8 max-w-2xl mx-auto">
-            We're accepting a limited number of early adopters. Submit your application today to secure your place in the future of robotics.
+            Join thousands of cleaning professionals who've already streamlined their operations. Start your free trial today and see the difference in just minutes.
           </p>
           
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <a href="#contact" className="button-primary group flex items-center justify-center w-full sm:w-auto">
-              Request Early Access
+              Start Free Trial
               <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
             </a>
             <a href="#" className="button-secondary w-full sm:w-auto text-center">
-              Join Waitlist
+              Watch Demo
             </a>
           </div>
         </div>

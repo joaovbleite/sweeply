@@ -1,54 +1,43 @@
-import React, { useState } from "react";
-import { toast } from "@/components/ui/use-toast";
-const Newsletter = () => {
-  const [email, setEmail] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) {
-      toast({
-        title: "Please enter your email address",
-        variant: "destructive"
-      });
-      return;
-    }
-    setIsSubmitting(true);
+import React from "react";
 
-    // Simulate API call
-    setTimeout(() => {
-      toast({
-        title: "Thank you for subscribing!",
-        description: "You'll receive updates about Atlas soon."
-      });
-      setEmail("");
-      setIsSubmitting(false);
-    }, 1000);
-  };
-  return <section id="newsletter" className="bg-white py-0">
+const BusinessStats = () => {
+  return <section id="business-stats" className="bg-white py-0">
       <div className="section-container opacity-0 animate-on-scroll">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-4 mb-6">
             <div className="pulse-chip">
               <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-pulse-500 text-white mr-2">05</span>
-              <span>Newsletter</span>
+              <span>Impact</span>
             </div>
           </div>
           
-          <h2 className="text-5xl font-display font-bold mb-4 text-left">Subscribe to the newsletter</h2>
+          <h2 className="text-5xl font-display font-bold mb-4 text-left">Proven business results</h2>
           <p className="text-xl text-gray-700 mb-10 text-left">
-            Be first to hear about breakthroughs, partnerships, and deployment opportunities
+            See how Sweeply transforms cleaning businesses across the country
           </p>
           
-          <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-4 items-start md:items-center">
-            <div className="relative flex-grow">
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Email address" className="w-full px-6 py-4 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pulse-500 text-gray-700" required />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200">
+              <div className="text-4xl font-bold text-blue-600 mb-2">87%</div>
+              <div className="text-lg font-semibold text-gray-900 mb-2">Faster Invoicing</div>
+              <div className="text-gray-600">Average time saved on billing and payment tracking</div>
             </div>
-            <button type="submit" disabled={isSubmitting} className="bg-pulse-500 hover:bg-pulse-600 text-white font-medium py-4 px-10 rounded-full transition-all duration-300 md:ml-4">
-              {isSubmitting ? "Submitting..." : "Submit"}
-            </button>
-          </form>
+            
+            <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-green-50 to-green-100 border border-green-200">
+              <div className="text-4xl font-bold text-green-600 mb-2">3.2x</div>
+              <div className="text-lg font-semibold text-gray-900 mb-2">Business Growth</div>
+              <div className="text-gray-600">Average revenue increase within 6 months</div>
+            </div>
+            
+            <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200">
+              <div className="text-4xl font-bold text-orange-600 mb-2">15hrs</div>
+              <div className="text-lg font-semibold text-gray-900 mb-2">Weekly Time Savings</div>
+              <div className="text-gray-600">Less admin work, more time for cleaning and clients</div>
+            </div>
+          </div>
         </div>
       </div>
     </section>;
 };
-export default Newsletter;
+
+export default BusinessStats;

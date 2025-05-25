@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
@@ -118,7 +117,7 @@ const HowItWorks = () => {
           <div className="pulse-chip mx-auto mb-4">
             <span>Process</span>
           </div>
-          <h2 className="section-title mb-4">How Atlas Integrates Into Your Life</h2>
+          <h2 className="section-title mb-4">How Sweeply Integrates Into Your Life</h2>
           <p className="section-subtitle mx-auto">
             A seamless four-step process from request to full integration.
           </p>
