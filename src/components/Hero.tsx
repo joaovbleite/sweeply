@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
 import LottieAnimation from "./LottieAnimation";
+import { Link } from "react-router-dom";
 
 const Hero = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -122,28 +123,13 @@ const Hero = () => {
               The all-in-one platform that helps cleaning professionals manage clients, schedule jobs, and grow their business with confidence.
             </p>
             
-            <div 
-              className="flex flex-col sm:flex-row gap-4 opacity-0 animate-fade-in" 
-              style={{ animationDelay: "0.7s" }}
-            >
-              <a 
-                href="#get-access" 
-                className="flex items-center justify-center group w-full sm:w-auto text-center" 
-                style={{
-                  backgroundColor: '#FE5C02',
-                  borderRadius: '1440px',
-                  boxSizing: 'border-box',
-                  color: '#FFFFFF',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  lineHeight: '20px',
-                  padding: '16px 24px', // Slightly reduced padding for mobile
-                  border: '1px solid white',
-                }}
-              >
-                Request Access
-                <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </a>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 opacity-0 animate-fade-in" style={{ animationDelay: "0.4s" }}>
+              <Link to="/signup" className="button-primary">
+                Start Free Trial
+              </Link>
+              <Link to="/login" className="button-secondary">
+                Sign In
+              </Link>
             </div>
           </div>
           
