@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Clients from "./pages/Clients";
+import AddClient from "./pages/AddClient";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Clients />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/clients/new" 
+              element={
+                <ProtectedRoute>
+                  <AddClient />
                 </ProtectedRoute>
               } 
             />
