@@ -18,6 +18,7 @@ import ClientDashboard from "./pages/ClientDashboard";
 import Jobs from "./pages/Jobs";
 import AddJob from "./pages/AddJob";
 import Calendar from "./pages/Calendar";
+import Invoices from "./pages/Invoices";
 
 const queryClient = new QueryClient();
 
@@ -94,6 +95,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Calendar />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/invoices" 
+              element={
+                <ProtectedRoute>
+                  <Invoices />
                 </ProtectedRoute>
               } 
             />
