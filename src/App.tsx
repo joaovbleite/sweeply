@@ -21,6 +21,7 @@ import Calendar from "./pages/Calendar";
 import Invoices from "./pages/Invoices";
 import Employees from "./pages/Employees";
 import Payroll from "./pages/Payroll";
+import Reports from "./pages/Reports";
 
 const queryClient = new QueryClient();
 
@@ -121,6 +122,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Payroll />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/reports" 
+              element={
+                <ProtectedRoute>
+                  <Reports />
                 </ProtectedRoute>
               } 
             />
