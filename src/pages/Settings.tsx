@@ -179,11 +179,11 @@ const Settings = () => {
   };
 
   const tabs = [
-    { id: 'profile', label: t('settings:profile'), icon: User },
-    { id: 'business', label: t('settings:business'), icon: Building2 },
-    { id: 'notifications', label: t('settings:notifications'), icon: Bell },
-    { id: 'security', label: t('settings:security'), icon: Shield },
-    { id: 'preferences', label: t('settings:preferences'), icon: Palette }
+    { id: 'profile' as const, label: t('settings:profile'), icon: User },
+    { id: 'business' as const, label: t('settings:business'), icon: Building2 },
+    { id: 'notifications' as const, label: t('settings:notifications'), icon: Bell },
+    { id: 'security' as const, label: t('settings:security'), icon: Shield },
+    { id: 'preferences' as const, label: t('settings:preferences'), icon: Palette }
   ];
 
   return (
@@ -208,7 +208,7 @@ const Settings = () => {
                   return (
                     <li key={tab.id}>
                       <button
-                        onClick={() => setActiveTab(tab.id as any)}
+                        onClick={() => setActiveTab(tab.id)}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-left ${
                           activeTab === tab.id
                             ? 'bg-pulse-50 text-pulse-600 border border-pulse-200'
