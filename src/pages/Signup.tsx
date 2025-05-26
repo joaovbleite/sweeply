@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { signUp } from "@/lib/supabase";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ const Signup = () => {
     company: ""
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -22,18 +24,54 @@ const Signup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!agreedToTerms) {
+      toast.error("Please agree to the Terms of Service and Privacy Policy");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      toast.error("Password must be at least 6 characters long");
+      return;
+    }
+
     setIsLoading(true);
 
-    // Simulate signup process
-    setTimeout(() => {
-      if (formData.fullName && formData.email && formData.password) {
-        toast.success("Welcome to Sweeply! Your account has been created.");
-        navigate("/dashboard");
-      } else {
-        toast.error("Please fill in all required fields");
+    try {
+      const { data, error } = await signUp(
+        formData.email, 
+        formData.password, 
+        formData.fullName,
+        formData.company
+      );
+      
+      if (error) {
+        if (error.message.includes('already registered')) {
+          toast.error('This email is already registered');
+        } else if (error.message.includes('valid email')) {
+          toast.error('Please enter a valid email address');
+        } else {
+          toast.error(error.message || 'Error creating account');
+        }
+        return;
       }
+
+      if (data.user) {
+        // Check if email confirmation is required
+        if (data.user.identities?.length === 0) {
+          toast.success("Account created! Please check your email to verify your account.");
+          navigate("/login");
+        } else {
+          toast.success("Welcome to Sweeply! Your account has been created.");
+          navigate("/dashboard");
+        }
+      }
+    } catch (error) {
+      console.error('Signup error:', error);
+      toast.error('An unexpected error occurred');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -106,8 +144,9 @@ const Signup = () => {
                 onChange={handleChange}
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
                 placeholder="••••••••"
+                minLength={6}
               />
-              <p className="mt-1 text-xs text-gray-500">Must be at least 8 characters</p>
+              <p className="mt-1 text-xs text-gray-500">Must be at least 6 characters</p>
             </div>
 
             <div>
@@ -131,6 +170,8 @@ const Signup = () => {
                 type="checkbox"
                 className="rounded border-gray-300 text-pulse-500 focus:ring-pulse-500 mt-1"
                 required
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
               />
               <label className="ml-2 text-sm text-gray-600">
                 I agree to the{" "}
@@ -146,10 +187,20 @@ const Signup = () => {
 
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !agreedToTerms}
               className="w-full px-6 py-3 bg-gradient-to-r from-pulse-500 to-pulse-600 hover:from-pulse-600 hover:to-pulse-700 text-white font-medium rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Creating account..." : "Start free trial"}
+              {isLoading ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Creating account...
+                </span>
+              ) : (
+                "Start free trial"
+              )}
             </button>
           </form>
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { 
   Calendar, 
   Users, 
@@ -12,16 +12,18 @@ import {
   DollarSign,
   Clock
 } from "lucide-react";
-import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Dashboard = () => {
-  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
 
-  const handleLogout = () => {
-    toast.success("Logged out successfully");
-    navigate("/login");
+  // Get user's name from metadata or email
+  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'there';
+
+  const handleLogout = async () => {
+    await signOut();
   };
 
   const sidebarItems = [
@@ -114,7 +116,7 @@ const Dashboard = () => {
                 <Menu className="w-6 h-6" />
               </button>
               <h1 className="text-2xl font-display font-bold text-gray-900">
-                Welcome back, João!
+                Welcome back, {userName}!
               </h1>
             </div>
             <div className="flex items-center gap-4">
@@ -125,7 +127,7 @@ const Dashboard = () => {
                 <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
               </button>
               <div className="w-10 h-10 bg-pulse-500 rounded-full flex items-center justify-center text-white font-semibold">
-                JL
+                {userName.charAt(0).toUpperCase()}
               </div>
             </div>
           </div>
