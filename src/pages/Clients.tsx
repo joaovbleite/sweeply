@@ -333,7 +333,7 @@ const Clients = () => {
             <div className="flex flex-wrap gap-3">
               <select
                 value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value as any)}
+                onChange={(e) => setSelectedType(e.target.value as 'all' | 'residential' | 'commercial')}
                 className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
               >
                 <option value="all">{t('common:selectOption')}</option>
@@ -345,8 +345,8 @@ const Clients = () => {
                 value={`${sortBy}-${sortOrder}`}
                 onChange={(e) => {
                   const [field, order] = e.target.value.split('-');
-                  setSortBy(field as any);
-                  setSortOrder(order as any);
+                  setSortBy(field as 'name' | 'created_at' | 'updated_at');
+                  setSortOrder(order as 'asc' | 'desc');
                 }}
                 className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
               >

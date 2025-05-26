@@ -232,7 +232,7 @@ export const invoicesApi = {
       paid_amount: newPaidAmount,
       balance_due: newBalanceDue,
       status: newStatus,
-      payment_method: paymentData.payment_method as any,
+      payment_method: paymentData.payment_method,
       payment_date: paymentData.payment_date,
       payment_reference: paymentData.reference,
       ...(newStatus === 'paid' && { paid_at: new Date().toISOString() })

@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 const Hero = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
-  const [lottieData, setLottieData] = useState<any>(null);
+  const [lottieData, setLottieData] = useState<object | null>(null);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {

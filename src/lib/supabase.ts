@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import type { User } from '@supabase/supabase-js';
 
 // Replace these with your actual Supabase project credentials
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project.supabase.co';
@@ -41,7 +42,7 @@ export const getCurrentUser = async () => {
   return user;
 };
 
-export const onAuthStateChange = (callback: (user: any) => void) => {
+export const onAuthStateChange = (callback: (user: User | null) => void) => {
   return supabase.auth.onAuthStateChange((event, session) => {
     callback(session?.user || null);
   });

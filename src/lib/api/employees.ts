@@ -467,7 +467,7 @@ export const employeesApi = {
   },
 
   async getEmployeesByRole(role: string): Promise<Employee[]> {
-    return this.getAll({ role: [role as any] });
+    return this.getAll({ role: [role] });
   },
 
   async updateEmployeePerformance(employeeId: string, jobsCompleted: number, hoursWorked: number, rating: number): Promise<void> {

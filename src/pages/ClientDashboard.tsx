@@ -290,7 +290,7 @@ const ClientDashboard = () => {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id as 'overview' | 'jobs' | 'analytics' | 'communication' | 'preferences')}
                   className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-colors ${
                     activeTab === tab.id
                       ? 'text-pulse-600 border-b-2 border-pulse-600 bg-pulse-50'

@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { employeesApi } from "@/lib/api/employees";
-import { Employee, EmployeeFilters, EmployeeStatus, EmployeeRole } from "@/types/employee";
+import { Employee, EmployeeFilters, EmployeeStatus, EmployeeRole, EmployeeStats } from "@/types/employee";
 import { format, differenceInDays } from "date-fns";
 import AppLayout from "@/components/AppLayout";
 
@@ -40,7 +40,7 @@ const Employees = () => {
   const [filters, setFilters] = useState<EmployeeFilters>({});
   const [showFilters, setShowFilters] = useState(false);
   const [selectedEmployees, setSelectedEmployees] = useState<Set<string>>(new Set());
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<EmployeeStats | null>(null);
 
   // Load employees and stats
   const loadEmployees = async () => {
@@ -86,7 +86,7 @@ const Employees = () => {
   // Handle status update
   const handleStatusUpdate = async (employeeId: string, newStatus: EmployeeStatus) => {
     try {
-      const updates: any = { status: newStatus };
+      const updates: { status: EmployeeStatus; termination_date?: string } = { status: newStatus };
       if (newStatus === 'terminated') {
         updates.termination_date = new Date().toISOString().split('T')[0];
       }

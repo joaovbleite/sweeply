@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { invoicesApi } from "@/lib/api/invoices";
-import { Invoice, InvoiceFilters, InvoiceStatus } from "@/types/invoice";
+import { Invoice, InvoiceFilters, InvoiceStatus, InvoiceStats } from "@/types/invoice";
 import { format, differenceInDays } from "date-fns";
 import AppLayout from "@/components/AppLayout";
 
@@ -35,7 +35,7 @@ const Invoices = () => {
   const [filters, setFilters] = useState<InvoiceFilters>({});
   const [showFilters, setShowFilters] = useState(false);
   const [selectedInvoices, setSelectedInvoices] = useState<Set<string>>(new Set());
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<InvoiceStats | null>(null);
 
   // Load invoices and stats
   const loadInvoices = async () => {
