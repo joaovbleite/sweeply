@@ -350,6 +350,288 @@ const AdvancedCalendarView: React.FC<AdvancedCalendarViewProps> = ({
     );
   };
 
+  // Month view renderer
+  const renderMonthView = () => {
+    const monthStart = startOfMonth(currentDate);
+    const monthEnd = endOfMonth(currentDate);
+    const calendarStart = startOfWeek(monthStart);
+    const calendarEnd = endOfWeek(monthEnd);
+    const calendarDays = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
+
+    return (
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        {/* Month header */}
+        <div className="grid grid-cols-7 bg-gray-50 border-b">
+          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+            <div key={day} className="p-3 text-center text-sm font-medium text-gray-600">
+              {day}
+            </div>
+          ))}
+        </div>
+
+        {/* Calendar grid */}
+        <div className="grid grid-cols-7">
+          {calendarDays.map(day => {
+            const dayJobs = getJobsForDate(day);
+            const revenue = getDailyRevenue(day);
+            const isCurrentMonth = isSameMonth(day, currentDate);
+            const isToday = isSameDay(day, new Date());
+            const isOverbooked = isDayOverbooked(day);
+
+            return (
+              <div
+                key={day.toISOString()}
+                className={`min-h-[120px] border-r border-b p-2 ${
+                  !isCurrentMonth ? 'bg-gray-50 text-gray-400' : 'bg-white'
+                } ${isToday ? 'bg-blue-50' : ''} hover:bg-gray-50 cursor-pointer transition-colors`}
+                onClick={() => onDateClick(day)}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOverDate(day);
+                }}
+                onDragLeave={() => setDragOverDate(null)}
+                onDrop={(e) => handleDrop(e, day)}
+              >
+                {/* Day header */}
+                <div className="flex items-center justify-between mb-2">
+                  <span className={`text-sm font-medium ${
+                    isToday ? 'text-blue-600' : isCurrentMonth ? 'text-gray-900' : 'text-gray-400'
+                  }`}>
+                    {format(day, 'd')}
+                  </span>
+                  {dayJobs.length > 0 && (
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs text-gray-500">{dayJobs.length}</span>
+                      {isOverbooked && <AlertTriangle className="w-3 h-3 text-red-500" />}
+                    </div>
+                  )}
+                </div>
+
+                {/* Revenue indicator */}
+                {showRevenue && revenue > 0 && (
+                  <div className="text-xs text-green-600 mb-1">${revenue}</div>
+                )}
+
+                {/* Jobs */}
+                <div className="space-y-1">
+                  {dayJobs.slice(0, 3).map(job => (
+                    <div
+                      key={job.id}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, job)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onJobClick(job);
+                      }}
+                      className={`
+                        ${getServiceTypeColor(job.service_type)}
+                        text-white text-xs p-1 rounded cursor-move hover:opacity-90 transition-opacity
+                        ${draggedJob?.id === job.id ? 'opacity-50' : ''}
+                      `}
+                    >
+                      <div className="truncate font-medium">{job.client?.name}</div>
+                      {job.scheduled_time && (
+                        <div className="truncate opacity-90">
+                          {format(parseISO(`2000-01-01T${job.scheduled_time}`), 'h:mm a')}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  {dayJobs.length > 3 && (
+                    <div className="text-xs text-gray-500 text-center">
+                      +{dayJobs.length - 3} more
+                    </div>
+                  )}
+                </div>
+
+                {/* Drop indicator */}
+                {dragOverDate && isSameDay(dragOverDate, day) && (
+                  <div className="absolute inset-0 bg-blue-200 bg-opacity-30 border-2 border-blue-400 border-dashed rounded" />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  // Week view renderer
+  const renderWeekView = () => {
+    const weekStart = startOfWeek(currentDate);
+    const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+    const hours = Array.from({ length: 14 }, (_, i) => i + 6); // 6 AM to 7 PM
+
+    return (
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="flex">
+          {/* Time column */}
+          <div className="w-16 bg-gray-50 border-r">
+            <div className="h-12 border-b"></div>
+            {hours.map(hour => (
+              <div key={hour} className="h-16 border-b flex items-center justify-center text-xs text-gray-500">
+                {hour === 12 ? '12 PM' : hour > 12 ? `${hour - 12} PM` : `${hour} AM`}
+              </div>
+            ))}
+          </div>
+
+          {/* Days columns */}
+          <div className="flex-1 overflow-x-auto">
+            <div className="flex min-w-full">
+              {weekDays.map(day => {
+                const dayJobs = getJobsForDate(day);
+                const revenue = getDailyRevenue(day);
+                const workload = getDailyWorkload(day);
+                const isOverbooked = isDayOverbooked(day);
+
+                return (
+                  <div key={day.toISOString()} className="flex-1 min-w-[140px] border-r">
+                    {/* Day header */}
+                    <div className={`h-12 border-b p-2 ${isToday(day) ? 'bg-blue-50' : 'bg-gray-50'}`}>
+                      <div className="text-sm font-medium">{format(day, 'EEE')}</div>
+                      <div className="text-xs text-gray-600">
+                        {format(day, 'MMM d')}
+                        {isOverbooked && <span className="text-red-600 ml-1">⚠️</span>}
+                      </div>
+                    </div>
+
+                    {/* Time slots */}
+                    <div className="relative">
+                      {hours.map(hour => (
+                        <div
+                          key={hour}
+                          className="h-16 border-b hover:bg-gray-50 cursor-pointer relative"
+                          onClick={() => onDateClick(day)}
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            setDragOverDate(day);
+                            setDragOverTime(`${hour.toString().padStart(2, '0')}:00`);
+                          }}
+                          onDragLeave={() => {
+                            setDragOverDate(null);
+                            setDragOverTime(null);
+                          }}
+                          onDrop={(e) => handleDrop(e, day, `${hour.toString().padStart(2, '0')}:00`)}
+                        >
+                          {/* Jobs in this time slot */}
+                          {dayJobs
+                            .filter(job => {
+                              if (!job.scheduled_time) return false;
+                              const jobHour = getHours(parseISO(`2000-01-01T${job.scheduled_time}`));
+                              return jobHour === hour;
+                            })
+                            .map(job => (
+                              <div
+                                key={job.id}
+                                className="absolute inset-x-1 top-1"
+                                style={{
+                                  height: job.estimated_duration ? `${Math.min((job.estimated_duration / 60) * 64, 60)}px` : '56px'
+                                }}
+                              >
+                                {renderEnhancedJobCard(job, true, true)}
+                              </div>
+                            ))}
+
+                          {/* Drop indicator */}
+                          {dragOverDate && isSameDay(dragOverDate, day) && 
+                           dragOverTime === `${hour.toString().padStart(2, '0')}:00` && (
+                            <div className="absolute inset-1 bg-blue-200 bg-opacity-30 border border-blue-400 border-dashed rounded" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Day view renderer
+  const renderDayView = () => {
+    const dayJobs = getJobsForDate(currentDate);
+    const hours = Array.from({ length: 16 }, (_, i) => i + 5); // 5 AM to 8 PM
+    const revenue = getDailyRevenue(currentDate);
+    const workload = getDailyWorkload(currentDate);
+
+    return (
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        {/* Day header */}
+        <div className="p-4 border-b bg-gray-50">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold">{format(currentDate, 'EEEE, MMMM d, yyyy')}</h3>
+              <p className="text-sm text-gray-600">
+                {dayJobs.length} jobs • {workload.toFixed(1)} hours
+                {showRevenue && ` • $${revenue} revenue`}
+              </p>
+            </div>
+            <button
+              onClick={() => onDateClick(currentDate)}
+              className="px-3 py-1 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 transition-colors text-sm"
+            >
+              Add Job
+            </button>
+          </div>
+        </div>
+
+        <div className="flex">
+          {/* Time column */}
+          <div className="w-20 bg-gray-50 border-r">
+            {hours.map(hour => (
+              <div key={hour} className="h-20 border-b flex items-center justify-center text-sm text-gray-500">
+                {hour === 12 ? '12 PM' : hour > 12 ? `${hour - 12} PM` : `${hour} AM`}
+              </div>
+            ))}
+          </div>
+
+          {/* Schedule column */}
+          <div className="flex-1">
+            {hours.map(hour => (
+              <div
+                key={hour}
+                className="h-20 border-b hover:bg-gray-50 cursor-pointer relative p-2"
+                onClick={() => onDateClick(currentDate)}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOverDate(currentDate);
+                  setDragOverTime(`${hour.toString().padStart(2, '0')}:00`);
+                }}
+                onDragLeave={() => {
+                  setDragOverDate(null);
+                  setDragOverTime(null);
+                }}
+                onDrop={(e) => handleDrop(e, currentDate, `${hour.toString().padStart(2, '0')}:00`)}
+              >
+                {/* Jobs in this time slot */}
+                {dayJobs
+                  .filter(job => {
+                    if (!job.scheduled_time) return false;
+                    const jobHour = getHours(parseISO(`2000-01-01T${job.scheduled_time}`));
+                    return jobHour === hour;
+                  })
+                  .map(job => (
+                    <div key={job.id} className="mb-2">
+                      {renderEnhancedJobCard(job, false, true)}
+                    </div>
+                  ))}
+
+                {/* Drop indicator */}
+                {dragOverDate && isSameDay(dragOverDate, currentDate) && 
+                 dragOverTime === `${hour.toString().padStart(2, '0')}:00` && (
+                  <div className="absolute inset-2 bg-blue-200 bg-opacity-30 border border-blue-400 border-dashed rounded" />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // Timeline view renderer
   const renderTimelineView = () => {
     const weekStart = startOfWeek(currentDate);
@@ -431,8 +713,44 @@ const AdvancedCalendarView: React.FC<AdvancedCalendarViewProps> = ({
     );
   };
 
-  // Rest of the component methods (navigation, drag & drop, etc.) remain the same as the original
-  // but with enhanced functionality...
+  // Helper functions inside component
+  function getStatusIcon(status: string) {
+    switch (status) {
+      case 'completed':
+        return <CheckCircle className="w-3 h-3 text-green-300" />;
+      case 'cancelled':
+        return <XCircle className="w-3 h-3 text-red-300" />;
+      case 'in_progress':
+        return <Clock className="w-3 h-3 text-yellow-300" />;
+      default:
+        return null;
+    }
+  }
+
+  function getTimeConflicts(date: Date) {
+    // Implementation for conflict detection
+    return [];
+  }
+
+  // Enhanced drag start implementation
+  function handleDragStart(e: React.DragEvent, job: Job) {
+    setDraggedJob(job);
+    e.dataTransfer.setData('text/plain', job.id);
+    e.dataTransfer.effectAllowed = 'move';
+  }
+
+  // Enhanced drop implementation
+  function handleDrop(e: React.DragEvent, date: Date, time?: string) {
+    e.preventDefault();
+    const jobId = e.dataTransfer.getData('text/plain');
+    if (jobId && draggedJob) {
+      const newDate = format(date, 'yyyy-MM-dd');
+      onJobDrop(jobId, newDate, time);
+    }
+    setDraggedJob(null);
+    setDragOverDate(null);
+    setDragOverTime(null);
+  }
 
   return (
     <div className={`space-y-6 ${calendarTheme === 'dark' ? 'dark' : ''}`}>
@@ -578,14 +896,10 @@ const AdvancedCalendarView: React.FC<AdvancedCalendarViewProps> = ({
         </div>
       ) : (
         <div>
-          {view === 'timeline' ? renderTimelineView() : (
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-              {/* Existing month/week/day views would go here */}
-              <div className="p-8 text-center text-gray-500">
-                {view} view - Enhanced version coming soon!
-              </div>
-            </div>
-          )}
+          {view === 'timeline' ? renderTimelineView() : 
+           view === 'month' ? renderMonthView() :
+           view === 'week' ? renderWeekView() :
+           view === 'day' ? renderDayView() : renderMonthView()}
         </div>
       )}
 
@@ -612,29 +926,6 @@ const AdvancedCalendarView: React.FC<AdvancedCalendarViewProps> = ({
       </div>
     </div>
   );
-};
-
-// Helper functions (same as original but enhanced)
-const getStatusIcon = (status: string) => {
-  switch (status) {
-    case 'completed':
-      return <CheckCircle className="w-3 h-3 text-green-300" />;
-    case 'cancelled':
-      return <XCircle className="w-3 h-3 text-red-300" />;
-    case 'in_progress':
-      return <Clock className="w-3 h-3 text-yellow-300" />;
-    default:
-      return null;
-  }
-};
-
-const getTimeConflicts = (date: Date) => {
-  // Implementation for conflict detection
-  return [];
-};
-
-const handleDragStart = (e: React.DragEvent, job: Job) => {
-  // Enhanced drag start implementation
 };
 
 export default AdvancedCalendarView; 

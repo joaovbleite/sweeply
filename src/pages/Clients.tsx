@@ -520,14 +520,21 @@ const Clients = () => {
                         <div className="flex items-center justify-end gap-2">
                           <Link
                             to={`/clients/${client.id}/edit`}
-                            className="p-2 text-gray-600 hover:text-pulse-600 hover:bg-pulse-50 rounded-lg transition-colors"
+                            className="p-1 text-gray-400 hover:text-pulse-600 transition-colors"
                             title="Edit client"
                           >
                             <Edit className="w-4 h-4" />
                           </Link>
+                          <Link
+                            to={`/clients/${client.id}`}
+                            className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                            title="View client dashboard"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Link>
                           <button
                             onClick={() => handleDelete(client.id, client.name)}
-                            className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            className="p-1 text-gray-400 hover:text-red-600 transition-colors"
                             title="Delete client"
                           >
                             <Trash2 className="w-4 h-4" />
