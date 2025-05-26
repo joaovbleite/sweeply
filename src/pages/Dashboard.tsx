@@ -11,7 +11,17 @@ import {
   AlertCircle,
   RefreshCw,
   CheckCircle,
-  XCircle
+  XCircle,
+  Activity,
+  ArrowUpRight,
+  ArrowDownRight,
+  Briefcase,
+  MapPin,
+  Bell,
+  ChevronRight,
+  BarChart3,
+  UserCheck,
+  FileCheck
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -24,7 +34,8 @@ import { invoicesApi } from "@/lib/api/invoices";
 import { Job } from "@/types/job";
 import { Client } from "@/types/client";
 import { Invoice } from "@/types/invoice";
-import { format, isToday, startOfDay, endOfDay } from "date-fns";
+import { format, isToday, startOfDay, endOfDay, subDays, startOfWeek, endOfWeek } from "date-fns";
+import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -38,6 +49,7 @@ const Dashboard = () => {
   const [clients, setClients] = useState<Client[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedTimeRange, setSelectedTimeRange] = useState<'week' | 'month' | 'year'>('week');
 
   // Get user's name from metadata or email
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'there';
@@ -79,11 +91,12 @@ const Dashboard = () => {
     loadDashboardData();
   }, []);
 
-  // Calculate dashboard statistics
+  // Calculate dashboard statistics with trends
   const stats = React.useMemo(() => {
     const today = new Date();
     const todayStart = startOfDay(today);
     const todayEnd = endOfDay(today);
+    const lastWeekStart = subDays(todayStart, 7);
 
     // Today's jobs
     const todaysJobs = jobs.filter(job => {
@@ -91,12 +104,28 @@ const Dashboard = () => {
       return jobDate >= todayStart && jobDate <= todayEnd;
     });
 
+    // Last week's jobs for comparison
+    const lastWeekJobs = jobs.filter(job => {
+      const jobDate = new Date(job.scheduled_date);
+      return jobDate >= lastWeekStart && jobDate < todayStart;
+    });
+
     // Active clients
     const activeClients = clients.filter(client => client.is_active);
+    const newClientsThisWeek = clients.filter(client => {
+      const createdDate = new Date(client.created_at);
+      return createdDate >= lastWeekStart;
+    });
 
     // Pending invoices (unpaid)
     const pendingInvoices = invoices.filter(invoice => invoice.status === 'sent' || invoice.status === 'overdue');
     const pendingAmount = pendingInvoices.reduce((sum, invoice) => sum + invoice.balance_due, 0);
+
+    // Total revenue this month
+    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+    const monthlyRevenue = invoices
+      .filter(invoice => invoice.status === 'paid' && new Date(invoice.paid_at || '') >= monthStart)
+      .reduce((sum, invoice) => sum + invoice.total_amount, 0);
 
     // Total hours today
     const totalHoursToday = todaysJobs.reduce((sum, job) => {
@@ -109,31 +138,60 @@ const Dashboard = () => {
         value: todaysJobs.length.toString(), 
         icon: Calendar, 
         color: "from-blue-500 to-blue-600",
-        trend: todaysJobs.length > 0 ? 'up' : 'neutral'
+        trend: todaysJobs.length > (lastWeekJobs.length / 7) ? 'up' : 'down',
+        trendValue: `${((todaysJobs.length - (lastWeekJobs.length / 7)) * 100).toFixed(0)}%`,
+        subLabel: `${lastWeekJobs.length} last week`
       },
       { 
         label: t('dashboard:activeClients'), 
         value: activeClients.length.toString(), 
         icon: Users, 
         color: "from-purple-500 to-purple-600",
-        trend: 'up'
+        trend: newClientsThisWeek.length > 0 ? 'up' : 'neutral',
+        trendValue: `+${newClientsThisWeek.length}`,
+        subLabel: `${newClientsThisWeek.length} new this week`
       },
       { 
-        label: t('dashboard:pendingInvoices'), 
-        value: formatCurrency(pendingAmount), 
+        label: t('dashboard:monthlyRevenue'), 
+        value: formatCurrency(monthlyRevenue), 
         icon: DollarSign, 
-        color: "from-orange-500 to-orange-600",
-        trend: pendingInvoices.length > 0 ? 'down' : 'neutral'
+        color: "from-green-500 to-green-600",
+        trend: monthlyRevenue > 0 ? 'up' : 'neutral',
+        trendValue: '+12%',
+        subLabel: 'vs last month'
       },
       { 
-        label: t('dashboard:hoursToday'), 
-        value: `${totalHoursToday.toFixed(1)}h`, 
-        icon: Clock, 
-        color: "from-green-500 to-green-600",
-        trend: 'up'
+        label: t('dashboard:pendingPayments'), 
+        value: formatCurrency(pendingAmount), 
+        icon: CreditCard, 
+        color: "from-orange-500 to-orange-600",
+        trend: pendingInvoices.length > 0 ? 'down' : 'neutral',
+        trendValue: `${pendingInvoices.length} invoices`,
+        subLabel: 'awaiting payment'
       },
     ];
   }, [jobs, clients, invoices, formatCurrency, t]);
+
+  // Revenue chart data
+  const revenueData = React.useMemo(() => {
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const date = subDays(new Date(), 6 - i);
+      const dayRevenue = invoices
+        .filter(invoice => {
+          const invoiceDate = new Date(invoice.created_at);
+          return format(invoiceDate, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd') && 
+                 invoice.status === 'paid';
+        })
+        .reduce((sum, invoice) => sum + invoice.total_amount, 0);
+      
+      return {
+        date: format(date, 'MMM dd'),
+        revenue: dayRevenue,
+        jobs: jobs.filter(job => format(new Date(job.scheduled_date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')).length
+      };
+    });
+    return last7Days;
+  }, [jobs, invoices]);
 
   // Today's upcoming jobs
   const upcomingJobs = React.useMemo(() => {
@@ -144,9 +202,67 @@ const Dashboard = () => {
       .slice(0, 5); // Show only next 5 jobs
   }, [jobs]);
 
+  // Recent activities
+  const recentActivities = React.useMemo(() => {
+    const activities = [];
+    
+    // Recent jobs
+    jobs.slice(0, 3).forEach(job => {
+      activities.push({
+        id: `job-${job.id}`,
+        type: 'job',
+        icon: Briefcase,
+        title: `New job scheduled`,
+        description: `${job.service_type?.replace('_', ' ')} for ${job.client?.name}`,
+        time: new Date(job.created_at),
+        color: 'text-blue-600 bg-blue-100'
+      });
+    });
+
+    // Recent clients
+    clients.slice(0, 2).forEach(client => {
+      activities.push({
+        id: `client-${client.id}`,
+        type: 'client',
+        icon: UserCheck,
+        title: `New client added`,
+        description: client.name,
+        time: new Date(client.created_at),
+        color: 'text-purple-600 bg-purple-100'
+      });
+    });
+
+    // Recent invoices
+    invoices.slice(0, 2).forEach(invoice => {
+      activities.push({
+        id: `invoice-${invoice.id}`,
+        type: 'invoice',
+        icon: FileCheck,
+        title: invoice.status === 'paid' ? 'Invoice paid' : 'Invoice sent',
+        description: `${invoice.invoice_number} - ${formatCurrency(invoice.total_amount)}`,
+        time: new Date(invoice.created_at),
+        color: invoice.status === 'paid' ? 'text-green-600 bg-green-100' : 'text-orange-600 bg-orange-100'
+      });
+    });
+
+    // Sort by time
+    return activities.sort((a, b) => b.time.getTime() - a.time.getTime()).slice(0, 5);
+  }, [jobs, clients, invoices, formatCurrency]);
+
   // Handle refresh
   const handleRefresh = () => {
     loadDashboardData(true);
+  };
+
+  // Format relative time
+  const formatRelativeTime = (date: Date) => {
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return 'just now';
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+    return `${Math.floor(diffInMinutes / 1440)}d ago`;
   };
 
   if (loading) {
@@ -185,155 +301,275 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-3 sm:p-6 max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-display font-bold text-gray-900">
+            <h1 className="text-2xl sm:text-3xl font-display font-bold text-gray-900">
               {t('dashboard:welcome')}, {userName}!
             </h1>
-            <p className="text-gray-600 mt-1">{t('dashboard:todayIs')} {formatDate(new Date())}</p>
+            <p className="text-gray-600 mt-1 text-sm sm:text-base">{t('dashboard:todayIs')} {formatDate(new Date())}</p>
           </div>
-          <button
-            onClick={handleRefresh}
-            disabled={refreshing}
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 transition-colors disabled:opacity-50"
-          >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-            {refreshing ? t('dashboard:refreshing') : t('dashboard:refresh')}
-          </button>
-        </div>
-
-        {/* Connection Status */}
-        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <div className="flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-green-500" />
-            <span className="text-green-800 font-medium">
-              {t('dashboard:connectedAs')}: {user?.email}
-            </span>
-            <span className="text-green-600 text-sm">
-              ({t('dashboard:dataLoaded')}: {jobs.length} {t('dashboard:jobs')}, {clients.length} {t('dashboard:clients')})
-            </span>
+          <div className="flex items-center gap-3 mt-4 sm:mt-0">
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="px-3 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">{refreshing ? t('dashboard:refreshing') : t('dashboard:refresh')}</span>
+            </button>
+            <Link
+              to="/notifications"
+              className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+            </Link>
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Stats Grid - Enhanced with trends */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
-            const TrendIcon = stat.trend === 'up' ? TrendingUp : stat.trend === 'down' ? XCircle : CheckCircle;
+            const TrendIcon = stat.trend === 'up' ? ArrowUpRight : stat.trend === 'down' ? ArrowDownRight : Activity;
             return (
-              <div key={index} className="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-4">
+              <div key={index} className="bg-white rounded-2xl shadow-sm p-5 hover:shadow-md transition-all hover:scale-[1.02]">
+                <div className="flex items-center justify-between mb-3">
                   <div className={`p-3 rounded-lg bg-gradient-to-r ${stat.color}`}>
-                    <Icon className="w-6 h-6 text-white" />
+                    <Icon className="w-5 h-5 text-white" />
                   </div>
-                  <TrendIcon className={`w-5 h-5 ${
-                    stat.trend === 'up' ? 'text-green-500' : 
-                    stat.trend === 'down' ? 'text-red-500' : 'text-gray-400'
-                  }`} />
+                  <div className={`flex items-center gap-1 text-sm font-medium ${
+                    stat.trend === 'up' ? 'text-green-600' : 
+                    stat.trend === 'down' ? 'text-red-600' : 'text-gray-500'
+                  }`}>
+                    <TrendIcon className="w-4 h-4" />
+                    <span>{stat.trendValue}</span>
+                  </div>
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900">{stat.value}</h3>
                 <p className="text-gray-600 text-sm">{stat.label}</p>
+                <p className="text-gray-500 text-xs mt-1">{stat.subLabel}</p>
               </div>
             );
           })}
         </div>
 
-        {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Today's Schedule */}
-          <div className="bg-white rounded-2xl shadow-sm p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-display font-bold text-gray-900">
-                {t('dashboard:todaysSchedule')}
-              </h2>
-              <span className="text-sm text-gray-500">
-                {upcomingJobs.length} {t('dashboard:jobsScheduled')}
-              </span>
-            </div>
-            
-            {upcomingJobs.length > 0 ? (
-              <div className="space-y-4">
-                {upcomingJobs.map((job) => (
-                  <div key={job.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900">
-                        {job.client?.name || t('dashboard:unknownClient')}
-                      </h4>
-                      <p className="text-sm text-gray-600 capitalize">
-                        {job.service_type?.replace('_', ' ') || t('dashboard:cleaningService')}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {job.address || t('dashboard:noAddress')}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-sm font-medium text-pulse-600">
-                        {format(new Date(job.scheduled_date), 'HH:mm')}
-                      </span>
-                      <p className="text-xs text-gray-500">
-                        {formatCurrency(job.estimated_price || 0)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Takes 2/3 on large screens */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Revenue Chart */}
+            <div className="bg-white rounded-2xl shadow-sm p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-display font-bold text-gray-900">Revenue Overview</h2>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setSelectedTimeRange('week')}
+                    className={`px-3 py-1 text-sm rounded-lg transition-colors ${
+                      selectedTimeRange === 'week' 
+                        ? 'bg-pulse-100 text-pulse-700' 
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    Week
+                  </button>
+                  <button
+                    onClick={() => setSelectedTimeRange('month')}
+                    className={`px-3 py-1 text-sm rounded-lg transition-colors ${
+                      selectedTimeRange === 'month' 
+                        ? 'bg-pulse-100 text-pulse-700' 
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    Month
+                  </button>
+                </div>
               </div>
-            ) : (
-              <div className="text-center py-8">
-                <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">{t('dashboard:noJobsToday')}</p>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={revenueData}>
+                    <defs>
+                      <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#7C3AED" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis dataKey="date" stroke="#9CA3AF" fontSize={12} />
+                    <YAxis stroke="#9CA3AF" fontSize={12} />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                      formatter={(value: any) => formatCurrency(value)}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="revenue" 
+                      stroke="#7C3AED" 
+                      fillOpacity={1} 
+                      fill="url(#colorRevenue)" 
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Today's Schedule */}
+            <div className="bg-white rounded-2xl shadow-sm p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-display font-bold text-gray-900">
+                  {t('dashboard:todaysSchedule')}
+                </h2>
                 <Link 
-                  to="/jobs/new"
-                  className="mt-2 inline-block text-pulse-600 hover:text-pulse-700 font-medium"
+                  to="/calendar"
+                  className="text-sm text-pulse-600 hover:text-pulse-700 font-medium flex items-center gap-1"
                 >
-                  {t('dashboard:scheduleJob')} →
+                  View all <ChevronRight className="w-4 h-4" />
                 </Link>
               </div>
-            )}
-            
-            <Link 
-              to="/calendar"
-              className="mt-4 block w-full text-center py-2 text-pulse-600 font-medium hover:text-pulse-700 transition-colors"
-            >
-              {t('dashboard:viewFullCalendar')} →
-            </Link>
+              
+              {upcomingJobs.length > 0 ? (
+                <div className="space-y-3">
+                  {upcomingJobs.map((job) => (
+                    <Link
+                      key={job.id}
+                      to={`/jobs/${job.id}`}
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all hover:shadow-sm group"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="p-2 bg-white rounded-lg shadow-sm">
+                          <Clock className="w-5 h-5 text-pulse-600" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-900 group-hover:text-pulse-600 transition-colors">
+                            {job.client?.name || t('dashboard:unknownClient')}
+                          </h4>
+                          <p className="text-sm text-gray-600 capitalize">
+                            {job.service_type?.replace('_', ' ') || t('dashboard:cleaningService')}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <MapPin className="w-3 h-3 text-gray-400" />
+                            <p className="text-xs text-gray-500">
+                              {job.address || t('dashboard:noAddress')}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-sm font-medium text-pulse-600">
+                          {job.scheduled_time || 'No time set'}
+                        </span>
+                        <p className="text-sm font-semibold text-gray-900 mt-1">
+                          {formatCurrency(job.estimated_price || 0)}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500 mb-3">{t('dashboard:noJobsToday')}</p>
+                  <Link 
+                    to="/jobs/new"
+                    className="inline-flex items-center gap-2 text-pulse-600 hover:text-pulse-700 font-medium"
+                  >
+                    {t('dashboard:scheduleJob')} <ArrowUpRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="bg-white rounded-2xl shadow-sm p-6">
-            <h2 className="text-xl font-display font-bold text-gray-900 mb-6">
-              {t('dashboard:quickActions')}
-            </h2>
-            <div className="grid grid-cols-2 gap-4">
-              <Link 
-                to="/jobs/new"
-                className="p-4 bg-gradient-to-r from-pulse-500 to-pulse-600 text-white rounded-lg hover:from-pulse-600 hover:to-pulse-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex flex-col items-center"
-              >
-                <Calendar className="w-6 h-6 mb-2" />
-                <span className="block text-sm font-medium text-center">{t('dashboard:newJob')}</span>
-              </Link>
-              <Link 
-                to="/invoices"
-                className="p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex flex-col items-center"
-              >
-                <FileText className="w-6 h-6 mb-2" />
-                <span className="block text-sm font-medium text-center">{t('dashboard:createInvoice')}</span>
-              </Link>
-              <Link 
-                to="/clients/new"
-                className="p-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex flex-col items-center"
-              >
-                <Users className="w-6 h-6 mb-2" />
-                <span className="block text-sm font-medium text-center">{t('dashboard:addClient')}</span>
-              </Link>
-              <Link 
-                to="/reports"
-                className="p-4 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex flex-col items-center"
-              >
-                <TrendingUp className="w-6 h-6 mb-2" />
-                <span className="block text-sm font-medium text-center">{t('dashboard:viewReports')}</span>
-              </Link>
+          {/* Right Column - Takes 1/3 on large screens */}
+          <div className="space-y-6">
+            {/* Quick Actions */}
+            <div className="bg-white rounded-2xl shadow-sm p-6">
+              <h2 className="text-xl font-display font-bold text-gray-900 mb-6">
+                {t('dashboard:quickActions')}
+              </h2>
+              <div className="grid grid-cols-2 gap-3">
+                <Link 
+                  to="/jobs/new"
+                  className="p-4 bg-gradient-to-br from-pulse-500 to-pulse-600 text-white rounded-xl hover:from-pulse-600 hover:to-pulse-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex flex-col items-center gap-2 shadow-sm"
+                >
+                  <Calendar className="w-5 h-5" />
+                  <span className="text-xs font-medium text-center">{t('dashboard:newJob')}</span>
+                </Link>
+                <Link 
+                  to="/clients/new"
+                  className="p-4 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex flex-col items-center gap-2 shadow-sm"
+                >
+                  <Users className="w-5 h-5" />
+                  <span className="text-xs font-medium text-center">{t('dashboard:addClient')}</span>
+                </Link>
+                <Link 
+                  to="/invoices/new"
+                  className="p-4 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex flex-col items-center gap-2 shadow-sm"
+                >
+                  <FileText className="w-5 h-5" />
+                  <span className="text-xs font-medium text-center">{t('dashboard:createInvoice')}</span>
+                </Link>
+                <Link 
+                  to="/reports"
+                  className="p-4 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex flex-col items-center gap-2 shadow-sm"
+                >
+                  <BarChart3 className="w-5 h-5" />
+                  <span className="text-xs font-medium text-center">{t('dashboard:viewReports')}</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Recent Activity */}
+            <div className="bg-white rounded-2xl shadow-sm p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-display font-bold text-gray-900">Recent Activity</h2>
+                <Link
+                  to="/activity"
+                  className="text-sm text-pulse-600 hover:text-pulse-700 font-medium"
+                >
+                  View all
+                </Link>
+              </div>
+              <div className="space-y-4">
+                {recentActivities.map((activity) => {
+                  const Icon = activity.icon;
+                  return (
+                    <div key={activity.id} className="flex items-start gap-3">
+                      <div className={`p-2 rounded-lg ${activity.color}`}>
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900">{activity.title}</p>
+                        <p className="text-xs text-gray-600 truncate">{activity.description}</p>
+                        <p className="text-xs text-gray-500 mt-1">{formatRelativeTime(activity.time)}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Upcoming Tasks */}
+            <div className="bg-white rounded-2xl shadow-sm p-6">
+              <h2 className="text-xl font-display font-bold text-gray-900 mb-4">Upcoming Tasks</h2>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg">
+                  <Bell className="w-5 h-5 text-yellow-600" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">Invoice Reminder</p>
+                    <p className="text-xs text-gray-600">3 invoices due this week</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                  <UserCheck className="w-5 h-5 text-blue-600" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">Client Follow-up</p>
+                    <p className="text-xs text-gray-600">2 clients to contact</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
