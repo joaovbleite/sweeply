@@ -213,7 +213,7 @@ const Dashboard = () => {
         type: 'job',
         icon: Briefcase,
         title: `New job scheduled`,
-        description: `${job.service_type?.replace('_', ' ')} for ${job.client?.name}`,
+        description: `${job.service_type?.replace('_', ' ')} - ${job.title || 'Cleaning Service'}`,
         time: new Date(job.created_at),
         color: 'text-blue-600 bg-blue-100'
       });
@@ -443,7 +443,7 @@ const Dashboard = () => {
                         </div>
                         <div className="flex-1">
                           <h4 className="font-semibold text-gray-900 group-hover:text-pulse-600 transition-colors">
-                            {job.client?.name || t('dashboard:unknownClient')}
+                            {job.title || t('dashboard:cleaningService')}
                           </h4>
                           <p className="text-sm text-gray-600 capitalize">
                             {job.service_type?.replace('_', ' ') || t('dashboard:cleaningService')}

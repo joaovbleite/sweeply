@@ -6,19 +6,7 @@ export const invoicesApi = {
   async getAll(filters?: InvoiceFilters): Promise<Invoice[]> {
     let query = supabase
       .from('invoices')
-      .select(`
-        *,
-        client:clients(
-          id,
-          name,
-          email,
-          phone,
-          address,
-          city,
-          state,
-          zip
-        )
-      `)
+      .select('*')
       .order('created_at', { ascending: false });
 
     // Apply filters
@@ -57,19 +45,7 @@ export const invoicesApi = {
   async getById(id: string): Promise<Invoice | null> {
     const { data, error } = await supabase
       .from('invoices')
-      .select(`
-        *,
-        client:clients(
-          id,
-          name,
-          email,
-          phone,
-          address,
-          city,
-          state,
-          zip
-        )
-      `)
+      .select('*')
       .eq('id', id)
       .single();
 
@@ -116,19 +92,7 @@ export const invoicesApi = {
           job_ids: invoiceData.job_ids || [],
         }
       ])
-      .select(`
-        *,
-        client:clients(
-          id,
-          name,
-          email,
-          phone,
-          address,
-          city,
-          state,
-          zip
-        )
-      `)
+      .select('*')
       .single();
 
     if (error) {
@@ -170,19 +134,7 @@ export const invoicesApi = {
       .from('invoices')
       .update(calculatedUpdates)
       .eq('id', id)
-      .select(`
-        *,
-        client:clients(
-          id,
-          name,
-          email,
-          phone,
-          address,
-          city,
-          state,
-          zip
-        )
-      `)
+      .select('*')
       .single();
 
     if (error) {
@@ -245,19 +197,7 @@ export const invoicesApi = {
     
     const { data, error } = await supabase
       .from('invoices')
-      .select(`
-        *,
-        client:clients(
-          id,
-          name,
-          email,
-          phone,
-          address,
-          city,
-          state,
-          zip
-        )
-      `)
+      .select('*')
       .lt('due_date', today)
       .in('status', ['sent'])
       .order('due_date', { ascending: true });
@@ -369,19 +309,7 @@ export const invoicesApi = {
   async search(searchTerm: string): Promise<Invoice[]> {
     const { data, error } = await supabase
       .from('invoices')
-      .select(`
-        *,
-        client:clients(
-          id,
-          name,
-          email,
-          phone,
-          address,
-          city,
-          state,
-          zip
-        )
-      `)
+      .select('*')
       .or(`invoice_number.ilike.%${searchTerm}%,notes.ilike.%${searchTerm}%`)
       .order('created_at', { ascending: false });
 
