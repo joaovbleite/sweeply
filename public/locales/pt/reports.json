@@ -1,6 +1,6 @@
 {
   "businessReports": "Relatórios de Negócio",
-  "comprehensiveAnalytics": "Análise abrangente para fazer crescer seu negócio de limpeza",
+  "comprehensiveAnalytics": "Análises abrangentes e insights para seu negócio de limpeza",
   "totalRevenue": "Receita Total",
   "completedJobs": "Trabalhos Concluídos",
   "activeClients": "Clientes Ativos",
@@ -8,7 +8,7 @@
   "completionRate": "taxa de conclusão",
   "newThisMonth": "novos este mês",
   "jobsScheduled": "trabalhos agendados",
-  "vsLastMonth": "vs mês anterior",
+  "vsLastMonth": "vs mês passado",
   "overview": "Visão Geral",
   "revenue": "Receita",
   "clients": "Clientes",

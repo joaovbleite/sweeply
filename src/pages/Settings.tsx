@@ -593,6 +593,246 @@ const Settings = () => {
                 </div>
               </div>
             )}
+
+            {/* Notifications Settings */}
+            {activeTab === 'notifications' && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('settings:notificationSettings')}</h2>
+                
+                {/* Email Notifications */}
+                <div className="mb-8">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                    <Mail className="w-5 h-5 text-pulse-500" />
+                    {t('settings:emailNotifications')}
+                  </h3>
+                  <div className="space-y-4">
+                    {Object.entries(notificationSettings.emailNotifications).map(([key, enabled]) => (
+                      <div key={key} className="flex items-center justify-between">
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-900">{t(`settings:${key}`)}</h4>
+                          <p className="text-sm text-gray-600">{t(`settings:${key}Desc`)}</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={enabled}
+                            onChange={(e) => setNotificationSettings(prev => ({
+                              ...prev,
+                              emailNotifications: {
+                                ...prev.emailNotifications,
+                                [key]: e.target.checked
+                              }
+                            }))}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* SMS Notifications */}
+                <div className="mb-8">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                    <Phone className="w-5 h-5 text-pulse-500" />
+                    {t('settings:smsNotifications')}
+                  </h3>
+                  <div className="space-y-4">
+                    {Object.entries(notificationSettings.smsNotifications).map(([key, enabled]) => (
+                      <div key={key} className="flex items-center justify-between">
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-900">{t(`settings:${key}`)}</h4>
+                          <p className="text-sm text-gray-600">{t(`settings:${key}Desc`)}</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={enabled}
+                            onChange={(e) => setNotificationSettings(prev => ({
+                              ...prev,
+                              smsNotifications: {
+                                ...prev.smsNotifications,
+                                [key]: e.target.checked
+                              }
+                            }))}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Push Notifications */}
+                <div className="mb-8">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                    <Bell className="w-5 h-5 text-pulse-500" />
+                    {t('settings:pushNotifications')}
+                  </h3>
+                  <div className="space-y-4">
+                    {Object.entries(notificationSettings.pushNotifications).map(([key, enabled]) => (
+                      <div key={key} className="flex items-center justify-between">
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-900">{t(`settings:${key}`)}</h4>
+                          <p className="text-sm text-gray-600">{t(`settings:${key}Desc`)}</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={enabled}
+                            onChange={(e) => setNotificationSettings(prev => ({
+                              ...prev,
+                              pushNotifications: {
+                                ...prev.pushNotifications,
+                                [key]: e.target.checked
+                              }
+                            }))}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-8 flex justify-end">
+                  <button
+                    onClick={handleSaveNotifications}
+                    disabled={loading}
+                    className="px-6 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 flex items-center gap-2"
+                  >
+                    <Save className="w-4 h-4" />
+                    {loading ? t('common:saving') : t('common:save')}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Security Settings */}
+            {activeTab === 'security' && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('settings:securitySettings')}</h2>
+                
+                {/* Password Change */}
+                <div className="mb-8">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                    <Shield className="w-5 h-5 text-pulse-500" />
+                    {t('settings:changePassword')}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {t('settings:currentPassword')}
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          value={securityData.currentPassword}
+                          onChange={(e) => setSecurityData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        >
+                          {showPassword ? (
+                            <EyeOff className="w-4 h-4 text-gray-400" />
+                          ) : (
+                            <Eye className="w-4 h-4 text-gray-400" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {t('settings:newPassword')}
+                      </label>
+                      <input
+                        type="password"
+                        value={securityData.newPassword}
+                        onChange={(e) => setSecurityData(prev => ({ ...prev, newPassword: e.target.value }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        {t('settings:confirmPassword')}
+                      </label>
+                      <input
+                        type="password"
+                        value={securityData.confirmPassword}
+                        onChange={(e) => setSecurityData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Two-Factor Authentication */}
+                <div className="mb-8">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                    <Shield className="w-5 h-5 text-pulse-500" />
+                    {t('settings:twoFactorAuth')}
+                  </h3>
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-900">{t('settings:enable2FA')}</h4>
+                      <p className="text-sm text-gray-600">{t('settings:enable2FADesc')}</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={securityData.twoFactorEnabled}
+                        onChange={(e) => setSecurityData(prev => ({ ...prev, twoFactorEnabled: e.target.checked }))}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Session Settings */}
+                <div className="mb-8">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-pulse-500" />
+                    {t('settings:sessionSettings')}
+                  </h3>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('settings:sessionTimeout')} (minutes)
+                    </label>
+                    <select
+                      value={securityData.sessionTimeout}
+                      onChange={(e) => setSecurityData(prev => ({ ...prev, sessionTimeout: e.target.value }))}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                    >
+                      <option value="15">15 minutes</option>
+                      <option value="30">30 minutes</option>
+                      <option value="60">1 hour</option>
+                      <option value="120">2 hours</option>
+                      <option value="480">8 hours</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="mt-8 flex justify-end">
+                  <button
+                    onClick={handleSaveSecurity}
+                    disabled={loading}
+                    className="px-6 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 flex items-center gap-2"
+                  >
+                    <Save className="w-4 h-4" />
+                    {loading ? t('common:saving') : t('common:save')}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
