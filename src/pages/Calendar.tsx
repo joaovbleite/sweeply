@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { jobsApi } from "@/lib/api/jobs";
 import { Job } from "@/types/job";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 import AppLayout from "@/components/AppLayout";
 import AdvancedCalendarView from "@/components/Calendar/AdvancedCalendarView";
 import QuickJobModal from "@/components/Calendar/QuickJobModal";
@@ -24,6 +25,7 @@ import CalendarAnalytics from "@/components/Calendar/CalendarAnalytics";
 
 const Calendar = () => {
   const { user } = useAuth();
+  const { t } = useTranslation(['calendar', 'common', 'jobs']);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [showQuickJobModal, setShowQuickJobModal] = useState(false);
@@ -44,7 +46,7 @@ const Calendar = () => {
       setJobs(data);
     } catch (error) {
       console.error('Error loading jobs:', error);
-      toast.error('Failed to load jobs');
+      toast.error(t('common:errorOccurred'));
     } finally {
       setLoading(false);
     }
@@ -69,7 +71,7 @@ const Calendar = () => {
   const handleJobCreated = () => {
     loadJobs();
     setShowQuickJobModal(false);
-    toast.success('Job created successfully!');
+    toast.success(t('jobs:jobCreated'));
   };
 
   // Handle date click
@@ -98,10 +100,10 @@ const Calendar = () => {
 
       await jobsApi.update(jobId, updateData);
       await loadJobs();
-      toast.success('Job rescheduled successfully!');
+      toast.success(t('jobs:jobUpdated'));
     } catch (error) {
       console.error('Error rescheduling job:', error);
-      toast.error('Failed to reschedule job');
+      toast.error(t('common:errorOccurred'));
     }
   };
 
@@ -110,10 +112,10 @@ const Calendar = () => {
     try {
       await jobsApi.update(jobId, { status: status as any });
       await loadJobs();
-      toast.success(`Job status updated to ${status}`);
+      toast.success(t('jobs:jobUpdated'));
     } catch (error) {
       console.error('Error updating job status:', error);
-      toast.error('Failed to update job status');
+      toast.error(t('common:errorOccurred'));
     }
   };
 
@@ -126,16 +128,16 @@ const Calendar = () => {
 
   // Handle job delete
   const handleJobDelete = async (jobId: string) => {
-    if (!confirm('Are you sure you want to delete this job?')) return;
+    if (!confirm(t('common:confirmDelete'))) return;
     
     try {
       await jobsApi.delete(jobId);
       await loadJobs();
       setShowJobDetailsModal(false);
-      toast.success('Job deleted successfully');
+      toast.success(t('jobs:jobDeleted'));
     } catch (error) {
       console.error('Error deleting job:', error);
-      toast.error('Failed to delete job');
+      toast.error(t('common:errorOccurred'));
     }
   };
 
@@ -181,7 +183,7 @@ const Calendar = () => {
     }));
 
     const csvContent = [
-      ['Title', 'Client', 'Date', 'Time', 'Service', 'Status', 'Price', 'Duration'],
+      [t('common:name'), t('common:client'), t('common:date'), t('common:time'), t('common:service'), t('common:status'), t('common:price'), t('common:duration')],
       ...calendarData.map(job => [
         job.title,
         job.client,
@@ -202,7 +204,7 @@ const Calendar = () => {
     a.click();
     URL.revokeObjectURL(url);
     
-    toast.success('Calendar exported successfully!');
+    toast.success(t('calendar:exportCalendar'));
   };
 
   // Calculate quick stats
@@ -238,10 +240,10 @@ const Calendar = () => {
           <div>
             <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
               <CalendarIcon className="w-8 h-8 text-pulse-500" />
-              Professional Calendar
+              {t('calendar:calendar')}
             </h1>
             <p className="text-gray-600 mt-1">
-              Advanced scheduling with drag & drop, analytics, and conflict detection
+              {t('calendar:dragToReschedule')}
             </p>
           </div>
 
@@ -250,16 +252,16 @@ const Calendar = () => {
             <div className="flex items-center gap-4 bg-white rounded-lg px-4 py-2 shadow-sm border">
               <div className="text-center">
                 <div className="text-lg font-bold text-pulse-600">{todayJobs.length}</div>
-                <div className="text-xs text-gray-600">Today</div>
+                <div className="text-xs text-gray-600">{t('calendar:today')}</div>
               </div>
               <div className="text-center">
                 <div className="text-lg font-bold text-green-600">${weeklyRevenue}</div>
-                <div className="text-xs text-gray-600">Week</div>
+                <div className="text-xs text-gray-600">{t('calendar:thisWeek')}</div>
               </div>
               {conflicts > 0 && (
                 <div className="text-center">
                   <div className="text-lg font-bold text-red-600">{conflicts}</div>
-                  <div className="text-xs text-gray-600">Conflicts</div>
+                  <div className="text-xs text-gray-600">{t('calendar:conflictDetected')}</div>
                 </div>
               )}
             </div>

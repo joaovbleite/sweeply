@@ -1,0 +1,20 @@
+{
+  "dashboard": "Painel",
+  "calendar": "Calendário",
+  "jobs": "Trabalhos",
+  "clients": "Clientes",
+  "invoices": "Faturas",
+  "team": "Equipe",
+  "payroll": "Folha de pagamento",
+  "reports": "Relatórios",
+  "settings": "Configurações",
+  "home": "Início",
+  "features": "Recursos",
+  "pricing": "Preços",
+  "about": "Sobre",
+  "contact": "Contato",
+  "signIn": "Entrar",
+  "signUp": "Cadastrar",
+  "getStarted": "Começar",
+  "learnMore": "Saiba mais"
+} 

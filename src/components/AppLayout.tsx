@@ -15,6 +15,8 @@ import {
   Target
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -22,6 +24,7 @@ interface AppLayoutProps {
 
 const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const { user, signOut } = useAuth();
+  const { t } = useTranslation(['navigation', 'common']);
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -33,14 +36,14 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   };
 
   const sidebarItems = [
-    { id: "overview", label: "Overview", icon: LayoutDashboard, path: "/dashboard" },
-    { id: "calendar", label: "Calendar", icon: Calendar, path: "/calendar" },
-    { id: "jobs", label: "Jobs", icon: Briefcase, path: "/jobs" },
-    { id: "clients", label: "Clients", icon: Users, path: "/clients" },
-    { id: "invoices", label: "Invoices", icon: FileText, path: "/invoices" },
-    { id: "employees", label: "Team", icon: UserCheck, path: "/employees" },
-    { id: "payroll", label: "Payroll", icon: CreditCard, path: "/payroll" },
-    { id: "settings", label: "Settings", icon: Settings, path: "/settings" },
+    { id: "overview", label: t('navigation:dashboard'), icon: LayoutDashboard, path: "/dashboard" },
+    { id: "calendar", label: t('navigation:calendar'), icon: Calendar, path: "/calendar" },
+    { id: "jobs", label: t('navigation:jobs'), icon: Briefcase, path: "/jobs" },
+    { id: "clients", label: t('navigation:clients'), icon: Users, path: "/clients" },
+    { id: "invoices", label: t('navigation:invoices'), icon: FileText, path: "/invoices" },
+    { id: "employees", label: t('navigation:team'), icon: UserCheck, path: "/employees" },
+    { id: "payroll", label: t('navigation:payroll'), icon: CreditCard, path: "/payroll" },
+    { id: "settings", label: t('navigation:settings'), icon: Settings, path: "/settings" },
   ];
 
   return (
@@ -94,7 +97,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <LogOut className="w-5 h-5" />
-            <span className="font-medium">Logout</span>
+            <span className="font-medium">{t('common:logout')}</span>
           </button>
         </div>
       </aside>
@@ -113,8 +116,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               </button>
             </div>
             <div className="flex items-center gap-4">
+              <LanguageSwitcher />
               <span className="text-sm text-gray-600">
-                Welcome, {userName}
+                {t('common:welcome')}, {userName}
               </span>
               <div className="w-10 h-10 bg-pulse-500 rounded-full flex items-center justify-center text-white font-semibold">
                 {userName.charAt(0).toUpperCase()}

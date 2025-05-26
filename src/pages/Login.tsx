@@ -2,9 +2,12 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { signIn } from "@/lib/supabase";
+import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation(['auth', 'common']);
   const [formData, setFormData] = useState({
     email: "",
     password: ""
@@ -28,22 +31,22 @@ const Login = () => {
       
       if (error) {
         if (error.message.includes('Invalid login credentials')) {
-          toast.error('Invalid email or password');
+          toast.error(t('auth:invalidCredentials'));
         } else if (error.message.includes('Email not confirmed')) {
-          toast.error('Please verify your email before logging in');
+          toast.error(t('auth:emailNotVerified'));
         } else {
-          toast.error(error.message || 'Error signing in');
+          toast.error(error.message || t('common:errorOccurred'));
         }
         return;
       }
 
       if (data.user) {
-        toast.success("Welcome back to Sweeply!");
+        toast.success(t('auth:signInSuccessful'));
         navigate("/dashboard");
       }
     } catch (error) {
       console.error('Login error:', error);
-      toast.error('An unexpected error occurred');
+      toast.error(t('common:errorOccurred'));
     } finally {
       setIsLoading(false);
     }
@@ -52,6 +55,11 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4">
       <div className="max-w-md w-full">
+        {/* Language Switcher */}
+        <div className="absolute top-4 right-4">
+          <LanguageSwitcher />
+        </div>
+        
         {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2">
@@ -61,10 +69,10 @@ const Login = () => {
             </span>
           </Link>
           <h2 className="mt-6 text-3xl font-display font-bold text-gray-900">
-            Welcome back
+            {t('auth:welcomeBack')}
           </h2>
           <p className="mt-2 text-gray-600">
-            Sign in to manage your cleaning business
+            {t('auth:signInToAccount')}
           </p>
         </div>
 
@@ -73,7 +81,7 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email address
+                {t('auth:email')}
               </label>
               <input
                 id="email"
@@ -90,7 +98,7 @@ const Login = () => {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
+                {t('auth:password')}
               </label>
               <input
                 id="password"
@@ -111,10 +119,10 @@ const Login = () => {
                   type="checkbox"
                   className="rounded border-gray-300 text-pulse-500 focus:ring-pulse-500"
                 />
-                <span className="ml-2 text-sm text-gray-600">Remember me</span>
+                <span className="ml-2 text-sm text-gray-600">{t('auth:rememberMe')}</span>
               </label>
               <a href="#" className="text-sm text-pulse-500 hover:text-pulse-600">
-                Forgot password?
+                {t('auth:forgotPassword')}
               </a>
             </div>
 
@@ -129,10 +137,10 @@ const Login = () => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                  Signing in...
+                  {t('common:loading')}
                 </span>
               ) : (
-                "Sign in"
+                t('auth:signIn')
               )}
             </button>
           </form>
@@ -143,7 +151,7 @@ const Login = () => {
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">New to Sweeply?</span>
+                <span className="px-2 bg-white text-gray-500">{t('auth:dontHaveAccount')}</span>
               </div>
             </div>
 
@@ -152,7 +160,7 @@ const Login = () => {
                 to="/signup"
                 className="w-full flex justify-center px-6 py-3 border border-gray-300 rounded-full text-gray-700 font-medium hover:bg-gray-50 transition-colors duration-300"
               >
-                Create an account
+                {t('auth:createAccount')}
               </Link>
             </div>
           </div>

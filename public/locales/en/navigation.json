@@ -1,0 +1,20 @@
+{
+  "dashboard": "Dashboard",
+  "calendar": "Calendar",
+  "jobs": "Jobs",
+  "clients": "Clients",
+  "invoices": "Invoices",
+  "team": "Team",
+  "payroll": "Payroll",
+  "reports": "Reports",
+  "settings": "Settings",
+  "home": "Home",
+  "features": "Features",
+  "pricing": "Pricing",
+  "about": "About",
+  "contact": "Contact",
+  "signIn": "Sign In",
+  "signUp": "Sign Up",
+  "getStarted": "Get Started",
+  "learnMore": "Learn More"
+} 

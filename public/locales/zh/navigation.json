@@ -1,0 +1,20 @@
+{
+  "dashboard": "仪表板",
+  "calendar": "日历",
+  "jobs": "工作",
+  "clients": "客户",
+  "invoices": "发票",
+  "team": "团队",
+  "payroll": "工资单",
+  "reports": "报告",
+  "settings": "设置",
+  "home": "首页",
+  "features": "功能",
+  "pricing": "定价",
+  "about": "关于",
+  "contact": "联系",
+  "signIn": "登录",
+  "signUp": "注册",
+  "getStarted": "开始",
+  "learnMore": "了解更多"
+} 

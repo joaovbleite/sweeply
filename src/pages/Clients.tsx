@@ -26,10 +26,12 @@ import { toast } from "sonner";
 import { clientsApi } from "@/lib/api/clients";
 import { Client } from "@/types/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 import AppLayout from "@/components/AppLayout";
 
 const Clients = () => {
   const { user } = useAuth();
+  const { t } = useTranslation(['clients', 'common']);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -90,11 +92,11 @@ const Clients = () => {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete ${name}?`)) return;
+    if (!confirm(t('clients:deleteClientConfirm').replace('{name}', name))) return;
 
     try {
       await clientsApi.delete(id);
-      toast.success('Client deleted successfully');
+      toast.success(t('clients:clientDeleted'));
       loadClients();
       setSelectedClients(prev => {
         const newSet = new Set(prev);
@@ -103,24 +105,24 @@ const Clients = () => {
       });
     } catch (error) {
       console.error('Error deleting client:', error);
-      toast.error('Failed to delete client');
+      toast.error(t('common:errorOccurred'));
     }
   };
 
   const handleBulkDelete = async () => {
     if (selectedClients.size === 0) return;
     
-    const confirmed = confirm(`Are you sure you want to delete ${selectedClients.size} client(s)?`);
+    const confirmed = confirm(t('common:confirmDelete'));
     if (!confirmed) return;
 
     try {
       await Promise.all(Array.from(selectedClients).map(id => clientsApi.delete(id)));
-      toast.success(`${selectedClients.size} client(s) deleted successfully`);
+      toast.success(t('common:deleteSuccess'));
       setSelectedClients(new Set());
       loadClients();
     } catch (error) {
       console.error('Error deleting clients:', error);
-      toast.error('Failed to delete clients');
+      toast.error(t('common:errorOccurred'));
     }
   };
 
@@ -146,13 +148,13 @@ const Clients = () => {
 
   const exportClients = () => {
     const csvContent = [
-      ['Name', 'Email', 'Phone', 'Type', 'Status', 'City', 'State'].join(','),
+      [t('common:name'), t('common:email'), t('common:phone'), t('clients:clientType'), t('common:status'), t('common:city'), t('common:state')].join(','),
       ...filteredAndSortedClients.map(client => [
         client.name,
         client.email || '',
         client.phone || '',
         client.client_type,
-        client.is_active ? 'Active' : 'Inactive',
+        client.is_active ? t('common:active') : t('common:inactive'),
         client.city || '',
         client.state || ''
       ].join(','))
@@ -165,7 +167,7 @@ const Clients = () => {
     a.download = 'clients.csv';
     a.click();
     window.URL.revokeObjectURL(url);
-    toast.success('Clients exported successfully');
+    toast.success(t('common:exportSuccess'));
   };
 
   // Filter and sort clients
@@ -228,8 +230,8 @@ const Clients = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-display font-bold text-gray-900">Clients</h1>
-            <p className="mt-1 text-gray-600">Manage your customer information and relationships</p>
+            <h1 className="text-3xl font-display font-bold text-gray-900">{t('clients:clients')}</h1>
+            <p className="mt-1 text-gray-600">{t('clients:clientList')}</p>
           </div>
           <div className="mt-4 sm:mt-0 flex gap-3">
             <button
@@ -237,14 +239,14 @@ const Clients = () => {
               className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 transition-colors"
             >
               <Download className="w-4 h-4" />
-              Export
+              {t('common:export')}
             </button>
             <Link
               to="/clients/new"
               className="px-4 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 flex items-center gap-2 transition-colors"
             >
               <Plus className="w-4 h-4" />
-              Add Client
+              {t('clients:addClient')}
             </Link>
           </div>
         </div>
@@ -257,7 +259,7 @@ const Clients = () => {
                 <Users className="h-8 w-8 text-blue-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Clients</p>
+                <p className="text-sm font-medium text-gray-600">{t('clients:totalClients')}</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
               </div>
             </div>
@@ -269,7 +271,7 @@ const Clients = () => {
                 <TrendingUp className="h-8 w-8 text-green-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Active</p>
+                <p className="text-sm font-medium text-gray-600">{t('common:active')}</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.active}</p>
               </div>
             </div>
@@ -281,7 +283,7 @@ const Clients = () => {
                 <Home className="h-8 w-8 text-purple-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Residential</p>
+                <p className="text-sm font-medium text-gray-600">{t('clients:residential')}</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.residential}</p>
               </div>
             </div>
@@ -293,7 +295,7 @@ const Clients = () => {
                 <Building className="h-8 w-8 text-orange-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Commercial</p>
+                <p className="text-sm font-medium text-gray-600">{t('clients:commercial')}</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.commercial}</p>
               </div>
             </div>
@@ -305,7 +307,7 @@ const Clients = () => {
                 <Calendar className="h-8 w-8 text-indigo-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">New This Week</p>
+                <p className="text-sm font-medium text-gray-600">{t('dashboard:thisWeek')}</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.recentlyAdded}</p>
               </div>
             </div>
@@ -320,7 +322,7 @@ const Clients = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search by name, email, or phone..."
+                placeholder={t('clients:searchClients')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
@@ -334,9 +336,9 @@ const Clients = () => {
                 onChange={(e) => setSelectedType(e.target.value as any)}
                 className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
               >
-                <option value="all">All Types</option>
-                <option value="residential">Residential</option>
-                <option value="commercial">Commercial</option>
+                <option value="all">{t('common:selectOption')}</option>
+                <option value="residential">{t('clients:residential')}</option>
+                <option value="commercial">{t('clients:commercial')}</option>
               </select>
 
               <select
@@ -348,11 +350,11 @@ const Clients = () => {
                 }}
                 className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
               >
-                <option value="name-asc">Name A-Z</option>
-                <option value="name-desc">Name Z-A</option>
-                <option value="created_at-desc">Newest First</option>
-                <option value="created_at-asc">Oldest First</option>
-                <option value="updated_at-desc">Recently Updated</option>
+                <option value="name-asc">{t('common:name')} A-Z</option>
+                <option value="name-desc">{t('common:name')} Z-A</option>
+                <option value="created_at-desc">{t('common:newest')} {t('common:first')}</option>
+                <option value="created_at-asc">{t('common:oldest')} {t('common:first')}</option>
+                <option value="updated_at-desc">{t('common:recentlyUpdated')}</option>
               </select>
 
               <label className="flex items-center gap-2 cursor-pointer px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50">
@@ -362,7 +364,7 @@ const Clients = () => {
                   onChange={(e) => setShowInactive(e.target.checked)}
                   className="rounded border-gray-300 text-pulse-500 focus:ring-pulse-500"
                 />
-                <span className="text-gray-700">Show inactive</span>
+                <span className="text-gray-700">{t('common:showInactive')}</span>
               </label>
             </div>
           </div>
@@ -372,20 +374,20 @@ const Clients = () => {
             <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-blue-900">
-                  {selectedClients.size} client(s) selected
+                  {selectedClients.size} {t('clients:clientsSelected')}
                 </span>
                 <div className="flex gap-2">
                   <button
                     onClick={handleBulkDelete}
                     className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
                   >
-                    Delete Selected
+                    {t('common:deleteSelected')}
                   </button>
                   <button
                     onClick={() => setSelectedClients(new Set())}
                     className="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
                   >
-                    Clear Selection
+                    {t('common:clearSelection')}
                   </button>
                 </div>
               </div>
