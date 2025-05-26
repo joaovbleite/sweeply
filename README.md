@@ -67,33 +67,3 @@ Simply open [Lovable](https://lovable.dev/projects/35d72d2e-6e25-40e5-9b0c-c0d1a
 ## I want to use a custom domain - is that possible?
 
 We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
-
-# Sweeply - Cleaning Business Management SaaS
-
-A modern, bilingual cleaning business management platform built with React, TypeScript, and Supabase.
-
-## Features
-
-- 🔐 **Authentication** - Secure user registration and login
-- 📅 **Smart Scheduling** - Drag & drop calendar for job management
-- 💰 **Invoicing & Payments** - Professional invoicing system
-- 👥 **Client Management** - Comprehensive client database
-- 🌐 **Bilingual Support** - English and Portuguese support
-- 📱 **Responsive Design** - Works on all devices
-
-## Environment Setup
-
-Make sure to configure your environment variables:
-- `VITE_SUPABASE_URL` - Your Supabase project URL
-- `VITE_SUPABASE_ANON_KEY` - Your Supabase anon key
-
-## Getting Started
-
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Set up environment variables in `.env.local`
-4. Start development server: `npm run dev`
-
-## Deployment
-
-This project is configured for deployment on Vercel with automatic deployments from the main branch.

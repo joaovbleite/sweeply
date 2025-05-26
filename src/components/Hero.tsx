@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, BarChart3, LogOut } from "lucide-react";
 import LottieAnimation from "./LottieAnimation";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Hero = () => {
+  const { user, signOut } = useAuth();
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const [lottieData, setLottieData] = useState<any>(null);
@@ -106,31 +108,74 @@ const Hero = () => {
               style={{ animationDelay: "0.1s" }}
             >
               <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-pulse-500 text-white mr-2">01</span>
-              <span>Purpose</span>
+              <span>{user ? "Dashboard" : "Purpose"}</span>
             </div>
             
             <h1 
               className="section-title text-3xl sm:text-4xl lg:text-5xl xl:text-6xl leading-tight opacity-0 animate-fade-in" 
               style={{ animationDelay: "0.3s" }}
             >
-              Sweeply: Where Cleaning<br className="hidden sm:inline" />Meets Efficiency
+              {user ? (
+                <>Welcome back!<br className="hidden sm:inline" />Ready to manage your business?</>
+              ) : (
+                <>Sweeply: Where Cleaning<br className="hidden sm:inline" />Meets Efficiency</>
+              )}
             </h1>
             
             <p 
               style={{ animationDelay: "0.5s" }} 
               className="section-subtitle mt-3 sm:mt-6 mb-4 sm:mb-8 leading-relaxed opacity-0 animate-fade-in text-gray-950 font-normal text-base sm:text-lg text-left"
             >
-              The all-in-one platform that helps cleaning professionals manage clients, schedule jobs, and grow their business with confidence.
+              {user ? (
+                "Welcome back! Access your dashboard to manage clients, schedule jobs, and track your business growth."
+              ) : (
+                "The all-in-one platform that helps cleaning professionals manage clients, schedule jobs, and grow their business with confidence."
+              )}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 opacity-0 animate-fade-in" style={{ animationDelay: "0.4s" }}>
-              <Link to="/signup" className="button-primary">
-                Start Free Trial
-              </Link>
-              <Link to="/login" className="button-secondary">
-                Sign In
-              </Link>
+              {user ? (
+                <>
+                  <Link to="/dashboard" className="button-primary flex items-center gap-2">
+                    <BarChart3 className="w-5 h-5" />
+                    Go to Dashboard
+                  </Link>
+                  <Link to="/reports" className="button-secondary flex items-center gap-2">
+                    View Reports
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/signup" className="button-primary">
+                    Start Free Trial
+                  </Link>
+                  <Link to="/login" className="button-secondary">
+                    Sign In
+                  </Link>
+                </>
+              )}
             </div>
+
+            {user && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 opacity-0 animate-fade-in" style={{ animationDelay: "0.7s" }}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span className="text-green-800 font-medium">
+                      Logged in as: {user.email}
+                    </span>
+                  </div>
+                  <button
+                    onClick={signOut}
+                    className="text-green-600 hover:text-green-700 flex items-center gap-1 text-sm"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
           
           <div className="w-full lg:w-1/2 relative mt-6 lg:mt-0">
@@ -167,4 +212,4 @@ const Hero = () => {
   );
 };
 
-export default Hero;
+export default Hero; 

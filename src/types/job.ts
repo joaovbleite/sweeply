@@ -131,3 +131,6 @@ export interface JobStats {
   total_revenue: number;
   avg_job_value: number;
 } 
+ 
+ 
+ 

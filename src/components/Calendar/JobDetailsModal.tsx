@@ -541,3 +541,6 @@ const JobDetailsModal: React.FC<JobDetailsModalProps> = ({
 };
 
 export default JobDetailsModal; 
+ 
+ 
+ 

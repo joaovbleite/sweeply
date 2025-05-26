@@ -55,3 +55,6 @@ CREATE TRIGGER update_clients_updated_at
     BEFORE UPDATE ON clients
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column(); 
+ 
+ 
+ 

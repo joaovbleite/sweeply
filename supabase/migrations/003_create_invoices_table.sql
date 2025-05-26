@@ -86,3 +86,6 @@ $$ LANGUAGE plpgsql;
 
 -- Create a scheduled job to run daily (this would typically be set up in your deployment)
 -- SELECT cron.schedule('update-overdue-invoices', '0 1 * * *', 'SELECT update_overdue_invoices();'); 
+ 
+ 
+ 

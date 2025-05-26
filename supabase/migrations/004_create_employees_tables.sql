@@ -293,3 +293,6 @@ CREATE TRIGGER calculate_payroll_before_insert_update
   BEFORE INSERT OR UPDATE ON payroll_entries
   FOR EACH ROW
   EXECUTE FUNCTION calculate_payroll_totals(); 
+ 
+ 
+ 

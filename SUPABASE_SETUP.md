@@ -129,3 +129,6 @@ Once Supabase is set up:
 ---
 
 **Need help?** Check the Supabase documentation or create an issue in this repository. 
+ 
+ 
+ 

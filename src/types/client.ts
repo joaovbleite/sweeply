@@ -32,3 +32,6 @@ export interface CreateClientInput {
 export interface UpdateClientInput extends Partial<CreateClientInput> {
   is_active?: boolean;
 } 
+ 
+ 
+ 

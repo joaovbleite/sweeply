@@ -24,3 +24,28 @@
   "csvReportExported": "¡Reporte CSV exportado exitosamente!",
   "pdfReportExported": "¡Reporte PDF exportado exitosamente!"
 } 
+  "businessReports": "Reportes de Negocio",
+  "comprehensiveAnalytics": "Análisis integral e insights para tu negocio de limpieza",
+  "totalRevenue": "Ingresos Totales",
+  "completedJobs": "Trabajos Completados",
+  "activeClients": "Clientes Activos",
+  "avgJobValue": "Valor Promedio por Trabajo",
+  "completionRate": "tasa de finalización",
+  "newThisMonth": "nuevos este mes",
+  "jobsScheduled": "trabajos programados",
+  "vsLastMonth": "vs mes pasado",
+  "overview": "Resumen",
+  "revenue": "Ingresos",
+  "clients": "Clientes",
+  "services": "Servicios",
+  "performance": "Rendimiento",
+  "revenueTrend": "Tendencia de Ingresos (Últimos 12 Meses)",
+  "serviceTypePerformance": "Rendimiento por Tipo de Servicio",
+  "topClientsByRevenue": "Mejores Clientes por Ingresos",
+  "jobsCompleted": "trabajos completados",
+  "filters": "Filtros",
+  "exportCSV": "Exportar CSV",
+  "exportPDF": "Exportar PDF",
+  "csvReportExported": "¡Reporte CSV exportado exitosamente!",
+  "pdfReportExported": "¡Reporte PDF exportado exitosamente!"
+} 
