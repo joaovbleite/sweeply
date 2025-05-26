@@ -867,7 +867,7 @@ const AdvancedCalendarView: React.FC<AdvancedCalendarViewProps> = ({
           {/* Priority Filter */}
           <select
             value={selectedPriority}
-            onChange={(e) => setSelectedPriority(e.target.value as any)}
+            onChange={(e) => setSelectedPriority(e.target.value as 'all' | 'high' | 'medium' | 'low')}
             className="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
           >
             <option value="all">All Priorities</option>
@@ -879,7 +879,7 @@ const AdvancedCalendarView: React.FC<AdvancedCalendarViewProps> = ({
           {/* Theme Selector */}
           <select
             value={calendarTheme}
-            onChange={(e) => setCalendarTheme(e.target.value as any)}
+            onChange={(e) => setCalendarTheme(e.target.value as 'light' | 'dark' | 'colorful')}
             className="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
           >
             <option value="light">Light Theme</option>
