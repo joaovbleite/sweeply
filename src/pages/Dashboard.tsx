@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
   Calendar, 
@@ -13,6 +13,7 @@ import {
   Clock
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { testSupabaseConnection, checkEnvironmentVariables } from "@/lib/test-supabase";
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -21,6 +22,17 @@ const Dashboard = () => {
 
   // Get user's name from metadata or email
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'there';
+
+  // Test Supabase connection on component mount
+  useEffect(() => {
+    const runTests = async () => {
+      console.log('🧪 Running Supabase tests...');
+      checkEnvironmentVariables();
+      await testSupabaseConnection();
+    };
+    
+    runTests();
+  }, []);
 
   const handleLogout = async () => {
     await signOut();
