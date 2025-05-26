@@ -1,20 +1,40 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Plus, Calendar as CalendarIcon, AlertCircle } from "lucide-react";
+import { 
+  Calendar as CalendarIcon, 
+  Plus, 
+  Filter, 
+  Download,
+  Settings,
+  BarChart3,
+  Eye,
+  EyeOff,
+  RefreshCw,
+  Zap,
+  Target
+} from "lucide-react";
 import { toast } from "sonner";
 import { jobsApi } from "@/lib/api/jobs";
 import { Job } from "@/types/job";
+import { useAuth } from "@/contexts/AuthContext";
 import AppLayout from "@/components/AppLayout";
-import CalendarView from "@/components/Calendar/CalendarView";
+import AdvancedCalendarView from "@/components/Calendar/AdvancedCalendarView";
 import QuickJobModal from "@/components/Calendar/QuickJobModal";
+import JobDetailsModal from "@/components/Calendar/JobDetailsModal";
+import CalendarAnalytics from "@/components/Calendar/CalendarAnalytics";
 
 const Calendar = () => {
+  const { user } = useAuth();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedTime, setSelectedTime] = useState<string | undefined>();
   const [showQuickJobModal, setShowQuickJobModal] = useState(false);
+  const [showJobDetailsModal, setShowJobDetailsModal] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string>("");
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [calendarView, setCalendarView] = useState<'month' | 'week' | 'day' | 'timeline'>('month');
+  const [autoRefresh, setAutoRefresh] = useState(false);
 
   // Load jobs
   const loadJobs = async () => {
@@ -24,7 +44,7 @@ const Calendar = () => {
       setJobs(data);
     } catch (error) {
       console.error('Error loading jobs:', error);
-      toast.error("Failed to load jobs");
+      toast.error('Failed to load jobs');
     } finally {
       setLoading(false);
     }
@@ -34,213 +54,317 @@ const Calendar = () => {
     loadJobs();
   }, []);
 
-  // Handle date click - open quick job modal
+  // Auto-refresh functionality
+  useEffect(() => {
+    if (!autoRefresh) return;
+    
+    const interval = setInterval(() => {
+      loadJobs();
+    }, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [autoRefresh]);
+
+  // Handle job creation
+  const handleJobCreated = () => {
+    loadJobs();
+    setShowQuickJobModal(false);
+    toast.success('Job created successfully!');
+  };
+
+  // Handle date click
   const handleDateClick = (date: Date, time?: string) => {
     setSelectedDate(date);
-    setSelectedTime(time);
+    setSelectedTime(time || "");
     setShowQuickJobModal(true);
   };
 
-  // Handle job click - show job details (for now just show info)
+  // Handle job click
   const handleJobClick = (job: Job) => {
     setSelectedJob(job);
-    // For now, just show a toast with job info
-    // Later we can add a job details modal or navigate to job edit page
-    toast.info(`${job.title} - ${job.client?.name}`, {
-      description: `Scheduled for ${new Date(job.scheduled_date).toLocaleDateString()}${job.scheduled_time ? ` at ${job.scheduled_time}` : ''}`,
-      action: {
-        label: "Edit",
-        onClick: () => {
-          // Navigate to edit job page
-          window.location.href = `/jobs/${job.id}/edit`;
-        }
-      }
-    });
+    setShowJobDetailsModal(true);
   };
 
-  // Handle job drag and drop - reschedule job
+  // Handle job drag and drop
   const handleJobDrop = async (jobId: string, newDate: string, newTime?: string) => {
     try {
-      const updates: any = {
-        scheduled_date: newDate
-      };
-      
-      if (newTime) {
-        updates.scheduled_time = newTime;
-      }
+      const job = jobs.find(j => j.id === jobId);
+      if (!job) return;
 
-      await jobsApi.update(jobId, updates);
-      toast.success("Job rescheduled successfully!");
-      loadJobs(); // Reload to show updated schedule
+      const updateData = {
+        scheduled_date: newDate,
+        ...(newTime && { scheduled_time: newTime })
+      };
+
+      await jobsApi.update(jobId, updateData);
+      await loadJobs();
+      toast.success('Job rescheduled successfully!');
     } catch (error) {
       console.error('Error rescheduling job:', error);
-      toast.error("Failed to reschedule job");
+      toast.error('Failed to reschedule job');
     }
   };
 
-  // Handle job created from quick modal
-  const handleJobCreated = () => {
-    loadJobs(); // Reload jobs to show the new one
+  // Handle job status change
+  const handleJobStatusChange = async (jobId: string, status: string) => {
+    try {
+      await jobsApi.update(jobId, { status: status as any });
+      await loadJobs();
+      toast.success(`Job status updated to ${status}`);
+    } catch (error) {
+      console.error('Error updating job status:', error);
+      toast.error('Failed to update job status');
+    }
   };
 
-  // Get today's jobs count
-  const getTodaysJobsCount = () => {
-    const today = new Date().toISOString().split('T')[0];
-    return jobs.filter(job => job.scheduled_date === today).length;
+  // Handle job edit
+  const handleJobEdit = (job: Job) => {
+    // Navigate to edit job page or open edit modal
+    console.log('Edit job:', job);
+    toast.info('Job editing feature coming soon!');
   };
 
-  // Get upcoming jobs count (next 7 days)
-  const getUpcomingJobsCount = () => {
-    const today = new Date();
-    const nextWeek = new Date();
-    nextWeek.setDate(nextWeek.getDate() + 7);
+  // Handle job delete
+  const handleJobDelete = async (jobId: string) => {
+    if (!confirm('Are you sure you want to delete this job?')) return;
     
-    const todayStr = today.toISOString().split('T')[0];
-    const nextWeekStr = nextWeek.toISOString().split('T')[0];
-    
-    return jobs.filter(job => 
-      job.scheduled_date >= todayStr && 
-      job.scheduled_date <= nextWeekStr &&
-      job.status !== 'cancelled'
-    ).length;
+    try {
+      await jobsApi.delete(jobId);
+      await loadJobs();
+      setShowJobDetailsModal(false);
+      toast.success('Job deleted successfully');
+    } catch (error) {
+      console.error('Error deleting job:', error);
+      toast.error('Failed to delete job');
+    }
   };
 
-  // Check for scheduling conflicts
-  const getConflicts = () => {
-    const conflicts: { date: string; jobs: Job[] }[] = [];
-    const jobsByDate: { [key: string]: Job[] } = {};
-    
-    // Group jobs by date
-    jobs.forEach(job => {
-      if (job.status !== 'cancelled') {
-        if (!jobsByDate[job.scheduled_date]) {
-          jobsByDate[job.scheduled_date] = [];
-        }
-        jobsByDate[job.scheduled_date].push(job);
-      }
-    });
-    
-    // Find dates with potential conflicts (multiple jobs at same time)
-    Object.entries(jobsByDate).forEach(([date, dateJobs]) => {
-      const timeSlots: { [key: string]: Job[] } = {};
-      
-      dateJobs.forEach(job => {
-        if (job.scheduled_time) {
-          const timeKey = job.scheduled_time.substring(0, 5); // HH:MM format
-          if (!timeSlots[timeKey]) {
-            timeSlots[timeKey] = [];
-          }
-          timeSlots[timeKey].push(job);
-        }
-      });
-      
-      // Check for conflicts (more than one job at same time)
-      Object.entries(timeSlots).forEach(([time, timeJobs]) => {
-        if (timeJobs.length > 1) {
-          conflicts.push({ date, jobs: timeJobs });
-        }
-      });
-    });
-    
-    return conflicts;
+  // Handle job duplicate
+  const handleJobDuplicate = async (job: Job) => {
+    try {
+      const duplicateData = {
+        client_id: job.client_id,
+        title: `${job.title} (Copy)`,
+        service_type: job.service_type,
+        scheduled_date: job.scheduled_date,
+        scheduled_time: job.scheduled_time,
+        estimated_duration: job.estimated_duration,
+        estimated_price: job.estimated_price,
+        address: job.address,
+        special_instructions: job.special_instructions,
+        access_instructions: job.access_instructions,
+        is_recurring: false, // Don't duplicate recurring settings
+        status: 'scheduled'
+      };
+
+      await jobsApi.create(duplicateData);
+      await loadJobs();
+      setShowJobDetailsModal(false);
+      toast.success('Job duplicated successfully!');
+    } catch (error) {
+      console.error('Error duplicating job:', error);
+      toast.error('Failed to duplicate job');
+    }
   };
 
-  const conflicts = getConflicts();
+  // Export calendar data
+  const handleExportCalendar = () => {
+    const calendarData = jobs.map(job => ({
+      title: job.title,
+      client: job.client?.name,
+      date: job.scheduled_date,
+      time: job.scheduled_time,
+      service: job.service_type,
+      status: job.status,
+      price: job.estimated_price,
+      duration: job.estimated_duration
+    }));
+
+    const csvContent = [
+      ['Title', 'Client', 'Date', 'Time', 'Service', 'Status', 'Price', 'Duration'],
+      ...calendarData.map(job => [
+        job.title,
+        job.client,
+        job.date,
+        job.time || '',
+        job.service,
+        job.status,
+        job.price || '',
+        job.duration || ''
+      ])
+    ].map(row => row.join(',')).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sweeply-calendar-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    toast.success('Calendar exported successfully!');
+  };
+
+  // Calculate quick stats
+  const todayJobs = jobs.filter(job => 
+    job.scheduled_date === new Date().toISOString().split('T')[0]
+  );
+  
+  const weeklyRevenue = jobs
+    .filter(job => {
+      const jobDate = new Date(job.scheduled_date);
+      const weekStart = new Date();
+      weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekEnd.getDate() + 6);
+      return jobDate >= weekStart && jobDate <= weekEnd;
+    })
+    .reduce((sum, job) => sum + (job.estimated_price || 0), 0);
+
+  const conflicts = jobs.filter(job => {
+    const sameTimeJobs = jobs.filter(j => 
+      j.scheduled_date === job.scheduled_date && 
+      j.scheduled_time === job.scheduled_time && 
+      j.id !== job.id
+    );
+    return sameTimeJobs.length > 0;
+  }).length;
 
   return (
     <AppLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+      <div className="space-y-6">
+        {/* Enhanced Header */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-display font-bold text-gray-900">Calendar</h1>
-            <p className="mt-1 text-gray-600">Schedule and manage your cleaning appointments</p>
+            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+              <CalendarIcon className="w-8 h-8 text-pulse-500" />
+              Professional Calendar
+            </h1>
+            <p className="text-gray-600 mt-1">
+              Advanced scheduling with drag & drop, analytics, and conflict detection
+            </p>
           </div>
-          <Link
-            to="/jobs/new"
-            className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 transition-colors"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            New Job
-          </Link>
+
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Quick Stats */}
+            <div className="flex items-center gap-4 bg-white rounded-lg px-4 py-2 shadow-sm border">
+              <div className="text-center">
+                <div className="text-lg font-bold text-pulse-600">{todayJobs.length}</div>
+                <div className="text-xs text-gray-600">Today</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-green-600">${weeklyRevenue}</div>
+                <div className="text-xs text-gray-600">Week</div>
+              </div>
+              {conflicts > 0 && (
+                <div className="text-center">
+                  <div className="text-lg font-bold text-red-600">{conflicts}</div>
+                  <div className="text-xs text-gray-600">Conflicts</div>
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <button
+              onClick={() => setAutoRefresh(!autoRefresh)}
+              className={`p-2 rounded-lg transition-colors ${
+                autoRefresh 
+                  ? 'bg-green-100 text-green-600' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+              title={autoRefresh ? 'Auto-refresh enabled' : 'Enable auto-refresh'}
+            >
+              <RefreshCw className={`w-5 h-5 ${autoRefresh ? 'animate-spin' : ''}`} />
+            </button>
+
+            <button
+              onClick={() => setShowAnalytics(!showAnalytics)}
+              className={`p-2 rounded-lg transition-colors ${
+                showAnalytics 
+                  ? 'bg-pulse-100 text-pulse-600' 
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+              title="Toggle analytics"
+            >
+              {showAnalytics ? <EyeOff className="w-5 h-5" /> : <BarChart3 className="w-5 h-5" />}
+            </button>
+
+            <button
+              onClick={handleExportCalendar}
+              className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+              title="Export calendar"
+            >
+              <Download className="w-5 h-5" />
+            </button>
+
+            <button
+              onClick={() => handleDateClick(new Date())}
+              className="px-4 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 transition-colors flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Quick Add
+            </button>
+          </div>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <CalendarIcon className="h-8 w-8 text-blue-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Today's Jobs</p>
-                <p className="text-2xl font-bold text-gray-900">{getTodaysJobsCount()}</p>
-              </div>
+        {/* Analytics Dashboard */}
+        {showAnalytics && (
+          <div className="bg-gray-50 rounded-xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <BarChart3 className="w-5 h-5" />
+                Calendar Analytics
+              </h2>
+              <button
+                onClick={() => setShowAnalytics(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <EyeOff className="w-5 h-5" />
+              </button>
             </div>
+            <CalendarAnalytics 
+              jobs={jobs} 
+              currentDate={currentDate} 
+              view={calendarView === 'day' || calendarView === 'timeline' ? 'week' : calendarView}
+            />
           </div>
+        )}
 
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <CalendarIcon className="h-8 w-8 text-green-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">This Week</p>
-                <p className="text-2xl font-bold text-gray-900">{getUpcomingJobsCount()}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <AlertCircle className={`h-8 w-8 ${conflicts.length > 0 ? 'text-red-600' : 'text-gray-400'}`} />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Conflicts</p>
-                <p className={`text-2xl font-bold ${conflicts.length > 0 ? 'text-red-600' : 'text-gray-900'}`}>
-                  {conflicts.length}
-                </p>
-              </div>
-            </div>
-          </div>
+        {/* Advanced Calendar */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <AdvancedCalendarView
+            jobs={jobs}
+            onJobClick={handleJobClick}
+            onDateClick={handleDateClick}
+            onJobDrop={handleJobDrop}
+            loading={loading}
+          />
         </div>
 
-        {/* Conflicts Alert */}
-        {conflicts.length > 0 && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <div className="flex">
-              <AlertCircle className="h-5 w-5 text-red-400 mt-0.5" />
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">
-                  Scheduling Conflicts Detected
-                </h3>
-                <div className="mt-2 text-sm text-red-700">
-                  <p>You have {conflicts.length} scheduling conflict(s) that need attention:</p>
-                  <ul className="mt-1 list-disc list-inside">
-                    {conflicts.slice(0, 3).map((conflict, index) => (
-                      <li key={index}>
-                        {new Date(conflict.date).toLocaleDateString()}: {conflict.jobs.length} jobs at the same time
-                      </li>
-                    ))}
-                    {conflicts.length > 3 && (
-                      <li>...and {conflicts.length - 3} more</li>
-                    )}
-                  </ul>
+        {/* Performance Tips */}
+        {!showAnalytics && (
+          <div className="bg-gradient-to-r from-pulse-50 to-blue-50 rounded-lg p-6 border border-pulse-200">
+            <div className="flex items-start gap-4">
+              <div className="p-2 bg-pulse-100 rounded-lg">
+                <Target className="w-6 h-6 text-pulse-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2">Scheduling Tips</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-700">
+                  <div>
+                    <strong>Optimize Routes:</strong> Group nearby jobs together to reduce travel time
+                  </div>
+                  <div>
+                    <strong>Buffer Time:</strong> Add 15-30 minutes between jobs for travel and setup
+                  </div>
+                  <div>
+                    <strong>Peak Hours:</strong> Schedule high-value services during optimal time slots
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         )}
-
-        {/* Calendar */}
-        <CalendarView
-          jobs={jobs}
-          onJobClick={handleJobClick}
-          onDateClick={handleDateClick}
-          onJobDrop={handleJobDrop}
-          loading={loading}
-        />
 
         {/* Quick Job Modal */}
         <QuickJobModal
@@ -252,17 +376,16 @@ const Calendar = () => {
           existingJobs={jobs}
         />
 
-        {/* Instructions */}
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 className="text-sm font-medium text-blue-900 mb-2">How to use the calendar:</h4>
-          <ul className="text-sm text-blue-800 space-y-1">
-            <li>• <strong>Click on any date</strong> to quickly schedule a new job</li>
-            <li>• <strong>Drag and drop jobs</strong> to reschedule them to different dates/times</li>
-            <li>• <strong>Click on jobs</strong> to view details or edit them</li>
-            <li>• <strong>Use the view toggle</strong> to switch between month, week, and day views</li>
-            <li>• <strong>Filter by service type</strong> to focus on specific types of jobs</li>
-          </ul>
-        </div>
+        {/* Job Details Modal */}
+        <JobDetailsModal
+          job={selectedJob}
+          isOpen={showJobDetailsModal}
+          onClose={() => setShowJobDetailsModal(false)}
+          onEdit={handleJobEdit}
+          onDelete={handleJobDelete}
+          onStatusChange={handleJobStatusChange}
+          onDuplicate={handleJobDuplicate}
+        />
       </div>
     </AppLayout>
   );
