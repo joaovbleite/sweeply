@@ -15,6 +15,7 @@ import Clients from "./pages/Clients";
 import AddClient from "./pages/AddClient";
 import Jobs from "./pages/Jobs";
 import AddJob from "./pages/AddJob";
+import Calendar from "./pages/Calendar";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +68,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <AddJob />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/calendar" 
+              element={
+                <ProtectedRoute>
+                  <Calendar />
                 </ProtectedRoute>
               } 
             />

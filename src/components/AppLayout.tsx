@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
+  LayoutDashboard,
   Calendar, 
   Users, 
   Briefcase,
@@ -30,7 +31,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   };
 
   const sidebarItems = [
-    { id: "overview", label: "Overview", icon: Calendar, path: "/dashboard" },
+    { id: "overview", label: "Overview", icon: LayoutDashboard, path: "/dashboard" },
+    { id: "calendar", label: "Calendar", icon: Calendar, path: "/calendar" },
     { id: "jobs", label: "Jobs", icon: Briefcase, path: "/jobs" },
     { id: "clients", label: "Clients", icon: Users, path: "/clients" },
     { id: "invoices", label: "Invoices", icon: FileText, path: "/invoices" },
