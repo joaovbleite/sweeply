@@ -27,12 +27,17 @@ const Dashboard = () => {
   useEffect(() => {
     const runTests = async () => {
       console.log('🧪 Running Supabase tests...');
+      console.log('👤 Current user object:', user);
+      console.log('📧 User email:', user?.email);
+      console.log('🆔 User ID:', user?.id);
+      console.log('📝 User metadata:', user?.user_metadata);
+      
       checkEnvironmentVariables();
       await testSupabaseConnection();
     };
     
     runTests();
-  }, []);
+  }, [user]);
 
   const handleLogout = async () => {
     await signOut();
@@ -147,6 +152,19 @@ const Dashboard = () => {
 
         {/* Dashboard Content */}
         <main className="flex-1 p-6">
+          {/* Authentication Status Banner */}
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <span className="text-green-800 font-medium">
+                ✅ Authenticated as: {user?.email}
+              </span>
+              <span className="text-green-600 text-sm">
+                (User ID: {user?.id?.slice(0, 8)}...)
+              </span>
+            </div>
+          </div>
+
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {stats.map((stat, index) => {

@@ -137,15 +137,6 @@ const Login = () => {
             </button>
           </form>
 
-          {/* Demo credentials for testing */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600 text-center">
-              For demo purposes, use:<br />
-              Email: demo@sweeply.com<br />
-              Password: demo123456
-            </p>
-          </div>
-
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
