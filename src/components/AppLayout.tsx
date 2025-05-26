@@ -10,7 +10,9 @@ import {
   Settings, 
   LogOut,
   Menu,
-  X
+  X,
+  UserCheck,
+  Target
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -36,7 +38,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     { id: "jobs", label: "Jobs", icon: Briefcase, path: "/jobs" },
     { id: "clients", label: "Clients", icon: Users, path: "/clients" },
     { id: "invoices", label: "Invoices", icon: FileText, path: "/invoices" },
-    { id: "payments", label: "Payments", icon: CreditCard, path: "/payments" },
+    { id: "employees", label: "Team", icon: UserCheck, path: "/employees" },
+    { id: "payroll", label: "Payroll", icon: CreditCard, path: "/payroll" },
     { id: "settings", label: "Settings", icon: Settings, path: "/settings" },
   ];
 
