@@ -36,6 +36,8 @@ import { Client } from "@/types/client";
 import { Invoice } from "@/types/invoice";
 import { format, isToday, startOfDay, endOfDay, subDays, startOfWeek, endOfWeek } from "date-fns";
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import WelcomeWidget from "@/components/dashboard/WelcomeWidget";
+import PerformanceMetrics from "@/components/dashboard/PerformanceMetrics";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -304,13 +306,7 @@ const Dashboard = () => {
       <div className="flex-1 p-3 sm:p-6 max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-display font-bold text-gray-900">
-              {t('dashboard:welcome')}, {userName}!
-            </h1>
-            <p className="text-gray-600 mt-1 text-sm sm:text-base">{t('dashboard:todayIs')} {formatDate(new Date())}</p>
-          </div>
-          <div className="flex items-center gap-3 mt-4 sm:mt-0">
+          <div className="flex items-center gap-3">
             <button
               onClick={handleRefresh}
               disabled={refreshing}
@@ -329,15 +325,20 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Welcome Widget */}
+        <div className="mb-8">
+          <WelcomeWidget />
+        </div>
+
         {/* Stats Grid - Enhanced with trends */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             const TrendIcon = stat.trend === 'up' ? ArrowUpRight : stat.trend === 'down' ? ArrowDownRight : Activity;
             return (
-              <div key={index} className="bg-white rounded-2xl shadow-sm p-5 hover:shadow-md transition-all hover:scale-[1.02]">
+              <div key={index} className="bg-white rounded-2xl shadow-sm p-5 hover:shadow-md transition-all hover:scale-[1.02] group">
                 <div className="flex items-center justify-between mb-3">
-                  <div className={`p-3 rounded-lg bg-gradient-to-r ${stat.color}`}>
+                  <div className={`p-3 rounded-lg bg-gradient-to-r ${stat.color} group-hover:scale-110 transition-transform`}>
                     <Icon className="w-5 h-5 text-white" />
                   </div>
                   <div className={`flex items-center gap-1 text-sm font-medium ${
@@ -361,15 +362,15 @@ const Dashboard = () => {
           {/* Left Column - Takes 2/3 on large screens */}
           <div className="lg:col-span-2 space-y-6">
             {/* Revenue Chart */}
-            <div className="bg-white rounded-2xl shadow-sm p-6">
+            <div className="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-display font-bold text-gray-900">Revenue Overview</h2>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setSelectedTimeRange('week')}
-                    className={`px-3 py-1 text-sm rounded-lg transition-colors ${
+                    className={`px-3 py-1 text-sm rounded-lg transition-all ${
                       selectedTimeRange === 'week' 
-                        ? 'bg-pulse-100 text-pulse-700' 
+                        ? 'bg-pulse-100 text-pulse-700 scale-105' 
                         : 'text-gray-600 hover:bg-gray-100'
                     }`}
                   >
@@ -377,9 +378,9 @@ const Dashboard = () => {
                   </button>
                   <button
                     onClick={() => setSelectedTimeRange('month')}
-                    className={`px-3 py-1 text-sm rounded-lg transition-colors ${
+                    className={`px-3 py-1 text-sm rounded-lg transition-all ${
                       selectedTimeRange === 'month' 
-                        ? 'bg-pulse-100 text-pulse-700' 
+                        ? 'bg-pulse-100 text-pulse-700 scale-105' 
                         : 'text-gray-600 hover:bg-gray-100'
                     }`}
                   >
@@ -416,14 +417,14 @@ const Dashboard = () => {
             </div>
 
             {/* Today's Schedule */}
-            <div className="bg-white rounded-2xl shadow-sm p-6">
+            <div className="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-display font-bold text-gray-900">
                   {t('dashboard:todaysSchedule')}
                 </h2>
                 <Link 
                   to="/calendar"
-                  className="text-sm text-pulse-600 hover:text-pulse-700 font-medium flex items-center gap-1"
+                  className="text-sm text-pulse-600 hover:text-pulse-700 font-medium flex items-center gap-1 hover:gap-2 transition-all"
                 >
                   View all <ChevronRight className="w-4 h-4" />
                 </Link>
@@ -435,10 +436,10 @@ const Dashboard = () => {
                     <Link
                       key={job.id}
                       to={`/jobs/${job.id}`}
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all hover:shadow-sm group"
+                      className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl hover:from-pulse-50 hover:to-pulse-100 transition-all hover:shadow-sm group"
                     >
                       <div className="flex items-start gap-4">
-                        <div className="p-2 bg-white rounded-lg shadow-sm">
+                        <div className="p-2 bg-white rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
                           <Clock className="w-5 h-5 text-pulse-600" />
                         </div>
                         <div className="flex-1">
@@ -469,11 +470,13 @@ const Dashboard = () => {
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Calendar className="w-10 h-10 text-gray-300" />
+                  </div>
                   <p className="text-gray-500 mb-3">{t('dashboard:noJobsToday')}</p>
                   <Link 
                     to="/jobs/new"
-                    className="inline-flex items-center gap-2 text-pulse-600 hover:text-pulse-700 font-medium"
+                    className="inline-flex items-center gap-2 text-pulse-600 hover:text-pulse-700 font-medium hover:gap-3 transition-all"
                   >
                     {t('dashboard:scheduleJob')} <ArrowUpRight className="w-4 h-4" />
                   </Link>
@@ -484,36 +487,39 @@ const Dashboard = () => {
 
           {/* Right Column - Takes 1/3 on large screens */}
           <div className="space-y-6">
+            {/* Performance Metrics */}
+            <PerformanceMetrics />
+
             {/* Quick Actions */}
-            <div className="bg-white rounded-2xl shadow-sm p-6">
+            <div className="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow">
               <h2 className="text-xl font-display font-bold text-gray-900 mb-6">
                 {t('dashboard:quickActions')}
               </h2>
               <div className="grid grid-cols-2 gap-3">
                 <Link 
                   to="/jobs/new"
-                  className="p-4 bg-gradient-to-br from-pulse-500 to-pulse-600 text-white rounded-xl hover:from-pulse-600 hover:to-pulse-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex flex-col items-center gap-2 shadow-sm"
+                  className="p-4 bg-gradient-to-br from-pulse-500 to-pulse-600 text-white rounded-xl hover:from-pulse-600 hover:to-pulse-700 transition-all transform hover:scale-[1.05] active:scale-[0.98] flex flex-col items-center gap-2 shadow-md hover:shadow-lg"
                 >
                   <Calendar className="w-5 h-5" />
                   <span className="text-xs font-medium text-center">{t('dashboard:newJob')}</span>
                 </Link>
                 <Link 
                   to="/clients/new"
-                  className="p-4 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex flex-col items-center gap-2 shadow-sm"
+                  className="p-4 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-[1.05] active:scale-[0.98] flex flex-col items-center gap-2 shadow-md hover:shadow-lg"
                 >
                   <Users className="w-5 h-5" />
                   <span className="text-xs font-medium text-center">{t('dashboard:addClient')}</span>
                 </Link>
                 <Link 
                   to="/invoices/new"
-                  className="p-4 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex flex-col items-center gap-2 shadow-sm"
+                  className="p-4 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-[1.05] active:scale-[0.98] flex flex-col items-center gap-2 shadow-md hover:shadow-lg"
                 >
                   <FileText className="w-5 h-5" />
                   <span className="text-xs font-medium text-center">{t('dashboard:createInvoice')}</span>
                 </Link>
                 <Link 
                   to="/reports"
-                  className="p-4 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex flex-col items-center gap-2 shadow-sm"
+                  className="p-4 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all transform hover:scale-[1.05] active:scale-[0.98] flex flex-col items-center gap-2 shadow-md hover:shadow-lg"
                 >
                   <BarChart3 className="w-5 h-5" />
                   <span className="text-xs font-medium text-center">{t('dashboard:viewReports')}</span>
@@ -522,12 +528,12 @@ const Dashboard = () => {
             </div>
 
             {/* Recent Activity */}
-            <div className="bg-white rounded-2xl shadow-sm p-6">
+            <div className="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-display font-bold text-gray-900">Recent Activity</h2>
                 <Link
                   to="/activity"
-                  className="text-sm text-pulse-600 hover:text-pulse-700 font-medium"
+                  className="text-sm text-pulse-600 hover:text-pulse-700 font-medium hover:underline"
                 >
                   View all
                 </Link>
@@ -536,7 +542,7 @@ const Dashboard = () => {
                 {recentActivities.map((activity) => {
                   const Icon = activity.icon;
                   return (
-                    <div key={activity.id} className="flex items-start gap-3">
+                    <div key={activity.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
                       <div className={`p-2 rounded-lg ${activity.color}`}>
                         <Icon className="w-4 h-4" />
                       </div>
@@ -548,27 +554,6 @@ const Dashboard = () => {
                     </div>
                   );
                 })}
-              </div>
-            </div>
-
-            {/* Upcoming Tasks */}
-            <div className="bg-white rounded-2xl shadow-sm p-6">
-              <h2 className="text-xl font-display font-bold text-gray-900 mb-4">Upcoming Tasks</h2>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg">
-                  <Bell className="w-5 h-5 text-yellow-600" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">Invoice Reminder</p>
-                    <p className="text-xs text-gray-600">3 invoices due this week</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-                  <UserCheck className="w-5 h-5 text-blue-600" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">Client Follow-up</p>
-                    <p className="text-xs text-gray-600">2 clients to contact</p>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
