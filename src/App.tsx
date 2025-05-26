@@ -13,6 +13,8 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Clients from "./pages/Clients";
 import AddClient from "./pages/AddClient";
+import Jobs from "./pages/Jobs";
+import AddJob from "./pages/AddJob";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +51,22 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <AddClient />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/jobs" 
+              element={
+                <ProtectedRoute>
+                  <Jobs />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/jobs/new" 
+              element={
+                <ProtectedRoute>
+                  <AddJob />
                 </ProtectedRoute>
               } 
             />

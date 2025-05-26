@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { 
   Calendar, 
   Users, 
+  Briefcase,
   FileText, 
   CreditCard, 
   Settings, 
@@ -30,6 +31,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   const sidebarItems = [
     { id: "overview", label: "Overview", icon: Calendar, path: "/dashboard" },
+    { id: "jobs", label: "Jobs", icon: Briefcase, path: "/jobs" },
     { id: "clients", label: "Clients", icon: Users, path: "/clients" },
     { id: "invoices", label: "Invoices", icon: FileText, path: "/invoices" },
     { id: "payments", label: "Payments", icon: CreditCard, path: "/payments" },
