@@ -553,3 +553,4 @@ For translation issues or questions:
 - Contact the development team
 
 Remember: Good translations improve user experience and business success for immigrant entrepreneurs! 🌍 
+ 

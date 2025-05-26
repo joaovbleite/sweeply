@@ -11,9 +11,7 @@ import {
   AlertCircle,
   RefreshCw,
   CheckCircle,
-  XCircle,
-  ArrowRight,
-  Zap
+  XCircle
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -225,9 +223,9 @@ const Dashboard = () => {
             const Icon = stat.icon;
             const TrendIcon = stat.trend === 'up' ? TrendingUp : stat.trend === 'down' ? XCircle : CheckCircle;
             return (
-              <div key={index} className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+              <div key={index} className="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-4">
-                  <div className={`p-3 rounded-xl bg-gradient-to-r ${stat.color} shadow-lg`}>
+                  <div className={`p-3 rounded-lg bg-gradient-to-r ${stat.color}`}>
                     <Icon className="w-6 h-6 text-white" />
                   </div>
                   <TrendIcon className={`w-5 h-5 ${
@@ -235,142 +233,106 @@ const Dashboard = () => {
                     stat.trend === 'down' ? 'text-red-500' : 'text-gray-400'
                   }`} />
                 </div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</h3>
-                <p className="text-gray-600 text-sm font-medium">{stat.label}</p>
-                <div className="mt-3 flex items-center">
-                  <div className={`w-full bg-gray-200 rounded-full h-2 ${stat.trend === 'up' ? 'bg-green-100' : stat.trend === 'down' ? 'bg-red-100' : 'bg-gray-100'}`}>
-                    <div 
-                      className={`h-2 rounded-full transition-all duration-1000 ${
-                        stat.trend === 'up' ? 'bg-green-500' : 
-                        stat.trend === 'down' ? 'bg-red-500' : 'bg-gray-400'
-                      }`}
-                      style={{ width: `${Math.random() * 60 + 40}%` }}
-                    />
-                  </div>
-                </div>
+                <h3 className="text-2xl font-bold text-gray-900">{stat.value}</h3>
+                <p className="text-gray-600 text-sm">{stat.label}</p>
               </div>
             );
           })}
         </div>
 
         {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Today's Schedule */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-all duration-300">
+          <div className="bg-white rounded-2xl shadow-sm p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-display font-bold text-gray-900 flex items-center gap-2">
-                <Calendar className="w-6 h-6 text-pulse-500" />
+              <h2 className="text-xl font-display font-bold text-gray-900">
                 {t('dashboard:todaysSchedule')}
               </h2>
-              <span className="bg-pulse-100 text-pulse-700 px-3 py-1 rounded-full text-sm font-medium">
+              <span className="text-sm text-gray-500">
                 {upcomingJobs.length} {t('dashboard:jobsScheduled')}
               </span>
             </div>
             
             {upcomingJobs.length > 0 ? (
               <div className="space-y-4">
-                {upcomingJobs.map((job, index) => (
-                  <div key={job.id} className="group p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl hover:from-pulse-50 hover:to-pulse-100 transition-all duration-300 border border-gray-200 hover:border-pulse-300">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className="w-10 h-10 bg-pulse-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                            {index + 1}
-                          </div>
-                          <div>
-                            <h4 className="font-semibold text-gray-900 group-hover:text-pulse-700 transition-colors">
-                              {job.client?.name || t('dashboard:unknownClient')}
-                            </h4>
-                            <p className="text-sm text-gray-600 capitalize">
-                              {job.service_type?.replace('_', ' ') || t('dashboard:cleaningService')}
-                            </p>
-                          </div>
-                        </div>
-                        <p className="text-xs text-gray-500 ml-13">
-                          📍 {job.address || t('dashboard:noAddress')}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-lg font-bold text-pulse-600">
-                          {format(new Date(job.scheduled_date), 'HH:mm')}
-                        </span>
-                        <p className="text-sm text-gray-600 font-medium">
-                          {formatCurrency(job.estimated_price || 0)}
-                        </p>
-                      </div>
+                {upcomingJobs.map((job) => (
+                  <div key={job.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900">
+                        {job.client?.name || t('dashboard:unknownClient')}
+                      </h4>
+                      <p className="text-sm text-gray-600 capitalize">
+                        {job.service_type?.replace('_', ' ') || t('dashboard:cleaningService')}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {job.address || t('dashboard:noAddress')}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-sm font-medium text-pulse-600">
+                        {format(new Date(job.scheduled_date), 'HH:mm')}
+                      </span>
+                      <p className="text-xs text-gray-500">
+                        {formatCurrency(job.estimated_price || 0)}
+                      </p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12">
-                <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Calendar className="w-10 h-10 text-gray-400" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('dashboard:noJobsToday')}</h3>
-                <p className="text-gray-500 mb-4">Start by scheduling your first job of the day</p>
+              <div className="text-center py-8">
+                <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500">{t('dashboard:noJobsToday')}</p>
                 <Link 
                   to="/jobs/new"
-                  className="inline-flex items-center gap-2 bg-pulse-500 text-white px-4 py-2 rounded-lg hover:bg-pulse-600 transition-colors"
+                  className="mt-2 inline-block text-pulse-600 hover:text-pulse-700 font-medium"
                 >
-                  <Calendar className="w-4 h-4" />
-                  {t('dashboard:scheduleJob')}
+                  {t('dashboard:scheduleJob')} →
                 </Link>
               </div>
             )}
             
-            <div className="mt-6 pt-4 border-t border-gray-200">
-              <Link 
-                to="/calendar"
-                className="flex items-center justify-center gap-2 w-full py-3 text-pulse-600 font-medium hover:text-pulse-700 hover:bg-pulse-50 rounded-lg transition-all"
-              >
-                {t('dashboard:viewFullCalendar')}
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
+            <Link 
+              to="/calendar"
+              className="mt-4 block w-full text-center py-2 text-pulse-600 font-medium hover:text-pulse-700 transition-colors"
+            >
+              {t('dashboard:viewFullCalendar')} →
+            </Link>
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-all duration-300">
-            <h2 className="text-xl font-display font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <Zap className="w-6 h-6 text-pulse-500" />
+          <div className="bg-white rounded-2xl shadow-sm p-6">
+            <h2 className="text-xl font-display font-bold text-gray-900 mb-6">
               {t('dashboard:quickActions')}
             </h2>
             <div className="grid grid-cols-2 gap-4">
               <Link 
                 to="/jobs/new"
-                className="group p-6 bg-gradient-to-br from-pulse-500 to-pulse-600 text-white rounded-xl hover:from-pulse-600 hover:to-pulse-700 transition-all transform hover:scale-[1.05] active:scale-[0.98] shadow-lg hover:shadow-xl"
+                className="p-4 bg-gradient-to-r from-pulse-500 to-pulse-600 text-white rounded-lg hover:from-pulse-600 hover:to-pulse-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex flex-col items-center"
               >
-                <Calendar className="w-8 h-8 mb-3 group-hover:scale-110 transition-transform" />
-                <span className="block text-sm font-semibold">{t('dashboard:newJob')}</span>
-                <span className="block text-xs opacity-90 mt-1">Schedule cleaning</span>
+                <Calendar className="w-6 h-6 mb-2" />
+                <span className="block text-sm font-medium text-center">{t('dashboard:newJob')}</span>
               </Link>
-              
               <Link 
                 to="/invoices"
-                className="group p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-[1.05] active:scale-[0.98] shadow-lg hover:shadow-xl"
+                className="p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex flex-col items-center"
               >
-                <FileText className="w-8 h-8 mb-3 group-hover:scale-110 transition-transform" />
-                <span className="block text-sm font-semibold">{t('dashboard:createInvoice')}</span>
-                <span className="block text-xs opacity-90 mt-1">Bill clients</span>
+                <FileText className="w-6 h-6 mb-2" />
+                <span className="block text-sm font-medium text-center">{t('dashboard:createInvoice')}</span>
               </Link>
-              
               <Link 
                 to="/clients/new"
-                className="group p-6 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-[1.05] active:scale-[0.98] shadow-lg hover:shadow-xl"
+                className="p-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex flex-col items-center"
               >
-                <Users className="w-8 h-8 mb-3 group-hover:scale-110 transition-transform" />
-                <span className="block text-sm font-semibold">{t('dashboard:addClient')}</span>
-                <span className="block text-xs opacity-90 mt-1">Grow network</span>
+                <Users className="w-6 h-6 mb-2" />
+                <span className="block text-sm font-medium text-center">{t('dashboard:addClient')}</span>
               </Link>
-              
               <Link 
                 to="/reports"
-                className="group p-6 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-[1.05] active:scale-[0.98] shadow-lg hover:shadow-xl"
+                className="p-4 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex flex-col items-center"
               >
-                <TrendingUp className="w-8 h-8 mb-3 group-hover:scale-110 transition-transform" />
-                <span className="block text-sm font-semibold">{t('dashboard:viewReports')}</span>
-                <span className="block text-xs opacity-90 mt-1">Track progress</span>
+                <TrendingUp className="w-6 h-6 mb-2" />
+                <span className="block text-sm font-medium text-center">{t('dashboard:viewReports')}</span>
               </Link>
             </div>
           </div>
