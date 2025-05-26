@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { X, Save, User, Clock, DollarSign } from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import { X, Save, User, Clock, DollarSign, Search, AlertTriangle, CheckCircle, Calendar, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { jobsApi } from "@/lib/api/jobs";
 import { clientsApi } from "@/lib/api/clients";
 import { CreateJobInput, ServiceType } from "@/types/job";
 import { Client } from "@/types/client";
-import { format } from "date-fns";
+import { format, addHours, parseISO } from "date-fns";
 
 interface QuickJobModalProps {
   isOpen: boolean;
@@ -13,6 +13,7 @@ interface QuickJobModalProps {
   selectedDate: Date | null;
   selectedTime?: string;
   onJobCreated: () => void;
+  existingJobs?: any[]; // For conflict detection
 }
 
 const QuickJobModal: React.FC<QuickJobModalProps> = ({
@@ -20,11 +21,14 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
   onClose,
   selectedDate,
   selectedTime,
-  onJobCreated
+  onJobCreated,
+  existingJobs = []
 }) => {
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
   const [loadingClients, setLoadingClients] = useState(true);
+  const [clientSearch, setClientSearch] = useState("");
+  const [showClientDropdown, setShowClientDropdown] = useState(false);
 
   const [formData, setFormData] = useState<CreateJobInput>({
     client_id: "",
@@ -45,6 +49,7 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       loadClients();
+      resetForm();
     }
   }, [isOpen]);
 
@@ -72,27 +77,90 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
     }
   };
 
+  const resetForm = () => {
+    setFormData({
+      client_id: "",
+      title: "",
+      service_type: "regular",
+      scheduled_date: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : "",
+      scheduled_time: selectedTime || "",
+      estimated_duration: 120,
+      estimated_price: 120,
+      description: "",
+      special_instructions: "",
+      access_instructions: "",
+      address: "",
+      is_recurring: false
+    });
+    setClientSearch("");
+  };
+
+  // Filter clients based on search
+  const filteredClients = useMemo(() => {
+    if (!clientSearch.trim()) return clients;
+    return clients.filter(client => 
+      client.name.toLowerCase().includes(clientSearch.toLowerCase()) ||
+      client.email?.toLowerCase().includes(clientSearch.toLowerCase()) ||
+      client.phone?.includes(clientSearch)
+    );
+  }, [clients, clientSearch]);
+
+  // Check for scheduling conflicts
+  const getConflicts = useMemo(() => {
+    if (!formData.scheduled_date || !formData.scheduled_time || !formData.estimated_duration) {
+      return [];
+    }
+
+    const jobDate = formData.scheduled_date;
+    const jobStart = parseISO(`${jobDate}T${formData.scheduled_time}`);
+    const jobEnd = addHours(jobStart, formData.estimated_duration / 60);
+
+    return existingJobs.filter(job => {
+      if (job.scheduled_date !== jobDate || !job.scheduled_time || !job.estimated_duration) {
+        return false;
+      }
+
+      const existingStart = parseISO(`${job.scheduled_date}T${job.scheduled_time}`);
+      const existingEnd = addHours(existingStart, job.estimated_duration / 60);
+
+      return (jobStart < existingEnd && jobEnd > existingStart);
+    });
+  }, [formData.scheduled_date, formData.scheduled_time, formData.estimated_duration, existingJobs]);
+
+  // Get suggested time slots
+  const getSuggestedTimes = useMemo(() => {
+    if (!selectedDate) return [];
+
+    const suggestions = [];
+    const dateStr = format(selectedDate, 'yyyy-MM-dd');
+    const dayJobs = existingJobs.filter(job => job.scheduled_date === dateStr);
+
+    // Common time slots
+    const commonTimes = ['08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'];
+    
+    for (const time of commonTimes) {
+      const timeStart = parseISO(`${dateStr}T${time}`);
+      const timeEnd = addHours(timeStart, 2); // Assume 2 hour duration
+
+      const hasConflict = dayJobs.some(job => {
+        if (!job.scheduled_time || !job.estimated_duration) return false;
+        const jobStart = parseISO(`${job.scheduled_date}T${job.scheduled_time}`);
+        const jobEnd = addHours(jobStart, job.estimated_duration / 60);
+        return (timeStart < jobEnd && timeEnd > jobStart);
+      });
+
+      if (!hasConflict) {
+        suggestions.push(time);
+      }
+    }
+
+    return suggestions.slice(0, 4); // Return top 4 suggestions
+  }, [selectedDate, existingJobs]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
-    if (name === 'client_id') {
-      const client = clients.find(c => c.id === value);
-      if (client) {
-        const clientAddress = [
-          client.address,
-          client.city,
-          client.state,
-          client.zip
-        ].filter(Boolean).join(', ');
-
-        setFormData(prev => ({
-          ...prev,
-          client_id: value,
-          address: clientAddress,
-          title: `${getServiceTypeDisplay(prev.service_type)} - ${client.name}`
-        }));
-      }
-    } else if (name === 'service_type') {
+    if (name === 'service_type') {
       const newServiceType = value as ServiceType;
       const selectedClient = clients.find(c => c.id === formData.client_id);
       setFormData(prev => ({
@@ -114,6 +182,31 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
     }
   };
 
+  const handleClientSelect = (client: Client) => {
+    const clientAddress = [
+      client.address,
+      client.city,
+      client.state,
+      client.zip
+    ].filter(Boolean).join(', ');
+
+    setFormData(prev => ({
+      ...prev,
+      client_id: client.id,
+      address: clientAddress,
+      title: `${getServiceTypeDisplay(prev.service_type)} - ${client.name}`
+    }));
+    setClientSearch(client.name);
+    setShowClientDropdown(false);
+  };
+
+  const handleTimeSelect = (time: string) => {
+    setFormData(prev => ({
+      ...prev,
+      scheduled_time: time
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -124,6 +217,14 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
     if (!formData.title.trim()) {
       toast.error("Job title is required");
       return;
+    }
+
+    // Warn about conflicts
+    if (getConflicts.length > 0) {
+      const confirmed = confirm(
+        `This job conflicts with ${getConflicts.length} existing job(s). Continue anyway?`
+      );
+      if (!confirmed) return;
     }
 
     setLoading(true);
@@ -142,30 +243,12 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
       toast.success("Job scheduled successfully!");
       onJobCreated();
       onClose();
-      resetForm();
     } catch (error) {
       console.error('Error creating job:', error);
       toast.error("Failed to schedule job");
     } finally {
       setLoading(false);
     }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      client_id: "",
-      title: "",
-      service_type: "regular",
-      scheduled_date: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : "",
-      scheduled_time: selectedTime || "",
-      estimated_duration: 120,
-      estimated_price: 120,
-      description: "",
-      special_instructions: "",
-      access_instructions: "",
-      address: "",
-      is_recurring: false
-    });
   };
 
   const getServiceTypeDisplay = (serviceType: ServiceType) => {
@@ -194,15 +277,18 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
 
   if (!isOpen) return null;
 
+  const selectedClient = clients.find(c => c.id === formData.client_id);
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <div>
             <h2 className="text-xl font-semibold text-gray-900">Quick Schedule Job</h2>
             {selectedDate && (
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-gray-600 mt-1 flex items-center gap-1">
+                <Calendar className="w-4 h-4" />
                 {format(selectedDate, 'EEEE, MMMM d, yyyy')}
                 {selectedTime && ` at ${format(new Date(`2000-01-01T${selectedTime}`), 'h:mm a')}`}
               </p>
@@ -216,11 +302,24 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
           </button>
         </div>
 
+        {/* Conflicts Warning */}
+        {getConflicts.length > 0 && (
+          <div className="mx-6 mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center gap-2 text-red-800">
+              <AlertTriangle className="w-4 h-4" />
+              <span className="font-medium">Scheduling Conflict Detected</span>
+            </div>
+            <p className="text-sm text-red-700 mt-1">
+              This time slot conflicts with {getConflicts.length} existing job(s). Consider choosing a different time.
+            </p>
+          </div>
+        )}
+
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Client Selection */}
           <div>
-            <label htmlFor="client_id" className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Client *
             </label>
             {loadingClients ? (
@@ -228,25 +327,68 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
                 Loading clients...
               </div>
             ) : (
-              <select
-                id="client_id"
-                name="client_id"
-                required
-                value={formData.client_id}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-              >
-                <option value="">Choose a client...</option>
-                {clients.map((client) => (
-                  <option key={client.id} value={client.id}>
-                    {client.name} {client.email && `(${client.email})`}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <input
+                    type="text"
+                    placeholder="Search clients..."
+                    value={clientSearch}
+                    onChange={(e) => {
+                      setClientSearch(e.target.value);
+                      setShowClientDropdown(true);
+                    }}
+                    onFocus={() => setShowClientDropdown(true)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                  />
+                </div>
+                
+                {showClientDropdown && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    {filteredClients.length === 0 ? (
+                      <div className="p-3 text-gray-500 text-center">
+                        No clients found
+                      </div>
+                    ) : (
+                      filteredClients.map((client) => (
+                        <button
+                          key={client.id}
+                          type="button"
+                          onClick={() => handleClientSelect(client)}
+                          className="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                        >
+                          <div className="font-medium">{client.name}</div>
+                          {client.email && (
+                            <div className="text-sm text-gray-600">{client.email}</div>
+                          )}
+                          {client.address && (
+                            <div className="text-sm text-gray-500 flex items-center gap-1">
+                              <MapPin className="w-3 h-3" />
+                              {client.city}, {client.state}
+                            </div>
+                          )}
+                        </button>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {selectedClient && (
+              <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex items-center gap-2 text-green-800">
+                  <CheckCircle className="w-4 h-4" />
+                  <span className="font-medium">Selected: {selectedClient.name}</span>
+                </div>
+                {selectedClient.email && (
+                  <div className="text-sm text-green-700 mt-1">{selectedClient.email}</div>
+                )}
+              </div>
             )}
           </div>
 
-          {/* Job Details */}
+          {/* Service Type and Duration */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label htmlFor="service_type" className="block text-sm font-medium text-gray-700 mb-2">
@@ -314,6 +456,31 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
               />
             </div>
           </div>
+
+          {/* Suggested Times */}
+          {getSuggestedTimes.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Suggested Available Times
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {getSuggestedTimes.map(time => (
+                  <button
+                    key={time}
+                    type="button"
+                    onClick={() => handleTimeSelect(time)}
+                    className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
+                      formData.scheduled_time === time
+                        ? 'bg-pulse-500 text-white border-pulse-500'
+                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {format(new Date(`2000-01-01T${time}`), 'h:mm a')}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Pricing */}
           <div>

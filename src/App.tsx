@@ -13,6 +13,7 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Clients from "./pages/Clients";
 import AddClient from "./pages/AddClient";
+import EditClient from "./pages/EditClient";
 import Jobs from "./pages/Jobs";
 import AddJob from "./pages/AddJob";
 import Calendar from "./pages/Calendar";
@@ -52,6 +53,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <AddClient />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/clients/:id/edit" 
+              element={
+                <ProtectedRoute>
+                  <EditClient />
                 </ProtectedRoute>
               } 
             />

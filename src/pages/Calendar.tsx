@@ -249,6 +249,7 @@ const Calendar = () => {
           selectedDate={selectedDate}
           selectedTime={selectedTime}
           onJobCreated={handleJobCreated}
+          existingJobs={jobs}
         />
 
         {/* Instructions */}
