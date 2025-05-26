@@ -44,11 +44,11 @@ const Dashboard = () => {
   };
 
   const sidebarItems = [
-    { id: "overview", label: "Overview", icon: Calendar },
-    { id: "clients", label: "Clients", icon: Users },
-    { id: "invoices", label: "Invoices", icon: FileText },
-    { id: "payments", label: "Payments", icon: CreditCard },
-    { id: "settings", label: "Settings", icon: Settings },
+    { id: "overview", label: "Overview", icon: Calendar, path: "/dashboard" },
+    { id: "clients", label: "Clients", icon: Users, path: "/clients" },
+    { id: "invoices", label: "Invoices", icon: FileText, path: "/invoices" },
+    { id: "payments", label: "Payments", icon: CreditCard, path: "/payments" },
+    { id: "settings", label: "Settings", icon: Settings, path: "/settings" },
   ];
 
   // Mock data for the dashboard
@@ -92,8 +92,8 @@ const Dashboard = () => {
               const Icon = item.icon;
               return (
                 <li key={item.id}>
-                  <button
-                    onClick={() => setActiveTab(item.id)}
+                  <Link
+                    to={item.path}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                       activeTab === item.id
                         ? 'bg-pulse-50 text-pulse-600'
@@ -102,7 +102,7 @@ const Dashboard = () => {
                   >
                     <Icon className="w-5 h-5" />
                     <span className="font-medium">{item.label}</span>
-                  </button>
+                  </Link>
                 </li>
               );
             })}
