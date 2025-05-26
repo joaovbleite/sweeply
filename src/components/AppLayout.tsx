@@ -13,7 +13,8 @@ import {
   X,
   UserCheck,
   Target,
-  BarChart3
+  BarChart3,
+  Calculator
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
@@ -42,6 +43,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     { id: "jobs", label: t('navigation:jobs'), icon: Briefcase, path: "/jobs" },
     { id: "clients", label: t('navigation:clients'), icon: Users, path: "/clients" },
     { id: "invoices", label: t('navigation:invoices'), icon: FileText, path: "/invoices" },
+    { id: "pricing", label: t('navigation:pricing'), icon: Calculator, path: "/pricing" },
     { id: "reports", label: t('navigation:reports'), icon: BarChart3, path: "/reports" },
     { id: "employees", label: t('navigation:team'), icon: UserCheck, path: "/employees" },
     { id: "payroll", label: t('navigation:payroll'), icon: CreditCard, path: "/payroll" },

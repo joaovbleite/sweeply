@@ -23,6 +23,7 @@ import Employees from "./pages/Employees";
 import Payroll from "./pages/Payroll";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import PricingAssistant from "./pages/PricingAssistant";
 
 const queryClient = new QueryClient();
 
@@ -139,6 +140,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Settings />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/pricing" 
+              element={
+                <ProtectedRoute>
+                  <PricingAssistant />
                 </ProtectedRoute>
               } 
             />
