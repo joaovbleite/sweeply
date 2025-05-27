@@ -55,6 +55,7 @@ import AppLayout from "@/components/AppLayout";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { profileApi, UserProfile } from "@/lib/api/profile";
 import { downloadAsJSON, setTheme, getTheme, Theme } from "@/lib/utils";
+import { supabase } from "@/lib/supabase";
 
 // Import new API functions
 import { serviceTypesApi, ServiceType } from "@/lib/api/service-types";
@@ -527,7 +528,7 @@ const Settings = () => {
       if (error.message === 'Current password is incorrect') {
         toast.error('Current password is incorrect');
       } else {
-        toast.error(error.message || t('common:errorOccurred'));
+      toast.error(error.message || t('common:errorOccurred'));
       }
     } finally {
       setLoading(false);
@@ -783,6 +784,205 @@ const Settings = () => {
     }
   };
 
+  // CSV Export Functions for Accounting Integration
+  const handleExportCustomers = async () => {
+    try {
+      setLoading(true);
+      
+      // Get all clients data
+      const clients = await supabase
+        .from('clients')
+        .select('*')
+        .eq('user_id', user?.id);
+
+      if (!clients.data || clients.data.length === 0) {
+        toast.error('No customer data found to export');
+        return;
+      }
+
+      // QuickBooks-compatible customer CSV format
+      const csvContent = [
+        // QuickBooks customer import headers
+        ['Name', 'Company Name', 'First Name', 'Last Name', 'Email', 'Phone', 'Fax', 'Mobile', 'Website', 'Address Line 1', 'Address Line 2', 'City', 'State/Province', 'Zip/Postal Code', 'Country', 'Customer Type', 'Terms', 'Tax Code', 'Tax ID', 'Resale Number', 'Account Number', 'Credit Limit', 'Price Level', 'Preferred Payment Method', 'Preferred Delivery Method', 'Notes'].join(','),
+        ...clients.data.map(client => {
+          // Split name into first and last for QuickBooks
+          const nameParts = client.name.split(' ');
+          const firstName = nameParts[0] || '';
+          const lastName = nameParts.slice(1).join(' ') || '';
+          
+          return [
+            `"${client.name}"`, // Name (Company Name for businesses)
+            client.client_type === 'commercial' ? `"${client.name}"` : '', // Company Name
+            `"${firstName}"`, // First Name
+            `"${lastName}"`, // Last Name
+            client.email || '', // Email
+            client.phone || '', // Phone
+            '', // Fax
+            '', // Mobile
+            '', // Website
+            `"${client.address || ''}"`, // Address Line 1
+            '', // Address Line 2
+            client.city || '', // City
+            client.state || '', // State/Province
+            client.zip || '', // Zip/Postal Code
+            'US', // Country
+            client.client_type === 'commercial' ? 'Commercial' : 'Residential', // Customer Type
+            'Net 30', // Terms
+            '', // Tax Code
+            '', // Tax ID
+            '', // Resale Number
+            client.id, // Account Number (using client ID)
+            '', // Credit Limit
+            '', // Price Level
+            '', // Preferred Payment Method
+            '', // Preferred Delivery Method
+            `"${client.notes || ''}"` // Notes
+          ].join(',');
+        })
+      ].join('\n');
+
+      // Download CSV
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `quickbooks-customers-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      
+      toast.success('Customer data exported for QuickBooks!');
+    } catch (error: any) {
+      console.error('Error exporting customers:', error);
+      toast.error(error.message || 'Failed to export customer data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExportInvoices = async () => {
+    try {
+      setLoading(true);
+      
+      // Get all invoices with client data
+      const invoices = await supabase
+        .from('invoices')
+        .select(`
+          *,
+          client:clients(*)
+        `)
+        .eq('user_id', user?.id);
+
+      if (!invoices.data || invoices.data.length === 0) {
+        toast.error('No invoice data found to export');
+        return;
+      }
+
+      // QuickBooks-compatible invoice CSV format
+      const csvContent = [
+        // QuickBooks invoice import headers
+        ['Invoice No', 'Customer', 'Invoice Date', 'Due Date', 'Terms', 'Item(s)', 'Description', 'Qty', 'Rate', 'Amount', 'Tax', 'Total', 'Status', 'Memo', 'Billing Address', 'Shipping Address'].join(','),
+        ...invoices.data.map(invoice => {
+          const client = invoice.client as any;
+          const itemsDescription = invoice.items?.map((item: any) => `${item.description} (${item.quantity} x $${item.rate})`).join('; ') || '';
+          
+          return [
+            invoice.invoice_number, // Invoice No
+            `"${client?.name || 'Unknown Client'}"`, // Customer
+            invoice.issue_date, // Invoice Date
+            invoice.due_date, // Due Date
+            'Net 30', // Terms
+            itemsDescription ? `"${itemsDescription}"` : '', // Item(s)
+            `"${invoice.notes || ''}"`, // Description
+            invoice.items?.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0) || 1, // Qty (total quantity)
+            invoice.subtotal || 0, // Rate (using subtotal as rate)
+            invoice.subtotal || 0, // Amount
+            invoice.tax_amount || 0, // Tax
+            invoice.total_amount || 0, // Total
+            invoice.status === 'paid' ? 'Paid' : invoice.status === 'sent' ? 'Sent' : 'Draft', // Status
+            `"${invoice.notes || ''}"`, // Memo
+            `"${client?.address ? `${client.address}, ${client.city || ''}, ${client.state || ''} ${client.zip || ''}` : ''}"`, // Billing Address
+            '' // Shipping Address
+          ].join(',');
+        })
+      ].join('\n');
+
+      // Download CSV
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `quickbooks-invoices-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      
+      toast.success('Invoice data exported for QuickBooks!');
+    } catch (error: any) {
+      console.error('Error exporting invoices:', error);
+      toast.error(error.message || 'Failed to export invoice data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExportJobs = async () => {
+    try {
+      setLoading(true);
+      
+      // Get all jobs with client data
+      const jobs = await supabase
+        .from('jobs')
+        .select(`
+          *,
+          client:clients(*)
+        `)
+        .eq('user_id', user?.id);
+
+      if (!jobs.data || jobs.data.length === 0) {
+        toast.error('No job data found to export');
+        return;
+      }
+
+      // QuickBooks-compatible service/job CSV format for expenses/income tracking
+      const csvContent = [
+        // Headers for QuickBooks service tracking
+        ['Date', 'Transaction Type', 'Customer', 'Service', 'Description', 'Amount', 'Status', 'Reference', 'Address', 'Duration (mins)', 'Notes'].join(','),
+        ...jobs.data.map(job => {
+          const client = job.client as any;
+          
+          return [
+            job.scheduled_date, // Date
+            'Income', // Transaction Type
+            `"${client?.name || 'Unknown Client'}"`, // Customer
+            job.service_type || 'Cleaning Service', // Service
+            `"${job.title || ''}"`, // Description
+            job.actual_price || job.estimated_price || 0, // Amount
+            job.status === 'completed' ? 'Completed' : job.status === 'in_progress' ? 'In Progress' : 'Scheduled', // Status
+            job.id, // Reference (job ID)
+            `"${job.address || client?.address || ''}"`, // Address
+            job.estimated_duration || '', // Duration
+            `"${job.completion_notes || job.special_instructions || ''}"` // Notes
+          ].join(',');
+        })
+      ].join('\n');
+
+      // Download CSV
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `quickbooks-services-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      
+      toast.success('Job/Service data exported for QuickBooks!');
+    } catch (error: any) {
+      console.error('Error exporting jobs:', error);
+      toast.error(error.message || 'Failed to export job data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Save Functions
   const handleSaveBranding = async () => {
     setLoading(true);
@@ -929,23 +1129,23 @@ const Settings = () => {
                     
                     <div className="flex items-center gap-3">
                       <label className="relative cursor-pointer">
-                        <input
-                          type="file"
+                    <input
+                      type="file"
                           accept="image/jpeg,image/jpg,image/png,image/webp"
-                          onChange={handleAvatarUpload}
+                      onChange={handleAvatarUpload}
                           disabled={avatarUploading}
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                        />
+                    />
                         <div className={`px-4 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 flex items-center gap-2 ${
                           avatarUploading ? 'opacity-50 cursor-not-allowed' : ''
                         }`}>
                           <Camera className="w-4 h-4" />
                           {avatarUploading ? 'Uploading...' : 'Upload Photo'}
-                        </div>
+                  </div>
                       </label>
                       
                       {(profileData.avatar || avatarPreview) && !avatarUploading && (
-                        <button
+                        <button 
                           onClick={handleRemoveAvatar}
                           className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2"
                         >
@@ -1610,6 +1810,107 @@ const Settings = () => {
                         <input type="checkbox" className="rounded border-gray-300 text-pulse-600 focus:ring-pulse-500" />
                         <span className="ml-2 text-sm text-gray-700">Client updates</span>
                       </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* CSV Export for Accounting */}
+                <div className="mt-8 bg-blue-50 rounded-lg p-6">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                    <Receipt className="w-5 h-5 text-blue-600" />
+                    Export to Accounting Software
+                  </h3>
+                  <p className="text-gray-600 mb-6">Export your business data in QuickBooks-compatible CSV format for easy import into accounting software.</p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Export Customers */}
+                    <div className="bg-white rounded-lg border border-blue-200 p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <Users className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900">Customer List</h4>
+                          <p className="text-sm text-gray-600">Export all customer data</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleExportCustomers}
+                        disabled={loading}
+                        className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
+                      >
+                        {loading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Download className="w-4 h-4" />
+                        )}
+                        Export Customers
+                      </button>
+                    </div>
+
+                    {/* Export Invoices */}
+                    <div className="bg-white rounded-lg border border-blue-200 p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                          <FileText className="w-5 h-5 text-green-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900">Invoice Data</h4>
+                          <p className="text-sm text-gray-600">Export invoice records</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleExportInvoices}
+                        disabled={loading}
+                        className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
+                      >
+                        {loading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Download className="w-4 h-4" />
+                        )}
+                        Export Invoices
+                      </button>
+                    </div>
+
+                    {/* Export Jobs/Services */}
+                    <div className="bg-white rounded-lg border border-blue-200 p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                          <Briefcase className="w-5 h-5 text-purple-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900">Job Records</h4>
+                          <p className="text-sm text-gray-600">Export service/job data</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleExportJobs}
+                        disabled={loading}
+                        className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
+                      >
+                        {loading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Download className="w-4 h-4" />
+                        )}
+                        Export Jobs
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <Info className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                      <div className="text-sm">
+                        <p className="text-yellow-800 font-medium mb-1">How to import into QuickBooks:</p>
+                        <ol className="text-yellow-700 list-decimal list-inside space-y-1">
+                          <li>Download the CSV file using the buttons above</li>
+                          <li>In QuickBooks, go to File → Utilities → Import → IIF Files (for Customers) or Excel Files</li>
+                          <li>Select your downloaded CSV file and follow the import wizard</li>
+                          <li>Map the fields as needed during import</li>
+                        </ol>
+                      </div>
                     </div>
                   </div>
                 </div>

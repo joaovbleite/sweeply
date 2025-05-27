@@ -5,90 +5,52 @@ import {
   Filter, 
   Download,
   Settings,
-  BarChart3,
-  Eye,
-  EyeOff,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  MapPin,
+  Clock,
+  User,
+  DollarSign,
+  MoreHorizontal,
+  CheckCircle,
+  AlertCircle,
+  Calendar as DateIcon,
   RefreshCw,
-  Zap,
-  Target,
-  Moon,
-  Sun
+  Navigation2
 } from "lucide-react";
 import { toast } from "sonner";
+import { format, addDays, startOfWeek, endOfWeek, isSameDay, parseISO, addWeeks, subWeeks } from "date-fns";
 import { jobsApi } from "@/lib/api/jobs";
 import { clientsApi } from "@/lib/api/clients";
-import { Job, JobStatus, ServiceType } from "@/types/job";
+import { Job, JobStatus } from "@/types/job";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
-import { motion, AnimatePresence } from "framer-motion";
+import { useLocale } from "@/hooks/useLocale";
 import AppLayout from "@/components/AppLayout";
-import AdvancedCalendarView from "@/components/Calendar/AdvancedCalendarView";
-import CalendarHeader from "@/components/Calendar/CalendarHeader";
-import CalendarListView from "@/components/Calendar/CalendarListView";
-import CalendarMapView from "@/components/Calendar/CalendarMapView";
-import CalendarTimelineView from "@/components/Calendar/CalendarTimelineView";
-import CalendarFilters from "@/components/Calendar/CalendarFilters";
-import CalendarSettings from "@/components/Calendar/CalendarSettings";
-import CalendarKeyboardShortcuts from "@/components/Calendar/CalendarKeyboardShortcuts";
-import QuickJobModal from "@/components/Calendar/QuickJobModal";
-import JobDetailsModal from "@/components/Calendar/JobDetailsModal";
-import CalendarAnalytics from "@/components/Calendar/CalendarAnalytics";
-import { calendarUtils } from "@/lib/api/calendar-utils";
-import { CalendarView } from "@/types/calendar";
+import GPSCheckInOut from "@/components/gps/GPSCheckInOut";
 
-export interface FilterOptions {
-  serviceTypes: ServiceType[];
-  status: string[];
-  clients: string[];
-  dateRange: { start: string; end: string };
-  priceRange: { min: number; max: number };
-  search: string;
-  employees: string[];
-  priority: 'all' | 'high' | 'medium' | 'low';
-  duration: 'all' | 'short' | 'medium' | 'long';
-  hasConflicts: boolean;
-  isRecurring: boolean;
-}
-
-const defaultFilters: FilterOptions = {
-  serviceTypes: [],
-  status: [],
-  clients: [],
-  dateRange: { start: '', end: '' },
-  priceRange: { min: 0, max: 1000 },
-  search: '',
-  employees: [],
-  priority: 'all',
-  duration: 'all',
-  hasConflicts: false,
-  isRecurring: false
-};
+const timeSlots = [
+  '8:00am', '9:00am', '10:00am', '11:00am', '12:00pm',
+  '1:00pm', '2:00pm', '3:00pm', '4:00pm', '5:00pm', '6:00pm'
+];
 
 const Calendar = () => {
   const { user } = useAuth();
-  const { t } = useTranslation(['calendar', 'common', 'jobs']);
+  const { t } = useTranslation(['calendar', 'common']);
+  const { formatCurrency } = useLocale();
+  
   const [jobs, setJobs] = useState<Job[]>([]);
   const [clients, setClients] = useState<Array<{ id: string; name: string }>>([]);
   const [loading, setLoading] = useState(true);
-  const [showQuickJobModal, setShowQuickJobModal] = useState(false);
-  const [showJobDetailsModal, setShowJobDetailsModal] = useState(false);
-  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [currentWeek, setCurrentWeek] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [showKeyboardHelper, setShowKeyboardHelper] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedTime, setSelectedTime] = useState<string>("");
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [calendarView, setCalendarView] = useState<CalendarView>('month');
-  const [autoRefresh, setAutoRefresh] = useState(false);
-  const [filters, setFilters] = useState<FilterOptions>(defaultFilters);
-  const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem('calendarDarkMode');
-    return saved ? JSON.parse(saved) : false;
-  });
+  const [showGPSModal, setShowGPSModal] = useState(false);
 
-  // Load jobs and clients
+  // Load data
   const loadData = async () => {
     try {
       setLoading(true);
@@ -100,7 +62,7 @@ const Calendar = () => {
       setClients(clientsData.map(c => ({ id: c.id, name: c.name })));
     } catch (error) {
       console.error('Error loading data:', error);
-      toast.error(t('common:errorOccurred'));
+      toast.error('Failed to load calendar data');
     } finally {
       setLoading(false);
     }
@@ -110,676 +72,325 @@ const Calendar = () => {
     loadData();
   }, []);
 
-  // Filter jobs based on active filters
-  const filteredJobs = useMemo(() => {
-    let filtered = [...jobs];
+  // Get week dates
+  const weekStart = startOfWeek(currentWeek, { weekStartsOn: 0 });
+  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
-    // Service types filter
-    if (filters.serviceTypes.length > 0) {
-      filtered = filtered.filter(job => filters.serviceTypes.includes(job.service_type));
-    }
-
-    // Status filter
-    if (filters.status.length > 0) {
-      filtered = filtered.filter(job => filters.status.includes(job.status));
-    }
-
-    // Clients filter
-    if (filters.clients.length > 0) {
-      filtered = filtered.filter(job => filters.clients.includes(job.client_id));
-    }
-
-    // Date range filter
-    if (filters.dateRange.start || filters.dateRange.end) {
-      filtered = filtered.filter(job => {
-        const jobDate = new Date(job.scheduled_date);
-        if (filters.dateRange.start && jobDate < new Date(filters.dateRange.start)) return false;
-        if (filters.dateRange.end && jobDate > new Date(filters.dateRange.end)) return false;
-        return true;
-      });
-    }
-
-    // Price range filter
-    if (filters.priceRange.min > 0 || filters.priceRange.max < 1000) {
-      filtered = filtered.filter(job => {
-        const price = job.estimated_price || 0;
-        return price >= filters.priceRange.min && price <= filters.priceRange.max;
-      });
-    }
-
-    // Search filter
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      filtered = filtered.filter(job => 
-        job.title?.toLowerCase().includes(searchLower) ||
-        job.description?.toLowerCase().includes(searchLower) ||
-        job.address?.toLowerCase().includes(searchLower) ||
-        job.client?.name?.toLowerCase().includes(searchLower)
-      );
-    }
-
-    // Duration filter
-    if (filters.duration !== 'all') {
-      filtered = filtered.filter(job => {
-        const duration = job.estimated_duration || 60;
-        switch (filters.duration) {
-          case 'short': return duration < 120;
-          case 'medium': return duration >= 120 && duration <= 240;
-          case 'long': return duration > 240;
-          default: return true;
-        }
-      });
-    }
-
-    // Conflicts filter
-    if (filters.hasConflicts) {
-      filtered = filtered.filter(job => {
-        const sameTimeJobs = jobs.filter(j => 
-          j.scheduled_date === job.scheduled_date && 
-          j.scheduled_time === job.scheduled_time && 
-          j.id !== job.id
-        );
-        return sameTimeJobs.length > 0;
-      });
-    }
-
-    // Recurring filter
-    if (filters.isRecurring) {
-      filtered = filtered.filter(job => job.is_recurring);
-    }
-
-    return filtered;
-  }, [jobs, filters]);
-
-  // Auto-refresh functionality
-  useEffect(() => {
-    if (!autoRefresh) return;
-    
-    const interval = setInterval(() => {
-      loadData();
-      toast.success("Calendar refreshed", { duration: 1000 });
-    }, 30000); // Refresh every 30 seconds
-
-    return () => clearInterval(interval);
-  }, [autoRefresh]);
-
-  // Save dark mode preference
-  useEffect(() => {
-    localStorage.setItem('calendarDarkMode', JSON.stringify(darkMode));
-  }, [darkMode]);
-
-  // Handle job creation
-  const handleJobCreated = () => {
-    loadData();
-    setShowQuickJobModal(false);
-    toast.success(t('jobs:jobCreated'));
-  };
-
-  // Handle date click
-  const handleDateClick = (date: Date, time?: string) => {
-    setSelectedDate(date);
-    setSelectedTime(time || "");
-    setShowQuickJobModal(true);
-  };
-
-  // Handle job click
-  const handleJobClick = (job: Job) => {
-    setSelectedJob(job);
-    setShowJobDetailsModal(true);
-  };
-
-  // Handle job drag and drop
-  const handleJobDrop = async (jobId: string, newDate: string, newTime?: string) => {
-    try {
-      const job = jobs.find(j => j.id === jobId);
-      if (!job) return;
-
-      const updateData = {
-        scheduled_date: newDate,
-        ...(newTime && { scheduled_time: newTime })
-      };
-
-      await jobsApi.update(jobId, updateData);
-      await loadData();
-      toast.success(t('jobs:jobUpdated'));
-    } catch (error) {
-      console.error('Error rescheduling job:', error);
-      toast.error(t('common:errorOccurred'));
-    }
-  };
-
-  // Handle job status change
-  const handleJobStatusChange = async (jobId: string, status: string) => {
-    try {
-      await jobsApi.update(jobId, { status: status as JobStatus });
-      await loadData();
-      toast.success(t('jobs:jobUpdated'));
-    } catch (error) {
-      console.error('Error updating job status:', error);
-      toast.error(t('common:errorOccurred'));
-    }
-  };
-
-  // Handle job edit
-  const handleJobEdit = (job: Job) => {
-    setSelectedJob(job);
-    setShowJobDetailsModal(true);
-  };
-
-  // Handle job delete
-  const handleJobDelete = async (jobId: string) => {
-    if (!confirm(t('common:confirmDelete'))) return;
-    
-    try {
-      await jobsApi.delete(jobId);
-      await loadData();
-      setShowJobDetailsModal(false);
-      toast.success(t('jobs:jobDeleted'));
-    } catch (error) {
-      console.error('Error deleting job:', error);
-      toast.error(t('common:errorOccurred'));
-    }
-  };
-
-  // Handle job duplicate
-  const handleJobDuplicate = async (job: Job) => {
-    try {
-      const duplicateData = {
-        client_id: job.client_id,
-        title: `${job.title} (Copy)`,
-        service_type: job.service_type,
-        scheduled_date: job.scheduled_date,
-        scheduled_time: job.scheduled_time,
-        estimated_duration: job.estimated_duration,
-        estimated_price: job.estimated_price,
-        address: job.address,
-        special_instructions: job.special_instructions,
-        access_instructions: job.access_instructions,
-        is_recurring: false,
-        status: 'scheduled' as JobStatus
-      };
-
-      await jobsApi.create(duplicateData);
-      await loadData();
-      setShowJobDetailsModal(false);
-      toast.success('Job duplicated successfully!');
-    } catch (error) {
-      console.error('Error duplicating job:', error);
-      toast.error('Failed to duplicate job');
-    }
-  };
-
-  // Export calendar data
-  const handleExportCalendar = () => {
-    // Show export options
-    const format = window.confirm('Export as iCalendar (.ics) format?\n\nOK = iCalendar (.ics)\nCancel = CSV (.csv)') 
-      ? 'ics' 
-      : 'csv';
-
-    if (format === 'ics') {
-      // Export as iCalendar
-      const icalContent = calendarUtils.generateICalendar(filteredJobs);
-      const blob = new Blob([icalContent], { type: 'text/calendar' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `sweeply-calendar-${new Date().toISOString().split('T')[0]}.ics`;
-      a.click();
-      URL.revokeObjectURL(url);
-      
-      toast.success('Calendar exported as iCalendar!');
-    } else {
-      // Export as CSV
-      const calendarData = filteredJobs.map(job => ({
-        title: job.title,
-        client: job.client?.name,
-        date: job.scheduled_date,
-        time: job.scheduled_time,
-        service: job.service_type,
-        status: job.status,
-        price: job.estimated_price,
-        duration: job.estimated_duration
-      }));
-
-      const csvContent = [
-        ['Title', 'Client', 'Date', 'Time', 'Service', 'Status', 'Price', 'Duration'],
-        ...calendarData.map(job => [
-          job.title || '',
-          job.client || '',
-          job.date,
-          job.time || '',
-          job.service,
-          job.status,
-          job.price || '',
-          job.duration || ''
-        ])
-      ].map(row => row.join(',')).join('\n');
-
-      const blob = new Blob([csvContent], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `sweeply-calendar-${new Date().toISOString().split('T')[0]}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-      
-      toast.success('Calendar exported as CSV!');
-    }
-  };
-
-  // Calculate quick stats
-  const todayJobs = filteredJobs.filter(job => 
-    job.scheduled_date === new Date().toISOString().split('T')[0]
-  );
-  
-  const weeklyRevenue = filteredJobs
-    .filter(job => {
-      const jobDate = new Date(job.scheduled_date);
-      const weekStart = new Date();
-      weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekEnd.getDate() + 6);
+  // Filter jobs for current week
+  const weekJobs = useMemo(() => {
+    const weekEnd = endOfWeek(currentWeek, { weekStartsOn: 0 });
+    return jobs.filter(job => {
+      const jobDate = parseISO(job.scheduled_date);
       return jobDate >= weekStart && jobDate <= weekEnd;
-    })
-    .reduce((sum, job) => sum + (job.estimated_price || 0), 0);
+    });
+  }, [jobs, weekStart, currentWeek]);
 
-  const conflicts = filteredJobs.filter(job => {
-    const sameTimeJobs = filteredJobs.filter(j => 
-      j.scheduled_date === job.scheduled_date && 
-      j.scheduled_time === job.scheduled_time && 
-      j.id !== job.id
-    );
-    return sameTimeJobs.length > 0;
-  }).length;
-
-  const stats = {
-    todayJobs: todayJobs.length,
-    weeklyRevenue,
-    conflicts
+  // Get jobs for specific day and time
+  const getJobsForSlot = (date: Date, timeSlot: string) => {
+    return weekJobs.filter(job => {
+      if (!isSameDay(parseISO(job.scheduled_date), date)) return false;
+      
+      if (!job.scheduled_time) return timeSlot === '8:00am'; // Default to first slot
+      
+      // Convert job time to slot format
+      const [hours, minutes] = job.scheduled_time.split(':');
+      const hour24 = parseInt(hours);
+      const period = hour24 >= 12 ? 'pm' : 'am';
+      const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+      const formattedTime = `${hour12}:00${period}`;
+      
+      return formattedTime === timeSlot;
+    });
   };
 
-  // Handle calendar preferences
-  const handlePreferencesSave = (preferences: any) => {
-    // Save preferences to localStorage or backend
-    localStorage.setItem('calendarPreferences', JSON.stringify(preferences));
-    toast.success('Preferences saved successfully!');
-  };
-
-  // Handle keyboard shortcuts
-  const handleKeyboardShortcut = (action: string) => {
-    switch (action) {
-      case 'newJob':
-        handleDateClick(new Date());
-        break;
-      case 'previousPeriod':
-        if (calendarView === 'month') {
-          setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)));
-        } else if (calendarView === 'week' || calendarView === 'timeline') {
-          setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() - 7)));
-        } else {
-          setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() - 1)));
-        }
-        break;
-      case 'nextPeriod':
-        if (calendarView === 'month') {
-          setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)));
-        } else if (calendarView === 'week' || calendarView === 'timeline') {
-          setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() + 7)));
-        } else {
-          setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() + 1)));
-        }
-        break;
-      case 'today':
-        setCurrentDate(new Date());
-        break;
-      case 'view-month':
-      case 'view-week':
-      case 'view-day':
-      case 'view-list':
-      case 'view-timeline':
-      case 'view-map':
-        setCalendarView(action.split('-')[1] as CalendarView);
-        break;
-      case 'openFilters':
-        setShowFilters(true);
-        break;
-      case 'export':
-        handleExportCalendar();
-        break;
-      case 'focusSearch':
-        // Focus the search input in the header
-        const searchInput = document.querySelector('input[placeholder*="Search"]') as HTMLInputElement;
-        if (searchInput) searchInput.focus();
-        break;
-      case 'toggleDarkMode':
-        setDarkMode(!darkMode);
-        break;
-      case 'closeModal':
-        // Close any open modal
-        if (showQuickJobModal) setShowQuickJobModal(false);
-        else if (showJobDetailsModal) setShowJobDetailsModal(false);
-        else if (showFilters) setShowFilters(false);
-        else if (showSettings) setShowSettings(false);
-        else if (showKeyboardHelper) setShowKeyboardHelper(false);
-        break;
-    }
-  };
-
-  // Render calendar content based on view
-  const renderCalendarContent = () => {
-    switch (calendarView) {
-      case 'list':
-        return (
-          <CalendarListView
-            jobs={filteredJobs}
-            onJobClick={handleJobClick}
-            onJobEdit={handleJobEdit}
-            onJobDelete={handleJobDelete}
-            onJobDuplicate={handleJobDuplicate}
-            darkMode={darkMode}
-          />
-        );
-      case 'map':
-        return (
-          <CalendarMapView
-            jobs={filteredJobs}
-            onJobClick={handleJobClick}
-            darkMode={darkMode}
-          />
-        );
-      case 'timeline':
-        return (
-          <CalendarTimelineView
-            jobs={filteredJobs}
-            currentDate={currentDate}
-            onJobClick={handleJobClick}
-            onDateChange={setCurrentDate}
-            darkMode={darkMode}
-          />
-        );
+  // Get job status color
+  const getJobColor = (status: JobStatus) => {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-500 border-green-600 text-white';
+      case 'in_progress':
+        return 'bg-blue-500 border-blue-600 text-white';
+      case 'cancelled':
+        return 'bg-red-500 border-red-600 text-white';
+      case 'scheduled':
       default:
-        return (
-          <AdvancedCalendarView
-            jobs={filteredJobs}
-            onJobClick={handleJobClick}
-            onDateClick={handleDateClick}
-            onJobDrop={handleJobDrop}
-            loading={loading}
-          />
-        );
+        return 'bg-gray-500 border-gray-600 text-white';
     }
+  };
+
+  // Handle week navigation
+  const navigateWeek = (direction: 'prev' | 'next') => {
+    setCurrentWeek(direction === 'next' ? addWeeks(currentWeek, 1) : subWeeks(currentWeek, 1));
+  };
+
+  // Go to today
+  const goToToday = () => {
+    setCurrentWeek(new Date());
+    setSelectedDate(new Date());
+  };
+
+  // Handle GPS check-in/check-out
+  const handleGPSCheckIn = (job: Job) => {
+    setSelectedJob(job);
+    setShowGPSModal(true);
+  };
+
+  const handleGPSStatusChange = (status: 'checked_in' | 'checked_out') => {
+    // Refresh jobs to show updated status
+    loadData();
+    setShowGPSModal(false);
+    setSelectedJob(null);
   };
 
   return (
     <AppLayout>
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-        className={`space-y-6 ${darkMode ? 'dark' : ''}`}
-      >
-        {/* Enhanced Calendar Header */}
-        <CalendarHeader
-          currentDate={currentDate}
-          view={calendarView}
-          onViewChange={setCalendarView}
-          onDateChange={setCurrentDate}
-          onQuickAdd={() => handleDateClick(new Date())}
-          onExport={handleExportCalendar}
-          onToggleAnalytics={() => setShowAnalytics(!showAnalytics)}
-          onToggleAutoRefresh={() => setAutoRefresh(!autoRefresh)}
-          onSearch={(searchTerm) => setFilters({ ...filters, search: searchTerm })}
-          autoRefresh={autoRefresh}
-          showAnalytics={showAnalytics}
-          stats={stats}
-          darkMode={darkMode}
-          onToggleDarkMode={() => setDarkMode(!darkMode)}
-        />
+      <div className="h-full flex flex-col bg-gray-50">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
+          <div className="flex items-center justify-between">
+            {/* Left side - Title and navigation */}
+            <div className="flex items-center gap-6">
+              <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                <CalendarIcon className="w-7 h-7 text-blue-600" />
+                Calendar
+              </h1>
+              
+              {/* Week navigation */}
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => navigateWeek('prev')}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <ChevronLeft className="w-5 h-5 text-gray-600" />
+                </button>
+                
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-medium text-gray-900">
+                    {format(weekStart, 'MMM d')} - {format(addDays(weekStart, 6), 'MMM d, yyyy')}
+                  </span>
+                  <button
+                    onClick={goToToday}
+                    className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
+                  >
+                    Today
+                  </button>
+                </div>
+                
+                <button
+                  onClick={() => navigateWeek('next')}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <ChevronRight className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
+            </div>
 
-        {/* Filter and Settings Bar */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setShowFilters(true)}
-              className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${
-                Object.values(filters).some(f => 
-                  Array.isArray(f) ? f.length > 0 : 
-                  typeof f === 'object' ? (f as any).start || (f as any).end || (f as any).min > 0 || (f as any).max < 1000 : 
-                  f && f !== 'all'
-                )
-                  ? 'bg-pulse-500 text-white'
-                  : darkMode
-                    ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              <Filter className="w-4 h-4" />
-              Filters
-              {Object.values(filters).some(f => 
-                Array.isArray(f) ? f.length > 0 : 
-                typeof f === 'object' ? (f as any).start || (f as any).end || (f as any).min > 0 || (f as any).max < 1000 : 
-                f && f !== 'all'
-              ) && (
-                <span className="ml-1 px-2 py-0.5 bg-white/20 rounded-full text-xs">
-                  Active
-                </span>
-              )}
-            </motion.button>
+            {/* Right side - Search and actions */}
+            <div className="flex items-center gap-4">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search jobs..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
+                />
+              </div>
 
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setShowSettings(true)}
-              className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${
-                darkMode
-                  ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              <Settings className="w-4 h-4" />
-              Settings
-            </motion.button>
-          </div>
-
-          <div className="text-sm text-gray-500">
-            Showing {filteredJobs.length} of {jobs.length} jobs
+              {/* Action buttons */}
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <Filter className="w-5 h-5 text-gray-600" />
+              </button>
+              
+              <button
+                onClick={loadData}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <RefreshCw className="w-5 h-5 text-gray-600" />
+              </button>
+              
+              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                New Job
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Analytics Dashboard with Animation */}
-        <AnimatePresence>
-          {showAnalytics && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className={`${darkMode ? 'bg-gray-800' : 'bg-gray-50'} rounded-xl p-6 overflow-hidden`}
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5" />
-                  Calendar Analytics
-                </h2>
-                <button
-                  onClick={() => setShowAnalytics(false)}
-                  className={`p-2 rounded-lg transition-colors ${
-                    darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'
-                  }`}
-                >
-                  <EyeOff className="w-5 h-5" />
-                </button>
-              </div>
-              <CalendarAnalytics 
-                jobs={filteredJobs} 
-                currentDate={currentDate} 
-                view={
-                  calendarView === 'month' ? 'month' : 
-                  calendarView === 'week' || calendarView === 'day' || calendarView === 'timeline' ? 'week' : 
-                  'week'
-                }
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Calendar Content with Loading Animation */}
-        {loading ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className={`flex items-center justify-center h-96 ${
-              darkMode ? 'bg-gray-800' : 'bg-white'
-            } rounded-xl shadow-sm`}
-          >
-            <div className="text-center">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                className="w-12 h-12 border-4 border-pulse-500 border-t-transparent rounded-full mx-auto mb-4"
-              />
-              <p className={darkMode ? 'text-gray-300' : 'text-gray-600'}>
-                Loading calendar...
-              </p>
+        {/* Calendar Grid */}
+        <div className="flex-1 overflow-hidden">
+          <div className="h-full flex">
+            {/* Time slots column */}
+            <div className="w-20 bg-white border-r border-gray-200 flex flex-col">
+              {/* Header spacer */}
+              <div className="h-16 border-b border-gray-200"></div>
+              
+              {/* Time slots */}
+              {timeSlots.map((time, index) => (
+                <div key={time} className="h-20 border-b border-gray-100 flex items-start justify-end pr-3 pt-2">
+                  <span className="text-sm text-gray-500 font-medium">{time}</span>
+                </div>
+              ))}
             </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key={calendarView}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            {renderCalendarContent()}
-          </motion.div>
-        )}
 
-        {/* Performance Tips (Enhanced) */}
-        {!showAnalytics && filteredJobs.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className={`rounded-lg p-6 border ${
-              darkMode 
-                ? 'bg-gradient-to-r from-gray-800 to-gray-900 border-gray-700' 
-                : 'bg-gradient-to-r from-pulse-50 to-blue-50 border-pulse-200'
-            }`}
-          >
-            <div className="flex items-start gap-4">
-              <motion.div
-                animate={{ rotate: [0, 10, -10, 0] }}
-                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                className={`p-2 rounded-lg ${
-                  darkMode ? 'bg-gray-700' : 'bg-pulse-100'
-                }`}
-              >
-                <Target className={`w-6 h-6 ${
-                  darkMode ? 'text-pulse-400' : 'text-pulse-600'
-                }`} />
-              </motion.div>
-              <div>
-                <h3 className={`font-semibold mb-2 ${
-                  darkMode ? 'text-white' : 'text-gray-900'
-                }`}>
-                  Scheduling Tips
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    className={`p-3 rounded-lg ${
-                      darkMode ? 'bg-gray-800/50' : 'bg-white/50'
+            {/* Days columns */}
+            <div className="flex-1 flex overflow-x-auto">
+              {weekDays.map((day, dayIndex) => {
+                const isToday = isSameDay(day, new Date());
+                const isSelected = isSameDay(day, selectedDate);
+                
+                return (
+                  <div key={dayIndex} className="flex-1 min-w-0 border-r border-gray-200 last:border-r-0">
+                    {/* Day header */}
+                    <div className={`h-16 border-b border-gray-200 flex flex-col items-center justify-center cursor-pointer transition-colors ${
+                      isSelected ? 'bg-blue-50' : isToday ? 'bg-blue-25' : 'bg-white hover:bg-gray-50'
                     }`}
-                  >
-                    <strong className={darkMode ? 'text-pulse-300' : 'text-pulse-600'}>
-                      Optimize Routes:
-                    </strong>
-                    <p className={darkMode ? 'text-gray-300' : 'text-gray-700'}>
-                      Group nearby jobs together to reduce travel time
-                    </p>
-                  </motion.div>
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    className={`p-3 rounded-lg ${
-                      darkMode ? 'bg-gray-800/50' : 'bg-white/50'
-                    }`}
-                  >
-                    <strong className={darkMode ? 'text-purple-300' : 'text-purple-600'}>
-                      Buffer Time:
-                    </strong>
-                    <p className={darkMode ? 'text-gray-300' : 'text-gray-700'}>
-                      Add 15-30 minutes between jobs for travel and setup
-                    </p>
-                  </motion.div>
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    className={`p-3 rounded-lg ${
-                      darkMode ? 'bg-gray-800/50' : 'bg-white/50'
-                    }`}
-                  >
-                    <strong className={darkMode ? 'text-green-300' : 'text-green-600'}>
-                      Peak Hours:
-                    </strong>
-                    <p className={darkMode ? 'text-gray-300' : 'text-gray-700'}>
-                      Schedule high-value services during optimal time slots
-                    </p>
-                  </motion.div>
+                    onClick={() => setSelectedDate(day)}
+                    >
+                      <div className="text-xs font-medium text-gray-500 uppercase">
+                        {format(day, 'EEE')}
+                      </div>
+                      <div className={`text-lg font-bold ${
+                        isToday ? 'text-blue-600' : 'text-gray-900'
+                      }`}>
+                        {format(day, 'd')}
+                      </div>
+                      {isToday && (
+                        <div className="w-1 h-1 bg-blue-600 rounded-full mt-1"></div>
+                      )}
+                    </div>
+
+                    {/* Time slots for this day */}
+                    <div className="relative">
+                      {timeSlots.map((timeSlot, timeIndex) => {
+                        const slotsJobs = getJobsForSlot(day, timeSlot);
+                        
+                        return (
+                          <div
+                            key={timeIndex}
+                            className="h-20 border-b border-gray-100 p-1 relative"
+                          >
+                            {slotsJobs.map((job, jobIndex) => (
+                              <div
+                                key={job.id}
+                                className={`mb-1 p-2 rounded-md border cursor-pointer transition-all hover:shadow-sm group relative ${getJobColor(job.status)}`}
+                                style={{
+                                  marginTop: jobIndex > 0 ? '2px' : '0',
+                                  height: slotsJobs.length === 1 ? 'calc(100% - 8px)' : `${Math.min(85 / slotsJobs.length, 36)}px`
+                                }}
+                              >
+                                {/* Job content */}
+                                <div className="flex items-center justify-between h-full">
+                                  <div className="min-w-0 flex-1">
+                                    <div className="font-medium text-sm truncate">
+                                      {job.client?.name || 'Unknown Client'}
+                                    </div>
+                                    {slotsJobs.length === 1 && (
+                                      <>
+                                        <div className="text-xs opacity-90 truncate">
+                                          {job.title || job.service_type}
+                                        </div>
+                                        {job.address && (
+                                          <div className="flex items-center gap-1 text-xs opacity-75 mt-1">
+                                            <MapPin className="w-3 h-3" />
+                                            <span className="truncate">{job.address}</span>
+                                          </div>
+                                        )}
+                                      </>
+                                    )}
+                                  </div>
+                                  
+                                  {slotsJobs.length === 1 && (
+                                    <div className="flex flex-col items-end gap-1">
+                                      {/* GPS Check-in button */}
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleGPSCheckIn(job);
+                                        }}
+                                        className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/20 hover:bg-white/30 rounded p-1"
+                                        title="GPS Check-in/Check-out"
+                                      >
+                                        <Navigation2 className="w-3 h-3" />
+                                      </button>
+                                      
+                                      {job.estimated_price && (
+                                        <span className="text-xs font-medium">
+                                          {formatCurrency(job.estimated_price)}
+                                        </span>
+                                      )}
+                                      <div className="flex items-center gap-1">
+                                        {job.status === 'completed' && <CheckCircle className="w-3 h-3" />}
+                                        {job.status === 'in_progress' && <Clock className="w-3 h-3" />}
+                                        {job.status === 'cancelled' && <AlertCircle className="w-3 h-3" />}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom status bar */}
+        <div className="bg-white border-t border-gray-200 px-6 py-3">
+          <div className="flex items-center justify-between text-sm text-gray-600">
+            <div className="flex items-center gap-6">
+              <span>
+                {weekJobs.length} {weekJobs.length === 1 ? 'job' : 'jobs'} this week
+              </span>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-gray-500 rounded"></div>
+                  <span>Scheduled</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-blue-500 rounded"></div>
+                  <span>In Progress</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-green-500 rounded"></div>
+                  <span>Completed</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-red-500 rounded"></div>
+                  <span>Cancelled</span>
                 </div>
               </div>
             </div>
-          </motion.div>
+            
+            <div className="text-gray-500">
+              Week of {format(weekStart, 'MMM d, yyyy')}
+            </div>
+          </div>
+        </div>
+
+        {/* GPS Check-In/Check-Out Modal */}
+        {selectedJob && (
+          <GPSCheckInOut
+            job={selectedJob}
+            isOpen={showGPSModal}
+            onClose={() => {
+              setShowGPSModal(false);
+              setSelectedJob(null);
+            }}
+            onStatusChange={handleGPSStatusChange}
+          />
         )}
-
-        {/* Quick Job Modal */}
-        <QuickJobModal
-          isOpen={showQuickJobModal}
-          onClose={() => setShowQuickJobModal(false)}
-          selectedDate={selectedDate}
-          selectedTime={selectedTime}
-          onJobCreated={handleJobCreated}
-          existingJobs={jobs}
-        />
-
-        {/* Job Details Modal */}
-        <JobDetailsModal
-          job={selectedJob}
-          isOpen={showJobDetailsModal}
-          onClose={() => setShowJobDetailsModal(false)}
-          onEdit={handleJobEdit}
-          onDelete={handleJobDelete}
-          onStatusChange={handleJobStatusChange}
-          onDuplicate={handleJobDuplicate}
-        />
-
-        {/* Filters Modal */}
-        <CalendarFilters
-          isOpen={showFilters}
-          onClose={() => setShowFilters(false)}
-          filters={filters}
-          onFiltersChange={setFilters}
-          clients={clients}
-          darkMode={darkMode}
-        />
-
-        {/* Settings Modal */}
-        <CalendarSettings
-          isOpen={showSettings}
-          onClose={() => setShowSettings(false)}
-          onSave={handlePreferencesSave}
-          darkMode={darkMode}
-        />
-
-        {/* Keyboard Shortcuts Helper */}
-        <CalendarKeyboardShortcuts
-          onShortcut={handleKeyboardShortcut}
-          darkMode={darkMode}
-          showHelper={showKeyboardHelper}
-          onToggleHelper={() => setShowKeyboardHelper(!showKeyboardHelper)}
-        />
-      </motion.div>
+      </div>
     </AppLayout>
   );
 };
