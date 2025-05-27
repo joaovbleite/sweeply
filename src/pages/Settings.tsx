@@ -1393,7 +1393,7 @@ const Settings = () => {
                               Disconnect
                             </button>
                             <button className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">
-                              <Settings className="w-4 h-4" />
+                              <SettingsIcon className="w-4 h-4" />
                             </button>
                           </>
                         ) : (
