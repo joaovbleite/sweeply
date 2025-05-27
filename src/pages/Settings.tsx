@@ -61,11 +61,13 @@ import { serviceTypesApi, ServiceType } from "@/lib/api/service-types";
 import { teamManagementApi, TeamMember, TeamInvitation } from "@/lib/api/team-management";
 import { integrationsApi, IntegrationConfig } from "@/lib/api/integrations";
 import { settingsApi, BrandingSettings, MobileSettings, AdvancedBusinessSettings } from "@/lib/api/settings";
+import { useProfile } from "@/hooks/useProfile";
 
 const Settings = () => {
   const { t, i18n } = useTranslation(['settings', 'common']);
   const { formatCurrency } = useLocale();
   const { user } = useAuth();
+  const { refreshProfile } = useProfile();
   
   // State for different settings sections
   const [activeTab, setActiveTab] = useState<'profile' | 'business' | 'team' | 'services' | 'integrations' | 'notifications' | 'security' | 'preferences' | 'mobile' | 'branding'>('profile');
@@ -354,6 +356,9 @@ const Settings = () => {
         toast.success('Email update confirmation sent to your new email address');
       }
 
+      // Refresh global profile data so navigation bar updates
+      await refreshProfile();
+
       toast.success(t('settings:profileUpdated'));
     } catch (error: any) {
       console.error('Error updating profile:', error);
@@ -408,6 +413,14 @@ const Settings = () => {
       setProfileData(prev => ({ ...prev, avatar: dataUrl }));
       setAvatarPreview(null);
 
+      // Save avatar to database immediately
+      await profileApi.upsertProfile({
+        avatar_url: dataUrl
+      });
+
+      // Refresh global profile data so navigation bar updates immediately
+      await refreshProfile();
+
       toast.success('Profile picture uploaded successfully!');
     } catch (error: any) {
       console.error('Error uploading avatar:', error);
@@ -423,10 +436,24 @@ const Settings = () => {
   };
 
   // Remove avatar
-  const handleRemoveAvatar = () => {
-    setProfileData(prev => ({ ...prev, avatar: '' }));
-    setAvatarPreview(null);
-    toast.success('Profile picture removed');
+  const handleRemoveAvatar = async () => {
+    try {
+      setProfileData(prev => ({ ...prev, avatar: '' }));
+      setAvatarPreview(null);
+
+      // Save removal to database immediately
+      await profileApi.upsertProfile({
+        avatar_url: ''
+      });
+
+      // Refresh global profile data so navigation bar updates immediately
+      await refreshProfile();
+
+      toast.success('Profile picture removed');
+    } catch (error: any) {
+      console.error('Error removing avatar:', error);
+      toast.error(error.message || 'Failed to remove profile picture');
+    }
   };
 
   const handleSaveBusiness = async () => {

@@ -19,6 +19,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useProfile } from "@/hooks/useProfile";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -29,9 +30,10 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const { t } = useTranslation(['navigation', 'common']);
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { userProfile } = useProfile();
 
-  // Get user's name from metadata or email
-  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'there';
+  // Get user's name from profile or metadata or email
+  const userName = userProfile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'there';
 
   const handleLogout = async () => {
     await signOut();
@@ -124,9 +126,17 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               <span className="text-sm text-gray-600">
                 {t('common:welcome')}, {userName}
               </span>
-              <div className="w-10 h-10 bg-pulse-500 rounded-full flex items-center justify-center text-white font-semibold">
-                {userName.charAt(0).toUpperCase()}
-              </div>
+              {userProfile?.avatar_url ? (
+                <img 
+                  src={userProfile.avatar_url} 
+                  alt="Profile" 
+                  className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+                />
+              ) : (
+                <div className="w-10 h-10 bg-pulse-500 rounded-full flex items-center justify-center text-white font-semibold">
+                  {userName.charAt(0).toUpperCase()}
+                </div>
+              )}
             </div>
           </div>
         </header>
