@@ -38,7 +38,6 @@ import { format, isToday, startOfDay, endOfDay, subDays, startOfWeek, endOfWeek 
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import WelcomeWidget from "@/components/dashboard/WelcomeWidget";
 import PerformanceMetrics from "@/components/dashboard/PerformanceMetrics";
-import WeatherWidget from "@/components/dashboard/WeatherWidget";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -327,13 +326,8 @@ const Dashboard = () => {
         </div>
 
         {/* Dashboard Widgets */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <div className="lg:col-span-2">
-            <WelcomeWidget />
-          </div>
-          <div>
-            <WeatherWidget />
-          </div>
+        <div className="mb-6">
+          <WelcomeWidget />
         </div>
 
         {/* Stats Grid - Enhanced with trends */}
