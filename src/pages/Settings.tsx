@@ -84,6 +84,10 @@ const Settings = () => {
     bio: ''
   });
 
+  // Avatar upload state
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+
   // Business settings
   const [businessData, setBusinessData] = useState({
     businessName: '',
@@ -357,6 +361,72 @@ const Settings = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handle avatar upload
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      toast.error('Please select a valid image file (JPEG, PNG, or WebP)');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+      toast.error('Image size must be less than 5MB');
+      return;
+    }
+
+    try {
+      setAvatarUploading(true);
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setAvatarPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+
+      // Upload to Supabase storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `avatar-${user?.id}-${Date.now()}.${fileExt}`;
+      
+      // For now, we'll use a data URL as placeholder since we don't have Supabase storage setup
+      // In production, you would upload to Supabase storage and get the public URL
+      const dataUrl = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.readAsDataURL(file);
+      });
+
+      // Update profile data with new avatar URL
+      setProfileData(prev => ({ ...prev, avatar: dataUrl }));
+      setAvatarPreview(null);
+
+      toast.success('Profile picture uploaded successfully!');
+    } catch (error: any) {
+      console.error('Error uploading avatar:', error);
+      toast.error(error.message || 'Failed to upload profile picture');
+      setAvatarPreview(null);
+    } finally {
+      setAvatarUploading(false);
+      // Reset file input
+      if (event.target) {
+        event.target.value = '';
+      }
+    }
+  };
+
+  // Remove avatar
+  const handleRemoveAvatar = () => {
+    setProfileData(prev => ({ ...prev, avatar: '' }));
+    setAvatarPreview(null);
+    toast.success('Profile picture removed');
   };
 
   const handleSaveBusiness = async () => {
@@ -791,17 +861,63 @@ const Settings = () => {
                 {/* Avatar Section */}
                 <div className="flex items-center gap-6 mb-8">
                   <div className="relative">
-                    {profileData.avatar ? (
+                    {avatarPreview || profileData.avatar ? (
                       <img 
-                        src={profileData.avatar} 
+                        src={avatarPreview || profileData.avatar} 
                         alt="Avatar" 
-                        className="w-24 h-24 rounded-full object-cover"
+                        className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
                       />
                     ) : (
-                      <div className="w-24 h-24 bg-pulse-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                      <div className="w-24 h-24 bg-pulse-500 rounded-full flex items-center justify-center text-white text-2xl font-bold border-4 border-white shadow-lg">
                         {profileData.fullName.charAt(0).toUpperCase() || 'U'}
                       </div>
                     )}
+                    
+                    {/* Upload progress overlay */}
+                    {avatarUploading && (
+                      <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
+                        <Loader2 className="w-6 h-6 text-white animate-spin" />
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex-1">
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Profile Picture</h3>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Upload a professional photo for your profile. Recommended size: 400x400px. Max file size: 5MB.
+                    </p>
+                    
+                    <div className="flex items-center gap-3">
+                      <label className="relative cursor-pointer">
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/jpg,image/png,image/webp"
+                          onChange={handleAvatarUpload}
+                          disabled={avatarUploading}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        />
+                        <div className={`px-4 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 flex items-center gap-2 ${
+                          avatarUploading ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}>
+                          <Camera className="w-4 h-4" />
+                          {avatarUploading ? 'Uploading...' : 'Upload Photo'}
+                        </div>
+                      </label>
+                      
+                      {(profileData.avatar || avatarPreview) && !avatarUploading && (
+                        <button
+                          onClick={handleRemoveAvatar}
+                          className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                    
+                    <div className="mt-2 text-xs text-gray-500">
+                      Supported formats: JPEG, PNG, WebP
+                    </div>
                   </div>
                 </div>
 
@@ -1077,7 +1193,7 @@ const Settings = () => {
                           <div className="w-10 h-10 bg-pulse-100 rounded-full flex items-center justify-center">
                             <User className="w-5 h-5 text-pulse-600" />
                           </div>
-                          <div>
+                  <div>
                             <h4 className="font-medium text-gray-900">{member.member_name || 'Unknown'}</h4>
                             <p className="text-sm text-gray-600">{member.member_email || 'No email'}</p>
                           </div>
