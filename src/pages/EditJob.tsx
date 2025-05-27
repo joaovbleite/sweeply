@@ -11,12 +11,16 @@ import {
   MapPin, 
   FileText,
   Repeat,
-  Loader2
+  Loader2,
+  Home,
+  Building2,
+  ToggleLeft,
+  ToggleRight
 } from "lucide-react";
 import { toast } from "sonner";
 import { jobsApi } from "@/lib/api/jobs";
 import { clientsApi } from "@/lib/api/clients";
-import { Job, UpdateJobInput, ServiceType, RecurringFrequency } from "@/types/job";
+import { Job, UpdateJobInput, ServiceType, PropertyType, RecurringFrequency } from "@/types/job";
 import { Client } from "@/types/client";
 import AppLayout from "@/components/AppLayout";
 import RecurringJobPattern, { RecurringPattern } from "@/components/RecurringJobPattern";
@@ -35,6 +39,7 @@ const EditJob = () => {
     title: "",
     description: "",
     service_type: "regular",
+    property_type: "residential",
     scheduled_date: "",
     scheduled_time: "",
     estimated_duration: 120,
@@ -42,6 +47,17 @@ const EditJob = () => {
     address: "",
     special_instructions: "",
     access_instructions: "",
+    
+    // Residential fields
+    number_of_bedrooms: undefined,
+    number_of_bathrooms: undefined,
+    house_type: "",
+    
+    // Commercial fields
+    square_footage: undefined,
+    number_of_floors: undefined,
+    building_type: "",
+    
     is_recurring: false,
     recurring_frequency: undefined,
     recurring_end_date: ""
@@ -76,6 +92,7 @@ const EditJob = () => {
           title: jobData.title || "",
           description: jobData.description || "",
           service_type: jobData.service_type,
+          property_type: jobData.property_type || "residential",
           scheduled_date: jobData.scheduled_date,
           scheduled_time: jobData.scheduled_time || "",
           estimated_duration: jobData.estimated_duration || 120,
@@ -83,6 +100,17 @@ const EditJob = () => {
           address: jobData.address || "",
           special_instructions: jobData.special_instructions || "",
           access_instructions: jobData.access_instructions || "",
+          
+          // Residential fields
+          number_of_bedrooms: jobData.number_of_bedrooms,
+          number_of_bathrooms: jobData.number_of_bathrooms,
+          house_type: jobData.house_type || "",
+          
+          // Commercial fields
+          square_footage: jobData.square_footage,
+          number_of_floors: jobData.number_of_floors,
+          building_type: jobData.building_type || "",
+          
           is_recurring: jobData.is_recurring || false,
           recurring_frequency: jobData.recurring_frequency,
           recurring_end_date: jobData.recurring_end_date || "",
@@ -128,10 +156,10 @@ const EditJob = () => {
         ...prev,
         [name]: checked
       }));
-    } else if (name === 'estimated_price' || name === 'estimated_duration') {
+    } else if (name === 'estimated_price' || name === 'estimated_duration' || name === 'number_of_bedrooms' || name === 'number_of_bathrooms' || name === 'square_footage' || name === 'number_of_floors') {
       setFormData(prev => ({
         ...prev,
-        [name]: value ? parseFloat(value) : 0
+        [name]: value ? parseInt(value) : undefined
       }));
     } else {
       setFormData(prev => ({
@@ -139,6 +167,21 @@ const EditJob = () => {
         [name]: value
       }));
     }
+  };
+
+  const handlePropertyTypeToggle = () => {
+    const newPropertyType: PropertyType = formData.property_type === 'residential' ? 'commercial' : 'residential';
+    setFormData(prev => ({
+      ...prev,
+      property_type: newPropertyType,
+      // Clear property-specific fields when switching
+      number_of_bedrooms: undefined,
+      number_of_bathrooms: undefined,
+      house_type: "",
+      square_footage: undefined,
+      number_of_floors: undefined,
+      building_type: ""
+    }));
   };
 
   const handleRecurringPatternChange = (pattern: RecurringPattern) => {
@@ -184,6 +227,8 @@ const EditJob = () => {
         address: formData.address?.trim() || undefined,
         special_instructions: formData.special_instructions?.trim() || undefined,
         access_instructions: formData.access_instructions?.trim() || undefined,
+        house_type: formData.house_type?.trim() || undefined,
+        building_type: formData.building_type?.trim() || undefined,
         recurring_frequency: recurringPattern.is_recurring ? recurringPattern.recurring_frequency : undefined,
         recurring_end_date: recurringPattern.is_recurring && recurringPattern.recurring_end_date ? recurringPattern.recurring_end_date : undefined,
       };
@@ -265,6 +310,49 @@ const EditJob = () => {
         {/* Form */}
         <div className="bg-white rounded-xl shadow-sm">
           <form onSubmit={handleSubmit} className="p-6 space-y-8">
+            {/* Property Type Toggle */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                {formData.property_type === 'residential' ? <Home className="w-5 h-5" /> : <Building2 className="w-5 h-5" />}
+                Property Type
+              </h3>
+              <div className="flex items-center gap-4">
+                <button
+                  type="button"
+                  onClick={handlePropertyTypeToggle}
+                  className={`flex items-center gap-3 px-6 py-4 rounded-xl border-2 transition-all ${
+                    formData.property_type === 'residential'
+                      ? 'border-blue-500 bg-blue-50 text-blue-900'
+                      : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300'
+                  }`}
+                >
+                  <Home className="w-5 h-5" />
+                  <span className="font-medium">Residential</span>
+                </button>
+                
+                <div className="flex items-center">
+                  {formData.property_type === 'residential' ? (
+                    <ToggleLeft className="w-8 h-8 text-gray-400" />
+                  ) : (
+                    <ToggleRight className="w-8 h-8 text-blue-500" />
+                  )}
+                </div>
+                
+                <button
+                  type="button"
+                  onClick={handlePropertyTypeToggle}
+                  className={`flex items-center gap-3 px-6 py-4 rounded-xl border-2 transition-all ${
+                    formData.property_type === 'commercial'
+                      ? 'border-blue-500 bg-blue-50 text-blue-900'
+                      : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300'
+                  }`}
+                >
+                  <Building2 className="w-5 h-5" />
+                  <span className="font-medium">Commercial</span>
+                </button>
+              </div>
+            </div>
+
             {/* Client Information (Read-only) */}
             <div>
               <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
@@ -367,6 +455,131 @@ const EditJob = () => {
               </div>
             </div>
 
+            {/* Property-Specific Fields */}
+            {formData.property_type === 'residential' ? (
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                  <Home className="w-5 h-5" />
+                  Residential Details
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label htmlFor="number_of_bedrooms" className="block text-sm font-medium text-gray-700 mb-2">
+                      Bedrooms
+                    </label>
+                    <input
+                      type="number"
+                      id="number_of_bedrooms"
+                      name="number_of_bedrooms"
+                      min="0"
+                      max="20"
+                      value={formData.number_of_bedrooms || ''}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                      placeholder="3"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="number_of_bathrooms" className="block text-sm font-medium text-gray-700 mb-2">
+                      Bathrooms
+                    </label>
+                    <input
+                      type="number"
+                      id="number_of_bathrooms"
+                      name="number_of_bathrooms"
+                      min="0"
+                      max="20"
+                      value={formData.number_of_bathrooms || ''}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                      placeholder="2"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="house_type" className="block text-sm font-medium text-gray-700 mb-2">
+                      Property Type
+                    </label>
+                    <select
+                      id="house_type"
+                      name="house_type"
+                      value={formData.house_type}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                    >
+                      <option value="">Select type...</option>
+                      <option value="apartment">Apartment</option>
+                      <option value="house">House</option>
+                      <option value="condo">Condo</option>
+                      <option value="townhouse">Townhouse</option>
+                      <option value="studio">Studio</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                  <Building2 className="w-5 h-5" />
+                  Commercial Details
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label htmlFor="square_footage" className="block text-sm font-medium text-gray-700 mb-2">
+                      Square Footage
+                    </label>
+                    <input
+                      type="number"
+                      id="square_footage"
+                      name="square_footage"
+                      min="0"
+                      value={formData.square_footage || ''}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                      placeholder="5000"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="number_of_floors" className="block text-sm font-medium text-gray-700 mb-2">
+                      Number of Floors
+                    </label>
+                    <input
+                      type="number"
+                      id="number_of_floors"
+                      name="number_of_floors"
+                      min="1"
+                      max="100"
+                      value={formData.number_of_floors || ''}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                      placeholder="2"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="building_type" className="block text-sm font-medium text-gray-700 mb-2">
+                      Building Type
+                    </label>
+                    <select
+                      id="building_type"
+                      name="building_type"
+                      value={formData.building_type}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                    >
+                      <option value="">Select type...</option>
+                      <option value="office">Office Building</option>
+                      <option value="retail">Retail Store</option>
+                      <option value="restaurant">Restaurant</option>
+                      <option value="warehouse">Warehouse</option>
+                      <option value="medical">Medical Facility</option>
+                      <option value="school">School/Educational</option>
+                      <option value="gym">Gym/Fitness Center</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Scheduling */}
             <div>
               <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
@@ -441,6 +654,9 @@ const EditJob = () => {
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
                   />
+                  <p className="mt-1 text-sm text-gray-500">
+                    {formData.property_type === 'commercial' ? 'Commercial rates typically range from $200-500' : 'Residential rates typically range from $100-300'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -463,7 +679,7 @@ const EditJob = () => {
                     value={formData.address}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    placeholder="Address where the service will be performed"
+                    placeholder="123 Main St, City, State 12345"
                   />
                 </div>
                 <div>
@@ -477,23 +693,43 @@ const EditJob = () => {
                     value={formData.special_instructions}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    placeholder="Pet considerations, areas to focus on, client preferences, etc."
+                    placeholder="Any special requirements or notes for this cleaning..."
+                  />
+                </div>
+                <div>
+                  <label htmlFor="access_instructions" className="block text-sm font-medium text-gray-700 mb-2">
+                    Access Instructions
+                  </label>
+                  <textarea
+                    id="access_instructions"
+                    name="access_instructions"
+                    rows={2}
+                    value={formData.access_instructions}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                    placeholder="Key location, security codes, parking instructions..."
                   />
                 </div>
               </div>
             </div>
 
             {/* Form Actions */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t">
+            <div className="flex items-center justify-between pt-6 border-t border-gray-200">
+              <Link
+                to="/jobs"
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </Link>
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 sm:flex-none px-6 py-3 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
+                className="px-8 py-3 bg-pulse-600 text-white rounded-lg hover:bg-pulse-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
               >
                 {loading ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    Updating Job...
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Updating...
                   </>
                 ) : (
                   <>
@@ -502,12 +738,6 @@ const EditJob = () => {
                   </>
                 )}
               </button>
-              <Link
-                to="/jobs"
-                className="flex-1 sm:flex-none px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center justify-center gap-2 transition-colors"
-              >
-                Cancel
-              </Link>
             </div>
           </form>
         </div>

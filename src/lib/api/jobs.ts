@@ -31,6 +31,10 @@ export const jobsApi = {
       query = query.in('service_type', filters.service_type);
     }
     
+    if (filters?.property_type && filters.property_type.length > 0) {
+      query = query.in('property_type', filters.property_type);
+    }
+    
     if (filters?.client_id) {
       query = query.eq('client_id', filters.client_id);
     }

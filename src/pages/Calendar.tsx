@@ -17,7 +17,6 @@ import {
   AlertCircle,
   Calendar as DateIcon,
   RefreshCw,
-  Navigation2,
   TrendingUp,
   Users,
   MapIcon,
@@ -34,7 +33,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { useLocale } from "@/hooks/useLocale";
 import AppLayout from "@/components/AppLayout";
-import GPSCheckInOut from "@/components/gps/GPSCheckInOut";
 
 const timeSlots = [
   '8:00am', '9:00am', '10:00am', '11:00am', '12:00pm',
@@ -53,8 +51,7 @@ const Calendar = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [showGPSModal, setShowGPSModal] = useState(false);
+  const [propertyTypeFilter, setPropertyTypeFilter] = useState<'all' | 'residential' | 'commercial'>('all');
 
   // Load data
   const loadData = async () => {
@@ -82,14 +79,21 @@ const Calendar = () => {
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 0 });
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
-  // Filter jobs for current week
+  // Filter jobs for current week and property type
   const weekJobs = useMemo(() => {
     const weekEnd = endOfWeek(currentWeek, { weekStartsOn: 0 });
     return jobs.filter(job => {
       const jobDate = parseISO(job.scheduled_date);
-      return jobDate >= weekStart && jobDate <= weekEnd;
+      const withinWeek = jobDate >= weekStart && jobDate <= weekEnd;
+      const matchesPropertyType = propertyTypeFilter === 'all' || job.property_type === propertyTypeFilter;
+      const matchesSearch = !searchTerm || 
+        job.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.client?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.service_type.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      return withinWeek && matchesPropertyType && matchesSearch;
     });
-  }, [jobs, weekStart, currentWeek]);
+  }, [jobs, weekStart, currentWeek, propertyTypeFilter, searchTerm]);
 
   // Get jobs for specific day and time
   const getJobsForSlot = (date: Date, timeSlot: string) => {
@@ -109,18 +113,22 @@ const Calendar = () => {
     });
   };
 
-  // Get job status color
-  const getJobColor = (status: JobStatus) => {
+  // Get job status color with property type indicator
+  const getJobColor = (status: JobStatus, propertyType?: string) => {
+    const baseClasses = propertyType === 'commercial' 
+      ? 'border-l-4 border-l-orange-500' // Orange left border for commercial
+      : 'border-l-4 border-l-blue-500';  // Blue left border for residential
+    
     switch (status) {
       case 'completed':
-        return 'bg-green-500 border-green-600 text-white';
+        return `bg-green-500 border-green-600 text-white ${baseClasses}`;
       case 'in_progress':
-        return 'bg-blue-500 border-blue-600 text-white';
+        return `bg-blue-500 border-blue-600 text-white ${baseClasses}`;
       case 'cancelled':
-        return 'bg-red-500 border-red-600 text-white';
+        return `bg-red-500 border-red-600 text-white ${baseClasses}`;
       case 'scheduled':
       default:
-        return 'bg-gray-500 border-gray-600 text-white';
+        return `bg-gray-500 border-gray-600 text-white ${baseClasses}`;
     }
   };
 
@@ -133,19 +141,6 @@ const Calendar = () => {
   const goToToday = () => {
     setCurrentWeek(new Date());
     setSelectedDate(new Date());
-  };
-
-  // Handle GPS check-in/check-out
-  const handleGPSCheckIn = (job: Job) => {
-    setSelectedJob(job);
-    setShowGPSModal(true);
-  };
-
-  const handleGPSStatusChange = (status: 'checked_in' | 'checked_out') => {
-    // Refresh jobs to show updated status
-    loadData();
-    setShowGPSModal(false);
-    setSelectedJob(null);
   };
 
   // Calculate stats
@@ -295,6 +290,17 @@ const Calendar = () => {
 
               {/* Search and actions */}
               <div className="flex items-center gap-4">
+                {/* Property Type Filter */}
+                <select
+                  value={propertyTypeFilter}
+                  onChange={(e) => setPropertyTypeFilter(e.target.value as 'all' | 'residential' | 'commercial')}
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="all">All Properties</option>
+                  <option value="residential">🏠 Residential</option>
+                  <option value="commercial">🏢 Commercial</option>
+                </select>
+                
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
@@ -372,7 +378,7 @@ const Calendar = () => {
                                 {slotsJobs.map((job, jobIndex) => (
                                   <div
                                     key={job.id}
-                                    className={`mb-1 p-1.5 rounded border cursor-pointer transition-all hover:shadow-sm group relative text-xs ${getJobColor(job.status)}`}
+                                    className={`mb-1 p-1.5 rounded border cursor-pointer transition-all hover:shadow-sm text-xs ${getJobColor(job.status, job.property_type)}`}
                                     style={{
                                       marginTop: jobIndex > 0 ? '1px' : '0',
                                       height: slotsJobs.length === 1 ? 'calc(100% - 4px)' : `${Math.min(60 / slotsJobs.length, 28)}px`
@@ -393,18 +399,6 @@ const Calendar = () => {
                                       
                                       {slotsJobs.length === 1 && (
                                         <div className="flex flex-col items-end gap-0.5">
-                                          {/* GPS Check-in button */}
-                                          <button
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              handleGPSCheckIn(job);
-                                            }}
-                                            className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/20 hover:bg-white/30 rounded p-0.5"
-                                            title="GPS Check-in/Check-out"
-                                          >
-                                            <Navigation2 className="w-2.5 h-2.5" />
-                                          </button>
-                                          
                                           <div className="flex items-center gap-0.5">
                                             {job.status === 'completed' && <CheckCircle className="w-2.5 h-2.5" />}
                                             {job.status === 'in_progress' && <Clock className="w-2.5 h-2.5" />}
@@ -433,8 +427,14 @@ const Calendar = () => {
               <div className="flex items-center gap-6">
                 <span>
                   {weekJobs.length} {weekJobs.length === 1 ? 'job' : 'jobs'} this week
+                  {propertyTypeFilter !== 'all' && (
+                    <span className="ml-1 text-blue-600">
+                      ({propertyTypeFilter === 'residential' ? '🏠 Residential' : '🏢 Commercial'})
+                    </span>
+                  )}
                 </span>
                 <div className="flex items-center gap-4">
+                  {/* Job Status Legend */}
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-gray-500 rounded"></div>
                     <span>Scheduled</span>
@@ -451,6 +451,20 @@ const Calendar = () => {
                     <div className="w-3 h-3 bg-red-500 rounded"></div>
                     <span>Cancelled</span>
                   </div>
+                  
+                  {/* Property Type Legend */}
+                  <div className="border-l border-gray-300 pl-4 ml-2">
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-2 bg-blue-500 rounded"></div>
+                        <span>🏠 Residential</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-2 bg-orange-500 rounded"></div>
+                        <span>🏢 Commercial</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               
@@ -460,19 +474,6 @@ const Calendar = () => {
             </div>
           </div>
         </div>
-
-        {/* GPS Check-In/Check-Out Modal */}
-        {selectedJob && (
-          <GPSCheckInOut
-            job={selectedJob}
-            isOpen={showGPSModal}
-            onClose={() => {
-              setShowGPSModal(false);
-              setSelectedJob(null);
-            }}
-            onStatusChange={handleGPSStatusChange}
-          />
-        )}
       </div>
     </AppLayout>
   );

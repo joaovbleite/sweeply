@@ -12,6 +12,10 @@ export type JobStatus =
   | 'completed' 
   | 'cancelled';
 
+export type PropertyType = 
+  | 'residential' 
+  | 'commercial';
+
 export type RecurringFrequency = 
   | 'weekly' 
   | 'biweekly' 
@@ -27,6 +31,7 @@ export interface Job {
   title: string;
   description?: string;
   service_type: ServiceType;
+  property_type: PropertyType;
   status: JobStatus;
   
   // Scheduling
@@ -44,6 +49,16 @@ export interface Job {
   address?: string;
   special_instructions?: string;
   access_instructions?: string;
+  
+  // Commercial-specific fields
+  square_footage?: number;
+  number_of_floors?: number;
+  building_type?: string; // office, retail, warehouse, etc.
+  
+  // Residential-specific fields
+  number_of_bedrooms?: number;
+  number_of_bathrooms?: number;
+  house_type?: string; // apartment, house, condo, etc.
   
   // Completion Details
   completion_notes?: string;
@@ -82,6 +97,7 @@ export interface CreateJobInput {
   title: string;
   description?: string;
   service_type: ServiceType;
+  property_type: PropertyType;
   scheduled_date: string;
   scheduled_time?: string;
   estimated_duration?: number;
@@ -89,6 +105,17 @@ export interface CreateJobInput {
   address?: string;
   special_instructions?: string;
   access_instructions?: string;
+  
+  // Commercial fields
+  square_footage?: number;
+  number_of_floors?: number;
+  building_type?: string;
+  
+  // Residential fields
+  number_of_bedrooms?: number;
+  number_of_bathrooms?: number;
+  house_type?: string;
+  
   is_recurring?: boolean;
   recurring_frequency?: RecurringFrequency;
   recurring_end_date?: string;
@@ -98,6 +125,7 @@ export interface UpdateJobInput {
   title?: string;
   description?: string;
   service_type?: ServiceType;
+  property_type?: PropertyType;
   status?: JobStatus;
   scheduled_date?: string;
   scheduled_time?: string;
@@ -109,6 +137,17 @@ export interface UpdateJobInput {
   address?: string;
   special_instructions?: string;
   access_instructions?: string;
+  
+  // Commercial fields
+  square_footage?: number;
+  number_of_floors?: number;
+  building_type?: string;
+  
+  // Residential fields
+  number_of_bedrooms?: number;
+  number_of_bathrooms?: number;
+  house_type?: string;
+  
   completion_notes?: string;
   before_photos?: string[];
   after_photos?: string[];
@@ -121,6 +160,7 @@ export interface UpdateJobInput {
 export interface JobFilters {
   status?: JobStatus[];
   service_type?: ServiceType[];
+  property_type?: PropertyType[];
   client_id?: string;
   date_from?: string;
   date_to?: string;
