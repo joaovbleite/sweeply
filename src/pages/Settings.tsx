@@ -1764,26 +1764,6 @@ const Settings = () => {
                   </div>
                 </div>
 
-                <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    <Smartphone className="w-5 h-5 text-blue-600 mt-1" />
-                    <div>
-                      <h4 className="font-medium text-blue-900">Mobile App Information</h4>
-                      <p className="text-sm text-blue-700 mt-1">
-                        Download the Sweeply mobile app to manage your cleaning business on the go. Available for iOS and Android devices.
-                      </p>
-                      <div className="mt-3 flex gap-2">
-                        <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
-                          Download iOS App
-                        </button>
-                        <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
-                          Download Android App
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
                 <div className="mt-8 flex justify-end">
                   <button
                     onClick={handleSaveMobileSettings}
