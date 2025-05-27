@@ -25,7 +25,27 @@ import {
   Download,
   Trash2,
   Key,
-  Activity
+  Activity,
+  Briefcase,
+  Zap,
+  Link,
+  FileText,
+  Camera,
+  Edit,
+  Plus,
+  Minus,
+  Copy,
+  Calendar as CalendarIcon,
+  Webhook,
+  PieChart,
+  MessageSquare,
+  Smartphone,
+  Cloud,
+  Database,
+  Paintbrush,
+  Receipt,
+  Target,
+  TrendingUp
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -36,13 +56,42 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { profileApi, UserProfile } from "@/lib/api/profile";
 import { downloadAsJSON, setTheme, getTheme, Theme } from "@/lib/utils";
 
+interface ServiceType {
+  id: string;
+  name: string;
+  description: string;
+  defaultPrice: number;
+  defaultDuration: number;
+  isActive: boolean;
+  category: 'residential' | 'commercial' | 'specialized';
+}
+
+interface TeamMember {
+  id: string;
+  name: string;
+  email: string;
+  role: 'admin' | 'manager' | 'cleaner' | 'viewer';
+  status: 'active' | 'inactive' | 'invited';
+  permissions: string[];
+  joinedAt: string;
+}
+
+interface IntegrationConfig {
+  id: string;
+  name: string;
+  type: 'payment' | 'calendar' | 'accounting' | 'communication' | 'marketing';
+  isConnected: boolean;
+  config: Record<string, any>;
+  lastSync?: string;
+}
+
 const Settings = () => {
   const { t, i18n } = useTranslation(['settings', 'common']);
   const { formatCurrency } = useLocale();
   const { user } = useAuth();
   
   // State for different settings sections
-  const [activeTab, setActiveTab] = useState<'profile' | 'business' | 'notifications' | 'security' | 'preferences'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'business' | 'team' | 'services' | 'integrations' | 'notifications' | 'security' | 'preferences' | 'mobile' | 'branding'>('profile');
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -118,6 +167,143 @@ const Settings = () => {
     defaultJobDuration: '120',
     autoInvoicing: true,
     showTips: true
+  });
+
+  // Team Management
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [newMemberEmail, setNewMemberEmail] = useState('');
+  const [newMemberRole, setNewMemberRole] = useState<'admin' | 'manager' | 'cleaner' | 'viewer'>('cleaner');
+
+  // Service Types & Pricing
+  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([
+    {
+      id: '1',
+      name: 'Standard Cleaning',
+      description: 'Regular house cleaning service',
+      defaultPrice: 120,
+      defaultDuration: 120,
+      isActive: true,
+      category: 'residential'
+    },
+    {
+      id: '2',
+      name: 'Deep Cleaning',
+      description: 'Comprehensive deep cleaning service',
+      defaultPrice: 250,
+      defaultDuration: 240,
+      isActive: true,
+      category: 'residential'
+    },
+    {
+      id: '3',
+      name: 'Move-in/Move-out',
+      description: 'Cleaning for moving transitions',
+      defaultPrice: 200,
+      defaultDuration: 180,
+      isActive: true,
+      category: 'specialized'
+    },
+    {
+      id: '4',
+      name: 'Office Cleaning',
+      description: 'Commercial office space cleaning',
+      defaultPrice: 150,
+      defaultDuration: 90,
+      isActive: true,
+      category: 'commercial'
+    }
+  ]);
+
+  // Integrations
+  const [integrations, setIntegrations] = useState<IntegrationConfig[]>([
+    {
+      id: 'stripe',
+      name: 'Stripe',
+      type: 'payment',
+      isConnected: false,
+      config: {}
+    },
+    {
+      id: 'quickbooks',
+      name: 'QuickBooks',
+      type: 'accounting',
+      isConnected: false,
+      config: {}
+    },
+    {
+      id: 'google-calendar',
+      name: 'Google Calendar',
+      type: 'calendar',
+      isConnected: false,
+      config: {}
+    },
+    {
+      id: 'mailchimp',
+      name: 'Mailchimp',
+      type: 'marketing',
+      isConnected: false,
+      config: {}
+    }
+  ]);
+
+  // Branding Settings
+  const [brandingData, setBrandingData] = useState({
+    logo: '',
+    brandColor: '#3B82F6',
+    accentColor: '#EF4444',
+    companySlogan: '',
+    emailSignature: '',
+    invoiceFooter: '',
+    showBrandingOnInvoices: true,
+    customDomain: '',
+    socialMedia: {
+      facebook: '',
+      instagram: '',
+      twitter: '',
+      linkedin: ''
+    }
+  });
+
+  // Mobile App Settings
+  const [mobileSettings, setMobileSettings] = useState({
+    enableOfflineMode: true,
+    autoSyncInterval: '15', // minutes
+    dataUsageOptimization: true,
+    locationServices: true,
+    cameraQuality: 'high',
+    pushNotificationSound: 'default',
+    biometricLogin: false,
+    autoLogout: '30' // minutes
+  });
+
+  // Advanced Business Settings
+  const [advancedBusinessData, setAdvancedBusinessData] = useState({
+    taxSettings: {
+      taxRate: '8.25',
+      taxName: 'Sales Tax',
+      includeTaxInPrices: false,
+      taxIdNumber: ''
+    },
+    invoiceSettings: {
+      invoiceNumberPrefix: 'SW-',
+      invoiceNumberStart: '1001',
+      paymentTerms: '30',
+      lateFeePercentage: '2.5',
+      automaticReminders: true,
+      reminderDays: [7, 3, 1]
+    },
+    customerPortal: {
+      enableSelfBooking: true,
+      allowRescheduling: true,
+      showPricing: false,
+      requireApproval: true
+    },
+    marketingSettings: {
+      enableReviewRequests: true,
+      reviewRequestDelay: '24', // hours after job completion
+      referralProgram: true,
+      referralReward: '25'
+    }
   });
 
   // Load user profile data
@@ -374,10 +560,153 @@ const Settings = () => {
     toast.success(`Theme changed to ${newTheme}`);
   };
 
+  // Team Management Functions
+  const handleInviteTeamMember = async () => {
+    if (!newMemberEmail.trim()) {
+      toast.error('Please enter an email address');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      // Simulate API call
+      const newMember: TeamMember = {
+        id: Date.now().toString(),
+        name: newMemberEmail.split('@')[0],
+        email: newMemberEmail,
+        role: newMemberRole,
+        status: 'invited',
+        permissions: [],
+        joinedAt: new Date().toISOString()
+      };
+      
+      setTeamMembers(prev => [...prev, newMember]);
+      setNewMemberEmail('');
+      toast.success('Team member invited successfully');
+    } catch (error) {
+      toast.error('Failed to invite team member');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRemoveTeamMember = async (memberId: string) => {
+    try {
+      setLoading(true);
+      setTeamMembers(prev => prev.filter(member => member.id !== memberId));
+      toast.success('Team member removed');
+    } catch (error) {
+      toast.error('Failed to remove team member');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Service Type Functions
+  const handleAddServiceType = () => {
+    const newService: ServiceType = {
+      id: Date.now().toString(),
+      name: 'New Service',
+      description: 'Service description',
+      defaultPrice: 100,
+      defaultDuration: 120,
+      isActive: true,
+      category: 'residential'
+    };
+    setServiceTypes(prev => [...prev, newService]);
+  };
+
+  const handleUpdateServiceType = (id: string, updates: Partial<ServiceType>) => {
+    setServiceTypes(prev => prev.map(service => 
+      service.id === id ? { ...service, ...updates } : service
+    ));
+  };
+
+  const handleRemoveServiceType = (id: string) => {
+    setServiceTypes(prev => prev.filter(service => service.id !== id));
+  };
+
+  // Integration Functions
+  const handleConnectIntegration = async (integrationId: string) => {
+    try {
+      setLoading(true);
+      // Simulate connection process
+      setIntegrations(prev => prev.map(integration => 
+        integration.id === integrationId 
+          ? { ...integration, isConnected: true, lastSync: new Date().toISOString() }
+          : integration
+      ));
+      toast.success('Integration connected successfully');
+    } catch (error) {
+      toast.error('Failed to connect integration');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDisconnectIntegration = async (integrationId: string) => {
+    try {
+      setLoading(true);
+      setIntegrations(prev => prev.map(integration => 
+        integration.id === integrationId 
+          ? { ...integration, isConnected: false, lastSync: undefined }
+          : integration
+      ));
+      toast.success('Integration disconnected');
+    } catch (error) {
+      toast.error('Failed to disconnect integration');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Save Functions
+  const handleSaveBranding = async () => {
+    try {
+      setLoading(true);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      toast.success('Branding settings saved');
+    } catch (error) {
+      toast.error('Failed to save branding settings');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveMobileSettings = async () => {
+    try {
+      setLoading(true);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      toast.success('Mobile settings saved');
+    } catch (error) {
+      toast.error('Failed to save mobile settings');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveAdvancedBusiness = async () => {
+    try {
+      setLoading(true);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      toast.success('Advanced business settings saved');
+    } catch (error) {
+      toast.error('Failed to save advanced business settings');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const tabs = [
     { id: 'profile' as const, label: t('settings:profile'), icon: User },
     { id: 'business' as const, label: t('settings:business'), icon: Building2 },
+    { id: 'team' as const, label: 'Team Management', icon: Users },
+    { id: 'services' as const, label: 'Services & Pricing', icon: Briefcase },
+    { id: 'integrations' as const, label: 'Integrations', icon: Zap },
+    { id: 'branding' as const, label: 'Branding', icon: Paintbrush },
     { id: 'notifications' as const, label: t('settings:notifications'), icon: Bell },
+    { id: 'mobile' as const, label: 'Mobile App', icon: Smartphone },
     { id: 'security' as const, label: t('settings:security'), icon: Shield },
     { id: 'preferences' as const, label: t('settings:preferences'), icon: Palette }
   ];
@@ -669,168 +998,785 @@ const Settings = () => {
               </div>
             )}
 
-            {/* Preferences Settings */}
-            {activeTab === 'preferences' && (
+            {/* Team Management */}
+            {activeTab === 'team' && (
               <div className="bg-white rounded-xl shadow-sm p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('settings:preferences')}</h2>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('settings:language')}
-                    </label>
-                    <LanguageSwitcher />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('settings:timezone')}
-                    </label>
-                    <select
-                      value={preferences.timezone}
-                      onChange={(e) => setPreferences(prev => ({ ...prev, timezone: e.target.value }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    >
-                      <option value="America/New_York">Eastern Time</option>
-                      <option value="America/Chicago">Central Time</option>
-                      <option value="America/Denver">Mountain Time</option>
-                      <option value="America/Los_Angeles">Pacific Time</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('settings:currency')}
-                    </label>
-                    <select
-                      value={preferences.currency}
-                      onChange={(e) => setPreferences(prev => ({ ...prev, currency: e.target.value }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    >
-                      <option value="USD">USD ($)</option>
-                      <option value="EUR">EUR (€)</option>
-                      <option value="GBP">GBP (£)</option>
-                      <option value="CAD">CAD ($)</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('settings:dateFormat')}
-                    </label>
-                    <select
-                      value={preferences.dateFormat}
-                      onChange={(e) => setPreferences(prev => ({ ...prev, dateFormat: e.target.value }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    >
-                      <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                      <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                      <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('settings:timeFormat')}
-                    </label>
-                    <select
-                      value={preferences.timeFormat}
-                      onChange={(e) => setPreferences(prev => ({ ...prev, timeFormat: e.target.value as '12h' | '24h' }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    >
-                      <option value="12h">12-hour (2:30 PM)</option>
-                      <option value="24h">24-hour (14:30)</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('settings:defaultJobDuration')} (minutes)
-                    </label>
-                    <input
-                      type="number"
-                      value={preferences.defaultJobDuration}
-                      onChange={(e) => setPreferences(prev => ({ ...prev, defaultJobDuration: e.target.value }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    />
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900">Team Management</h2>
+                  <div className="text-sm text-gray-600">
+                    {teamMembers.length} team member{teamMembers.length !== 1 ? 's' : ''}
                   </div>
                 </div>
 
-                {/* Toggle Settings */}
-                <div className="mt-8 space-y-4">
-                  <div className="flex items-center justify-between">
+                {/* Invite New Team Member */}
+                <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Invite Team Member</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <h4 className="text-sm font-medium text-gray-900">{t('settings:autoInvoicing')}</h4>
-                      <p className="text-sm text-gray-600">{t('settings:autoInvoicingDesc')}</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                       <input
-                        type="checkbox"
-                        checked={preferences.autoInvoicing}
-                        onChange={(e) => setPreferences(prev => ({ ...prev, autoInvoicing: e.target.checked }))}
-                        className="sr-only peer"
+                        type="email"
+                        value={newMemberEmail}
+                        onChange={(e) => setNewMemberEmail(e.target.value)}
+                        placeholder="team@example.com"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
-                    </label>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
+                    </div>
                     <div>
-                      <h4 className="text-sm font-medium text-gray-900">{t('settings:showTips')}</h4>
-                      <p className="text-sm text-gray-600">{t('settings:showTipsDesc')}</p>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                      <select
+                        value={newMemberRole}
+                        onChange={(e) => setNewMemberRole(e.target.value as 'admin' | 'manager' | 'cleaner' | 'viewer')}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                      >
+                        <option value="viewer">Viewer</option>
+                        <option value="cleaner">Cleaner</option>
+                        <option value="manager">Manager</option>
+                        <option value="admin">Admin</option>
+                      </select>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={preferences.showTips}
-                        onChange={(e) => setPreferences(prev => ({ ...prev, showTips: e.target.checked }))}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
-                    </label>
+                    <div className="flex items-end">
+                      <button
+                        onClick={handleInviteTeamMember}
+                        disabled={loading || !newMemberEmail.trim()}
+                        className="w-full px-4 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 flex items-center justify-center gap-2"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Invite
+                      </button>
+                    </div>
                   </div>
                 </div>
 
-                {/* Theme Settings */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('settings:theme')}
-                    </label>
-                    <select 
-                      value={preferences.theme}
-                      onChange={(e) => handleThemeChange(e.target.value as Theme)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    >
-                      <option value="light">Light</option>
-                      <option value="dark">Dark</option>
-                      <option value="system">System</option>
-                    </select>
+                {/* Team Members List */}
+                <div className="space-y-4">
+                  {teamMembers.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-600">No team members yet. Invite your first team member above.</p>
+                    </div>
+                  ) : (
+                    teamMembers.map((member) => (
+                      <div key={member.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 bg-pulse-100 rounded-full flex items-center justify-center">
+                            <User className="w-5 h-5 text-pulse-600" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-gray-900">{member.name}</h4>
+                            <p className="text-sm text-gray-600">{member.email}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            member.status === 'active' ? 'bg-green-100 text-green-800' :
+                            member.status === 'invited' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-gray-100 text-gray-800'
+                          }`}>
+                            {member.status}
+                          </span>
+                          <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium capitalize">
+                            {member.role}
+                          </span>
+                          <button
+                            onClick={() => handleRemoveTeamMember(member.id)}
+                            className="text-red-600 hover:text-red-700 p-1"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Role Permissions Info */}
+                <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="font-medium text-blue-900 mb-3">Role Permissions</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="font-medium text-blue-800">Admin:</span>
+                      <p className="text-blue-700">Full access to all features and settings</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-blue-800">Manager:</span>
+                      <p className="text-blue-700">Manage jobs, clients, and team members</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-blue-800">Cleaner:</span>
+                      <p className="text-blue-700">View assigned jobs and update job status</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-blue-800">Viewer:</span>
+                      <p className="text-blue-700">Read-only access to jobs and reports</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Services & Pricing */}
+            {activeTab === 'services' && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900">Services & Pricing</h2>
+                  <button
+                    onClick={handleAddServiceType}
+                    className="px-4 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Service
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  {serviceTypes.map((service) => (
+                    <div key={service.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-start">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Service Name</label>
+                          <input
+                            type="text"
+                            value={service.name}
+                            onChange={(e) => handleUpdateServiceType(service.id, { name: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                          <select
+                            value={service.category}
+                            onChange={(e) => handleUpdateServiceType(service.id, { category: e.target.value as 'residential' | 'commercial' | 'specialized' })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                          >
+                            <option value="residential">Residential</option>
+                            <option value="commercial">Commercial</option>
+                            <option value="specialized">Specialized</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Default Price</label>
+                          <div className="relative">
+                            <DollarSign className="absolute left-3 top-2 w-4 h-4 text-gray-400" />
+                            <input
+                              type="number"
+                              value={service.defaultPrice}
+                              onChange={(e) => handleUpdateServiceType(service.id, { defaultPrice: Number(e.target.value) })}
+                              className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Duration (min)</label>
+                          <div className="relative">
+                            <Clock className="absolute left-3 top-2 w-4 h-4 text-gray-400" />
+                            <input
+                              type="number"
+                              value={service.defaultDuration}
+                              onChange={(e) => handleUpdateServiceType(service.id, { defaultDuration: Number(e.target.value) })}
+                              className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <label className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={service.isActive}
+                              onChange={(e) => handleUpdateServiceType(service.id, { isActive: e.target.checked })}
+                              className="rounded border-gray-300 text-pulse-600 focus:ring-pulse-500"
+                            />
+                            <span className="ml-2 text-sm text-gray-700">Active</span>
+                          </label>
+                          <button
+                            onClick={() => handleRemoveServiceType(service.id)}
+                            className="text-red-600 hover:text-red-700 p-1"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="mt-3">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea
+                          value={service.description}
+                          onChange={(e) => handleUpdateServiceType(service.id, { description: e.target.value })}
+                          rows={2}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                          placeholder="Service description for clients..."
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Advanced Business Settings */}
+                <div className="mt-8 space-y-6">
+                  <h3 className="text-lg font-semibold text-gray-900">Advanced Business Settings</h3>
+
+                  {/* Tax Settings */}
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h4 className="font-medium text-gray-900 mb-4">Tax Settings</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Tax Rate (%)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={advancedBusinessData.taxSettings.taxRate}
+                          onChange={(e) => setAdvancedBusinessData(prev => ({
+                            ...prev,
+                            taxSettings: { ...prev.taxSettings, taxRate: e.target.value }
+                          }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Tax Name</label>
+                        <input
+                          type="text"
+                          value={advancedBusinessData.taxSettings.taxName}
+                          onChange={(e) => setAdvancedBusinessData(prev => ({
+                            ...prev,
+                            taxSettings: { ...prev.taxSettings, taxName: e.target.value }
+                          }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                        />
+                      </div>
+                      <div className="flex items-center pt-6">
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={advancedBusinessData.taxSettings.includeTaxInPrices}
+                            onChange={(e) => setAdvancedBusinessData(prev => ({
+                              ...prev,
+                              taxSettings: { ...prev.taxSettings, includeTaxInPrices: e.target.checked }
+                            }))}
+                            className="rounded border-gray-300 text-pulse-600 focus:ring-pulse-500"
+                          />
+                          <span className="ml-2 text-sm text-gray-700">Include tax in prices</span>
+                        </label>
+                      </div>
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('settings:timeFormat')}
-                    </label>
-                    <select 
-                      value={preferences.timeFormat}
-                      onChange={(e) => setPreferences(prev => ({ ...prev, timeFormat: e.target.value as '12h' | '24h' }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    >
-                      <option value="12h">12-hour (2:30 PM)</option>
-                      <option value="24h">24-hour (14:30)</option>
-                    </select>
+                  {/* Invoice Settings */}
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h4 className="font-medium text-gray-900 mb-4">Invoice Settings</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Invoice Number Prefix</label>
+                        <input
+                          type="text"
+                          value={advancedBusinessData.invoiceSettings.invoiceNumberPrefix}
+                          onChange={(e) => setAdvancedBusinessData(prev => ({
+                            ...prev,
+                            invoiceSettings: { ...prev.invoiceSettings, invoiceNumberPrefix: e.target.value }
+                          }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Starting Number</label>
+                        <input
+                          type="text"
+                          value={advancedBusinessData.invoiceSettings.invoiceNumberStart}
+                          onChange={(e) => setAdvancedBusinessData(prev => ({
+                            ...prev,
+                            invoiceSettings: { ...prev.invoiceSettings, invoiceNumberStart: e.target.value }
+                          }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Payment Terms (days)</label>
+                        <input
+                          type="number"
+                          value={advancedBusinessData.invoiceSettings.paymentTerms}
+                          onChange={(e) => setAdvancedBusinessData(prev => ({
+                            ...prev,
+                            invoiceSettings: { ...prev.invoiceSettings, paymentTerms: e.target.value }
+                          }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Late Fee (%)</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={advancedBusinessData.invoiceSettings.lateFeePercentage}
+                          onChange={(e) => setAdvancedBusinessData(prev => ({
+                            ...prev,
+                            invoiceSettings: { ...prev.invoiceSettings, lateFeePercentage: e.target.value }
+                          }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
 
                 <div className="mt-8 flex justify-end">
                   <button
-                    onClick={handleSavePreferences}
+                    onClick={handleSaveAdvancedBusiness}
                     disabled={loading}
                     className="px-6 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 flex items-center gap-2"
                   >
                     <Save className="w-4 h-4" />
-                    {loading ? t('common:saving') : t('common:save')}
+                    {loading ? 'Saving...' : 'Save Changes'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Integrations */}
+            {activeTab === 'integrations' && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Integrations</h2>
+                <p className="text-gray-600 mb-8">Connect your favorite tools and services to streamline your workflow.</p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {integrations.map((integration) => (
+                    <div key={integration.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                            integration.type === 'payment' ? 'bg-green-100' :
+                            integration.type === 'calendar' ? 'bg-blue-100' :
+                            integration.type === 'accounting' ? 'bg-purple-100' :
+                            integration.type === 'marketing' ? 'bg-orange-100' :
+                            'bg-gray-100'
+                          }`}>
+                            {integration.type === 'payment' && <CreditCard className="w-6 h-6 text-green-600" />}
+                            {integration.type === 'calendar' && <CalendarIcon className="w-6 h-6 text-blue-600" />}
+                            {integration.type === 'accounting' && <Receipt className="w-6 h-6 text-purple-600" />}
+                            {integration.type === 'marketing' && <TrendingUp className="w-6 h-6 text-orange-600" />}
+                            {integration.type === 'communication' && <MessageSquare className="w-6 h-6 text-gray-600" />}
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-gray-900">{integration.name}</h3>
+                            <p className="text-sm text-gray-600 capitalize">{integration.type}</p>
+                          </div>
+                        </div>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          integration.isConnected 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {integration.isConnected ? 'Connected' : 'Not Connected'}
+                        </span>
+                      </div>
+
+                      <div className="mb-4">
+                        <p className="text-sm text-gray-600">
+                          {integration.id === 'stripe' && 'Accept online payments securely'}
+                          {integration.id === 'quickbooks' && 'Sync your financial data automatically'}
+                          {integration.id === 'google-calendar' && 'Sync appointments with your calendar'}
+                          {integration.id === 'mailchimp' && 'Manage customer communications and marketing'}
+                        </p>
+                        {integration.lastSync && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            Last synced: {new Date(integration.lastSync).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex gap-2">
+                        {integration.isConnected ? (
+                          <>
+                            <button
+                              onClick={() => handleDisconnectIntegration(integration.id)}
+                              disabled={loading}
+                              className="flex-1 px-3 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 disabled:opacity-50 text-sm"
+                            >
+                              Disconnect
+                            </button>
+                            <button className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">
+                              <Settings className="w-4 h-4" />
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            onClick={() => handleConnectIntegration(integration.id)}
+                            disabled={loading}
+                            className="flex-1 px-3 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 text-sm"
+                          >
+                            Connect
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Webhook Settings */}
+                <div className="mt-8 bg-gray-50 rounded-lg p-6">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                    <Webhook className="w-5 h-5" />
+                    Webhook Settings
+                  </h3>
+                  <p className="text-gray-600 mb-4">Configure webhooks for real-time data synchronization with external systems.</p>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Webhook URL</label>
+                      <input
+                        type="url"
+                        placeholder="https://your-app.com/webhooks/sweeply"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div className="flex gap-4">
+                      <label className="flex items-center">
+                        <input type="checkbox" className="rounded border-gray-300 text-pulse-600 focus:ring-pulse-500" />
+                        <span className="ml-2 text-sm text-gray-700">Job updates</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input type="checkbox" className="rounded border-gray-300 text-pulse-600 focus:ring-pulse-500" />
+                        <span className="ml-2 text-sm text-gray-700">Payment updates</span>
+                      </label>
+                      <label className="flex items-center">
+                        <input type="checkbox" className="rounded border-gray-300 text-pulse-600 focus:ring-pulse-500" />
+                        <span className="ml-2 text-sm text-gray-700">Client updates</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Branding */}
+            {activeTab === 'branding' && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Branding & Customization</h2>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div className="space-y-6">
+                    {/* Logo Upload */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Company Logo</label>
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                        {brandingData.logo ? (
+                          <img src={brandingData.logo} alt="Logo" className="mx-auto max-h-24" />
+                        ) : (
+                          <div>
+                            <Camera className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                            <p className="text-gray-600">Upload your company logo</p>
+                          </div>
+                        )}
+                        <input type="file" accept="image/*" className="hidden" />
+                        <button className="mt-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">
+                          Choose File
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Color Settings */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Brand Color</label>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="color"
+                            value={brandingData.brandColor}
+                            onChange={(e) => setBrandingData(prev => ({ ...prev, brandColor: e.target.value }))}
+                            className="w-12 h-10 rounded border border-gray-300"
+                          />
+                          <input
+                            type="text"
+                            value={brandingData.brandColor}
+                            onChange={(e) => setBrandingData(prev => ({ ...prev, brandColor: e.target.value }))}
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Accent Color</label>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="color"
+                            value={brandingData.accentColor}
+                            onChange={(e) => setBrandingData(prev => ({ ...prev, accentColor: e.target.value }))}
+                            className="w-12 h-10 rounded border border-gray-300"
+                          />
+                          <input
+                            type="text"
+                            value={brandingData.accentColor}
+                            onChange={(e) => setBrandingData(prev => ({ ...prev, accentColor: e.target.value }))}
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Company Info */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Company Slogan</label>
+                      <input
+                        type="text"
+                        value={brandingData.companySlogan}
+                        onChange={(e) => setBrandingData(prev => ({ ...prev, companySlogan: e.target.value }))}
+                        placeholder="Your company's slogan or tagline"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Social Media */}
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-700 mb-3">Social Media Links</h4>
+                      <div className="space-y-3">
+                        <input
+                          type="url"
+                          value={brandingData.socialMedia.facebook}
+                          onChange={(e) => setBrandingData(prev => ({
+                            ...prev,
+                            socialMedia: { ...prev.socialMedia, facebook: e.target.value }
+                          }))}
+                          placeholder="Facebook URL"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                        />
+                        <input
+                          type="url"
+                          value={brandingData.socialMedia.instagram}
+                          onChange={(e) => setBrandingData(prev => ({
+                            ...prev,
+                            socialMedia: { ...prev.socialMedia, instagram: e.target.value }
+                          }))}
+                          placeholder="Instagram URL"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    {/* Email Templates */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Email Signature</label>
+                      <textarea
+                        value={brandingData.emailSignature}
+                        onChange={(e) => setBrandingData(prev => ({ ...prev, emailSignature: e.target.value }))}
+                        rows={4}
+                        placeholder="Your email signature"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Invoice Footer</label>
+                      <textarea
+                        value={brandingData.invoiceFooter}
+                        onChange={(e) => setBrandingData(prev => ({ ...prev, invoiceFooter: e.target.value }))}
+                        rows={3}
+                        placeholder="Text to appear at the bottom of invoices"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    {/* Preview */}
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <h4 className="font-medium text-gray-900 mb-3">Preview</h4>
+                      <div 
+                        className="bg-white rounded border p-4"
+                        style={{ borderColor: brandingData.brandColor }}
+                      >
+                        <div 
+                          className="text-lg font-semibold mb-2"
+                          style={{ color: brandingData.brandColor }}
+                        >
+                          {businessData.businessName || 'Your Business Name'}
+                        </div>
+                        <p className="text-sm text-gray-600">{brandingData.companySlogan}</p>
+                        <div 
+                          className="mt-3 px-3 py-1 rounded text-white text-sm inline-block"
+                          style={{ backgroundColor: brandingData.accentColor }}
+                        >
+                          Sample Button
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Options */}
+                    <div className="space-y-3">
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={brandingData.showBrandingOnInvoices}
+                          onChange={(e) => setBrandingData(prev => ({ ...prev, showBrandingOnInvoices: e.target.checked }))}
+                          className="rounded border-gray-300 text-pulse-600 focus:ring-pulse-500"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">Show branding on invoices</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 flex justify-end">
+                  <button
+                    onClick={handleSaveBranding}
+                    disabled={loading}
+                    className="px-6 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 flex items-center gap-2"
+                  >
+                    <Save className="w-4 h-4" />
+                    {loading ? 'Saving...' : 'Save Branding'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Mobile App Settings */}
+            {activeTab === 'mobile' && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Mobile App Settings</h2>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-medium text-gray-900">Performance & Data</h3>
+                    
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-900">Offline Mode</h4>
+                          <p className="text-sm text-gray-600">Work without internet connection</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={mobileSettings.enableOfflineMode}
+                            onChange={(e) => setMobileSettings(prev => ({ ...prev, enableOfflineMode: e.target.checked }))}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
+                        </label>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-900">Data Usage Optimization</h4>
+                          <p className="text-sm text-gray-600">Reduce data consumption</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={mobileSettings.dataUsageOptimization}
+                            onChange={(e) => setMobileSettings(prev => ({ ...prev, dataUsageOptimization: e.target.checked }))}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
+                        </label>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Auto Sync Interval</label>
+                        <select
+                          value={mobileSettings.autoSyncInterval}
+                          onChange={(e) => setMobileSettings(prev => ({ ...prev, autoSyncInterval: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                        >
+                          <option value="5">Every 5 minutes</option>
+                          <option value="15">Every 15 minutes</option>
+                          <option value="30">Every 30 minutes</option>
+                          <option value="60">Every hour</option>
+                          <option value="manual">Manual only</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-medium text-gray-900">Security & Privacy</h3>
+                    
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-900">Location Services</h4>
+                          <p className="text-sm text-gray-600">Enable GPS for job navigation</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={mobileSettings.locationServices}
+                            onChange={(e) => setMobileSettings(prev => ({ ...prev, locationServices: e.target.checked }))}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
+                        </label>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-900">Biometric Login</h4>
+                          <p className="text-sm text-gray-600">Use fingerprint or face ID</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={mobileSettings.biometricLogin}
+                            onChange={(e) => setMobileSettings(prev => ({ ...prev, biometricLogin: e.target.checked }))}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
+                        </label>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Auto Logout (minutes)</label>
+                        <select
+                          value={mobileSettings.autoLogout}
+                          onChange={(e) => setMobileSettings(prev => ({ ...prev, autoLogout: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                        >
+                          <option value="15">15 minutes</option>
+                          <option value="30">30 minutes</option>
+                          <option value="60">1 hour</option>
+                          <option value="never">Never</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Camera Quality</label>
+                        <select
+                          value={mobileSettings.cameraQuality}
+                          onChange={(e) => setMobileSettings(prev => ({ ...prev, cameraQuality: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                        >
+                          <option value="low">Low (faster uploads)</option>
+                          <option value="medium">Medium</option>
+                          <option value="high">High (best quality)</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <Smartphone className="w-5 h-5 text-blue-600 mt-1" />
+                    <div>
+                      <h4 className="font-medium text-blue-900">Mobile App Information</h4>
+                      <p className="text-sm text-blue-700 mt-1">
+                        Download the Sweeply mobile app to manage your cleaning business on the go. Available for iOS and Android devices.
+                      </p>
+                      <div className="mt-3 flex gap-2">
+                        <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
+                          Download iOS App
+                        </button>
+                        <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
+                          Download Android App
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 flex justify-end">
+                  <button
+                    onClick={handleSaveMobileSettings}
+                    disabled={loading}
+                    className="px-6 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 flex items-center gap-2"
+                  >
+                    <Save className="w-4 h-4" />
+                    {loading ? 'Saving...' : 'Save Mobile Settings'}
                   </button>
                 </div>
               </div>
