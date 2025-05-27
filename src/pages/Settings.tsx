@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   User, 
   Building2, 
@@ -8,7 +8,6 @@ import {
   Globe, 
   CreditCard,
   Save,
-  Camera,
   Mail,
   Phone,
   MapPin,
@@ -24,7 +23,6 @@ import {
   Info,
   Loader2,
   Download,
-  Upload,
   Trash2,
   Key,
   Activity
@@ -49,8 +47,6 @@ const Settings = () => {
   const [initialLoading, setInitialLoading] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [avatarUploading, setAvatarUploading] = useState(false);
   const [showDangerZone, setShowDangerZone] = useState(false);
   
   // Profile settings
@@ -315,42 +311,6 @@ const Settings = () => {
     }
   };
 
-  // Avatar upload handler
-  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
-      return;
-    }
-
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size must be less than 5MB');
-      return;
-    }
-
-    setAvatarUploading(true);
-    try {
-      const avatarUrl = await profileApi.uploadAvatar(file);
-      
-      // Update profile with new avatar URL
-      await profileApi.upsertProfile({ avatar_url: avatarUrl });
-      
-      // Update local state
-      setProfileData(prev => ({ ...prev, avatar: avatarUrl }));
-      
-      toast.success('Avatar updated successfully!');
-    } catch (error: any) {
-      console.error('Error uploading avatar:', error);
-      toast.error(error.message || 'Failed to upload avatar');
-    } finally {
-      setAvatarUploading(false);
-    }
-  };
-
   // Export user data
   const handleExportData = async () => {
     try {
@@ -498,49 +458,6 @@ const Settings = () => {
                         {profileData.fullName.charAt(0).toUpperCase() || 'U'}
                       </div>
                     )}
-                    <button 
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={avatarUploading}
-                      className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50"
-                    >
-                      {avatarUploading ? (
-                        <Loader2 className="w-4 h-4 text-gray-600 animate-spin" />
-                      ) : (
-                        <Camera className="w-4 h-4 text-gray-600" />
-                      )}
-                    </button>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleAvatarUpload}
-                      className="hidden"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900">{profileData.fullName || t('settings:yourName')}</h3>
-                    <div className="flex items-center gap-2 text-gray-600">
-                      <span>{profileData.email}</span>
-                      {user?.email_confirmed_at ? (
-                        <span className="text-green-600 flex items-center gap-1">
-                          <Check className="w-4 h-4" />
-                          Verified
-                        </span>
-                      ) : (
-                        <button 
-                          onClick={handleResendVerification}
-                          className="text-orange-600 hover:text-orange-700 text-sm underline"
-                        >
-                          Verify Email
-                        </button>
-                      )}
-                    </div>
-                    <button 
-                      onClick={() => fileInputRef.current?.click()}
-                      className="mt-2 text-pulse-600 hover:text-pulse-700 text-sm font-medium"
-                    >
-                      {t('settings:changePhoto')}
-                    </button>
                   </div>
                 </div>
 
