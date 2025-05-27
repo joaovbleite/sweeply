@@ -52,13 +52,21 @@ export const profileApi = {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
+    // Ensure we have a full_name if we're creating a new profile
+    const dataToUpsert = {
+      user_id: user.id,
+      full_name: profileData.full_name || 
+                 user.user_metadata?.full_name || 
+                 user.user_metadata?.name ||
+                 user.email?.split('@')[0] || 
+                 'User',
+      ...profileData,
+      updated_at: new Date().toISOString()
+    };
+
     const { data, error } = await supabase
       .from('user_profiles')
-      .upsert({
-        user_id: user.id,
-        ...profileData,
-        updated_at: new Date().toISOString()
-      })
+      .upsert(dataToUpsert)
       .select()
       .single();
 

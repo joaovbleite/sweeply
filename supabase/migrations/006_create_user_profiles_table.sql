@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS user_profiles (
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
     
     -- Personal Information
-    full_name TEXT NOT NULL,
+    full_name TEXT,
     phone TEXT,
     avatar_url TEXT,
     bio TEXT,
@@ -91,7 +91,12 @@ BEGIN
     INSERT INTO user_profiles (user_id, full_name)
     VALUES (
         NEW.id,
-        COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email)
+        COALESCE(
+            NEW.raw_user_meta_data->>'full_name', 
+            NEW.raw_user_meta_data->>'name',
+            split_part(NEW.email, '@', 1),
+            'User'
+        )
     );
     RETURN NEW;
 END;
