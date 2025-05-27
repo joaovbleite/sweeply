@@ -505,17 +505,30 @@ const Settings = () => {
     setLoading(true);
     try {
       // Change password if provided
-      if (securityData.newPassword) {
-        await profileApi.changePassword(securityData.newPassword);
+      if (securityData.currentPassword && securityData.newPassword) {
+        // Validate password strength
+        if (securityData.newPassword.length < 8) {
+          toast.error('Password must be at least 8 characters long');
+          return;
+        }
+
+        await profileApi.changePassword(securityData.currentPassword, securityData.newPassword);
         toast.success('Password updated successfully');
       }
 
       // Note: 2FA and session timeout would require additional backend implementation
-      toast.success(t('settings:securitySettingsUpdated'));
+      if (securityData.currentPassword || securityData.newPassword) {
+        toast.success('Security settings updated successfully');
+      }
+      
       setSecurityData(prev => ({ ...prev, currentPassword: '', newPassword: '', confirmPassword: '' }));
     } catch (error: any) {
       console.error('Error updating security settings:', error);
-      toast.error(error.message || t('common:errorOccurred'));
+      if (error.message === 'Current password is incorrect') {
+        toast.error('Current password is incorrect');
+      } else {
+        toast.error(error.message || t('common:errorOccurred'));
+      }
     } finally {
       setLoading(false);
     }
@@ -2280,6 +2293,169 @@ const Settings = () => {
             {activeTab === 'security' && (
               <div className="space-y-8">
                 <h2 className="text-2xl font-bold text-gray-900">{t('settings:security')}</h2>
+                
+                {/* Password Change Section */}
+                <div className="bg-white rounded-xl shadow-sm p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                    <Key className="w-5 h-5 text-pulse-500" />
+                    Change Password
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Current Password *
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          value={securityData.currentPassword}
+                          onChange={(e) => setSecurityData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent pr-12"
+                          placeholder="Enter your current password"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        New Password *
+                      </label>
+                      <input
+                        type="password"
+                        value={securityData.newPassword}
+                        onChange={(e) => setSecurityData(prev => ({ ...prev, newPassword: e.target.value }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                        placeholder="Enter new password"
+                      />
+                      {securityData.newPassword && (
+                        <div className="mt-2">
+                          <div className="text-xs text-gray-600 mb-1">Password strength:</div>
+                          <div className="flex gap-1">
+                            <div className={`h-1 w-full rounded ${securityData.newPassword.length >= 8 ? 'bg-green-500' : 'bg-gray-200'}`}></div>
+                            <div className={`h-1 w-full rounded ${securityData.newPassword.length >= 8 && /[A-Z]/.test(securityData.newPassword) ? 'bg-green-500' : 'bg-gray-200'}`}></div>
+                            <div className={`h-1 w-full rounded ${securityData.newPassword.length >= 8 && /[0-9]/.test(securityData.newPassword) ? 'bg-green-500' : 'bg-gray-200'}`}></div>
+                            <div className={`h-1 w-full rounded ${securityData.newPassword.length >= 8 && /[^A-Za-z0-9]/.test(securityData.newPassword) ? 'bg-green-500' : 'bg-gray-200'}`}></div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Confirm New Password *
+                      </label>
+                      <input
+                        type="password"
+                        value={securityData.confirmPassword}
+                        onChange={(e) => setSecurityData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                        placeholder="Confirm new password"
+                      />
+                      {securityData.confirmPassword && securityData.newPassword !== securityData.confirmPassword && (
+                        <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                          <X className="w-3 h-3" />
+                          Passwords do not match
+                        </p>
+                      )}
+                      {securityData.confirmPassword && securityData.newPassword === securityData.confirmPassword && (
+                        <p className="mt-1 text-sm text-green-600 flex items-center gap-1">
+                          <Check className="w-3 h-3" />
+                          Passwords match
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Password Requirements */}
+                  <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                    <h4 className="text-sm font-medium text-gray-900 mb-2">Password Requirements:</h4>
+                    <ul className="text-sm text-gray-600 space-y-1">
+                      <li className={`flex items-center gap-2 ${securityData.newPassword.length >= 8 ? 'text-green-600' : ''}`}>
+                        {securityData.newPassword.length >= 8 ? <Check className="w-3 h-3" /> : <div className="w-3 h-3 border border-gray-300 rounded-sm" />}
+                        At least 8 characters long
+                      </li>
+                      <li className={`flex items-center gap-2 ${/[A-Z]/.test(securityData.newPassword) ? 'text-green-600' : ''}`}>
+                        {/[A-Z]/.test(securityData.newPassword) ? <Check className="w-3 h-3" /> : <div className="w-3 h-3 border border-gray-300 rounded-sm" />}
+                        Contains uppercase letter
+                      </li>
+                      <li className={`flex items-center gap-2 ${/[0-9]/.test(securityData.newPassword) ? 'text-green-600' : ''}`}>
+                        {/[0-9]/.test(securityData.newPassword) ? <Check className="w-3 h-3" /> : <div className="w-3 h-3 border border-gray-300 rounded-sm" />}
+                        Contains number
+                      </li>
+                      <li className={`flex items-center gap-2 ${/[^A-Za-z0-9]/.test(securityData.newPassword) ? 'text-green-600' : ''}`}>
+                        {/[^A-Za-z0-9]/.test(securityData.newPassword) ? <Check className="w-3 h-3" /> : <div className="w-3 h-3 border border-gray-300 rounded-sm" />}
+                        Contains special character
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="mt-6 flex justify-end">
+                    <button
+                      onClick={handleSaveSecurity}
+                      disabled={loading || !securityData.currentPassword || !securityData.newPassword || securityData.newPassword !== securityData.confirmPassword || securityData.newPassword.length < 8}
+                      className="px-6 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    >
+                      <Save className="w-4 h-4" />
+                      {loading ? 'Updating Password...' : 'Update Password'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Session Management */}
+                <div className="bg-white rounded-xl shadow-sm p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                    <Shield className="w-5 h-5 text-pulse-500" />
+                    Security Preferences
+                  </h3>
+                  
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-900">Session Timeout</h4>
+                        <p className="text-sm text-gray-600">Automatically log out after period of inactivity</p>
+                      </div>
+                      <select
+                        value={securityData.sessionTimeout}
+                        onChange={(e) => setSecurityData(prev => ({ ...prev, sessionTimeout: e.target.value }))}
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                      >
+                        <option value="15">15 minutes</option>
+                        <option value="30">30 minutes</option>
+                        <option value="60">1 hour</option>
+                        <option value="120">2 hours</option>
+                        <option value="480">8 hours</option>
+                        <option value="never">Never</option>
+                      </select>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-900">Two-Factor Authentication</h4>
+                        <p className="text-sm text-gray-600">Add an extra layer of security to your account</p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm text-gray-500">Coming Soon</span>
+                        <label className="relative inline-flex items-center cursor-pointer opacity-50">
+                          <input
+                            type="checkbox"
+                            checked={securityData.twoFactorEnabled}
+                            disabled={true}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 
                 {/* Data Export Section */}
                 <div className="bg-blue-50 border border-blue-200 p-6 rounded-lg">

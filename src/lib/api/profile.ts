@@ -107,8 +107,29 @@ export const profileApi = {
     if (error) throw error;
   },
 
-  // Change password
-  async changePassword(newPassword: string) {
+  // Verify current password
+  async verifyPassword(currentPassword: string): Promise<boolean> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    // Sign in with current credentials to verify password
+    const { error } = await supabase.auth.signInWithPassword({
+      email: user.email!,
+      password: currentPassword
+    });
+
+    return !error;
+  },
+
+  // Change password with current password verification
+  async changePassword(currentPassword: string, newPassword: string) {
+    // First verify the current password
+    const isCurrentPasswordValid = await this.verifyPassword(currentPassword);
+    if (!isCurrentPasswordValid) {
+      throw new Error('Current password is incorrect');
+    }
+
+    // Update to new password
     const { error } = await supabase.auth.updateUser({
       password: newPassword
     });
