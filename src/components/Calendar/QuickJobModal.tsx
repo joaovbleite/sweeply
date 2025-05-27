@@ -3,7 +3,7 @@ import { X, Save, User, Clock, DollarSign, Search, AlertTriangle, CheckCircle, C
 import { toast } from "sonner";
 import { jobsApi } from "@/lib/api/jobs";
 import { clientsApi } from "@/lib/api/clients";
-import { Job, CreateJobInput, ServiceType } from "@/types/job";
+import { Job, CreateJobInput, ServiceType, PropertyType } from "@/types/job";
 import { Client } from "@/types/client";
 import { format, addHours, parseISO } from "date-fns";
 
@@ -34,6 +34,7 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
     client_id: "",
     title: "",
     service_type: "regular",
+    property_type: "residential",
     scheduled_date: "",
     scheduled_time: selectedTime || "",
     estimated_duration: 120,
@@ -82,6 +83,7 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
       client_id: "",
       title: "",
       service_type: "regular",
+      property_type: "residential",
       scheduled_date: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : "",
       scheduled_time: selectedTime || "",
       estimated_duration: 120,
