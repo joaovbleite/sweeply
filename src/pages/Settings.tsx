@@ -1199,8 +1199,6 @@ const Settings = () => {
                               type="checkbox"
                               checked={service.is_active}
                               onChange={(e) => handleUpdateServiceType(service.id, { is_active: e.target.checked })}
-                              checked={service.isActive}
-                              onChange={(e) => handleUpdateServiceType(service.id, { isActive: e.target.checked })}
                               className="rounded border-gray-300 text-pulse-600 focus:ring-pulse-500"
                             />
                             <span className="ml-2 text-sm text-gray-700">Active</span>
@@ -1359,51 +1357,51 @@ const Settings = () => {
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
                           <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                            integration.type === 'payment' ? 'bg-green-100' :
-                            integration.type === 'calendar' ? 'bg-blue-100' :
-                            integration.type === 'accounting' ? 'bg-purple-100' :
-                            integration.type === 'marketing' ? 'bg-orange-100' :
+                            integration.integration_type === 'payment' ? 'bg-green-100' :
+                            integration.integration_type === 'calendar' ? 'bg-blue-100' :
+                            integration.integration_type === 'accounting' ? 'bg-purple-100' :
+                            integration.integration_type === 'marketing' ? 'bg-orange-100' :
                             'bg-gray-100'
                           }`}>
-                            {integration.type === 'payment' && <CreditCard className="w-6 h-6 text-green-600" />}
-                            {integration.type === 'calendar' && <CalendarIcon className="w-6 h-6 text-blue-600" />}
-                            {integration.type === 'accounting' && <Receipt className="w-6 h-6 text-purple-600" />}
-                            {integration.type === 'marketing' && <TrendingUp className="w-6 h-6 text-orange-600" />}
-                            {integration.type === 'communication' && <MessageSquare className="w-6 h-6 text-gray-600" />}
+                            {integration.integration_type === 'payment' && <CreditCard className="w-6 h-6 text-green-600" />}
+                            {integration.integration_type === 'calendar' && <CalendarIcon className="w-6 h-6 text-blue-600" />}
+                            {integration.integration_type === 'accounting' && <Receipt className="w-6 h-6 text-purple-600" />}
+                            {integration.integration_type === 'marketing' && <TrendingUp className="w-6 h-6 text-orange-600" />}
+                            {integration.integration_type === 'communication' && <MessageSquare className="w-6 h-6 text-gray-600" />}
                           </div>
                           <div>
-                            <h3 className="font-medium text-gray-900">{integration.name}</h3>
-                            <p className="text-sm text-gray-600 capitalize">{integration.type}</p>
+                            <h3 className="font-medium text-gray-900">{integration.display_name}</h3>
+                            <p className="text-sm text-gray-600 capitalize">{integration.integration_type}</p>
                           </div>
                         </div>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          integration.isConnected 
+                          integration.is_connected 
                             ? 'bg-green-100 text-green-800' 
                             : 'bg-gray-100 text-gray-800'
                         }`}>
-                          {integration.isConnected ? 'Connected' : 'Not Connected'}
+                          {integration.is_connected ? 'Connected' : 'Not Connected'}
                         </span>
                       </div>
 
                       <div className="mb-4">
                         <p className="text-sm text-gray-600">
-                          {integration.id === 'stripe' && 'Accept online payments securely'}
-                          {integration.id === 'quickbooks' && 'Sync your financial data automatically'}
-                          {integration.id === 'google-calendar' && 'Sync appointments with your calendar'}
-                          {integration.id === 'mailchimp' && 'Manage customer communications and marketing'}
+                          {integration.integration_name === 'stripe' && 'Accept online payments securely'}
+                          {integration.integration_name === 'quickbooks' && 'Sync your financial data automatically'}
+                          {integration.integration_name === 'google-calendar' && 'Sync appointments with your calendar'}
+                          {integration.integration_name === 'mailchimp' && 'Manage customer communications and marketing'}
                         </p>
-                        {integration.lastSync && (
+                        {integration.last_sync && (
                           <p className="text-xs text-gray-500 mt-1">
-                            Last synced: {new Date(integration.lastSync).toLocaleDateString()}
+                            Last synced: {new Date(integration.last_sync).toLocaleDateString()}
                           </p>
                         )}
                       </div>
 
                       <div className="flex gap-2">
-                        {integration.isConnected ? (
+                        {integration.is_connected ? (
                           <>
                             <button
-                              onClick={() => handleDisconnectIntegration(integration.id)}
+                              onClick={() => handleDisconnectIntegration(integration.integration_name)}
                               disabled={loading}
                               className="flex-1 px-3 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 disabled:opacity-50 text-sm"
                             >
@@ -1415,7 +1413,7 @@ const Settings = () => {
                           </>
                         ) : (
                           <button
-                            onClick={() => handleConnectIntegration(integration.id)}
+                            onClick={() => handleConnectIntegration(integration.integration_name)}
                             disabled={loading}
                             className="flex-1 px-3 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 text-sm"
                           >
