@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { 
   ArrowLeft, 
   Save, 
@@ -10,89 +10,110 @@ import {
   DollarSign, 
   MapPin, 
   FileText,
-  Repeat
+  Repeat,
+  Loader2
 } from "lucide-react";
 import { toast } from "sonner";
 import { jobsApi } from "@/lib/api/jobs";
 import { clientsApi } from "@/lib/api/clients";
-import { CreateJobInput, ServiceType, RecurringFrequency } from "@/types/job";
+import { Job, UpdateJobInput, ServiceType, RecurringFrequency } from "@/types/job";
 import { Client } from "@/types/client";
 import AppLayout from "@/components/AppLayout";
 import RecurringJobPattern, { RecurringPattern } from "@/components/RecurringJobPattern";
 
-const AddJob = () => {
+const EditJob = () => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(false);
+  const [loadingJob, setLoadingJob] = useState(true);
+  const [job, setJob] = useState<Job | null>(null);
   const [clients, setClients] = useState<Client[]>([]);
   const [loadingClients, setLoadingClients] = useState(true);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
-  const [formData, setFormData] = useState<CreateJobInput>({
-    client_id: "",
+  const [formData, setFormData] = useState<UpdateJobInput>({
     title: "",
     description: "",
     service_type: "regular",
     scheduled_date: "",
     scheduled_time: "",
-    estimated_duration: 120, // 2 hours default
-    estimated_price: 120,
+    estimated_duration: 120,
+    estimated_price: 0,
     address: "",
     special_instructions: "",
     access_instructions: "",
     is_recurring: false,
     recurring_frequency: undefined,
-    recurring_end_date: undefined
+    recurring_end_date: ""
   });
 
   const [recurringPattern, setRecurringPattern] = useState<RecurringPattern>({
     is_recurring: false
   });
 
-  // Load clients on component mount
+  // Load job and clients on component mount
   useEffect(() => {
-    const loadClients = async () => {
+    const loadData = async () => {
+      if (!id) {
+        navigate("/jobs");
+        return;
+      }
+
       try {
-        const data = await clientsApi.getAll();
-        setClients(data);
+        // Load job
+        const jobData = await jobsApi.getById(id);
+        if (!jobData) {
+          toast.error("Job not found");
+          navigate("/jobs");
+          return;
+        }
+        setJob(jobData);
+        
+        // Set form data from job
+        setFormData({
+          title: jobData.title || "",
+          description: jobData.description || "",
+          service_type: jobData.service_type,
+          scheduled_date: jobData.scheduled_date,
+          scheduled_time: jobData.scheduled_time || "",
+          estimated_duration: jobData.estimated_duration || 120,
+          estimated_price: jobData.estimated_price || 0,
+          address: jobData.address || "",
+          special_instructions: jobData.special_instructions || "",
+          access_instructions: jobData.access_instructions || "",
+          is_recurring: jobData.is_recurring || false,
+          recurring_frequency: jobData.recurring_frequency,
+          recurring_end_date: jobData.recurring_end_date || "",
+          status: jobData.status
+        });
+
+        // Set recurring pattern
+        setRecurringPattern({
+          is_recurring: jobData.is_recurring || false,
+          recurring_frequency: jobData.recurring_frequency,
+          recurring_end_date: jobData.recurring_end_date || undefined,
+          recurring_end_type: jobData.recurring_end_date ? 'date' : 'never'
+        });
+
+        // Load clients
+        const clientsData = await clientsApi.getAll();
+        setClients(clientsData);
+        
+        // Set selected client
+        const client = clientsData.find(c => c.id === jobData.client_id);
+        setSelectedClient(client || null);
       } catch (error) {
-        console.error('Error loading clients:', error);
-        toast.error("Failed to load clients");
+        console.error('Error loading data:', error);
+        toast.error("Failed to load job data");
+        navigate("/jobs");
       } finally {
+        setLoadingJob(false);
         setLoadingClients(false);
       }
     };
 
-    loadClients();
-  }, []);
-
-  // Update form when client is selected
-  useEffect(() => {
-    if (selectedClient) {
-      const clientAddress = [
-        selectedClient.address,
-        selectedClient.city,
-        selectedClient.state,
-        selectedClient.zip
-      ].filter(Boolean).join(', ');
-
-      setFormData(prev => ({
-        ...prev,
-        client_id: selectedClient.id,
-        address: clientAddress,
-        title: `${getServiceTypeDisplay(prev.service_type)} - ${selectedClient.name}`
-      }));
-    }
-  }, [selectedClient]);
-
-  // Update title when service type changes
-  useEffect(() => {
-    if (selectedClient) {
-      setFormData(prev => ({
-        ...prev,
-        title: `${getServiceTypeDisplay(prev.service_type)} - ${selectedClient.name}`
-      }));
-    }
-  }, [formData.service_type, selectedClient]);
+    loadData();
+  }, [id, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -102,13 +123,6 @@ const AddJob = () => {
       setFormData(prev => ({
         ...prev,
         [name]: checked
-      }));
-    } else if (name === 'client_id') {
-      const client = clients.find(c => c.id === value);
-      setSelectedClient(client || null);
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
       }));
     } else if (name === 'estimated_price' || name === 'estimated_duration') {
       setFormData(prev => ({
@@ -136,12 +150,10 @@ const AddJob = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!job || !id) return;
+
     // Validation
-    if (!formData.client_id) {
-      toast.error("Please select a client");
-      return;
-    }
-    if (!formData.title.trim()) {
+    if (!formData.title?.trim()) {
       toast.error("Job title is required");
       return;
     }
@@ -160,7 +172,7 @@ const AddJob = () => {
 
     try {
       // Clean up the data before sending
-      const jobData: CreateJobInput = {
+      const updateData: UpdateJobInput = {
         ...formData,
         // Remove empty strings and convert to undefined
         description: formData.description?.trim() || undefined,
@@ -172,51 +184,18 @@ const AddJob = () => {
         recurring_end_date: recurringPattern.is_recurring && recurringPattern.recurring_end_date ? recurringPattern.recurring_end_date : undefined,
       };
 
-      // Check for scheduling conflicts
-      const conflicts = await jobsApi.checkSchedulingConflicts(
-        jobData.scheduled_date,
-        jobData.scheduled_time
-      );
-
-      if (conflicts.length > 0) {
-        const conflictNames = conflicts.map(job => job.client?.name || 'Unknown').join(', ');
-        const proceed = confirm(
-          `There are potential scheduling conflicts with: ${conflictNames}. Do you want to proceed anyway?`
-        );
-        if (!proceed) {
-          setLoading(false);
-          return;
-        }
-      }
-
-      // If it's a recurring job, use the createRecurring method
-      if (recurringPattern.is_recurring) {
-        const recurringJobData = {
-          ...jobData,
-          ...recurringPattern
-        };
-        
-        await jobsApi.createRecurring(recurringJobData);
-        
-        // Show info about recurring job creation
-        toast.success(
-          `Recurring job created! ${
-            recurringPattern.recurring_end_type === 'never' 
-              ? 'This job will repeat indefinitely.' 
-              : recurringPattern.recurring_end_type === 'date'
-              ? `This job will repeat until ${recurringPattern.recurring_end_date}.`
-              : `This job will repeat ${recurringPattern.recurring_occurrences} times.`
-          }`
-        );
+      await jobsApi.update(id, updateData);
+      
+      if (recurringPattern.is_recurring && job.is_recurring !== recurringPattern.is_recurring) {
+        toast.success("Job updated and converted to recurring job!");
       } else {
-        await jobsApi.create(jobData);
-        toast.success("Job created successfully!");
+        toast.success("Job updated successfully!");
       }
       
       navigate("/jobs");
     } catch (error) {
-      console.error('Error creating job:', error);
-      toast.error("Failed to create job");
+      console.error('Error updating job:', error);
+      toast.error("Failed to update job");
     } finally {
       setLoading(false);
     }
@@ -235,33 +214,30 @@ const AddJob = () => {
     return types[serviceType] || serviceType;
   };
 
-  // Get default pricing based on service type
-  const getDefaultPrice = (serviceType: ServiceType) => {
-    const prices = {
-      regular: 120,
-      deep_clean: 200,
-      move_in: 250,
-      move_out: 200,
-      post_construction: 300,
-      one_time: 150
-    };
-    return prices[serviceType] || 120;
-  };
-
   // Update price when service type changes
   const handleServiceTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newServiceType = e.target.value as ServiceType;
     setFormData(prev => ({
       ...prev,
-      service_type: newServiceType,
-      estimated_price: getDefaultPrice(newServiceType)
+      service_type: newServiceType
     }));
   };
 
-  // Get minimum date (today)
-  const getMinDate = () => {
-    return new Date().toISOString().split('T')[0];
-  };
+  if (loadingJob) {
+    return (
+      <AppLayout>
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <div className="flex items-center justify-center h-64">
+            <Loader2 className="w-8 h-8 animate-spin text-pulse-500" />
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!job) {
+    return null;
+  }
 
   return (
     <AppLayout>
@@ -276,8 +252,8 @@ const AddJob = () => {
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div>
-              <h1 className="text-3xl font-display font-bold text-gray-900">Create New Job</h1>
-              <p className="mt-1 text-gray-600">Schedule a cleaning service for your client</p>
+              <h1 className="text-3xl font-display font-bold text-gray-900">Edit Job</h1>
+              <p className="mt-1 text-gray-600">Update job details for {selectedClient?.name}</p>
             </div>
           </div>
         </div>
@@ -285,44 +261,16 @@ const AddJob = () => {
         {/* Form */}
         <div className="bg-white rounded-xl shadow-sm">
           <form onSubmit={handleSubmit} className="p-6 space-y-8">
-            {/* Client Selection */}
+            {/* Client Information (Read-only) */}
             <div>
               <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
                 <User className="w-5 h-5" />
                 Client Information
               </h3>
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label htmlFor="client_id" className="block text-sm font-medium text-gray-700 mb-2">
-                    Select Client *
-                  </label>
-                  {loadingClients ? (
-                    <div className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50">
-                      Loading clients...
-                    </div>
-                  ) : (
-                    <select
-                      id="client_id"
-                      name="client_id"
-                      required
-                      value={formData.client_id}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    >
-                      <option value="">Choose a client...</option>
-                      {clients.map((client) => (
-                        <option key={client.id} value={client.id}>
-                          {client.name} {client.email && `(${client.email})`}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                  {clients.length === 0 && !loadingClients && (
-                    <p className="mt-2 text-sm text-gray-500">
-                      No clients found. <Link to="/clients/new" className="text-pulse-600 hover:text-pulse-700">Create a client first</Link>.
-                    </p>
-                  )}
-                </div>
+              <div className="bg-gray-50 rounded-lg p-4">
+                <p className="font-medium text-gray-900">{selectedClient?.name}</p>
+                {selectedClient?.email && <p className="text-sm text-gray-600">{selectedClient.email}</p>}
+                {selectedClient?.phone && <p className="text-sm text-gray-600">{selectedClient.phone}</p>}
               </div>
             </div>
 
@@ -345,7 +293,6 @@ const AddJob = () => {
                     value={formData.title}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    placeholder="e.g., Regular Cleaning - John Doe"
                   />
                 </div>
                 <div>
@@ -368,6 +315,23 @@ const AddJob = () => {
                   </select>
                 </div>
                 <div>
+                  <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
+                    Status
+                  </label>
+                  <select
+                    id="status"
+                    name="status"
+                    value={formData.status || job.status}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                  >
+                    <option value="scheduled">Scheduled</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
+                <div>
                   <label htmlFor="estimated_duration" className="block text-sm font-medium text-gray-700 mb-2">
                     Estimated Duration (minutes)
                   </label>
@@ -380,7 +344,6 @@ const AddJob = () => {
                     value={formData.estimated_duration}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    placeholder="120"
                   />
                 </div>
                 <div className="md:col-span-2">
@@ -416,7 +379,6 @@ const AddJob = () => {
                     id="scheduled_date"
                     name="scheduled_date"
                     required
-                    min={getMinDate()}
                     value={formData.scheduled_date}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
@@ -473,7 +435,6 @@ const AddJob = () => {
                     value={formData.estimated_price}
                     onChange={handleChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    placeholder="120.00"
                   />
                 </div>
               </div>
@@ -499,23 +460,6 @@ const AddJob = () => {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
                     placeholder="Address where the service will be performed"
                   />
-                  <p className="mt-1 text-sm text-gray-500">
-                    Leave blank to use client's address
-                  </p>
-                </div>
-                <div>
-                  <label htmlFor="access_instructions" className="block text-sm font-medium text-gray-700 mb-2">
-                    Access Instructions
-                  </label>
-                  <textarea
-                    id="access_instructions"
-                    name="access_instructions"
-                    rows={3}
-                    value={formData.access_instructions}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    placeholder="Gate codes, key location, parking instructions, etc."
-                  />
                 </div>
                 <div>
                   <label htmlFor="special_instructions" className="block text-sm font-medium text-gray-700 mb-2">
@@ -538,18 +482,18 @@ const AddJob = () => {
             <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t">
               <button
                 type="submit"
-                disabled={loading || clients.length === 0}
+                disabled={loading}
                 className="flex-1 sm:flex-none px-6 py-3 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
               >
                 {loading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    Creating Job...
+                    Updating Job...
                   </>
                 ) : (
                   <>
                     <Save className="w-4 h-4" />
-                    Create Job
+                    Update Job
                   </>
                 )}
               </button>
@@ -567,8 +511,4 @@ const AddJob = () => {
   );
 };
 
-export default AddJob; 
- 
- 
- 
- 
+export default EditJob; 

@@ -55,6 +55,10 @@ export interface Job {
   recurring_frequency?: RecurringFrequency;
   recurring_end_date?: string; // ISO date string
   parent_job_id?: string;
+  recurring_days_of_week?: number[]; // Array of day numbers (0-6)
+  recurring_day_of_month?: number; // Day of month (1-31)
+  recurring_occurrences?: number; // Total number of occurrences
+  recurring_end_type?: 'never' | 'date' | 'occurrences'; // How recurrence ends
   
   // Metadata
   created_at: string;

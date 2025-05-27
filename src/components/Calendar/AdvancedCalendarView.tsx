@@ -27,6 +27,7 @@ import {
   BarChart3
 } from "lucide-react";
 import { Job, ServiceType } from "@/types/job";
+import { CalendarView } from "@/types/calendar";
 import { format, 
   startOfMonth, 
   endOfMonth, 
@@ -50,8 +51,6 @@ import { format,
   getHours,
   getMinutes
 } from "date-fns";
-
-export type CalendarView = 'month' | 'week' | 'day' | 'timeline';
 
 interface JobTemplate {
   id: string;

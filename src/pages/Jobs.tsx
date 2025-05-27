@@ -19,7 +19,10 @@ import {
   Copy,
   Eye,
   Phone,
-  Mail
+  Mail,
+  Repeat,
+  CalendarCheck,
+  CalendarX
 } from "lucide-react";
 import { toast } from "sonner";
 import { jobsApi } from "@/lib/api/jobs";
@@ -27,15 +30,18 @@ import { invoicesApi } from "@/lib/api/invoices";
 import { Job, JobFilters, ServiceType, JobStatus } from "@/types/job";
 import { format } from "date-fns";
 import AppLayout from "@/components/AppLayout";
+import RecurringJobManager from "@/components/RecurringJobManager";
 
 const Jobs = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState<JobFilters>({});
+  const [filters, setFilters] = useState<JobFilters & { is_recurring?: boolean }>({});
   const [showFilters, setShowFilters] = useState(false);
   const [selectedJobs, setSelectedJobs] = useState<Set<string>>(new Set());
   const [showBulkActions, setShowBulkActions] = useState(false);
+  const [showRecurringManager, setShowRecurringManager] = useState(false);
+  const [selectedRecurringJobId, setSelectedRecurringJobId] = useState<string | null>(null);
 
   // Load jobs
   const loadJobs = async () => {
@@ -229,14 +235,25 @@ const Jobs = () => {
     });
   };
 
-  // Filter jobs based on search term
-  const filteredJobs = searchTerm 
-    ? jobs.filter(job => 
-        job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        job.client?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        job.description?.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : jobs;
+  // Filter jobs based on search term and filters
+  const filteredJobs = jobs.filter(job => {
+    // Search filter
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      const matchesSearch = 
+        job.title.toLowerCase().includes(searchLower) ||
+        job.client?.name.toLowerCase().includes(searchLower) ||
+        job.description?.toLowerCase().includes(searchLower);
+      if (!matchesSearch) return false;
+    }
+
+    // Recurring filter
+    if (filters.is_recurring !== undefined && job.is_recurring !== filters.is_recurring) {
+      return false;
+    }
+
+    return true;
+  });
 
   // Calculate statistics
   const stats = {
@@ -245,6 +262,12 @@ const Jobs = () => {
     in_progress: jobs.filter(j => j.status === 'in_progress').length,
     completed: jobs.filter(j => j.status === 'completed').length,
     total_revenue: jobs.filter(j => j.status === 'completed').reduce((sum, j) => sum + (j.actual_price || j.estimated_price || 0), 0)
+  };
+
+  // Handle manage recurring series
+  const handleManageRecurringSeries = (jobId: string) => {
+    setSelectedRecurringJobId(jobId);
+    setShowRecurringManager(true);
   };
 
   return (
@@ -435,6 +458,19 @@ const Jobs = () => {
                 <option value="one_time">One-time Clean</option>
               </select>
 
+              <select
+                value={filters.is_recurring === undefined ? '' : filters.is_recurring.toString()}
+                onChange={(e) => setFilters(prev => ({
+                  ...prev,
+                  is_recurring: e.target.value === '' ? undefined : e.target.value === 'true'
+                }))}
+                className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
+              >
+                <option value="">All Jobs</option>
+                <option value="true">Recurring Only</option>
+                <option value="false">One-time Only</option>
+              </select>
+
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className="px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
@@ -555,14 +591,37 @@ const Jobs = () => {
                         />
                       </td>
                       <td className="px-6 py-4">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{job.title}</div>
-                          <div className="text-sm text-gray-500">{getServiceTypeDisplay(job.service_type)}</div>
-                          {job.description && (
-                            <div className="text-sm text-gray-400 mt-1 truncate max-w-xs">
-                              {job.description}
+                        <div className="flex items-start gap-3">
+                          <div className="flex-shrink-0">
+                            <div className="w-10 h-10 bg-pulse-100 rounded-lg flex items-center justify-center">
+                              <div className="w-5 h-5 text-pulse-600">
+                                {job.is_recurring && (
+                                  <Repeat className="w-3 h-3" />
+                                )}
+                              </div>
                             </div>
-                          )}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-medium text-gray-900">{job.title}</h4>
+                              {job.is_recurring && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
+                                  <Repeat className="w-3 h-3" />
+                                  {job.recurring_frequency?.replace('_', ' ')}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-600 mt-1">{getServiceTypeDisplay(job.service_type)}</p>
+                            {job.description && (
+                              <p className="text-sm text-gray-500 mt-1 line-clamp-2">{job.description}</p>
+                            )}
+                            {job.parent_job_id && (
+                              <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                                <CalendarCheck className="w-3 h-3" />
+                                Part of recurring series
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -658,6 +717,15 @@ const Jobs = () => {
                               <XCircle className="w-4 h-4" />
                             </button>
                           )}
+                          {job.is_recurring && !job.parent_job_id && (
+                            <button
+                              onClick={() => handleManageRecurringSeries(job.id)}
+                              className="p-1 text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded"
+                              title="Manage Recurring Series"
+                            >
+                              <Repeat className="w-4 h-4" />
+                            </button>
+                          )}
                           <Link
                             to={`/jobs/${job.id}/edit`}
                             className="p-1 text-gray-400 hover:text-pulse-600 transition-colors"
@@ -683,6 +751,20 @@ const Jobs = () => {
           </div>
         )}
       </div>
+
+      {/* Recurring Job Manager Modal */}
+      {showRecurringManager && selectedRecurringJobId && (
+        <RecurringJobManager
+          parentJobId={selectedRecurringJobId}
+          onClose={() => {
+            setShowRecurringManager(false);
+            setSelectedRecurringJobId(null);
+          }}
+          onUpdate={() => {
+            loadJobs();
+          }}
+        />
+      )}
     </AppLayout>
   );
 };

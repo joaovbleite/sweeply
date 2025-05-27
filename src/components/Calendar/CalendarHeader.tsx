@@ -24,8 +24,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
-
-export type CalendarView = 'month' | 'week' | 'day' | 'list' | 'timeline' | 'map';
+import { CalendarView } from '@/types/calendar';
 
 interface CalendarHeaderProps {
   currentDate: Date;

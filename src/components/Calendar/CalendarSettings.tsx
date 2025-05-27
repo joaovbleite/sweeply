@@ -16,31 +16,12 @@ import {
   Sun
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-interface CalendarPreferences {
-  defaultView: 'month' | 'week' | 'day' | 'list' | 'timeline' | 'map';
-  workingHours: { start: string; end: string };
-  maxJobsPerDay: number;
-  autoRefreshInterval: number;
-  showWeekends: boolean;
-  showRevenue: boolean;
-  showConflicts: boolean;
-  theme: 'light' | 'dark' | 'auto';
-  colorScheme: 'default' | 'colorful' | 'minimal';
-  timeFormat: '12h' | '24h';
-  weekStartsOn: 'sunday' | 'monday';
-  notifications: {
-    jobReminders: boolean;
-    conflictAlerts: boolean;
-    dailySummary: boolean;
-  };
-}
+import { CalendarView, CalendarPreferences } from '@/types/calendar';
 
 interface CalendarSettingsProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (preferences: CalendarPreferences) => void;
-  currentPreferences?: CalendarPreferences;
   darkMode?: boolean;
 }
 
@@ -67,15 +48,14 @@ const CalendarSettings: React.FC<CalendarSettingsProps> = ({
   isOpen,
   onClose,
   onSave,
-  currentPreferences = defaultPreferences,
   darkMode = false
 }) => {
-  const [preferences, setPreferences] = useState<CalendarPreferences>(currentPreferences);
+  const [preferences, setPreferences] = useState<CalendarPreferences>(defaultPreferences);
   const [activeTab, setActiveTab] = useState<'general' | 'display' | 'notifications'>('general');
 
   useEffect(() => {
-    setPreferences(currentPreferences);
-  }, [currentPreferences]);
+    setPreferences(defaultPreferences);
+  }, []);
 
   const handleSave = () => {
     onSave(preferences);

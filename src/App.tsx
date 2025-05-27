@@ -17,13 +17,16 @@ import EditClient from "./pages/EditClient";
 import ClientDashboard from "./pages/ClientDashboard";
 import Jobs from "./pages/Jobs";
 import AddJob from "./pages/AddJob";
+import EditJob from "./pages/EditJob";
 import Calendar from "./pages/Calendar";
 import Invoices from "./pages/Invoices";
+import CreateInvoice from "./pages/CreateInvoice";
 import Employees from "./pages/Employees";
 import Payroll from "./pages/Payroll";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import PricingAssistant from "./pages/PricingAssistant";
+import Notifications from "./pages/Notifications";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +99,14 @@ const App = () => (
               } 
             />
             <Route 
+              path="/jobs/:id/edit" 
+              element={
+                <ProtectedRoute>
+                  <EditJob />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/calendar" 
               element={
                 <ProtectedRoute>
@@ -108,6 +119,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Invoices />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/invoices/new" 
+              element={
+                <ProtectedRoute>
+                  <CreateInvoice />
                 </ProtectedRoute>
               } 
             />
@@ -140,6 +159,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Settings />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/notifications" 
+              element={
+                <ProtectedRoute>
+                  <Notifications />
                 </ProtectedRoute>
               } 
             />

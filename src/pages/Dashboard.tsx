@@ -38,6 +38,7 @@ import { format, isToday, startOfDay, endOfDay, subDays, startOfWeek, endOfWeek 
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import WelcomeWidget from "@/components/dashboard/WelcomeWidget";
 import PerformanceMetrics from "@/components/dashboard/PerformanceMetrics";
+import WeatherWidget from "@/components/dashboard/WeatherWidget";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -325,9 +326,14 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Welcome Widget */}
-        <div className="mb-8">
-          <WelcomeWidget />
+        {/* Dashboard Widgets */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <div className="lg:col-span-2">
+            <WelcomeWidget />
+          </div>
+          <div>
+            <WeatherWidget />
+          </div>
         </div>
 
         {/* Stats Grid - Enhanced with trends */}
@@ -488,7 +494,9 @@ const Dashboard = () => {
           {/* Right Column - Takes 1/3 on large screens */}
           <div className="space-y-6">
             {/* Performance Metrics */}
-            <PerformanceMetrics />
+            <div className="mb-6">
+              <PerformanceMetrics />
+            </div>
 
             {/* Quick Actions */}
             <div className="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow">
@@ -531,12 +539,6 @@ const Dashboard = () => {
             <div className="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-display font-bold text-gray-900">Recent Activity</h2>
-                <Link
-                  to="/activity"
-                  className="text-sm text-pulse-600 hover:text-pulse-700 font-medium hover:underline"
-                >
-                  View all
-                </Link>
               </div>
               <div className="space-y-4">
                 {recentActivities.map((activity) => {

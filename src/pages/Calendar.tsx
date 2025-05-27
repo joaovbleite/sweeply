@@ -34,10 +34,9 @@ import QuickJobModal from "@/components/Calendar/QuickJobModal";
 import JobDetailsModal from "@/components/Calendar/JobDetailsModal";
 import CalendarAnalytics from "@/components/Calendar/CalendarAnalytics";
 import { calendarUtils } from "@/lib/api/calendar-utils";
+import { CalendarView } from "@/types/calendar";
 
-export type CalendarView = 'month' | 'week' | 'day' | 'list' | 'timeline' | 'map';
-
-interface FilterOptions {
+export interface FilterOptions {
   serviceTypes: ServiceType[];
   status: string[];
   clients: string[];

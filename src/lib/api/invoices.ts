@@ -167,28 +167,27 @@ export const invoicesApi = {
   },
 
   // Record payment
-  async recordPayment(id: string, paymentData: {
-    amount: number;
-    payment_method: string;
-    payment_date: string;
-    reference?: string;
-  }): Promise<Invoice> {
+  async recordPayment(id: string, payment: PaymentRecord): Promise<Invoice> {
     const invoice = await this.getById(id);
-    if (!invoice) throw new Error('Invoice not found');
+    if (!invoice) {
+      throw new Error('Invoice not found');
+    }
 
-    const newPaidAmount = invoice.paid_amount + paymentData.amount;
+    const newPaidAmount = (invoice.paid_amount || 0) + payment.amount;
     const newBalanceDue = invoice.total_amount - newPaidAmount;
-    const newStatus: InvoiceStatus = newBalanceDue <= 0 ? 'paid' : 'sent';
+    const isFullyPaid = newBalanceDue <= 0;
 
-    return this.update(id, {
+    const updates: UpdateInvoiceInput = {
       paid_amount: newPaidAmount,
-      balance_due: newBalanceDue,
-      status: newStatus,
-      payment_method: paymentData.payment_method,
-      payment_date: paymentData.payment_date,
-      payment_reference: paymentData.reference,
-      ...(newStatus === 'paid' && { paid_at: new Date().toISOString() })
-    });
+      balance_due: Math.max(0, newBalanceDue),
+      status: isFullyPaid ? 'paid' : invoice.status,
+      payment_method: payment.payment_method,
+      payment_date: payment.payment_date,
+      payment_reference: payment.reference,
+      ...(isFullyPaid && { paid_at: new Date().toISOString() })
+    };
+
+    return this.update(id, updates);
   },
 
   // Get overdue invoices

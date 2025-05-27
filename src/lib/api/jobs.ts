@@ -1,9 +1,10 @@
 import { supabase } from '@/lib/supabase';
 import { Job, CreateJobInput, UpdateJobInput, JobFilters, JobStats, JobStatus } from '@/types/job';
+import { RecurringPattern } from '@/components/RecurringJobPattern';
 
 export const jobsApi = {
   // Get all jobs for the current user
-  async getAll(filters?: JobFilters): Promise<Job[]> {
+  async getAll(filters?: JobFilters & { is_recurring?: boolean }): Promise<Job[]> {
     let query = supabase
       .from('jobs')
       .select(`
@@ -40,6 +41,11 @@ export const jobsApi = {
     
     if (filters?.date_to) {
       query = query.lte('scheduled_date', filters.date_to);
+    }
+
+    // Apply recurring filter
+    if (filters?.is_recurring !== undefined) {
+      query = query.eq('is_recurring', filters.is_recurring);
     }
 
     const { data, error } = await query;
@@ -298,6 +304,219 @@ export const jobsApi = {
     }
 
     return this.update(id, updates);
+  },
+
+  // Create a recurring job with multiple instances
+  async createRecurring(jobData: CreateJobInput & RecurringPattern): Promise<Job> {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    // First, create the parent recurring job
+    const parentJobData = {
+      ...jobData,
+      user_id: user.id,
+      is_recurring: true,
+      recurring_frequency: jobData.recurring_frequency,
+      recurring_end_date: jobData.recurring_end_date,
+      recurring_days_of_week: jobData.recurring_days_of_week,
+      recurring_day_of_month: jobData.recurring_day_of_month,
+      recurring_occurrences: jobData.recurring_occurrences,
+      recurring_end_type: jobData.recurring_end_type
+    };
+
+    const { data: parentJob, error: parentError } = await supabase
+      .from('jobs')
+      .insert([parentJobData])
+      .select('*')
+      .single();
+
+    if (parentError) {
+      console.error('Error creating parent job:', parentError);
+      throw new Error('Failed to create recurring job');
+    }
+
+    // Generate instances for the next 3 months
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + 3);
+
+    try {
+      await this.generateRecurringInstances(parentJob.id, parentJob.scheduled_date, endDate.toISOString().split('T')[0]);
+    } catch (error) {
+      console.error('Error generating recurring instances:', error);
+      // Don't throw here - the parent job was created successfully
+    }
+
+    return parentJob;
+  },
+
+  // Generate recurring job instances
+  async generateRecurringInstances(parentJobId: string, startDate: string, endDate: string): Promise<Job[]> {
+    const { data, error } = await supabase.rpc('generate_recurring_job_instances', {
+      p_parent_job_id: parentJobId,
+      p_start_date: startDate,
+      p_end_date: endDate
+    });
+
+    if (error) {
+      console.error('Error generating recurring instances:', error);
+      throw new Error('Failed to generate recurring instances');
+    }
+
+    // Now insert the generated instances
+    if (data && data.length > 0) {
+      const { data: insertedJobs, error: insertError } = await supabase
+        .from('jobs')
+        .insert(data)
+        .select('*');
+
+      if (insertError) {
+        console.error('Error inserting recurring instances:', insertError);
+        throw new Error('Failed to insert recurring instances');
+      }
+
+      return insertedJobs || [];
+    }
+
+    return [];
+  },
+
+  // Get all instances of a recurring job
+  async getRecurringInstances(parentJobId: string): Promise<Job[]> {
+    const { data, error } = await supabase
+      .from('jobs')
+      .select(`
+        *,
+        client:clients(
+          id,
+          name,
+          email,
+          phone,
+          address,
+          city,
+          state,
+          zip
+        )
+      `)
+      .or(`id.eq.${parentJobId},parent_job_id.eq.${parentJobId}`)
+      .order('scheduled_date', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching recurring instances:', error);
+      throw new Error('Failed to fetch recurring instances');
+    }
+
+    return data || [];
+  },
+
+  // Cancel all future instances of a recurring job
+  async cancelRecurringSeries(parentJobId: string): Promise<void> {
+    const today = new Date().toISOString().split('T')[0];
+
+    // Cancel all future instances
+    const { error: cancelError } = await supabase
+      .from('jobs')
+      .update({ status: 'cancelled' })
+      .eq('parent_job_id', parentJobId)
+      .gte('scheduled_date', today)
+      .in('status', ['scheduled']);
+
+    if (cancelError) {
+      console.error('Error cancelling recurring instances:', cancelError);
+      throw new Error('Failed to cancel recurring instances');
+    }
+
+    // Update the parent job to stop recurrence
+    const { error: updateError } = await supabase
+      .from('jobs')
+      .update({ 
+        is_recurring: false,
+        recurring_end_date: today
+      })
+      .eq('id', parentJobId);
+
+    if (updateError) {
+      console.error('Error updating parent job:', updateError);
+      throw new Error('Failed to update parent job');
+    }
+  },
+
+  // Update a single instance or entire series
+  async updateRecurring(id: string, updates: UpdateJobInput, updateSeries: boolean = false): Promise<Job | Job[]> {
+    if (!updateSeries) {
+      // Update only this instance
+      return this.update(id, updates);
+    }
+
+    // Get the parent job ID
+    const job = await this.getById(id);
+    if (!job) {
+      throw new Error('Job not found');
+    }
+
+    const parentJobId = job.parent_job_id || job.id;
+
+    // Update all future instances
+    const today = new Date().toISOString().split('T')[0];
+    const { data, error } = await supabase
+      .from('jobs')
+      .update(updates)
+      .or(`id.eq.${parentJobId},parent_job_id.eq.${parentJobId}`)
+      .gte('scheduled_date', today)
+      .in('status', ['scheduled'])
+      .select('*');
+
+    if (error) {
+      console.error('Error updating recurring series:', error);
+      throw new Error('Failed to update recurring series');
+    }
+
+    return data || [];
+  },
+
+  // Check for scheduling conflicts
+  async checkSchedulingConflicts(scheduledDate: string, scheduledTime?: string, excludeJobId?: string): Promise<Job[]> {
+    let query = supabase
+      .from('jobs')
+      .select(`
+        *,
+        client:clients(name)
+      `)
+      .eq('scheduled_date', scheduledDate)
+      .in('status', ['scheduled', 'in_progress']);
+
+    if (excludeJobId) {
+      query = query.neq('id', excludeJobId);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Error checking conflicts:', error);
+      throw new Error('Failed to check scheduling conflicts');
+    }
+
+    // If no specific time provided, return all jobs on that date
+    if (!scheduledTime) {
+      return data || [];
+    }
+
+    // Filter jobs that might conflict based on time and duration
+    const conflicts = (data || []).filter(job => {
+      if (!job.scheduled_time) return false;
+      
+      const jobStart = new Date(`2000-01-01T${job.scheduled_time}`);
+      const jobEnd = new Date(jobStart.getTime() + (job.estimated_duration || 120) * 60000);
+      
+      const checkStart = new Date(`2000-01-01T${scheduledTime}`);
+      
+      // Check if the times overlap
+      return checkStart >= jobStart && checkStart < jobEnd;
+    });
+
+    return conflicts;
   },
 }; 
  
