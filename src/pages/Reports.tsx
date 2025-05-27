@@ -239,25 +239,25 @@ const Reports = () => {
 
         {/* Quick Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+          <div className="bg-gradient-to-r from-pulse-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-green-100 text-sm font-medium">{t('reports:totalRevenue')}</p>
+                <p className="text-blue-100 text-sm font-medium">{t('reports:totalRevenue')}</p>
                 <p className="text-3xl font-bold">{formatCurrency(analytics.completedRevenue)}</p>
                 <div className="flex items-center mt-2">
                   {analytics.revenueGrowth > 0 ? (
-                    <ArrowUp className="w-4 h-4 text-green-200" />
+                    <ArrowUp className="w-4 h-4 text-blue-200" />
                   ) : analytics.revenueGrowth < 0 ? (
-                    <ArrowDown className="w-4 h-4 text-green-200" />
+                    <ArrowDown className="w-4 h-4 text-blue-200" />
                   ) : (
-                    <Minus className="w-4 h-4 text-green-200" />
+                    <Minus className="w-4 h-4 text-blue-200" />
                   )}
-                  <span className="text-green-200 text-sm ml-1">
+                  <span className="text-blue-200 text-sm ml-1">
                     {Math.abs(analytics.revenueGrowth).toFixed(1)}% {t('reports:vsLastMonth')}
                   </span>
                 </div>
               </div>
-              <div className="p-3 bg-green-400 bg-opacity-30 rounded-full">
+              <div className="p-3 bg-blue-400 bg-opacity-30 rounded-full">
                 <DollarSign className="w-8 h-8" />
               </div>
             </div>
@@ -293,16 +293,16 @@ const Reports = () => {
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl shadow-lg p-6 text-white">
+          <div className="bg-gradient-to-r from-blue-700 to-blue-800 rounded-xl shadow-lg p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-orange-100 text-sm font-medium">{t('reports:avgJobValue')}</p>
+                <p className="text-blue-100 text-sm font-medium">{t('reports:avgJobValue')}</p>
                 <p className="text-3xl font-bold">{formatCurrency(analytics.averageJobValue)}</p>
-                <p className="text-orange-200 text-sm mt-2">
+                <p className="text-blue-200 text-sm mt-2">
                   {analytics.scheduledJobs} {t('reports:jobsScheduled')}
                 </p>
               </div>
-              <div className="p-3 bg-orange-400 bg-opacity-30 rounded-full">
+              <div className="p-3 bg-blue-400 bg-opacity-30 rounded-full">
                 <Target className="w-8 h-8" />
               </div>
             </div>

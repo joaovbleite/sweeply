@@ -121,19 +121,19 @@ const ClientDashboard = () => {
 
   // Get client tier based on revenue
   const getClientTier = (revenue: number) => {
-    if (revenue >= 2000) return { tier: 'VIP', color: 'text-purple-600 bg-purple-100', icon: Award };
-    if (revenue >= 1000) return { tier: 'Gold', color: 'text-yellow-600 bg-yellow-100', icon: Star };
+    if (revenue >= 2000) return { tier: 'VIP', color: 'text-blue-800 bg-blue-100', icon: Award };
+    if (revenue >= 1000) return { tier: 'Gold', color: 'text-blue-700 bg-blue-100', icon: Star };
     if (revenue >= 500) return { tier: 'Silver', color: 'text-gray-600 bg-gray-100', icon: Target };
-    return { tier: 'Bronze', color: 'text-orange-600 bg-orange-100', icon: Heart };
+    return { tier: 'Bronze', color: 'text-gray-700 bg-gray-100', icon: Heart };
   };
 
   const getServiceTypeColor = (serviceType: string) => {
     const colors = {
-      regular: 'bg-blue-500',
-      deep_clean: 'bg-purple-500',
-      move_in: 'bg-green-500',
-      move_out: 'bg-orange-500',
-      post_construction: 'bg-red-500',
+      regular: 'bg-pulse-500',
+      deep_clean: 'bg-blue-600',
+      move_in: 'bg-blue-700',
+      move_out: 'bg-blue-800',
+      post_construction: 'bg-gray-700',
       one_time: 'bg-gray-500'
     };
     return colors[serviceType] || 'bg-gray-500';
@@ -221,8 +221,8 @@ const ClientDashboard = () => {
                     ${analytics.completedRevenue} completed
                   </p>
                 </div>
-                <div className="p-3 bg-green-100 rounded-full">
-                  <DollarSign className="w-6 h-6 text-green-600" />
+                <div className="p-3 bg-blue-100 rounded-full">
+                  <DollarSign className="w-6 h-6 text-blue-600" />
                 </div>
               </div>
             </div>
@@ -268,8 +268,8 @@ const ClientDashboard = () => {
                     {analytics.daysSinceLastJob !== null && analytics.daysSinceLastJob > 90 ? 'Needs attention' : 'Recent'}
                   </p>
                 </div>
-                <div className="p-3 bg-orange-100 rounded-full">
-                  <Clock className="w-6 h-6 text-orange-600" />
+                <div className="p-3 bg-gray-100 rounded-full">
+                  <Clock className="w-6 h-6 text-gray-600" />
                 </div>
               </div>
             </div>
@@ -349,7 +349,7 @@ const ClientDashboard = () => {
                       <div>
                         <p className="text-sm text-gray-600">Status</p>
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          client.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          client.is_active ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
                         }`}>
                           {client.is_active ? 'Active' : 'Inactive'}
                         </span>
@@ -364,11 +364,9 @@ const ClientDashboard = () => {
 
                 {/* Notes */}
                 {client.notes && (
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-3">Notes</h3>
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                      <p className="text-yellow-800">{client.notes}</p>
-                    </div>
+                  <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                    <h4 className="font-medium text-gray-900 mb-1">Notes</h4>
+                    <p className="text-gray-700">{client.notes}</p>
                   </div>
                 )}
 
@@ -411,9 +409,9 @@ const ClientDashboard = () => {
                               <div className={`w-3 h-3 rounded-full ${getServiceTypeColor(job.service_type)}`} />
                               <h4 className="font-medium text-gray-900">{job.title}</h4>
                               <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                job.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                job.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
-                                job.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                job.status === 'completed' ? 'bg-blue-100 text-blue-800' :
+                                job.status === 'in_progress' ? 'bg-gray-100 text-gray-800' :
+                                job.status === 'cancelled' ? 'bg-gray-200 text-gray-700' :
                                 'bg-blue-100 text-blue-800'
                               }`}>
                                 {job.status.replace('_', ' ')}

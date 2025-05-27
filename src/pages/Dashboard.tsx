@@ -139,7 +139,7 @@ const Dashboard = () => {
         label: t('dashboard:jobsToday'), 
         value: todaysJobs.length.toString(), 
         icon: Calendar, 
-        color: "from-blue-500 to-blue-600",
+        color: "from-pulse-500 to-blue-600",
         trend: todaysJobs.length > (lastWeekJobs.length / 7) ? 'up' : 'down',
         trendValue: `${((todaysJobs.length - (lastWeekJobs.length / 7)) * 100).toFixed(0)}%`,
         subLabel: `${lastWeekJobs.length} last week`
@@ -148,7 +148,7 @@ const Dashboard = () => {
         label: t('dashboard:activeClients'), 
         value: activeClients.length.toString(), 
         icon: Users, 
-        color: "from-purple-500 to-purple-600",
+        color: "from-blue-600 to-blue-700",
         trend: newClientsThisWeek.length > 0 ? 'up' : 'neutral',
         trendValue: `+${newClientsThisWeek.length}`,
         subLabel: `${newClientsThisWeek.length} new this week`
@@ -157,7 +157,7 @@ const Dashboard = () => {
         label: t('dashboard:monthlyRevenue'), 
         value: formatCurrency(monthlyRevenue), 
         icon: DollarSign, 
-        color: "from-green-500 to-green-600",
+        color: "from-blue-700 to-blue-800",
         trend: monthlyRevenue > 0 ? 'up' : 'neutral',
         trendValue: '+12%',
         subLabel: 'vs last month'
@@ -166,7 +166,7 @@ const Dashboard = () => {
         label: t('dashboard:pendingPayments'), 
         value: formatCurrency(pendingAmount), 
         icon: CreditCard, 
-        color: "from-orange-500 to-orange-600",
+        color: "from-gray-600 to-gray-700",
         trend: pendingInvoices.length > 0 ? 'down' : 'neutral',
         trendValue: `${pendingInvoices.length} invoices`,
         subLabel: 'awaiting payment'
@@ -230,7 +230,7 @@ const Dashboard = () => {
         title: `New client added`,
         description: client.name,
         time: new Date(client.created_at),
-        color: 'text-purple-600 bg-purple-100'
+        color: 'text-blue-600 bg-blue-100'
       });
     });
 
@@ -243,7 +243,7 @@ const Dashboard = () => {
         title: invoice.status === 'paid' ? 'Invoice paid' : 'Invoice sent',
         description: `${invoice.invoice_number} - ${formatCurrency(invoice.total_amount)}`,
         time: new Date(invoice.created_at),
-        color: invoice.status === 'paid' ? 'text-green-600 bg-green-100' : 'text-orange-600 bg-orange-100'
+        color: invoice.status === 'paid' ? 'text-blue-700 bg-blue-100' : 'text-gray-600 bg-gray-100'
       });
     });
 
@@ -393,8 +393,8 @@ const Dashboard = () => {
                   <AreaChart data={revenueData}>
                     <defs>
                       <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#7C3AED" stopOpacity={0}/>
+                        <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -407,7 +407,7 @@ const Dashboard = () => {
                     <Area 
                       type="monotone" 
                       dataKey="revenue" 
-                      stroke="#7C3AED" 
+                      stroke="#3B82F6" 
                       fillOpacity={1} 
                       fill="url(#colorRevenue)" 
                     />
@@ -507,21 +507,21 @@ const Dashboard = () => {
                 </Link>
                 <Link 
                   to="/clients/new"
-                  className="p-4 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-[1.05] active:scale-[0.98] flex flex-col items-center gap-2 shadow-md hover:shadow-lg"
+                  className="p-4 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all transform hover:scale-[1.05] active:scale-[0.98] flex flex-col items-center gap-2 shadow-md hover:shadow-lg"
                 >
                   <Users className="w-5 h-5" />
                   <span className="text-xs font-medium text-center">{t('dashboard:addClient')}</span>
                 </Link>
                 <Link 
                   to="/invoices/new"
-                  className="p-4 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-[1.05] active:scale-[0.98] flex flex-col items-center gap-2 shadow-md hover:shadow-lg"
+                  className="p-4 bg-gradient-to-br from-blue-700 to-blue-800 text-white rounded-xl hover:from-blue-800 hover:to-blue-900 transition-all transform hover:scale-[1.05] active:scale-[0.98] flex flex-col items-center gap-2 shadow-md hover:shadow-lg"
                 >
                   <FileText className="w-5 h-5" />
                   <span className="text-xs font-medium text-center">{t('dashboard:createInvoice')}</span>
                 </Link>
                 <Link 
                   to="/reports"
-                  className="p-4 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all transform hover:scale-[1.05] active:scale-[0.98] flex flex-col items-center gap-2 shadow-md hover:shadow-lg"
+                  className="p-4 bg-gradient-to-br from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all transform hover:scale-[1.05] active:scale-[0.98] flex flex-col items-center gap-2 shadow-md hover:shadow-lg"
                 >
                   <BarChart3 className="w-5 h-5" />
                   <span className="text-xs font-medium text-center">{t('dashboard:viewReports')}</span>

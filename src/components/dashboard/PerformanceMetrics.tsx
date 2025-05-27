@@ -18,7 +18,7 @@ const PerformanceMetrics = () => {
       value: '4.8/5',
       progress: 96,
       icon: Star,
-      color: 'from-yellow-500 to-orange-500',
+      color: 'from-pulse-500 to-blue-600',
       trend: '+0.3 from last month'
     },
     {
@@ -26,7 +26,7 @@ const PerformanceMetrics = () => {
       value: '98%',
       progress: 98,
       icon: Clock,
-      color: 'from-blue-500 to-cyan-500',
+      color: 'from-blue-600 to-blue-700',
       trend: '+2% from last month'
     },
     {
@@ -34,7 +34,7 @@ const PerformanceMetrics = () => {
       value: '99.5%',
       progress: 99.5,
       icon: CheckCircle,
-      color: 'from-green-500 to-emerald-500',
+      color: 'from-blue-700 to-blue-800',
       trend: 'Maintaining excellence'
     },
     {
@@ -42,7 +42,7 @@ const PerformanceMetrics = () => {
       value: '+24%',
       progress: 75,
       icon: TrendingUp,
-      color: 'from-purple-500 to-pink-500',
+      color: 'from-gray-600 to-gray-700',
       trend: 'YoY growth'
     }
   ];

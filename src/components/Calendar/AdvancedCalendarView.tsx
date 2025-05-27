@@ -126,27 +126,27 @@ const AdvancedCalendarView: React.FC<AdvancedCalendarViewProps> = ({
   const getServiceTypeColor = (serviceType: ServiceType, theme: string = calendarTheme) => {
     const colors = {
       light: {
-        regular: 'bg-blue-500',
-        deep_clean: 'bg-purple-500',
-        move_in: 'bg-green-500',
-        move_out: 'bg-orange-500',
-        post_construction: 'bg-red-500',
+        regular: 'bg-pulse-500',
+        deep_clean: 'bg-blue-600',
+        move_in: 'bg-blue-700',
+        move_out: 'bg-blue-800',
+        post_construction: 'bg-gray-700',
         one_time: 'bg-gray-500'
       },
       dark: {
-        regular: 'bg-blue-600',
-        deep_clean: 'bg-purple-600',
-        move_in: 'bg-green-600',
-        move_out: 'bg-orange-600',
-        post_construction: 'bg-red-600',
+        regular: 'bg-pulse-600',
+        deep_clean: 'bg-blue-700',
+        move_in: 'bg-blue-800',
+        move_out: 'bg-blue-900',
+        post_construction: 'bg-gray-800',
         one_time: 'bg-gray-600'
       },
       colorful: {
-        regular: 'bg-gradient-to-r from-blue-400 to-blue-600',
-        deep_clean: 'bg-gradient-to-r from-purple-400 to-purple-600',
-        move_in: 'bg-gradient-to-r from-green-400 to-green-600',
-        move_out: 'bg-gradient-to-r from-orange-400 to-orange-600',
-        post_construction: 'bg-gradient-to-r from-red-400 to-red-600',
+        regular: 'bg-gradient-to-r from-pulse-400 to-pulse-600',
+        deep_clean: 'bg-gradient-to-r from-blue-500 to-blue-700',
+        move_in: 'bg-gradient-to-r from-blue-600 to-blue-800',
+        move_out: 'bg-gradient-to-r from-blue-700 to-blue-900',
+        post_construction: 'bg-gradient-to-r from-gray-600 to-gray-800',
         one_time: 'bg-gradient-to-r from-gray-400 to-gray-600'
       }
     };
@@ -163,9 +163,9 @@ const AdvancedCalendarView: React.FC<AdvancedCalendarViewProps> = ({
   // Get priority color
   const getPriorityColor = (priority: 'high' | 'medium' | 'low') => {
     const colors = {
-      high: 'border-red-400 ring-red-200',
-      medium: 'border-yellow-400 ring-yellow-200',
-      low: 'border-green-400 ring-green-200'
+      high: 'border-gray-600 ring-gray-200',
+      medium: 'border-blue-400 ring-blue-200',
+      low: 'border-pulse-400 ring-pulse-200'
     };
     return colors[priority];
   };

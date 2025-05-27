@@ -99,11 +99,11 @@ const CalendarTimelineView: React.FC<CalendarTimelineViewProps> = ({
 
   const getServiceTypeColor = (serviceType: string) => {
     const colors = {
-      regular: 'bg-blue-500',
-      deep_clean: 'bg-purple-500',
-      move_in: 'bg-green-500',
-      move_out: 'bg-orange-500',
-      post_construction: 'bg-red-500',
+      regular: 'bg-pulse-500',
+      deep_clean: 'bg-blue-600',
+      move_in: 'bg-blue-700',
+      move_out: 'bg-blue-800',
+      post_construction: 'bg-gray-700',
       one_time: 'bg-gray-500'
     };
     return colors[serviceType] || 'bg-gray-500';
