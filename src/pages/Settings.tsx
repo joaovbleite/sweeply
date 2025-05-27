@@ -56,34 +56,11 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { profileApi, UserProfile } from "@/lib/api/profile";
 import { downloadAsJSON, setTheme, getTheme, Theme } from "@/lib/utils";
 
-interface ServiceType {
-  id: string;
-  name: string;
-  description: string;
-  defaultPrice: number;
-  defaultDuration: number;
-  isActive: boolean;
-  category: 'residential' | 'commercial' | 'specialized';
-}
-
-interface TeamMember {
-  id: string;
-  name: string;
-  email: string;
-  role: 'admin' | 'manager' | 'cleaner' | 'viewer';
-  status: 'active' | 'inactive' | 'invited';
-  permissions: string[];
-  joinedAt: string;
-}
-
-interface IntegrationConfig {
-  id: string;
-  name: string;
-  type: 'payment' | 'calendar' | 'accounting' | 'communication' | 'marketing';
-  isConnected: boolean;
-  config: Record<string, any>;
-  lastSync?: string;
-}
+// Import new API functions
+import { serviceTypesApi, ServiceType } from "@/lib/api/service-types";
+import { teamManagementApi, TeamMember, TeamInvitation } from "@/lib/api/team-management";
+import { integrationsApi, IntegrationConfig } from "@/lib/api/integrations";
+import { settingsApi, BrandingSettings, MobileSettings, AdvancedBusinessSettings } from "@/lib/api/settings";
 
 const Settings = () => {
   const { t, i18n } = useTranslation(['settings', 'common']);
@@ -171,83 +148,18 @@ const Settings = () => {
 
   // Team Management
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [teamInvitations, setTeamInvitations] = useState<TeamInvitation[]>([]);
   const [newMemberEmail, setNewMemberEmail] = useState('');
   const [newMemberRole, setNewMemberRole] = useState<'admin' | 'manager' | 'cleaner' | 'viewer'>('cleaner');
 
-  // Service Types & Pricing
-  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([
-    {
-      id: '1',
-      name: 'Standard Cleaning',
-      description: 'Regular house cleaning service',
-      defaultPrice: 120,
-      defaultDuration: 120,
-      isActive: true,
-      category: 'residential'
-    },
-    {
-      id: '2',
-      name: 'Deep Cleaning',
-      description: 'Comprehensive deep cleaning service',
-      defaultPrice: 250,
-      defaultDuration: 240,
-      isActive: true,
-      category: 'residential'
-    },
-    {
-      id: '3',
-      name: 'Move-in/Move-out',
-      description: 'Cleaning for moving transitions',
-      defaultPrice: 200,
-      defaultDuration: 180,
-      isActive: true,
-      category: 'specialized'
-    },
-    {
-      id: '4',
-      name: 'Office Cleaning',
-      description: 'Commercial office space cleaning',
-      defaultPrice: 150,
-      defaultDuration: 90,
-      isActive: true,
-      category: 'commercial'
-    }
-  ]);
+  // Service Types & Pricing - now will be loaded from API
+  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
 
-  // Integrations
-  const [integrations, setIntegrations] = useState<IntegrationConfig[]>([
-    {
-      id: 'stripe',
-      name: 'Stripe',
-      type: 'payment',
-      isConnected: false,
-      config: {}
-    },
-    {
-      id: 'quickbooks',
-      name: 'QuickBooks',
-      type: 'accounting',
-      isConnected: false,
-      config: {}
-    },
-    {
-      id: 'google-calendar',
-      name: 'Google Calendar',
-      type: 'calendar',
-      isConnected: false,
-      config: {}
-    },
-    {
-      id: 'mailchimp',
-      name: 'Mailchimp',
-      type: 'marketing',
-      isConnected: false,
-      config: {}
-    }
-  ]);
+  // Integrations - now will be loaded from API
+  const [integrations, setIntegrations] = useState<IntegrationConfig[]>([]);
 
-  // Branding Settings
-  const [brandingData, setBrandingData] = useState({
+  // Branding Settings - now will be loaded from API
+  const [brandingData, setBrandingData] = useState<BrandingSettings>({
     logo: '',
     brandColor: '#3B82F6',
     accentColor: '#EF4444',
@@ -264,20 +176,20 @@ const Settings = () => {
     }
   });
 
-  // Mobile App Settings
-  const [mobileSettings, setMobileSettings] = useState({
+  // Mobile App Settings - now will be loaded from API
+  const [mobileSettings, setMobileSettings] = useState<MobileSettings>({
     enableOfflineMode: true,
-    autoSyncInterval: '15', // minutes
+    autoSyncInterval: '15',
     dataUsageOptimization: true,
     locationServices: true,
     cameraQuality: 'high',
     pushNotificationSound: 'default',
     biometricLogin: false,
-    autoLogout: '30' // minutes
+    autoLogout: '30'
   });
 
-  // Advanced Business Settings
-  const [advancedBusinessData, setAdvancedBusinessData] = useState({
+  // Advanced Business Settings - now will be loaded from API
+  const [advancedBusinessData, setAdvancedBusinessData] = useState<AdvancedBusinessSettings>({
     taxSettings: {
       taxRate: '8.25',
       taxName: 'Sales Tax',
@@ -300,19 +212,59 @@ const Settings = () => {
     },
     marketingSettings: {
       enableReviewRequests: true,
-      reviewRequestDelay: '24', // hours after job completion
+      reviewRequestDelay: '24',
       referralProgram: true,
       referralReward: '25'
     }
   });
 
-  // Load user profile data
+  // Load all data from APIs
   useEffect(() => {
-    const loadProfile = async () => {
+    const loadAllData = async () => {
       try {
         setInitialLoading(true);
-        const profile = await profileApi.getProfile();
         
+        // Load profile and settings data in parallel
+        const [
+          profile,
+          services,
+          teamMembersData,
+          invitationsData,
+          integrationsData,
+          brandingSettings,
+          mobileAppSettings,
+          advancedSettings
+        ] = await Promise.all([
+          profileApi.getProfile(),
+          serviceTypesApi.getServiceTypes(),
+          teamManagementApi.getTeamMembers(),
+          teamManagementApi.getTeamInvitations(),
+          integrationsApi.getIntegrations(),
+          settingsApi.getBrandingSettings(),
+          settingsApi.getMobileSettings(),
+          settingsApi.getAdvancedBusinessSettings()
+        ]);
+
+        // Set service types
+        setServiceTypes(services);
+
+        // Set team data
+        setTeamMembers(teamMembersData);
+        setTeamInvitations(invitationsData);
+
+        // Set integrations
+        setIntegrations(integrationsData);
+
+        // Set branding
+        setBrandingData(brandingSettings);
+
+        // Set mobile settings
+        setMobileSettings(mobileAppSettings);
+
+        // Set advanced business settings
+        setAdvancedBusinessData(advancedSettings);
+
+        // ... existing profile data setting code ...
         if (profile) {
           setUserProfile(profile);
           
@@ -372,7 +324,7 @@ const Settings = () => {
     };
 
     if (user) {
-      loadProfile();
+      loadAllData();
     }
   }, [user, i18n.language]);
 
@@ -567,94 +519,155 @@ const Settings = () => {
       return;
     }
 
+    setLoading(true);
     try {
-      setLoading(true);
-      // Simulate API call
-      const newMember: TeamMember = {
-        id: Date.now().toString(),
-        name: newMemberEmail.split('@')[0],
+      await teamManagementApi.createInvitation({
         email: newMemberEmail,
         role: newMemberRole,
-        status: 'invited',
-        permissions: [],
-        joinedAt: new Date().toISOString()
-      };
-      
-      setTeamMembers(prev => [...prev, newMember]);
+        invitation_message: `You've been invited to join our Sweeply team as a ${newMemberRole}.`
+      });
+
+      // Reload invitations
+      const invitations = await teamManagementApi.getTeamInvitations();
+      setTeamInvitations(invitations);
+
       setNewMemberEmail('');
-      toast.success('Team member invited successfully');
-    } catch (error) {
-      toast.error('Failed to invite team member');
+      toast.success('Team member invited successfully!');
+    } catch (error: any) {
+      console.error('Error inviting team member:', error);
+      toast.error(error.message || 'Failed to send invitation');
     } finally {
       setLoading(false);
     }
   };
 
   const handleRemoveTeamMember = async (memberId: string) => {
+    const confirmed = window.confirm('Are you sure you want to remove this team member?');
+    if (!confirmed) return;
+
+    setLoading(true);
     try {
-      setLoading(true);
-      setTeamMembers(prev => prev.filter(member => member.id !== memberId));
-      toast.success('Team member removed');
-    } catch (error) {
-      toast.error('Failed to remove team member');
+      await teamManagementApi.removeTeamMember(memberId);
+      
+      // Reload team members
+      const members = await teamManagementApi.getTeamMembers();
+      setTeamMembers(members);
+
+      toast.success('Team member removed successfully');
+    } catch (error: any) {
+      console.error('Error removing team member:', error);
+      toast.error(error.message || 'Failed to remove team member');
     } finally {
       setLoading(false);
     }
   };
 
   // Service Type Functions
-  const handleAddServiceType = () => {
-    const newService: ServiceType = {
-      id: Date.now().toString(),
+  const handleAddServiceType = async () => {
+    const newService: any = {
       name: 'New Service',
-      description: 'Service description',
-      defaultPrice: 100,
-      defaultDuration: 120,
-      isActive: true,
-      category: 'residential'
+      description: 'Description for new service',
+      default_price: 100,
+      default_duration: 120,
+      category: 'residential' as const
     };
-    setServiceTypes(prev => [...prev, newService]);
-  };
 
-  const handleUpdateServiceType = (id: string, updates: Partial<ServiceType>) => {
-    setServiceTypes(prev => prev.map(service => 
-      service.id === id ? { ...service, ...updates } : service
-    ));
-  };
-
-  const handleRemoveServiceType = (id: string) => {
-    setServiceTypes(prev => prev.filter(service => service.id !== id));
-  };
-
-  // Integration Functions
-  const handleConnectIntegration = async (integrationId: string) => {
+    setLoading(true);
     try {
-      setLoading(true);
-      // Simulate connection process
-      setIntegrations(prev => prev.map(integration => 
-        integration.id === integrationId 
-          ? { ...integration, isConnected: true, lastSync: new Date().toISOString() }
-          : integration
-      ));
-      toast.success('Integration connected successfully');
-    } catch (error) {
-      toast.error('Failed to connect integration');
+      await serviceTypesApi.createServiceType(newService);
+      
+      // Reload service types
+      const services = await serviceTypesApi.getServiceTypes();
+      setServiceTypes(services);
+
+      toast.success('Service type added successfully');
+    } catch (error: any) {
+      console.error('Error adding service type:', error);
+      toast.error(error.message || 'Failed to add service type');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDisconnectIntegration = async (integrationId: string) => {
+  const handleUpdateServiceType = async (id: string, updates: Partial<ServiceType>) => {
+    setLoading(true);
     try {
-      setLoading(true);
-      setIntegrations(prev => prev.map(integration => 
-        integration.id === integrationId 
-          ? { ...integration, isConnected: false, lastSync: undefined }
-          : integration
-      ));
-      toast.success('Integration disconnected');
-    } catch (error) {
-      toast.error('Failed to disconnect integration');
+      await serviceTypesApi.updateServiceType(id, updates);
+      
+      // Reload service types
+      const services = await serviceTypesApi.getServiceTypes();
+      setServiceTypes(services);
+
+      toast.success('Service type updated successfully');
+    } catch (error: any) {
+      console.error('Error updating service type:', error);
+      toast.error(error.message || 'Failed to update service type');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRemoveServiceType = async (id: string) => {
+    const confirmed = window.confirm('Are you sure you want to remove this service type?');
+    if (!confirmed) return;
+
+    setLoading(true);
+    try {
+      await serviceTypesApi.deleteServiceType(id);
+      
+      // Reload service types
+      const services = await serviceTypesApi.getServiceTypes();
+      setServiceTypes(services);
+
+      toast.success('Service type removed successfully');
+    } catch (error: any) {
+      console.error('Error removing service type:', error);
+      toast.error(error.message || 'Failed to remove service type');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Integration Functions
+  const handleConnectIntegration = async (integrationName: string) => {
+    setLoading(true);
+    try {
+      // For demo purposes, we'll just update the connection status
+      // In a real app, this would involve OAuth flows or API key setup
+      await integrationsApi.connectIntegration({
+        integration_name: integrationName,
+        config_data: { connected: true, connected_at: new Date().toISOString() }
+      });
+
+      // Reload integrations
+      const integrationsData = await integrationsApi.getIntegrations();
+      setIntegrations(integrationsData);
+
+      toast.success(`${integrationName} connected successfully!`);
+    } catch (error: any) {
+      console.error('Error connecting integration:', error);
+      toast.error(error.message || 'Failed to connect integration');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDisconnectIntegration = async (integrationName: string) => {
+    const confirmed = window.confirm(`Are you sure you want to disconnect ${integrationName}?`);
+    if (!confirmed) return;
+
+    setLoading(true);
+    try {
+      await integrationsApi.disconnectIntegration(integrationName);
+
+      // Reload integrations
+      const integrationsData = await integrationsApi.getIntegrations();
+      setIntegrations(integrationsData);
+
+      toast.success(`${integrationName} disconnected successfully`);
+    } catch (error: any) {
+      console.error('Error disconnecting integration:', error);
+      toast.error(error.message || 'Failed to disconnect integration');
     } finally {
       setLoading(false);
     }
@@ -662,37 +675,39 @@ const Settings = () => {
 
   // Save Functions
   const handleSaveBranding = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast.success('Branding settings saved');
-    } catch (error) {
-      toast.error('Failed to save branding settings');
+      await settingsApi.updateBrandingSettings(brandingData);
+      toast.success('Branding settings saved successfully');
+    } catch (error: any) {
+      console.error('Error saving branding settings:', error);
+      toast.error(error.message || 'Failed to save branding settings');
     } finally {
       setLoading(false);
     }
   };
 
   const handleSaveMobileSettings = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast.success('Mobile settings saved');
-    } catch (error) {
-      toast.error('Failed to save mobile settings');
+      await settingsApi.updateMobileSettings(mobileSettings);
+      toast.success('Mobile settings saved successfully');
+    } catch (error: any) {
+      console.error('Error saving mobile settings:', error);
+      toast.error(error.message || 'Failed to save mobile settings');
     } finally {
       setLoading(false);
     }
   };
 
   const handleSaveAdvancedBusiness = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast.success('Advanced business settings saved');
-    } catch (error) {
-      toast.error('Failed to save advanced business settings');
+      await settingsApi.updateAdvancedBusinessSettings(advancedBusinessData);
+      toast.success('Advanced business settings saved successfully');
+    } catch (error: any) {
+      console.error('Error saving advanced business settings:', error);
+      toast.error(error.message || 'Failed to save advanced business settings');
     } finally {
       setLoading(false);
     }
@@ -1012,7 +1027,7 @@ const Settings = () => {
                 <div className="bg-gray-50 rounded-lg p-4 mb-6">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">Invite Team Member</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
+                  <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                       <input
                         type="email"
@@ -1021,19 +1036,19 @@ const Settings = () => {
                         placeholder="team@example.com"
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
                       />
-                    </div>
-                    <div>
+                  </div>
+                  <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
-                      <select
+                    <select
                         value={newMemberRole}
                         onChange={(e) => setNewMemberRole(e.target.value as 'admin' | 'manager' | 'cleaner' | 'viewer')}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                      >
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                    >
                         <option value="viewer">Viewer</option>
                         <option value="cleaner">Cleaner</option>
                         <option value="manager">Manager</option>
                         <option value="admin">Admin</option>
-                      </select>
+                    </select>
                     </div>
                     <div className="flex items-end">
                       <button
@@ -1046,8 +1061,8 @@ const Settings = () => {
                       </button>
                     </div>
                   </div>
-                </div>
-
+                  </div>
+                  
                 {/* Team Members List */}
                 <div className="space-y-4">
                   {teamMembers.length === 0 ? (
@@ -1063,14 +1078,14 @@ const Settings = () => {
                             <User className="w-5 h-5 text-pulse-600" />
                           </div>
                           <div>
-                            <h4 className="font-medium text-gray-900">{member.name}</h4>
-                            <p className="text-sm text-gray-600">{member.email}</p>
+                            <h4 className="font-medium text-gray-900">{member.member_name || 'Unknown'}</h4>
+                            <p className="text-sm text-gray-600">{member.member_email || 'No email'}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                             member.status === 'active' ? 'bg-green-100 text-green-800' :
-                            member.status === 'invited' ? 'bg-yellow-100 text-yellow-800' :
+                            member.status === 'inactive' ? 'bg-yellow-100 text-yellow-800' :
                             'bg-gray-100 text-gray-800'
                           }`}>
                             {member.status}
@@ -1088,13 +1103,13 @@ const Settings = () => {
                       </div>
                     ))
                   )}
-                </div>
-
+                  </div>
+                  
                 {/* Role Permissions Info */}
                 <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <h4 className="font-medium text-blue-900 mb-3">Role Permissions</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div>
+                  <div>
                       <span className="font-medium text-blue-800">Admin:</span>
                       <p className="text-blue-700">Full access to all features and settings</p>
                     </div>
@@ -1127,13 +1142,13 @@ const Settings = () => {
                     <Plus className="w-4 h-4" />
                     Add Service
                   </button>
-                </div>
-
+                  </div>
+                  
                 <div className="space-y-6">
                   {serviceTypes.map((service) => (
                     <div key={service.id} className="border border-gray-200 rounded-lg p-4">
                       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-start">
-                        <div>
+                  <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Service Name</label>
                           <input
                             type="text"
@@ -1144,15 +1159,15 @@ const Settings = () => {
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                          <select
+                    <select
                             value={service.category}
                             onChange={(e) => handleUpdateServiceType(service.id, { category: e.target.value as 'residential' | 'commercial' | 'specialized' })}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                          >
+                    >
                             <option value="residential">Residential</option>
                             <option value="commercial">Commercial</option>
                             <option value="specialized">Specialized</option>
-                          </select>
+                    </select>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">Default Price</label>
@@ -1160,8 +1175,8 @@ const Settings = () => {
                             <DollarSign className="absolute left-3 top-2 w-4 h-4 text-gray-400" />
                             <input
                               type="number"
-                              value={service.defaultPrice}
-                              onChange={(e) => handleUpdateServiceType(service.id, { defaultPrice: Number(e.target.value) })}
+                              value={service.default_price}
+                              onChange={(e) => handleUpdateServiceType(service.id, { default_price: Number(e.target.value) })}
                               className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
                             />
                           </div>
@@ -1172,8 +1187,8 @@ const Settings = () => {
                             <Clock className="absolute left-3 top-2 w-4 h-4 text-gray-400" />
                             <input
                               type="number"
-                              value={service.defaultDuration}
-                              onChange={(e) => handleUpdateServiceType(service.id, { defaultDuration: Number(e.target.value) })}
+                              value={service.default_duration}
+                              onChange={(e) => handleUpdateServiceType(service.id, { default_duration: Number(e.target.value) })}
                               className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
                             />
                           </div>
@@ -1182,6 +1197,8 @@ const Settings = () => {
                           <label className="flex items-center">
                             <input
                               type="checkbox"
+                              checked={service.is_active}
+                              onChange={(e) => handleUpdateServiceType(service.id, { is_active: e.target.checked })}
                               checked={service.isActive}
                               onChange={(e) => handleUpdateServiceType(service.id, { isActive: e.target.checked })}
                               className="rounded border-gray-300 text-pulse-600 focus:ring-pulse-500"
@@ -1208,8 +1225,8 @@ const Settings = () => {
                       </div>
                     </div>
                   ))}
-                </div>
-
+                  </div>
+                  
                 {/* Advanced Business Settings */}
                 <div className="mt-8 space-y-6">
                   <h3 className="text-lg font-semibold text-gray-900">Advanced Business Settings</h3>
@@ -1218,7 +1235,7 @@ const Settings = () => {
                   <div className="bg-gray-50 rounded-lg p-4">
                     <h4 className="font-medium text-gray-900 mb-4">Tax Settings</h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
+                  <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Tax Rate (%)</label>
                         <input
                           type="number"
@@ -1255,7 +1272,7 @@ const Settings = () => {
                             className="rounded border-gray-300 text-pulse-600 focus:ring-pulse-500"
                           />
                           <span className="ml-2 text-sm text-gray-700">Include tax in prices</span>
-                        </label>
+                    </label>
                       </div>
                     </div>
                   </div>
@@ -1290,8 +1307,8 @@ const Settings = () => {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Payment Terms (days)</label>
-                        <input
-                          type="number"
+                    <input
+                      type="number"
                           value={advancedBusinessData.invoiceSettings.paymentTerms}
                           onChange={(e) => setAdvancedBusinessData(prev => ({
                             ...prev,
@@ -1311,7 +1328,7 @@ const Settings = () => {
                             invoiceSettings: { ...prev.invoiceSettings, lateFeePercentage: e.target.value }
                           }))}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                        />
+                    />
                       </div>
                     </div>
                   </div>
@@ -1634,36 +1651,36 @@ const Settings = () => {
                     <h3 className="text-lg font-medium text-gray-900">Performance & Data</h3>
                     
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div>
+                  <div className="flex items-center justify-between">
+                    <div>
                           <h4 className="text-sm font-medium text-gray-900">Offline Mode</h4>
                           <p className="text-sm text-gray-600">Work without internet connection</p>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
                             checked={mobileSettings.enableOfflineMode}
                             onChange={(e) => setMobileSettings(prev => ({ ...prev, enableOfflineMode: e.target.checked }))}
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
-                        </label>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div>
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
+                    </label>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div>
                           <h4 className="text-sm font-medium text-gray-900">Data Usage Optimization</h4>
                           <p className="text-sm text-gray-600">Reduce data consumption</p>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
                             checked={mobileSettings.dataUsageOptimization}
                             onChange={(e) => setMobileSettings(prev => ({ ...prev, dataUsageOptimization: e.target.checked }))}
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
-                        </label>
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
+                    </label>
                       </div>
 
                       <div>
@@ -1680,15 +1697,15 @@ const Settings = () => {
                           <option value="manual">Manual only</option>
                         </select>
                       </div>
-                    </div>
                   </div>
+                </div>
 
                   <div className="space-y-6">
                     <h3 className="text-lg font-medium text-gray-900">Security & Privacy</h3>
                     
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <div>
+                  <div>
                           <h4 className="text-sm font-medium text-gray-900">Location Services</h4>
                           <p className="text-sm text-gray-600">Enable GPS for job navigation</p>
                         </div>
@@ -1700,7 +1717,7 @@ const Settings = () => {
                             className="sr-only peer"
                           />
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
-                        </label>
+                    </label>
                       </div>
 
                       <div className="flex items-center justify-between">
@@ -1721,29 +1738,29 @@ const Settings = () => {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Auto Logout (minutes)</label>
-                        <select
+                    <select 
                           value={mobileSettings.autoLogout}
                           onChange={(e) => setMobileSettings(prev => ({ ...prev, autoLogout: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                        >
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                    >
                           <option value="15">15 minutes</option>
                           <option value="30">30 minutes</option>
                           <option value="60">1 hour</option>
                           <option value="never">Never</option>
-                        </select>
-                      </div>
+                    </select>
+                  </div>
 
-                      <div>
+                  <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Camera Quality</label>
-                        <select
+                    <select 
                           value={mobileSettings.cameraQuality}
                           onChange={(e) => setMobileSettings(prev => ({ ...prev, cameraQuality: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                        >
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                    >
                           <option value="low">Low (faster uploads)</option>
                           <option value="medium">Medium</option>
                           <option value="high">High (best quality)</option>
-                        </select>
+                    </select>
                       </div>
                     </div>
                   </div>
