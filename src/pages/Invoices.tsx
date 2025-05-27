@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { invoicesApi } from "@/lib/api/invoices";
-import { Invoice, InvoiceFilters, InvoiceStatus, InvoiceStats } from "@/types/invoice";
+import { Invoice, InvoiceFilters, InvoiceStatus, InvoiceStats, PaymentMethod } from "@/types/invoice";
 import { format, differenceInDays } from "date-fns";
 import AppLayout from "@/components/AppLayout";
 
@@ -103,16 +103,22 @@ const Invoices = () => {
     const amount = prompt(`Record payment for ${invoice.invoice_number}. Balance due: $${invoice.balance_due}`);
     if (!amount || isNaN(Number(amount))) return;
 
-    const paymentMethod = prompt('Payment method (cash, check, credit_card, bank_transfer):') || 'cash';
+    const paymentMethodInput = prompt('Payment method (cash, check, credit_card, bank_transfer):') || 'cash';
     const reference = prompt('Payment reference (optional):') || undefined;
 
     try {
-      await invoicesApi.recordPayment(invoiceId, {
+      // Create a payment record object with required fields
+      const paymentRecord = {
+        id: crypto.randomUUID(),
+        invoice_id: invoiceId,
         amount: Number(amount),
-        payment_method: paymentMethod,
+        payment_method: paymentMethodInput as PaymentMethod,
         payment_date: new Date().toISOString().split('T')[0],
-        reference
-      });
+        reference,
+        created_at: new Date().toISOString()
+      };
+
+      await invoicesApi.recordPayment(invoiceId, paymentRecord);
       toast.success('Payment recorded successfully');
       loadInvoices();
     } catch (error) {

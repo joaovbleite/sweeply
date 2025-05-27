@@ -601,7 +601,7 @@ const Jobs = () => {
                               </div>
                             </div>
                           </div>
-                          <div>
+                        <div>
                             <div className="flex items-center gap-2">
                               <h4 className="font-medium text-gray-900">{job.title}</h4>
                               {job.is_recurring && (
@@ -620,7 +620,7 @@ const Jobs = () => {
                                 <CalendarCheck className="w-3 h-3" />
                                 Part of recurring series
                               </p>
-                            )}
+                          )}
                           </div>
                         </div>
                       </td>

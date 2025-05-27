@@ -48,7 +48,9 @@ const EditJob = () => {
   });
 
   const [recurringPattern, setRecurringPattern] = useState<RecurringPattern>({
-    is_recurring: false
+    is_recurring: false,
+    frequency: 'weekly',
+    endType: 'never'
   });
 
   // Load job and clients on component mount
@@ -90,8 +92,10 @@ const EditJob = () => {
         // Set recurring pattern
         setRecurringPattern({
           is_recurring: jobData.is_recurring || false,
+          frequency: jobData.recurring_frequency || 'weekly',
+          endType: jobData.recurring_end_date ? 'date' : 'never',
           recurring_frequency: jobData.recurring_frequency,
-          recurring_end_date: jobData.recurring_end_date || undefined,
+          recurring_end_date: jobData.recurring_end_date,
           recurring_end_type: jobData.recurring_end_date ? 'date' : 'never'
         });
 
@@ -189,7 +193,7 @@ const EditJob = () => {
       if (recurringPattern.is_recurring && job.is_recurring !== recurringPattern.is_recurring) {
         toast.success("Job updated and converted to recurring job!");
       } else {
-        toast.success("Job updated successfully!");
+      toast.success("Job updated successfully!");
       }
       
       navigate("/jobs");
@@ -407,6 +411,7 @@ const EditJob = () => {
                 Recurring Job
               </h3>
               <RecurringJobPattern
+                pattern={recurringPattern}
                 isRecurring={recurringPattern.is_recurring}
                 frequency={recurringPattern.recurring_frequency}
                 endDate={recurringPattern.recurring_end_date}

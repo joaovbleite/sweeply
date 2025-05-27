@@ -45,7 +45,9 @@ const AddJob = () => {
   });
 
   const [recurringPattern, setRecurringPattern] = useState<RecurringPattern>({
-    is_recurring: false
+    is_recurring: false,
+    frequency: 'weekly',
+    endType: 'never'
   });
 
   // Load clients on component mount
@@ -209,8 +211,8 @@ const AddJob = () => {
           }`
         );
       } else {
-        await jobsApi.create(jobData);
-        toast.success("Job created successfully!");
+      await jobsApi.create(jobData);
+      toast.success("Job created successfully!");
       }
       
       navigate("/jobs");
@@ -445,6 +447,7 @@ const AddJob = () => {
                 Recurring Job
               </h3>
               <RecurringJobPattern
+                pattern={recurringPattern}
                 isRecurring={recurringPattern.is_recurring}
                 frequency={recurringPattern.recurring_frequency}
                 endDate={recurringPattern.recurring_end_date}
