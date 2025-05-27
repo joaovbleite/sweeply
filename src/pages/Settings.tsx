@@ -21,7 +21,8 @@ import {
   Check,
   X,
   AlertCircle,
-  Info
+  Info,
+  Loader2
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,6 +30,7 @@ import { useTranslation } from "react-i18next";
 import { useLocale } from "@/hooks/useLocale";
 import AppLayout from "@/components/AppLayout";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { profileApi, UserProfile } from "@/lib/api/profile";
 
 const Settings = () => {
   const { t, i18n } = useTranslation(['settings', 'common']);
@@ -38,23 +40,25 @@ const Settings = () => {
   // State for different settings sections
   const [activeTab, setActiveTab] = useState<'profile' | 'business' | 'notifications' | 'security' | 'preferences'>('profile');
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   
   // Profile settings
   const [profileData, setProfileData] = useState({
-    fullName: user?.user_metadata?.full_name || '',
-    email: user?.email || '',
-    phone: user?.user_metadata?.phone || '',
-    avatar: user?.user_metadata?.avatar_url || '',
-    bio: user?.user_metadata?.bio || ''
+    fullName: '',
+    email: '',
+    phone: '',
+    avatar: '',
+    bio: ''
   });
 
   // Business settings
   const [businessData, setBusinessData] = useState({
-    businessName: 'Sweeply Cleaning Services',
-    businessType: 'residential',
-    address: '123 Main St, City, State 12345',
-    website: 'https://mysweeply.com',
+    businessName: '',
+    businessType: 'residential' as 'residential' | 'commercial' | 'both',
+    address: '',
+    website: '',
     taxId: '',
     defaultServiceArea: '25',
     workingHours: {
@@ -104,21 +108,109 @@ const Settings = () => {
     timezone: 'America/New_York',
     currency: 'USD',
     dateFormat: 'MM/DD/YYYY',
-    timeFormat: '12h',
+    timeFormat: '12h' as '12h' | '24h',
     theme: 'light',
     defaultJobDuration: '120',
     autoInvoicing: true,
     showTips: true
   });
 
+  // Load user profile data
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        setInitialLoading(true);
+        const profile = await profileApi.getProfile();
+        
+        if (profile) {
+          setUserProfile(profile);
+          
+          // Update profile data
+          setProfileData({
+            fullName: profile.full_name || '',
+            email: user?.email || '',
+            phone: profile.phone || '',
+            avatar: profile.avatar_url || '',
+            bio: profile.bio || ''
+          });
+
+          // Update business data
+          setBusinessData({
+            businessName: profile.business_name || '',
+            businessType: profile.business_type || 'residential',
+            address: profile.business_address || '',
+            website: profile.website || '',
+            taxId: profile.tax_id || '',
+            defaultServiceArea: profile.default_service_area?.toString() || '25',
+            workingHours: (profile.working_hours as typeof businessData.workingHours) || businessData.workingHours
+          });
+
+          // Update notification settings
+          setNotificationSettings({
+            emailNotifications: (profile.email_notifications as typeof notificationSettings.emailNotifications) || notificationSettings.emailNotifications,
+            smsNotifications: (profile.sms_notifications as typeof notificationSettings.smsNotifications) || notificationSettings.smsNotifications,
+            pushNotifications: (profile.push_notifications as typeof notificationSettings.pushNotifications) || notificationSettings.pushNotifications
+          });
+
+          // Update preferences
+          setPreferences({
+            language: i18n.language,
+            timezone: profile.timezone || 'America/New_York',
+            currency: profile.currency || 'USD',
+            dateFormat: profile.date_format || 'MM/DD/YYYY',
+            timeFormat: profile.time_format || '12h',
+            theme: 'light',
+            defaultJobDuration: profile.default_job_duration?.toString() || '120',
+            autoInvoicing: profile.auto_invoicing ?? true,
+            showTips: profile.show_tips ?? true
+          });
+        } else {
+          // Set defaults from user auth data
+          setProfileData(prev => ({
+            ...prev,
+            fullName: user?.user_metadata?.full_name || '',
+            email: user?.email || ''
+          }));
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        toast.error('Failed to load profile data');
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    if (user) {
+      loadProfile();
+    }
+  }, [user, i18n.language]);
+
   const handleSaveProfile = async () => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Update profile in database
+      await profileApi.upsertProfile({
+        full_name: profileData.fullName,
+        phone: profileData.phone,
+        avatar_url: profileData.avatar,
+        bio: profileData.bio
+      });
+
+      // Update auth metadata
+      await profileApi.updateAuthMetadata({
+        full_name: profileData.fullName
+      });
+
+      // Update email if changed
+      if (profileData.email !== user?.email) {
+        await profileApi.updateEmail(profileData.email);
+        toast.success('Email update confirmation sent to your new email address');
+      }
+
       toast.success(t('settings:profileUpdated'));
-    } catch (error) {
-      toast.error(t('common:errorOccurred'));
+    } catch (error: any) {
+      console.error('Error updating profile:', error);
+      toast.error(error.message || t('common:errorOccurred'));
     } finally {
       setLoading(false);
     }
@@ -127,10 +219,20 @@ const Settings = () => {
   const handleSaveBusiness = async () => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await profileApi.upsertProfile({
+        business_name: businessData.businessName,
+        business_type: businessData.businessType,
+        business_address: businessData.address,
+        website: businessData.website,
+        tax_id: businessData.taxId,
+        default_service_area: parseInt(businessData.defaultServiceArea),
+        working_hours: businessData.workingHours
+      });
+
       toast.success(t('settings:businessSettingsUpdated'));
-    } catch (error) {
-      toast.error(t('common:errorOccurred'));
+    } catch (error: any) {
+      console.error('Error updating business settings:', error);
+      toast.error(error.message || t('common:errorOccurred'));
     } finally {
       setLoading(false);
     }
@@ -139,28 +241,41 @@ const Settings = () => {
   const handleSaveNotifications = async () => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await profileApi.upsertProfile({
+        email_notifications: notificationSettings.emailNotifications,
+        sms_notifications: notificationSettings.smsNotifications,
+        push_notifications: notificationSettings.pushNotifications
+      });
+
       toast.success(t('settings:notificationSettingsUpdated'));
-    } catch (error) {
-      toast.error(t('common:errorOccurred'));
+    } catch (error: any) {
+      console.error('Error updating notification settings:', error);
+      toast.error(error.message || t('common:errorOccurred'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleSaveSecurity = async () => {
-    if (securityData.newPassword !== securityData.confirmPassword) {
+    if (securityData.newPassword && securityData.newPassword !== securityData.confirmPassword) {
       toast.error(t('settings:passwordMismatch'));
       return;
     }
     
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Change password if provided
+      if (securityData.newPassword) {
+        await profileApi.changePassword(securityData.newPassword);
+        toast.success('Password updated successfully');
+      }
+
+      // Note: 2FA and session timeout would require additional backend implementation
       toast.success(t('settings:securitySettingsUpdated'));
       setSecurityData(prev => ({ ...prev, currentPassword: '', newPassword: '', confirmPassword: '' }));
-    } catch (error) {
-      toast.error(t('common:errorOccurred'));
+    } catch (error: any) {
+      console.error('Error updating security settings:', error);
+      toast.error(error.message || t('common:errorOccurred'));
     } finally {
       setLoading(false);
     }
@@ -169,10 +284,20 @@ const Settings = () => {
   const handleSavePreferences = async () => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await profileApi.upsertProfile({
+        timezone: preferences.timezone,
+        currency: preferences.currency,
+        date_format: preferences.dateFormat,
+        time_format: preferences.timeFormat,
+        default_job_duration: parseInt(preferences.defaultJobDuration),
+        auto_invoicing: preferences.autoInvoicing,
+        show_tips: preferences.showTips
+      });
+
       toast.success(t('settings:preferencesUpdated'));
-    } catch (error) {
-      toast.error(t('common:errorOccurred'));
+    } catch (error: any) {
+      console.error('Error updating preferences:', error);
+      toast.error(error.message || t('common:errorOccurred'));
     } finally {
       setLoading(false);
     }
@@ -185,6 +310,22 @@ const Settings = () => {
     { id: 'security' as const, label: t('settings:security'), icon: Shield },
     { id: 'preferences' as const, label: t('settings:preferences'), icon: Palette }
   ];
+
+  // Show loading state while initial data is loading
+  if (initialLoading) {
+    return (
+      <AppLayout>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center justify-center h-96">
+            <div className="text-center">
+              <Loader2 className="w-12 h-12 text-pulse-500 animate-spin mx-auto mb-4" />
+              <p className="text-gray-600">Loading settings...</p>
+            </div>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
@@ -340,7 +481,7 @@ const Settings = () => {
                     </label>
                     <select
                       value={businessData.businessType}
-                      onChange={(e) => setBusinessData(prev => ({ ...prev, businessType: e.target.value }))}
+                      onChange={(e) => setBusinessData(prev => ({ ...prev, businessType: e.target.value as 'residential' | 'commercial' | 'both' }))}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
                     >
                       <option value="residential">{t('settings:residential')}</option>
@@ -525,7 +666,7 @@ const Settings = () => {
                     </label>
                     <select
                       value={preferences.timeFormat}
-                      onChange={(e) => setPreferences(prev => ({ ...prev, timeFormat: e.target.value }))}
+                      onChange={(e) => setPreferences(prev => ({ ...prev, timeFormat: e.target.value as '12h' | '24h' }))}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
                     >
                       <option value="12h">12 Hour</option>
