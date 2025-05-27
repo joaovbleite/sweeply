@@ -40,7 +40,7 @@ const WelcomeWidget = () => {
   const QuoteIcon = todayQuote.icon;
 
   return (
-    <div className="bg-gradient-to-r from-pulse-500 to-purple-600 rounded-2xl p-6 text-white shadow-xl">
+    <div className="bg-gradient-to-r from-pulse-500 to-blue-700 rounded-2xl p-6 text-white shadow-xl">
       <div className="flex items-start justify-between mb-6">
         <div className="flex-1">
           <h2 className="text-3xl font-bold mb-2">
