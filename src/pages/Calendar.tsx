@@ -33,6 +33,7 @@ import CalendarKeyboardShortcuts from "@/components/Calendar/CalendarKeyboardSho
 import QuickJobModal from "@/components/Calendar/QuickJobModal";
 import JobDetailsModal from "@/components/Calendar/JobDetailsModal";
 import CalendarAnalytics from "@/components/Calendar/CalendarAnalytics";
+import { calendarUtils } from "@/lib/api/calendar-utils";
 
 export type CalendarView = 'month' | 'week' | 'day' | 'list' | 'timeline' | 'map';
 
@@ -311,40 +312,60 @@ const Calendar = () => {
 
   // Export calendar data
   const handleExportCalendar = () => {
-    const calendarData = filteredJobs.map(job => ({
-      title: job.title,
-      client: job.client?.name,
-      date: job.scheduled_date,
-      time: job.scheduled_time,
-      service: job.service_type,
-      status: job.status,
-      price: job.estimated_price,
-      duration: job.estimated_duration
-    }));
+    // Show export options
+    const format = window.confirm('Export as iCalendar (.ics) format?\n\nOK = iCalendar (.ics)\nCancel = CSV (.csv)') 
+      ? 'ics' 
+      : 'csv';
 
-    const csvContent = [
-      ['Title', 'Client', 'Date', 'Time', 'Service', 'Status', 'Price', 'Duration'],
-      ...calendarData.map(job => [
-        job.title,
-        job.client || '',
-        job.date,
-        job.time || '',
-        job.service,
-        job.status,
-        job.price || '',
-        job.duration || ''
-      ])
-    ].map(row => row.join(',')).join('\n');
+    if (format === 'ics') {
+      // Export as iCalendar
+      const icalContent = calendarUtils.generateICalendar(filteredJobs);
+      const blob = new Blob([icalContent], { type: 'text/calendar' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `sweeply-calendar-${new Date().toISOString().split('T')[0]}.ics`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      toast.success('Calendar exported as iCalendar!');
+    } else {
+      // Export as CSV
+      const calendarData = filteredJobs.map(job => ({
+        title: job.title,
+        client: job.client?.name,
+        date: job.scheduled_date,
+        time: job.scheduled_time,
+        service: job.service_type,
+        status: job.status,
+        price: job.estimated_price,
+        duration: job.estimated_duration
+      }));
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `sweeply-calendar-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-    
-    toast.success('Calendar exported successfully!');
+      const csvContent = [
+        ['Title', 'Client', 'Date', 'Time', 'Service', 'Status', 'Price', 'Duration'],
+        ...calendarData.map(job => [
+          job.title || '',
+          job.client || '',
+          job.date,
+          job.time || '',
+          job.service,
+          job.status,
+          job.price || '',
+          job.duration || ''
+        ])
+      ].map(row => row.join(',')).join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `sweeply-calendar-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      toast.success('Calendar exported as CSV!');
+    }
   };
 
   // Calculate quick stats
@@ -508,6 +529,7 @@ const Calendar = () => {
           onExport={handleExportCalendar}
           onToggleAnalytics={() => setShowAnalytics(!showAnalytics)}
           onToggleAutoRefresh={() => setAutoRefresh(!autoRefresh)}
+          onSearch={(searchTerm) => setFilters({ ...filters, search: searchTerm })}
           autoRefresh={autoRefresh}
           showAnalytics={showAnalytics}
           stats={stats}

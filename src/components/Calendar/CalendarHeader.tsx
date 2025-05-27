@@ -36,6 +36,7 @@ interface CalendarHeaderProps {
   onExport: () => void;
   onToggleAnalytics: () => void;
   onToggleAutoRefresh: () => void;
+  onSearch?: (searchTerm: string) => void;
   autoRefresh: boolean;
   showAnalytics: boolean;
   stats: {
@@ -56,6 +57,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
   onExport,
   onToggleAnalytics,
   onToggleAutoRefresh,
+  onSearch,
   autoRefresh,
   showAnalytics,
   stats,
@@ -349,6 +351,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             <input
               type="text"
               placeholder="Search jobs, clients..."
+              onChange={(e) => onSearch?.(e.target.value)}
               className={`w-full pl-10 pr-4 py-2 rounded-lg transition-all ${
                 darkMode
                   ? 'bg-gray-800 text-white placeholder-gray-400 focus:bg-gray-700'

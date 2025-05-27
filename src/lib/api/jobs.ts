@@ -6,7 +6,19 @@ export const jobsApi = {
   async getAll(filters?: JobFilters): Promise<Job[]> {
     let query = supabase
       .from('jobs')
-      .select('*')
+      .select(`
+        *,
+        client:clients(
+          id,
+          name,
+          email,
+          phone,
+          address,
+          city,
+          state,
+          zip
+        )
+      `)
       .order('scheduled_date', { ascending: false });
 
     // Apply filters
@@ -44,7 +56,19 @@ export const jobsApi = {
   async getById(id: string): Promise<Job | null> {
     const { data, error } = await supabase
       .from('jobs')
-      .select('*')
+      .select(`
+        *,
+        client:clients(
+          id,
+          name,
+          email,
+          phone,
+          address,
+          city,
+          state,
+          zip
+        )
+      `)
       .eq('id', id)
       .single();
 
@@ -119,7 +143,19 @@ export const jobsApi = {
     
     const { data, error } = await supabase
       .from('jobs')
-      .select('*')
+      .select(`
+        *,
+        client:clients(
+          id,
+          name,
+          email,
+          phone,
+          address,
+          city,
+          state,
+          zip
+        )
+      `)
       .eq('scheduled_date', today)
       .order('scheduled_time', { ascending: true });
 
@@ -140,7 +176,19 @@ export const jobsApi = {
     
     const { data, error } = await supabase
       .from('jobs')
-      .select('*')
+      .select(`
+        *,
+        client:clients(
+          id,
+          name,
+          email,
+          phone,
+          address,
+          city,
+          state,
+          zip
+        )
+      `)
       .gte('scheduled_date', today)
       .lte('scheduled_date', nextWeekStr)
       .in('status', ['scheduled', 'in_progress'])
@@ -214,7 +262,19 @@ export const jobsApi = {
   async search(searchTerm: string): Promise<Job[]> {
     const { data, error } = await supabase
       .from('jobs')
-      .select('*')
+      .select(`
+        *,
+        client:clients(
+          id,
+          name,
+          email,
+          phone,
+          address,
+          city,
+          state,
+          zip
+        )
+      `)
       .or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,special_instructions.ilike.%${searchTerm}%`)
       .order('scheduled_date', { ascending: false });
 
