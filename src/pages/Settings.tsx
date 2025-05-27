@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { 
   User, 
   Building2, 
@@ -22,7 +22,12 @@ import {
   X,
   AlertCircle,
   Info,
-  Loader2
+  Loader2,
+  Download,
+  Upload,
+  Trash2,
+  Key,
+  Activity
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -31,6 +36,7 @@ import { useLocale } from "@/hooks/useLocale";
 import AppLayout from "@/components/AppLayout";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { profileApi, UserProfile } from "@/lib/api/profile";
+import { downloadAsJSON, setTheme, getTheme, Theme } from "@/lib/utils";
 
 const Settings = () => {
   const { t, i18n } = useTranslation(['settings', 'common']);
@@ -43,6 +49,9 @@ const Settings = () => {
   const [initialLoading, setInitialLoading] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [showDangerZone, setShowDangerZone] = useState(false);
   
   // Profile settings
   const [profileData, setProfileData] = useState({
@@ -109,7 +118,7 @@ const Settings = () => {
     currency: 'USD',
     dateFormat: 'MM/DD/YYYY',
     timeFormat: '12h' as '12h' | '24h',
-    theme: 'light',
+    theme: getTheme(),
     defaultJobDuration: '120',
     autoInvoicing: true,
     showTips: true
@@ -294,6 +303,9 @@ const Settings = () => {
         show_tips: preferences.showTips
       });
 
+      // Apply theme change
+      setTheme(preferences.theme);
+
       toast.success(t('settings:preferencesUpdated'));
     } catch (error: any) {
       console.error('Error updating preferences:', error);
@@ -301,6 +313,105 @@ const Settings = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Avatar upload handler
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size must be less than 5MB');
+      return;
+    }
+
+    setAvatarUploading(true);
+    try {
+      const avatarUrl = await profileApi.uploadAvatar(file);
+      
+      // Update profile with new avatar URL
+      await profileApi.upsertProfile({ avatar_url: avatarUrl });
+      
+      // Update local state
+      setProfileData(prev => ({ ...prev, avatar: avatarUrl }));
+      
+      toast.success('Avatar updated successfully!');
+    } catch (error: any) {
+      console.error('Error uploading avatar:', error);
+      toast.error(error.message || 'Failed to upload avatar');
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
+  // Export user data
+  const handleExportData = async () => {
+    try {
+      setLoading(true);
+      const userData = await profileApi.exportAllUserData();
+      downloadAsJSON(userData, 'sweeply-user-data');
+      toast.success('Data exported successfully!');
+    } catch (error: any) {
+      console.error('Error exporting data:', error);
+      toast.error(error.message || 'Failed to export data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Resend email verification
+  const handleResendVerification = async () => {
+    try {
+      await profileApi.resendEmailVerification();
+      toast.success('Verification email sent!');
+    } catch (error: any) {
+      console.error('Error sending verification:', error);
+      toast.error(error.message || 'Failed to send verification email');
+    }
+  };
+
+  // Delete account
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      'Are you sure you want to delete your account? This action cannot be undone and will permanently delete all your data.'
+    );
+    
+    if (!confirmed) return;
+
+    const finalConfirm = window.prompt(
+      'Type "DELETE" to confirm account deletion:'
+    );
+
+    if (finalConfirm !== 'DELETE') {
+      toast.error('Account deletion cancelled');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await profileApi.deleteAccount();
+      toast.success('Account deleted successfully');
+      // User will be redirected by auth state change
+    } catch (error: any) {
+      console.error('Error deleting account:', error);
+      toast.error(error.message || 'Failed to delete account');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Theme change handler
+  const handleThemeChange = (newTheme: Theme) => {
+    setPreferences(prev => ({ ...prev, theme: newTheme }));
+    setTheme(newTheme);
+    toast.success(`Theme changed to ${newTheme}`);
   };
 
   const tabs = [
@@ -376,17 +487,58 @@ const Settings = () => {
                 {/* Avatar Section */}
                 <div className="flex items-center gap-6 mb-8">
                   <div className="relative">
-                    <div className="w-24 h-24 bg-pulse-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                      {profileData.fullName.charAt(0).toUpperCase() || 'U'}
-                    </div>
-                    <button className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-lg border border-gray-200 hover:bg-gray-50">
-                      <Camera className="w-4 h-4 text-gray-600" />
+                    {profileData.avatar ? (
+                      <img 
+                        src={profileData.avatar} 
+                        alt="Avatar" 
+                        className="w-24 h-24 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-24 h-24 bg-pulse-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                        {profileData.fullName.charAt(0).toUpperCase() || 'U'}
+                      </div>
+                    )}
+                    <button 
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={avatarUploading}
+                      className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50"
+                    >
+                      {avatarUploading ? (
+                        <Loader2 className="w-4 h-4 text-gray-600 animate-spin" />
+                      ) : (
+                        <Camera className="w-4 h-4 text-gray-600" />
+                      )}
                     </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarUpload}
+                      className="hidden"
+                    />
                   </div>
                   <div>
                     <h3 className="text-lg font-medium text-gray-900">{profileData.fullName || t('settings:yourName')}</h3>
-                    <p className="text-gray-600">{profileData.email}</p>
-                    <button className="mt-2 text-pulse-600 hover:text-pulse-700 text-sm font-medium">
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <span>{profileData.email}</span>
+                      {user?.email_confirmed_at ? (
+                        <span className="text-green-600 flex items-center gap-1">
+                          <Check className="w-4 h-4" />
+                          Verified
+                        </span>
+                      ) : (
+                        <button 
+                          onClick={handleResendVerification}
+                          className="text-orange-600 hover:text-orange-700 text-sm underline"
+                        >
+                          Verify Email
+                        </button>
+                      )}
+                    </div>
+                    <button 
+                      onClick={() => fileInputRef.current?.click()}
+                      className="mt-2 text-pulse-600 hover:text-pulse-700 text-sm font-medium"
+                    >
                       {t('settings:changePhoto')}
                     </button>
                   </div>
@@ -669,8 +821,8 @@ const Settings = () => {
                       onChange={(e) => setPreferences(prev => ({ ...prev, timeFormat: e.target.value as '12h' | '24h' }))}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
                     >
-                      <option value="12h">12 Hour</option>
-                      <option value="24h">24 Hour</option>
+                      <option value="12h">12-hour (2:30 PM)</option>
+                      <option value="24h">24-hour (14:30)</option>
                     </select>
                   </div>
                   
@@ -719,6 +871,38 @@ const Settings = () => {
                       />
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
                     </label>
+                  </div>
+                </div>
+
+                {/* Theme Settings */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('settings:theme')}
+                    </label>
+                    <select 
+                      value={preferences.theme}
+                      onChange={(e) => handleThemeChange(e.target.value as Theme)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                    >
+                      <option value="light">Light</option>
+                      <option value="dark">Dark</option>
+                      <option value="system">System</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('settings:timeFormat')}
+                    </label>
+                    <select 
+                      value={preferences.timeFormat}
+                      onChange={(e) => setPreferences(prev => ({ ...prev, timeFormat: e.target.value as '12h' | '24h' }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                    >
+                      <option value="12h">12-hour (2:30 PM)</option>
+                      <option value="24h">24-hour (14:30)</option>
+                    </select>
                   </div>
                 </div>
 
@@ -854,123 +1038,118 @@ const Settings = () => {
 
             {/* Security Settings */}
             {activeTab === 'security' && (
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('settings:securitySettings')}</h2>
+              <div className="space-y-8">
+                <h2 className="text-2xl font-bold text-gray-900">{t('settings:security')}</h2>
                 
-                {/* Password Change */}
-                <div className="mb-8">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-                    <Shield className="w-5 h-5 text-pulse-500" />
-                    {t('settings:changePassword')}
+                {/* Data Export Section */}
+                <div className="bg-blue-50 border border-blue-200 p-6 rounded-lg">
+                  <div className="flex items-start gap-4">
+                    <Download className="w-6 h-6 text-blue-600 mt-1" />
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-blue-900 mb-2">Export Your Data</h3>
+                      <p className="text-blue-700 mb-4">
+                        Download a complete copy of your account data in JSON format. This includes your profile, clients, jobs, and invoices.
+                      </p>
+                      <button
+                        onClick={handleExportData}
+                        disabled={loading}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                      >
+                        {loading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Exporting...
+                          </>
+                        ) : (
+                          <>
+                            <Download className="w-4 h-4" />
+                            Export Data
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Account Activity */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <Activity className="w-5 h-5" />
+                    Recent Activity
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('settings:currentPassword')}
-                      </label>
-                      <div className="relative">
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          value={securityData.currentPassword}
-                          onChange={(e) => setSecurityData(prev => ({ ...prev, currentPassword: e.target.value }))}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent pr-10"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                        >
-                          {showPassword ? (
-                            <EyeOff className="w-4 h-4 text-gray-400" />
-                          ) : (
-                            <Eye className="w-4 h-4 text-gray-400" />
-                          )}
-                        </button>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium">Account created</p>
+                        <p className="text-sm text-gray-600">
+                          {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}
+                        </p>
                       </div>
                     </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('settings:newPassword')}
-                      </label>
-                      <input
-                        type="password"
-                        value={securityData.newPassword}
-                        onChange={(e) => setSecurityData(prev => ({ ...prev, newPassword: e.target.value }))}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {t('settings:confirmPassword')}
-                      </label>
-                      <input
-                        type="password"
-                        value={securityData.confirmPassword}
-                        onChange={(e) => setSecurityData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                      />
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium">Email verification</p>
+                        <p className="text-sm text-gray-600">
+                          {user?.email_confirmed_at ? (
+                            `Verified on ${new Date(user.email_confirmed_at).toLocaleDateString()}`
+                          ) : (
+                            'Not verified'
+                          )}
+                        </p>
+                      </div>
+                      {user?.email_confirmed_at ? (
+                        <Check className="w-5 h-5 text-green-600" />
+                      ) : (
+                        <X className="w-5 h-5 text-red-600" />
+                      )}
                     </div>
                   </div>
                 </div>
 
-                {/* Two-Factor Authentication */}
-                <div className="mb-8">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-                    <Shield className="w-5 h-5 text-pulse-500" />
-                    {t('settings:twoFactorAuth')}
-                  </h3>
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-900">{t('settings:enable2FA')}</h4>
-                      <p className="text-sm text-gray-600">{t('settings:enable2FADesc')}</p>
+                {/* Danger Zone */}
+                <div className="border-red-200 bg-red-50 border p-6 rounded-lg">
+                  <div className="flex items-start gap-4">
+                    <AlertCircle className="w-6 h-6 text-red-600 mt-1" />
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-red-900 mb-2">Danger Zone</h3>
+                      <p className="text-red-700 mb-4">
+                        Once you delete your account, there is no going back. Please be certain.
+                      </p>
+                      <div className="space-y-3">
+                        <button
+                          onClick={() => setShowDangerZone(!showDangerZone)}
+                          className="text-red-600 hover:text-red-700 font-medium underline"
+                        >
+                          {showDangerZone ? 'Hide' : 'Show'} deletion options
+                        </button>
+                        
+                        {showDangerZone && (
+                          <div className="pt-3 border-t border-red-200">
+                            <button
+                              onClick={handleDeleteAccount}
+                              disabled={loading}
+                              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
+                            >
+                              {loading ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                  Deleting...
+                                </>
+                              ) : (
+                                <>
+                                  <Trash2 className="w-4 h-4" />
+                                  Delete Account
+                                </>
+                              )}
+                            </button>
+                            <p className="text-sm text-red-600 mt-2">
+                              This will permanently delete your account and all associated data.
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={securityData.twoFactorEnabled}
-                        onChange={(e) => setSecurityData(prev => ({ ...prev, twoFactorEnabled: e.target.checked }))}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
-                    </label>
                   </div>
-                </div>
-
-                {/* Session Settings */}
-                <div className="mb-8">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-pulse-500" />
-                    {t('settings:sessionSettings')}
-                  </h3>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('settings:sessionTimeout')} (minutes)
-                    </label>
-                    <select
-                      value={securityData.sessionTimeout}
-                      onChange={(e) => setSecurityData(prev => ({ ...prev, sessionTimeout: e.target.value }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    >
-                      <option value="15">15 minutes</option>
-                      <option value="30">30 minutes</option>
-                      <option value="60">1 hour</option>
-                      <option value="120">2 hours</option>
-                      <option value="480">8 hours</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="mt-8 flex justify-end">
-                  <button
-                    onClick={handleSaveSecurity}
-                    disabled={loading}
-                    className="px-6 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 flex items-center gap-2"
-                  >
-                    <Save className="w-4 h-4" />
-                    {loading ? t('common:saving') : t('common:save')}
-                  </button>
                 </div>
               </div>
             )}
