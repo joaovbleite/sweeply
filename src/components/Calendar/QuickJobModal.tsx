@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { X, Save, User, Clock, DollarSign, Search, AlertTriangle, CheckCircle, Calendar, MapPin } from "lucide-react";
+import { X, Save, User, Clock, DollarSign, Search, AlertTriangle, CheckCircle, Calendar, MapPin, Repeat } from "lucide-react";
 import { toast } from "sonner";
 import { jobsApi } from "@/lib/api/jobs";
 import { clientsApi } from "@/lib/api/clients";
 import { Job, CreateJobInput, ServiceType, PropertyType } from "@/types/job";
 import { Client } from "@/types/client";
 import { format, addHours, parseISO } from "date-fns";
+import RecurringJobPattern, { RecurringPattern } from "@/components/RecurringJobPattern";
 
 interface QuickJobModalProps {
   isOpen: boolean;
@@ -29,6 +30,11 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
   const [loadingClients, setLoadingClients] = useState(true);
   const [clientSearch, setClientSearch] = useState("");
   const [showClientDropdown, setShowClientDropdown] = useState(false);
+  const [recurringPattern, setRecurringPattern] = useState<RecurringPattern>({
+    is_recurring: false,
+    frequency: 'weekly',
+    endType: 'never'
+  });
 
   const [formData, setFormData] = useState<CreateJobInput>({
     client_id: "",
@@ -160,9 +166,19 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
   }, [selectedDate, existingJobs]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
     
-    if (name === 'service_type') {
+    if (type === 'checkbox' && name === 'is_recurring') {
+      const isRecurring = (e.target as HTMLInputElement).checked;
+      setFormData(prev => ({
+        ...prev,
+        is_recurring: isRecurring
+      }));
+      setRecurringPattern(prev => ({
+        ...prev,
+        is_recurring: isRecurring
+      }));
+    } else if (name === 'service_type') {
       const newServiceType = value as ServiceType;
       const selectedClient = clients.find(c => c.id === formData.client_id);
       setFormData(prev => ({
@@ -236,7 +252,7 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
     setLoading(true);
 
     try {
-      const jobData: CreateJobInput = {
+      const jobData: CreateJobInput & Partial<RecurringPattern> = {
         client_id: formData.client_id,
         title: formData.title,
         service_type: formData.service_type,
@@ -253,8 +269,23 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
         access_instructions: formData.access_instructions?.trim() || undefined,
       };
 
-      await jobsApi.create(jobData);
-      toast.success("Job scheduled successfully!");
+      // Add recurring fields if applicable
+      if (formData.is_recurring && recurringPattern.is_recurring) {
+        jobData.recurring_frequency = recurringPattern.frequency || recurringPattern.recurring_frequency;
+        jobData.recurring_end_type = recurringPattern.endType || recurringPattern.recurring_end_type || 'never';
+        jobData.recurring_end_date = recurringPattern.endDate || recurringPattern.recurring_end_date;
+        jobData.recurring_occurrences = recurringPattern.occurrences || recurringPattern.recurring_occurrences;
+        jobData.recurring_days_of_week = recurringPattern.daysOfWeek || recurringPattern.recurring_days_of_week;
+        jobData.recurring_day_of_month = recurringPattern.dayOfMonth || recurringPattern.recurring_day_of_month;
+      }
+
+      if (formData.is_recurring) {
+        await jobsApi.createRecurring(jobData as any);
+      } else {
+        await jobsApi.create(jobData);
+      }
+      
+      toast.success(formData.is_recurring ? "Recurring job series created!" : "Job scheduled successfully!");
       onJobCreated();
       onClose();
     } catch (error) {
@@ -499,7 +530,8 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
           {/* Pricing */}
           <div>
             <label htmlFor="estimated_price" className="block text-sm font-medium text-gray-700 mb-2">
-              Estimated Price ($)
+              <DollarSign className="inline w-4 h-4 mr-1" />
+              Estimated Price
             </label>
             <input
               type="number"
@@ -510,8 +542,35 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
               value={formData.estimated_price}
               onChange={handleChange}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+              placeholder="0.00"
             />
           </div>
+
+          {/* Recurring Toggle */}
+          <div className="border-t pt-4">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                name="is_recurring"
+                checked={formData.is_recurring}
+                onChange={handleChange}
+                className="h-5 w-5 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+              />
+              <div className="flex items-center gap-2">
+                <Repeat className="w-5 h-5 text-purple-600" />
+                <span className="font-medium text-gray-900">Make this a recurring job</span>
+              </div>
+            </label>
+          </div>
+
+          {/* Recurring Pattern */}
+          {formData.is_recurring && (
+            <RecurringJobPattern
+              pattern={recurringPattern}
+              onChange={setRecurringPattern}
+              startDate={formData.scheduled_date}
+            />
+          )}
 
           {/* Job Title */}
           <div>
