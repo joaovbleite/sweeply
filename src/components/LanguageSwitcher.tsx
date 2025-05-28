@@ -9,7 +9,20 @@ import {
 import { languages } from '@/lib/i18n';
 import { Globe } from 'lucide-react';
 
-export function LanguageSwitcher() {
+// Language abbreviations for compact mode
+const languageAbbreviations: Record<string, string> = {
+  en: 'EN',
+  es: 'ES', 
+  pt: 'PT',
+  fr: 'FR',
+  zh: 'ZH'
+};
+
+interface LanguageSwitcherProps {
+  compact?: boolean;
+}
+
+export function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
   const { i18n } = useTranslation();
 
   const handleLanguageChange = (value: string) => {
@@ -17,6 +30,23 @@ export function LanguageSwitcher() {
     // Store the preference
     localStorage.setItem('i18nextLng', value);
   };
+
+  if (compact) {
+    return (
+      <Select value={i18n.language} onValueChange={handleLanguageChange}>
+        <SelectTrigger className="w-[60px] h-8 text-xs">
+          <SelectValue placeholder="EN" />
+        </SelectTrigger>
+        <SelectContent>
+          {Object.entries(languages).map(([code, { nativeName }]) => (
+            <SelectItem key={code} value={code} className="text-xs">
+              {languageAbbreviations[code]} - {nativeName}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    );
+  }
 
   return (
     <div className="flex items-center gap-2">

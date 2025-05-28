@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
   LayoutDashboard,
@@ -30,10 +30,30 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const { t } = useTranslation(['navigation', 'common']);
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
   const { userProfile } = useProfile();
 
   // Get user's name from profile or metadata or email
   const userName = userProfile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'there';
+
+  // Auto-hide welcome message after 5 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowWelcome(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Hide welcome message on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowWelcome(false);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleLogout = async () => {
     await signOut();
@@ -97,7 +117,14 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           </ul>
         </nav>
 
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t space-y-2">
+          {/* Language Switcher */}
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-gray-500 font-medium">Language</span>
+            <LanguageSwitcher compact={true} />
+          </div>
+          
+          {/* Logout Button */}
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
@@ -120,12 +147,18 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               >
                 <Menu className="w-6 h-6" />
               </button>
+              
+              {/* Welcome Message - Left Side with Auto-hide */}
+              {showWelcome && (
+                <div className="transition-all duration-500 ease-in-out">
+                  <span className="text-sm text-gray-600">
+                    {t('common:welcome')}, {userName}
+                  </span>
+                </div>
+              )}
             </div>
+            
             <div className="flex items-center gap-4">
-              <LanguageSwitcher />
-              <span className="text-sm text-gray-600">
-                {t('common:welcome')}, {userName}
-              </span>
               {userProfile?.avatar_url ? (
                 <img 
                   src={userProfile.avatar_url} 
