@@ -22,7 +22,8 @@ import {
   MapIcon,
   Timer,
   BarChart3,
-  Activity
+  Activity,
+  Map
 } from "lucide-react";
 import { toast } from "sonner";
 import { format, addDays, startOfWeek, endOfWeek, isSameDay, parseISO, addWeeks, subWeeks } from "date-fns";
@@ -33,6 +34,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { useLocale } from "@/hooks/useLocale";
 import AppLayout from "@/components/AppLayout";
+import QuickJobModal from "@/components/Calendar/QuickJobModal";
+import JobDetailsModal from "@/components/Calendar/JobDetailsModal";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
 
 const timeSlots = [
   '8:00am', '9:00am', '10:00am', '11:00am', '12:00pm',
@@ -43,6 +48,7 @@ const Calendar = () => {
   const { user } = useAuth();
   const { t } = useTranslation(['calendar', 'common']);
   const { formatCurrency } = useLocale();
+  const navigate = useNavigate();
   
   const [jobs, setJobs] = useState<Job[]>([]);
   const [clients, setClients] = useState<Array<{ id: string; name: string }>>([]);
@@ -52,6 +58,14 @@ const Calendar = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [propertyTypeFilter, setPropertyTypeFilter] = useState<'all' | 'residential' | 'commercial'>('all');
+  
+  // Modal states
+  const [showQuickJobModal, setShowQuickJobModal] = useState(false);
+  const [showJobDetailsModal, setShowJobDetailsModal] = useState(false);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('');
+  const [draggedJob, setDraggedJob] = useState<Job | null>(null);
+  const [showMapView, setShowMapView] = useState(false);
 
   // Load data
   const loadData = async () => {
@@ -73,7 +87,89 @@ const Calendar = () => {
 
   useEffect(() => {
     loadData();
-  }, []);
+
+    // Set up real-time subscription for job updates
+    const channel = supabase
+      .channel('calendar-jobs')
+      .on(
+        'postgres_changes',
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'jobs',
+          filter: `user_id=eq.${user?.id}`
+        },
+        (payload) => {
+          console.log('Job change detected:', payload);
+          
+          if (payload.eventType === 'INSERT') {
+            toast.info('New job added to calendar');
+          } else if (payload.eventType === 'UPDATE') {
+            toast.info('Job updated');
+          } else if (payload.eventType === 'DELETE') {
+            toast.info('Job removed from calendar');
+          }
+          
+          // Reload data to get the latest
+          loadData();
+        }
+      )
+      .subscribe();
+
+    // Set up keyboard shortcuts
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Don't trigger shortcuts when typing in input fields
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      switch (e.key) {
+        case 'ArrowLeft':
+          if (e.ctrlKey || e.metaKey) {
+            navigateWeek('prev');
+          }
+          break;
+        case 'ArrowRight':
+          if (e.ctrlKey || e.metaKey) {
+            navigateWeek('next');
+          }
+          break;
+        case 't':
+        case 'T':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            goToToday();
+          }
+          break;
+        case 'n':
+        case 'N':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            setShowQuickJobModal(true);
+          }
+          break;
+        case 'r':
+        case 'R':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            loadData();
+          }
+          break;
+        case 'Escape':
+          setShowQuickJobModal(false);
+          setShowJobDetailsModal(false);
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+
+    // Cleanup subscription on unmount
+    return () => {
+      supabase.removeChannel(channel);
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [user?.id]);
 
   // Get week dates
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 0 });
@@ -152,6 +248,125 @@ const Calendar = () => {
   const completedJobs = weekJobs.filter(job => job.status === 'completed').length;
   const inProgressJobs = weekJobs.filter(job => job.status === 'in_progress').length;
 
+  // Handle job click
+  const handleJobClick = (job: Job) => {
+    setSelectedJob(job);
+    setShowJobDetailsModal(true);
+  };
+
+  // Handle empty slot click
+  const handleSlotClick = (date: Date, timeSlot: string) => {
+    setSelectedDate(date);
+    setSelectedTimeSlot(timeSlot);
+    setShowQuickJobModal(true);
+  };
+
+  // Handle job status change
+  const handleJobStatusChange = async (jobId: string, newStatus: string) => {
+    try {
+      await jobsApi.updateStatus(jobId, newStatus as JobStatus);
+      toast.success(`Job status updated to ${newStatus}`);
+      loadData(); // Reload to get updated data
+    } catch (error) {
+      console.error('Error updating job status:', error);
+      toast.error('Failed to update job status');
+    }
+  };
+
+  // Handle job edit
+  const handleJobEdit = (job: Job) => {
+    navigate(`/edit-job/${job.id}`);
+  };
+
+  // Handle job delete
+  const handleJobDelete = async (jobId: string) => {
+    if (!confirm('Are you sure you want to delete this job?')) return;
+    
+    try {
+      await jobsApi.delete(jobId);
+      toast.success('Job deleted successfully');
+      setShowJobDetailsModal(false);
+      loadData();
+    } catch (error) {
+      console.error('Error deleting job:', error);
+      toast.error('Failed to delete job');
+    }
+  };
+
+  // Handle job duplicate
+  const handleJobDuplicate = async (job: Job) => {
+    try {
+      const newJob = {
+        ...job,
+        id: undefined,
+        scheduled_date: format(new Date(), 'yyyy-MM-dd'),
+        status: 'scheduled' as JobStatus,
+        created_at: undefined,
+        updated_at: undefined
+      };
+      
+      await jobsApi.create(newJob as any);
+      toast.success('Job duplicated successfully');
+      loadData();
+    } catch (error) {
+      console.error('Error duplicating job:', error);
+      toast.error('Failed to duplicate job');
+    }
+  };
+
+  // Handle drag start
+  const handleDragStart = (e: React.DragEvent, job: Job) => {
+    setDraggedJob(job);
+    e.dataTransfer.effectAllowed = 'move';
+    // Add visual feedback
+    (e.target as HTMLElement).style.opacity = '0.5';
+  };
+
+  // Handle drag end
+  const handleDragEnd = (e: React.DragEvent) => {
+    (e.target as HTMLElement).style.opacity = '1';
+    setDraggedJob(null);
+  };
+
+  // Handle drag over
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  // Handle drop on a time slot
+  const handleDrop = async (e: React.DragEvent, date: Date, timeSlot: string) => {
+    e.preventDefault();
+    
+    if (!draggedJob) return;
+    
+    const newDate = format(date, 'yyyy-MM-dd');
+    const newTime = timeSlot.replace('am', ':00').replace('pm', ':00')
+      .replace('12:', timeSlot.includes('pm') ? '12:' : '00:')
+      .replace(/(\d):/, (match, hour) => {
+        const h = parseInt(hour);
+        if (timeSlot.includes('pm') && h !== 12) {
+          return `${h + 12}:`;
+        }
+        return match;
+      });
+    
+    try {
+      await jobsApi.update(draggedJob.id, {
+        scheduled_date: newDate,
+        scheduled_time: newTime
+      });
+      
+      toast.success('Job rescheduled successfully');
+      loadData();
+    } catch (error) {
+      console.error('Error rescheduling job:', error);
+      toast.error('Failed to reschedule job');
+    }
+    
+    setDraggedJob(null);
+  };
+
   return (
     <AppLayout>
       <div className="h-full flex bg-gray-50">
@@ -212,6 +427,15 @@ const Calendar = () => {
                     className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
                   />
                 </div>
+                <button
+                  onClick={() => setShowMapView(!showMapView)}
+                  className={`p-2 rounded-lg transition-colors ${
+                    showMapView ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100 text-gray-600'
+                  }`}
+                  title="Toggle map view"
+                >
+                  <Map className="w-5 h-5" />
+                </button>
                 <button
                   onClick={loadData}
                   className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -274,15 +498,32 @@ const Calendar = () => {
                             return (
                               <div
                                 key={timeIndex}
-                                className="h-16 border-b border-gray-100 p-1 relative"
+                                className={`h-16 border-b border-gray-100 p-1 relative cursor-pointer transition-colors ${
+                                  draggedJob ? 'hover:bg-blue-50' : 'hover:bg-gray-50'
+                                }`}
+                                onClick={(e) => {
+                                  if (slotsJobs.length === 0) {
+                                    e.stopPropagation();
+                                    handleSlotClick(day, timeSlot);
+                                  }
+                                }}
+                                onDragOver={handleDragOver}
+                                onDrop={(e) => handleDrop(e, day, timeSlot)}
                               >
                                 {slotsJobs.map((job, jobIndex) => (
                                   <div
                                     key={job.id}
+                                    draggable
+                                    onDragStart={(e) => handleDragStart(e, job)}
+                                    onDragEnd={handleDragEnd}
                                     className={`mb-1 p-1.5 rounded border cursor-pointer transition-all hover:shadow-sm text-xs ${getJobColor(job.status, job.property_type)}`}
                                     style={{
                                       marginTop: jobIndex > 0 ? '1px' : '0',
                                       height: slotsJobs.length === 1 ? 'calc(100% - 4px)' : `${Math.min(60 / slotsJobs.length, 28)}px`
+                                    }}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleJobClick(job);
                                     }}
                                   >
                                     {/* Job content */}
@@ -369,8 +610,16 @@ const Calendar = () => {
                 </div>
               </div>
               
-              <div className="text-gray-500">
-                Week of {format(weekStart, 'MMM d, yyyy')}
+              <div className="flex items-center gap-4">
+                <div className="text-gray-500">
+                  Week of {format(weekStart, 'MMM d, yyyy')}
+                </div>
+                {/* Keyboard shortcuts hint */}
+                <div className="text-xs text-gray-400">
+                  <span title="Ctrl+← Previous week, Ctrl+→ Next week, Ctrl+T Today, Ctrl+N New Job">
+                    Keyboard shortcuts available
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -387,11 +636,17 @@ const Calendar = () => {
             
             {/* Quick Actions */}
             <div className="space-y-2">
-              <button className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium">
+              <button 
+                onClick={() => setShowQuickJobModal(true)}
+                className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium"
+              >
                 <Plus className="w-4 h-4" />
                 New Job
               </button>
-              <button className="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
+              <button 
+                onClick={() => setShowFilters(!showFilters)}
+                className="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+              >
               <Filter className="w-4 h-4" />
               Filters
               </button>
@@ -447,12 +702,45 @@ const Calendar = () => {
             </div>
           </div>
 
+          {/* Map View Toggle */}
+          {showMapView && (
+            <div className="p-6 border-b border-gray-200 bg-gray-50">
+              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <MapPin className="w-5 h-5" />
+                Job Locations
+              </h3>
+              <div className="bg-white rounded-lg border border-gray-200 h-48 flex items-center justify-center text-gray-500">
+                <div className="text-center">
+                  <MapIcon className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                  <p className="text-sm">Map integration coming soon</p>
+                  <p className="text-xs mt-1">{weekJobs.filter(j => j.address).length} jobs with addresses</p>
+                </div>
+              </div>
+              {/* Quick route summary */}
+              <div className="mt-4 space-y-2">
+                {todayJobs.filter(j => j.address).slice(0, 3).map((job, index) => (
+                  <div key={job.id} className="flex items-start gap-2 text-sm">
+                    <span className="font-medium text-gray-500">{index + 1}.</span>
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">{job.client?.name}</p>
+                      <p className="text-gray-600 text-xs">{job.address}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Recent Activity */}
-          <div className="p-6 flex-1">
+          <div className="p-6 flex-1 overflow-y-auto">
             <h3 className="font-semibold text-gray-900 mb-4">Recent Activity</h3>
             <div className="space-y-3">
               {todayJobs.slice(0, 4).map((job, index) => (
-                <div key={job.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50">
+                <div 
+                  key={job.id} 
+                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer"
+                  onClick={() => handleJobClick(job)}
+                >
                   <div className={`w-2 h-2 rounded-full ${
                     job.status === 'completed' ? 'bg-green-500' :
                     job.status === 'in_progress' ? 'bg-blue-500' :
@@ -471,10 +759,41 @@ const Calendar = () => {
                   </span>
                 </div>
               ))}
+              {todayJobs.length === 0 && (
+                <p className="text-sm text-gray-500 text-center py-4">
+                  No jobs scheduled for today
+                </p>
+              )}
             </div>
           </div>
         </div>
       </div>
+      
+      {/* Modals */}
+      <QuickJobModal
+        isOpen={showQuickJobModal}
+        onClose={() => {
+          setShowQuickJobModal(false);
+          setSelectedTimeSlot('');
+        }}
+        selectedDate={selectedDate}
+        selectedTime={selectedTimeSlot}
+        onJobCreated={loadData}
+        existingJobs={jobs}
+      />
+      
+      <JobDetailsModal
+        job={selectedJob}
+        isOpen={showJobDetailsModal}
+        onClose={() => {
+          setShowJobDetailsModal(false);
+          setSelectedJob(null);
+        }}
+        onEdit={handleJobEdit}
+        onDelete={handleJobDelete}
+        onStatusChange={handleJobStatusChange}
+        onDuplicate={handleJobDuplicate}
+      />
     </AppLayout>
   );
 };
