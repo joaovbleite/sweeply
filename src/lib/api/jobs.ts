@@ -343,7 +343,34 @@ export const jobsApi = {
       updates.actual_end_time = new Date().toISOString();
     }
 
-    return this.update(id, updates);
+    const updatedJob = await this.update(id, updates);
+
+    // Send email notification for status changes
+    if (status === 'in_progress' || status === 'completed') {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          // Call the edge function to send email
+          const { error } = await supabase.functions.invoke('send-job-status-email', {
+            body: {
+              jobId: id,
+              status: status,
+              userId: user.id
+            }
+          });
+
+          if (error) {
+            console.error('Failed to send status email:', error);
+            // Don't throw - email failure shouldn't block status update
+          }
+        }
+      } catch (error) {
+        console.error('Error sending status email:', error);
+        // Don't throw - email failure shouldn't block status update
+      }
+    }
+
+    return updatedJob;
   },
 
   // Create a recurring job with multiple instances
