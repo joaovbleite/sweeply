@@ -20,147 +20,125 @@ import {
   Briefcase,
   CreditCard,
   UserPlus,
-  Mail
+  Mail,
+  Package
 } from "lucide-react";
 import { toast } from "sonner";
 import { format, formatDistanceToNow } from "date-fns";
 import AppLayout from "@/components/AppLayout";
-
-interface Notification {
-  id: string;
-  type: 'job' | 'payment' | 'client' | 'system' | 'reminder';
-  title: string;
-  message: string;
-  timestamp: Date;
-  read: boolean;
-  priority: 'low' | 'medium' | 'high';
-  actionUrl?: string;
-  actionLabel?: string;
-  icon?: React.ReactNode;
-}
+import { notificationsApi, Notification, NotificationFilters } from "@/lib/api/notifications";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Notifications = () => {
+  const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [filter, setFilter] = useState<'all' | 'unread' | 'job' | 'payment' | 'client' | 'system'>('all');
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<'all' | 'unread' | Notification['type']>('all');
   const [selectedNotifications, setSelectedNotifications] = useState<Set<string>>(new Set());
 
-  // Mock notifications data
-  useEffect(() => {
-    const mockNotifications: Notification[] = [
-      {
-        id: '1',
-        type: 'job',
-        title: 'New Job Scheduled',
-        message: 'You have a new cleaning job scheduled for tomorrow at 2:00 PM for Sarah Johnson.',
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-        read: false,
-        priority: 'high',
-        actionUrl: '/calendar',
-        actionLabel: 'View Calendar',
-        icon: <Briefcase className="w-5 h-5" />
-      },
-      {
-        id: '2',
-        type: 'payment',
-        title: 'Payment Received',
-        message: 'Payment of $250.00 has been received from John Doe for Invoice #INV-2024-0045.',
-        timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5 hours ago
-        read: false,
-        priority: 'medium',
-        actionUrl: '/invoices',
-        actionLabel: 'View Invoice',
-        icon: <DollarSign className="w-5 h-5" />
-      },
-      {
-        id: '3',
-        type: 'client',
-        title: 'New Client Added',
-        message: 'Emily Wilson has been added as a new client. Remember to schedule their initial consultation.',
-        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-        read: true,
-        priority: 'low',
-        actionUrl: '/clients',
-        actionLabel: 'View Client',
-        icon: <UserPlus className="w-5 h-5" />
-      },
-      {
-        id: '4',
-        type: 'reminder',
-        title: 'Job Reminder',
-        message: 'Don\'t forget! You have a deep cleaning job at 123 Main St in 30 minutes.',
-        timestamp: new Date(Date.now() - 10 * 60 * 1000), // 10 minutes ago
-        read: false,
-        priority: 'high',
-        actionUrl: '/jobs',
-        actionLabel: 'View Job',
-        icon: <Clock className="w-5 h-5" />
-      },
-      {
-        id: '5',
-        type: 'system',
-        title: 'System Update',
-        message: 'New features have been added to the calendar view. Check out the timeline and map views!',
-        timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-        read: true,
-        priority: 'low',
-        actionUrl: '/calendar',
-        actionLabel: 'Explore Features',
-        icon: <Info className="w-5 h-5" />
-      },
-      {
-        id: '6',
-        type: 'payment',
-        title: 'Invoice Overdue',
-        message: 'Invoice #INV-2024-0042 for $180.00 is now 5 days overdue. Consider sending a reminder.',
-        timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
-        read: false,
-        priority: 'high',
-        actionUrl: '/invoices',
-        actionLabel: 'Send Reminder',
-        icon: <AlertCircle className="w-5 h-5" />
+  // Load notifications
+  const loadNotifications = async () => {
+    try {
+      setLoading(true);
+      
+      const filters: NotificationFilters = {};
+      if (filter === 'unread') {
+        filters.read = false;
+      } else if (filter !== 'all') {
+        filters.type = filter as Notification['type'];
       }
-    ];
 
-    setNotifications(mockNotifications);
-  }, []);
+      const data = await notificationsApi.getAll(filters);
+      setNotifications(data);
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+      toast.error('Failed to load notifications');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Filter notifications
-  const filteredNotifications = notifications.filter(notification => {
-    if (filter === 'all') return true;
-    if (filter === 'unread') return !notification.read;
-    return notification.type === filter;
-  });
+  useEffect(() => {
+    loadNotifications();
+  }, [filter]);
+
+  // Subscribe to real-time notifications
+  useEffect(() => {
+    if (!user) return;
+
+    const subscription = notificationsApi.subscribeToNotifications(
+      user.id,
+      (newNotification) => {
+        setNotifications(prev => [newNotification, ...prev]);
+        toast.info(newNotification.title, {
+          description: newNotification.message,
+          action: newNotification.action_url ? {
+            label: newNotification.action_label || 'View',
+            onClick: () => window.location.href = newNotification.action_url!
+          } : undefined
+        });
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [user]);
 
   // Mark as read
-  const markAsRead = (id: string) => {
-    setNotifications(prev => 
-      prev.map(notif => 
-        notif.id === id ? { ...notif, read: true } : notif
-      )
-    );
+  const markAsRead = async (id: string) => {
+    try {
+      await notificationsApi.markAsRead(id);
+      setNotifications(prev => 
+        prev.map(notif => 
+          notif.id === id ? { ...notif, read: true } : notif
+        )
+      );
+    } catch (error) {
+      console.error('Error marking as read:', error);
+      toast.error('Failed to mark as read');
+    }
   };
 
   // Mark all as read
-  const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notif => ({ ...notif, read: true }))
-    );
-    toast.success('All notifications marked as read');
+  const markAllAsRead = async () => {
+    try {
+      await notificationsApi.markAllAsRead();
+      setNotifications(prev => 
+        prev.map(notif => ({ ...notif, read: true }))
+      );
+      toast.success('All notifications marked as read');
+    } catch (error) {
+      console.error('Error marking all as read:', error);
+      toast.error('Failed to mark all as read');
+    }
   };
 
   // Delete notification
-  const deleteNotification = (id: string) => {
-    setNotifications(prev => prev.filter(notif => notif.id !== id));
-    toast.success('Notification deleted');
+  const deleteNotification = async (id: string) => {
+    try {
+      await notificationsApi.delete(id);
+      setNotifications(prev => prev.filter(notif => notif.id !== id));
+      toast.success('Notification deleted');
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      toast.error('Failed to delete notification');
+    }
   };
 
   // Delete selected
-  const deleteSelected = () => {
-    setNotifications(prev => 
-      prev.filter(notif => !selectedNotifications.has(notif.id))
-    );
-    setSelectedNotifications(new Set());
-    toast.success(`${selectedNotifications.size} notifications deleted`);
+  const deleteSelected = async () => {
+    try {
+      await notificationsApi.deleteMultiple(Array.from(selectedNotifications));
+      setNotifications(prev => 
+        prev.filter(notif => !selectedNotifications.has(notif.id))
+      );
+      setSelectedNotifications(new Set());
+      toast.success(`${selectedNotifications.size} notifications deleted`);
+    } catch (error) {
+      console.error('Error deleting notifications:', error);
+      toast.error('Failed to delete notifications');
+    }
   };
 
   // Toggle selection
@@ -176,8 +154,28 @@ const Notifications = () => {
     });
   };
 
-  // Get icon color based on type
-  const getIconColor = (type: string, priority: string) => {
+  // Get icon for notification type
+  const getIcon = (type: Notification['type']) => {
+    switch (type) {
+      case 'job':
+        return <Briefcase className="w-5 h-5" />;
+      case 'payment':
+        return <DollarSign className="w-5 h-5" />;
+      case 'client':
+        return <UserPlus className="w-5 h-5" />;
+      case 'reminder':
+        return <Clock className="w-5 h-5" />;
+      case 'system':
+        return <Info className="w-5 h-5" />;
+      case 'team':
+        return <Users className="w-5 h-5" />;
+      default:
+        return <Bell className="w-5 h-5" />;
+    }
+  };
+
+  // Get icon color based on type and priority
+  const getIconColor = (type: Notification['type'], priority: Notification['priority']) => {
     if (priority === 'high') return 'text-red-600 bg-red-100';
     
     switch (type) {
@@ -186,11 +184,25 @@ const Notifications = () => {
       case 'client': return 'text-purple-600 bg-purple-100';
       case 'reminder': return 'text-orange-600 bg-orange-100';
       case 'system': return 'text-gray-600 bg-gray-100';
+      case 'team': return 'text-indigo-600 bg-indigo-100';
       default: return 'text-gray-600 bg-gray-100';
     }
   };
 
   const unreadCount = notifications.filter(n => !n.read).length;
+
+  if (loading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pulse-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading notifications...</p>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
@@ -222,10 +234,10 @@ const Notifications = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             {/* Filters */}
             <div className="flex flex-wrap gap-2">
-              {['all', 'unread', 'job', 'payment', 'client', 'system'].map((filterType) => (
+              {(['all', 'unread', 'job', 'payment', 'client', 'reminder', 'system', 'team'] as const).map((filterType) => (
                 <button
                   key={filterType}
-                  onClick={() => setFilter(filterType as any)}
+                  onClick={() => setFilter(filterType)}
                   className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
                     filter === filterType
                       ? 'bg-pulse-500 text-white'
@@ -272,7 +284,7 @@ const Notifications = () => {
 
         {/* Notifications List */}
         <div className="space-y-3">
-          {filteredNotifications.length === 0 ? (
+          {notifications.length === 0 ? (
             <div className="bg-white rounded-xl shadow-sm p-12 text-center">
               <Bell className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No notifications</h3>
@@ -283,7 +295,7 @@ const Notifications = () => {
               </p>
             </div>
           ) : (
-            filteredNotifications.map((notification) => (
+            notifications.map((notification) => (
               <div
                 key={notification.id}
                 className={`bg-white rounded-xl shadow-sm p-4 transition-all hover:shadow-md ${
@@ -301,7 +313,7 @@ const Notifications = () => {
 
                   {/* Icon */}
                   <div className={`p-2 rounded-lg ${getIconColor(notification.type, notification.priority)}`}>
-                    {notification.icon}
+                    {getIcon(notification.type)}
                   </div>
 
                   {/* Content */}
@@ -314,13 +326,13 @@ const Notifications = () => {
                         <p className="text-gray-600 text-sm mt-1">{notification.message}</p>
                         
                         {/* Action Button */}
-                        {notification.actionUrl && (
+                        {notification.action_url && (
                           <Link
-                            to={notification.actionUrl}
+                            to={notification.action_url}
                             onClick={() => markAsRead(notification.id)}
                             className="inline-flex items-center gap-1 mt-2 text-sm text-pulse-600 hover:text-pulse-700 font-medium"
                           >
-                            {notification.actionLabel}
+                            {notification.action_label || 'View'}
                             <ChevronRight className="w-4 h-4" />
                           </Link>
                         )}
@@ -329,7 +341,7 @@ const Notifications = () => {
                       {/* Actions Menu */}
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-gray-500">
-                          {formatDistanceToNow(notification.timestamp, { addSuffix: true })}
+                          {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
                         </span>
                         
                         <div className="relative group">

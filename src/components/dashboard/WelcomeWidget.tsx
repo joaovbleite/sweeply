@@ -1,13 +1,44 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { Sparkles, TrendingUp, Target, Zap, Plus, Calendar, Users, Lightbulb, Bell } from 'lucide-react';
+import { notificationsApi } from '@/lib/api/notifications';
 
 const WelcomeWidget = () => {
   const { user } = useAuth();
   const { userProfile } = useProfile();
+  const [unreadCount, setUnreadCount] = useState(0);
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'there';
+  
+  // Load unread notifications count
+  useEffect(() => {
+    const loadUnreadCount = async () => {
+      try {
+        const count = await notificationsApi.getUnreadCount();
+        setUnreadCount(count);
+      } catch (error) {
+        console.error('Error loading unread count:', error);
+      }
+    };
+
+    loadUnreadCount();
+
+    // Subscribe to real-time updates
+    if (user) {
+      const subscription = notificationsApi.subscribeToNotifications(
+        user.id,
+        () => {
+          // Reload count when new notification arrives
+          loadUnreadCount();
+        }
+      );
+
+      return () => {
+        subscription.unsubscribe();
+      };
+    }
+  }, [user]);
   
   // Get time-based greeting
   const getGreeting = () => {
@@ -56,7 +87,11 @@ const WelcomeWidget = () => {
           className="relative bg-white/20 backdrop-blur-sm rounded-full p-2 hover:bg-white/30 transition-colors"
         >
           <Bell className="w-5 h-5 text-white" />
-          <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
         </Link>
         
         {/* Profile Picture */}
