@@ -14,7 +14,10 @@ import {
   UserCheck,
   Target,
   BarChart3,
-  Calculator
+  Calculator,
+  Sun,
+  Moon,
+  Sunrise
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
@@ -31,24 +34,51 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [welcomeAnimationClass, setWelcomeAnimationClass] = useState('opacity-0 translate-x-4');
   const { userProfile } = useProfile();
 
   // Get user's name from profile or metadata or email
   const userName = userProfile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'there';
 
-  // Auto-hide welcome message after 5 seconds
+  // Get time-based greeting and icon
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) {
+      return { text: 'Good morning', icon: Sunrise, color: 'text-amber-600' };
+    } else if (hour < 17) {
+      return { text: 'Good afternoon', icon: Sun, color: 'text-orange-500' };
+    } else {
+      return { text: 'Good evening', icon: Moon, color: 'text-indigo-600' };
+    }
+  };
+
+  const greeting = getGreeting();
+  const GreetingIcon = greeting.icon;
+
+  // Fade in animation on mount
   useEffect(() => {
     const timer = setTimeout(() => {
-      setShowWelcome(false);
+      setWelcomeAnimationClass('opacity-100 translate-x-0');
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Auto-hide welcome message after 5 seconds with fade out
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setWelcomeAnimationClass('opacity-0 -translate-x-4');
+      setTimeout(() => setShowWelcome(false), 300); // Wait for animation to complete
     }, 5000);
 
     return () => clearTimeout(timer);
   }, []);
 
-  // Hide welcome message on scroll
+  // Hide welcome message on scroll with fade out
   useEffect(() => {
     const handleScroll = () => {
-      setShowWelcome(false);
+      setWelcomeAnimationClass('opacity-0 -translate-x-4');
+      setTimeout(() => setShowWelcome(false), 300); // Wait for animation to complete
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -148,12 +178,22 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 <Menu className="w-6 h-6" />
               </button>
               
-              {/* Welcome Message - Left Side with Auto-hide */}
+              {/* Enhanced Welcome Message - Left Side with Fade In/Out */}
               {showWelcome && (
-                <div className="transition-all duration-500 ease-in-out">
-                  <span className="text-sm text-gray-600">
-                    {t('common:welcome')}, {userName}
-                  </span>
+                <div className={`transition-all duration-300 ease-out transform ${welcomeAnimationClass}`}>
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-lg px-4 py-2 shadow-sm">
+                    <div className="flex items-center gap-2">
+                      <GreetingIcon className={`w-4 h-4 ${greeting.color}`} />
+                      <div className="flex flex-col">
+                        <span className="text-xs text-gray-500 font-medium leading-tight">
+                          {greeting.text}
+                        </span>
+                        <span className="text-sm font-semibold text-gray-700 leading-tight">
+                          {userName}! 👋
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
