@@ -118,12 +118,15 @@ export const jobsApi = {
     if (jobData.address) insertData.address = jobData.address;
     if (jobData.special_instructions) insertData.special_instructions = jobData.special_instructions;
     if (jobData.access_instructions) insertData.access_instructions = jobData.access_instructions;
-    if (jobData.square_footage) insertData.square_footage = jobData.square_footage;
-    if (jobData.number_of_floors) insertData.number_of_floors = jobData.number_of_floors;
-    if (jobData.building_type) insertData.building_type = jobData.building_type;
-    if (jobData.number_of_bedrooms) insertData.number_of_bedrooms = jobData.number_of_bedrooms;
-    if (jobData.number_of_bathrooms) insertData.number_of_bathrooms = jobData.number_of_bathrooms;
-    if (jobData.house_type) insertData.house_type = jobData.house_type;
+    
+    // TODO: Uncomment these fields after running the migration in RUN_MIGRATION_FIX.md
+    // if (jobData.square_footage) insertData.square_footage = jobData.square_footage;
+    // if (jobData.number_of_floors) insertData.number_of_floors = jobData.number_of_floors;
+    // if (jobData.building_type) insertData.building_type = jobData.building_type;
+    // if (jobData.number_of_bedrooms) insertData.number_of_bedrooms = jobData.number_of_bedrooms;
+    // if (jobData.number_of_bathrooms) insertData.number_of_bathrooms = jobData.number_of_bathrooms;
+    // if (jobData.house_type) insertData.house_type = jobData.house_type;
+    
     if (jobData.recurring_frequency) insertData.recurring_frequency = jobData.recurring_frequency;
     if (jobData.recurring_end_date) insertData.recurring_end_date = jobData.recurring_end_date;
 
