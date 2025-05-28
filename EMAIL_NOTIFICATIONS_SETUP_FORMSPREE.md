@@ -1,18 +1,27 @@
-# 📧 Email Notifications Setup Guide
+# 📧 Email Notifications Setup Guide (Formspree)
 
-This guide will help you set up automatic email notifications that are sent to clients when job status changes to "Started" or "Completed".
+This guide will help you set up automatic email notifications using Formspree that are sent to clients when job status changes to "Started" or "Completed".
 
 ## Features
 
 - ✅ Automatic email when job is started (in_progress)
 - ✅ Automatic email when job is completed
-- ✅ Beautiful HTML email templates
+- ✅ Simple text-based email format
 - ✅ Uses your business name from profile
 - ✅ Respects client email notification preferences
+- ✅ No HTML coding required
 
 ## Setup Steps
 
-### 1. Deploy the Edge Function
+### 1. Create a Formspree Form
+
+1. Go to [Formspree.io](https://formspree.io)
+2. Sign up for a free account
+3. Create a new form
+4. Give it a name like "Sweeply Job Notifications"
+5. Copy your form ID (it looks like `xyzabc123`)
+
+### 2. Deploy the Edge Function
 
 In your Supabase dashboard:
 
@@ -22,12 +31,6 @@ In your Supabase dashboard:
 4. Copy the code from `supabase/functions/send-job-status-email/index.ts`
 5. Deploy the function
 
-### 2. Set up Resend (Email Service)
-
-1. Create a free account at [Resend.com](https://resend.com)
-2. Verify your domain or use their testing domain
-3. Get your API key from the [API Keys page](https://resend.com/api-keys)
-
 ### 3. Configure Environment Variables
 
 In your Supabase dashboard:
@@ -35,19 +38,12 @@ In your Supabase dashboard:
 1. Go to **Functions** → **send-job-status-email**
 2. Click on **Settings**
 3. Add the following environment variable:
-   - `RESEND_API_KEY`: Your Resend API key
-
-### 4. Update Email Domain (Optional)
-
-In the edge function, update line 229 to use your domain:
-```typescript
-from: `${businessName} <notifications@yourdomain.com>`,
-```
+   - `FORMSPREE_FORM_ID`: Your Formspree form ID (without the 'f/' prefix)
 
 ## How It Works
 
 1. When you click the **Play** button (Start Job) or **Check** button (Complete Job) in the Jobs page
-2. The system automatically sends an email to the client
+2. The system automatically sends an email to the client through Formspree
 3. The email includes:
    - Job details (service type, date, time)
    - Your business name
@@ -58,21 +54,29 @@ from: `${businessName} <notifications@yourdomain.com>`,
 
 ### Job Started Email
 - Subject: "Your cleaning service has started - [Business Name]"
-- Content: Notifies client that the service has begun
+- Content: Plain text notification that the service has begun
 - Shows job details and expected completion
 
 ### Job Completed Email
 - Subject: "Your cleaning service is complete - [Business Name]"
-- Content: Confirms service completion
+- Content: Plain text confirmation of service completion
 - Includes completion time
 - Shows any completion notes
 - Encourages feedback
+
+## Formspree Benefits
+
+1. **Simple Setup**: No domain verification required
+2. **Free Tier**: 50 submissions/month free
+3. **Clean Emails**: Formspree provides nice email templates
+4. **Spam Protection**: Built-in spam filtering
+5. **Email History**: View all sent emails in Formspree dashboard
 
 ## Testing
 
 To test without sending real emails:
 
-1. Don't set the `RESEND_API_KEY` environment variable
+1. Don't set the `FORMSPREE_FORM_ID` environment variable
 2. The function will log email content to the console instead
 3. Check Supabase Function logs to see what would be sent
 
@@ -82,8 +86,9 @@ To test without sending real emails:
 
 1. **Check client has email**: Clients must have an email address
 2. **Check function logs**: Go to Functions → Logs in Supabase
-3. **Verify API key**: Make sure RESEND_API_KEY is set correctly
-4. **Check domain**: Ensure your sending domain is verified in Resend
+3. **Verify form ID**: Make sure FORMSPREE_FORM_ID is set correctly (without 'f/' prefix)
+4. **Check Formspree dashboard**: See if submissions are appearing there
+5. **Verify Formspree limits**: Free tier allows 50 emails/month
 
 ### Want to disable for specific clients?
 
@@ -91,13 +96,15 @@ Currently, emails are sent to all clients with email addresses. To add client-sp
 
 ## Customization
 
-You can customize the email templates by editing the HTML in the edge function:
-- Lines 108-148: Job Started email template
-- Lines 152-212: Job Completed email template
+You can customize the email content by editing the plain text templates in the edge function:
+- Lines 103-117: Job Started email message
+- Lines 119-134: Job Completed email message
 
 ## Cost
 
-- **Resend Free Tier**: 3,000 emails/month
+- **Formspree Free Tier**: 50 emails/month (perfect for testing)
+- **Formspree Basic**: $8/month for 250 submissions
+- **Formspree Pro**: $40/month for unlimited submissions
 - **Supabase Edge Functions**: Free tier includes 500K invocations/month
 
-This should be more than enough for most cleaning businesses! 
+For most small to medium cleaning businesses, the Formspree Basic plan should be sufficient! 
