@@ -61,25 +61,6 @@ const Jobs = () => {
     loadJobs();
   }, [filters]);
 
-  // Handle search
-  const handleSearch = async () => {
-    if (!searchTerm.trim()) {
-      loadJobs();
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const data = await jobsApi.search(searchTerm);
-      setJobs(data);
-    } catch (error) {
-      console.error('Error searching jobs:', error);
-      toast.error("Failed to search jobs");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Handle status update
   const handleStatusUpdate = async (jobId: string, newStatus: JobStatus) => {
     try {
@@ -243,7 +224,8 @@ const Jobs = () => {
       const matchesSearch = 
         job.title.toLowerCase().includes(searchLower) ||
         job.client?.name.toLowerCase().includes(searchLower) ||
-        job.description?.toLowerCase().includes(searchLower);
+        job.description?.toLowerCase().includes(searchLower) ||
+        job.address?.toLowerCase().includes(searchLower);
       if (!matchesSearch) return false;
     }
 
@@ -261,12 +243,20 @@ const Jobs = () => {
     return true;
   });
 
-  // Calculate statistics
+  // Calculate statistics with overdue jobs
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
   const stats = {
     total: jobs.filter(j => !j.parent_job_id).length,
     scheduled: jobs.filter(j => j.status === 'scheduled' && !j.parent_job_id).length,
     in_progress: jobs.filter(j => j.status === 'in_progress' && !j.parent_job_id).length,
     completed: jobs.filter(j => j.status === 'completed' && !j.parent_job_id).length,
+    overdue: jobs.filter(j => 
+      j.status === 'scheduled' && 
+      !j.parent_job_id && 
+      new Date(j.scheduled_date) < today
+    ).length,
     total_revenue: jobs.filter(j => j.status === 'completed').reduce((sum, j) => sum + (j.actual_price || j.estimated_price || 0), 0)
   };
 
@@ -306,7 +296,7 @@ const Jobs = () => {
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -354,6 +344,20 @@ const Jobs = () => {
               </div>
             </div>
           </div>
+
+          {stats.overdue > 0 && (
+            <div className="bg-white rounded-xl shadow-sm p-6 border-2 border-red-200">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <CalendarX className="h-8 w-8 text-red-600" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-red-600">Overdue</p>
+                  <p className="text-2xl font-bold text-red-600">{stats.overdue}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center">
@@ -422,12 +426,19 @@ const Jobs = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search by job title, client, or description..."
+                placeholder="Search by job title, client, description, or address..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
               />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm("")}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <XCircle className="w-5 h-5" />
+                </button>
+              )}
             </div>
 
             {/* Quick Filters */}
@@ -586,8 +597,10 @@ const Jobs = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredJobs.map((job) => (
-                    <tr key={job.id} className={`hover:bg-gray-50 transition-colors ${selectedJobs.has(job.id) ? 'bg-blue-50' : ''}`}>
+                  {filteredJobs.map((job) => {
+                    const isOverdue = job.status === 'scheduled' && new Date(job.scheduled_date) < today;
+                    return (
+                    <tr key={job.id} className={`hover:bg-gray-50 transition-colors ${selectedJobs.has(job.id) ? 'bg-blue-50' : ''} ${isOverdue ? 'bg-red-50' : ''}`}>
                       <td className="px-6 py-4">
                         <input
                           type="checkbox"
@@ -600,6 +613,12 @@ const Jobs = () => {
                         <div>
                             <div className="flex items-center gap-2">
                               <h4 className="font-medium text-gray-900">{job.title}</h4>
+                              {isOverdue && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded-full">
+                                  <CalendarX className="w-3 h-3" />
+                                  Overdue
+                                </span>
+                              )}
                               {job.is_recurring && !job.parent_job_id && (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
                                   <Repeat className="w-3 h-3" />
@@ -731,7 +750,8 @@ const Jobs = () => {
                         </div>
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
