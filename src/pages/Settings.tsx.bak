@@ -183,7 +183,17 @@ const Settings = () => {
     }
   });
 
-
+  // Mobile App Settings - now will be loaded from API
+  const [mobileSettings, setMobileSettings] = useState({
+    enableOfflineMode: true,
+    autoSyncInterval: '15',
+    dataUsageOptimization: true,
+    locationServices: true,
+    cameraQuality: 'high',
+    pushNotificationSound: 'default',
+    biometricLogin: false,
+    autoLogout: '30'
+  });
 
   // Advanced Business Settings - now will be loaded from API
   const [advancedBusinessData, setAdvancedBusinessData] = useState<AdvancedBusinessSettings>({
@@ -229,6 +239,7 @@ const Settings = () => {
           invitationsData,
           integrationsData,
           brandingSettings,
+          mobileAppSettings,
           advancedSettings
         ] = await Promise.all([
           profileApi.getProfile(),
@@ -237,6 +248,7 @@ const Settings = () => {
           teamManagementApi.getTeamInvitations(),
           integrationsApi.getIntegrations(),
           settingsApi.getBrandingSettings(),
+          settingsApi.getMobileSettings(),
           settingsApi.getAdvancedBusinessSettings()
         ]);
 
@@ -252,6 +264,9 @@ const Settings = () => {
 
         // Set branding
         setBrandingData(brandingSettings);
+
+        // Set mobile settings
+        setMobileSettings(mobileAppSettings);
 
         // Set advanced business settings
         setAdvancedBusinessData(advancedSettings);
@@ -977,6 +992,19 @@ const Settings = () => {
     } catch (error: any) {
       console.error('Error saving branding settings:', error);
       toast.error(error.message || 'Failed to save branding settings');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveMobileSettings = async () => {
+    setLoading(true);
+    try {
+      await settingsApi.updateMobileSettings(mobileSettings);
+      toast.success('Mobile settings saved successfully');
+    } catch (error: any) {
+      console.error('Error saving mobile settings:', error);
+      toast.error(error.message || 'Failed to save mobile settings');
     } finally {
       setLoading(false);
     }
@@ -2062,6 +2090,144 @@ const Settings = () => {
                   >
                     <Save className="w-4 h-4" />
                     {loading ? 'Saving...' : 'Save Branding'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Mobile App Settings */}
+            {activeTab === 'mobile' && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">Mobile App Settings</h2>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-medium text-gray-900">Performance & Data</h3>
+                    
+                    <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                          <h4 className="text-sm font-medium text-gray-900">Offline Mode</h4>
+                          <p className="text-sm text-gray-600">Work without internet connection</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                            checked={mobileSettings.enableOfflineMode}
+                            onChange={(e) => setMobileSettings(prev => ({ ...prev, enableOfflineMode: e.target.checked }))}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
+                    </label>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div>
+                          <h4 className="text-sm font-medium text-gray-900">Data Usage Optimization</h4>
+                          <p className="text-sm text-gray-600">Reduce data consumption</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                            checked={mobileSettings.dataUsageOptimization}
+                            onChange={(e) => setMobileSettings(prev => ({ ...prev, dataUsageOptimization: e.target.checked }))}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
+                    </label>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Auto Sync Interval</label>
+                        <select
+                          value={mobileSettings.autoSyncInterval}
+                          onChange={(e) => setMobileSettings(prev => ({ ...prev, autoSyncInterval: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                        >
+                          <option value="5">Every 5 minutes</option>
+                          <option value="15">Every 15 minutes</option>
+                          <option value="30">Every 30 minutes</option>
+                          <option value="60">Every hour</option>
+                          <option value="manual">Manual only</option>
+                        </select>
+                      </div>
+                  </div>
+                </div>
+
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-medium text-gray-900">Security & Privacy</h3>
+                    
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                  <div>
+                          <h4 className="text-sm font-medium text-gray-900">Location Services</h4>
+                          <p className="text-sm text-gray-600">Enable GPS for job navigation</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={mobileSettings.locationServices}
+                            onChange={(e) => setMobileSettings(prev => ({ ...prev, locationServices: e.target.checked }))}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
+                    </label>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-900">Biometric Login</h4>
+                          <p className="text-sm text-gray-600">Use fingerprint or face ID</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={mobileSettings.biometricLogin}
+                            onChange={(e) => setMobileSettings(prev => ({ ...prev, biometricLogin: e.target.checked }))}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
+                        </label>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Auto Logout (minutes)</label>
+                    <select 
+                          value={mobileSettings.autoLogout}
+                          onChange={(e) => setMobileSettings(prev => ({ ...prev, autoLogout: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                    >
+                          <option value="15">15 minutes</option>
+                          <option value="30">30 minutes</option>
+                          <option value="60">1 hour</option>
+                          <option value="never">Never</option>
+                    </select>
+                  </div>
+
+                  <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Camera Quality</label>
+                    <select 
+                          value={mobileSettings.cameraQuality}
+                          onChange={(e) => setMobileSettings(prev => ({ ...prev, cameraQuality: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                    >
+                          <option value="low">Low (faster uploads)</option>
+                          <option value="medium">Medium</option>
+                          <option value="high">High (best quality)</option>
+                    </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 flex justify-end">
+                  <button
+                    onClick={handleSaveMobileSettings}
+                    disabled={loading}
+                    className="px-6 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 flex items-center gap-2"
+                  >
+                    <Save className="w-4 h-4" />
+                    {loading ? 'Saving...' : 'Save Mobile Settings'}
                   </button>
                 </div>
               </div>

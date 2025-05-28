@@ -17,17 +17,6 @@ export interface BrandingSettings {
   };
 }
 
-export interface MobileSettings {
-  enableOfflineMode: boolean;
-  autoSyncInterval: string;
-  dataUsageOptimization: boolean;
-  locationServices: boolean;
-  cameraQuality: string;
-  pushNotificationSound: string;
-  biometricLogin: boolean;
-  autoLogout: string;
-}
-
 export interface AdvancedBusinessSettings {
   taxSettings: {
     taxRate: string;
@@ -59,7 +48,6 @@ export interface AdvancedBusinessSettings {
 
 export interface AllUserSettings {
   branding: BrandingSettings;
-  mobile: MobileSettings;
   advanced: AdvancedBusinessSettings;
 }
 
@@ -96,43 +84,6 @@ class SettingsAPI {
 
     if (!data.success) {
       throw new Error(data.error || 'Failed to update branding settings');
-    }
-
-    return updatedSettings;
-  }
-
-  // Mobile Settings
-  async getMobileSettings(): Promise<MobileSettings> {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('User not authenticated');
-
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .select('mobile_settings')
-      .eq('user_id', user.id)
-      .single();
-
-    if (error) throw error;
-    return data?.mobile_settings || this.getDefaultMobileSettings();
-  }
-
-  async updateMobileSettings(mobileSettings: Partial<MobileSettings>): Promise<MobileSettings> {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('User not authenticated');
-
-    // Get current settings and merge with updates
-    const currentSettings = await this.getMobileSettings();
-    const updatedSettings = { ...currentSettings, ...mobileSettings };
-
-    const { data, error } = await supabase.rpc('update_mobile_settings', {
-      p_user_id: user.id,
-      p_mobile_settings: updatedSettings,
-    });
-
-    if (error) throw error;
-
-    if (!data.success) {
-      throw new Error(data.error || 'Failed to update mobile settings');
     }
 
     return updatedSettings;
@@ -177,15 +128,13 @@ class SettingsAPI {
 
   // Get All Settings
   async getAllSettings(): Promise<AllUserSettings> {
-    const [branding, mobile, advanced] = await Promise.all([
+    const [branding, advanced] = await Promise.all([
       this.getBrandingSettings(),
-      this.getMobileSettings(),
       this.getAdvancedBusinessSettings(),
     ]);
 
     return {
       branding,
-      mobile,
       advanced,
     };
   }
@@ -278,19 +227,6 @@ class SettingsAPI {
     };
   }
 
-  private getDefaultMobileSettings(): MobileSettings {
-    return {
-      enableOfflineMode: true,
-      autoSyncInterval: '15',
-      dataUsageOptimization: true,
-      locationServices: true,
-      cameraQuality: 'high',
-      pushNotificationSound: 'default',
-      biometricLogin: false,
-      autoLogout: '30',
-    };
-  }
-
   private getDefaultAdvancedBusinessSettings(): AdvancedBusinessSettings {
     return {
       taxSettings: {
@@ -328,11 +264,6 @@ class SettingsAPI {
     return this.updateBrandingSettings(defaultSettings);
   }
 
-  async resetMobileSettings(): Promise<MobileSettings> {
-    const defaultSettings = this.getDefaultMobileSettings();
-    return this.updateMobileSettings(defaultSettings);
-  }
-
   async resetAdvancedBusinessSettings(): Promise<AdvancedBusinessSettings> {
     const defaultSettings = this.getDefaultAdvancedBusinessSettings();
     return this.updateAdvancedBusinessSettings(defaultSettings);
@@ -347,10 +278,6 @@ class SettingsAPI {
 
     if (settings.branding) {
       promises.push(this.updateBrandingSettings(settings.branding));
-    }
-
-    if (settings.mobile) {
-      promises.push(this.updateMobileSettings(settings.mobile));
     }
 
     if (settings.advanced) {
