@@ -25,6 +25,9 @@ import Employees from "./pages/Employees";
 import AddEmployee from "./pages/AddEmployee";
 import EmployeeDetail from "./pages/EmployeeDetail";
 import EditEmployee from "./pages/EditEmployee";
+import PerformanceReviews from "./pages/PerformanceReviews";
+import CreatePerformanceReview from "./pages/CreatePerformanceReview";
+import TeamAnalytics from "./pages/TeamAnalytics";
 import Payroll from "./pages/Payroll";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
@@ -162,6 +165,30 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <EditEmployee />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/performance" 
+              element={
+                <ProtectedRoute>
+                  <PerformanceReviews />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/performance/new" 
+              element={
+                <ProtectedRoute>
+                  <CreatePerformanceReview />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/team/analytics" 
+              element={
+                <ProtectedRoute>
+                  <TeamAnalytics />
                 </ProtectedRoute>
               } 
             />

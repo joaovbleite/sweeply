@@ -25,7 +25,9 @@ import {
   Briefcase,
   CreditCard,
   FileText,
-  Target
+  Target,
+  BarChart3,
+  Download
 } from "lucide-react";
 import { toast } from "sonner";
 import { employeesApi } from "@/lib/api/employees";
@@ -186,24 +188,31 @@ const Employees = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-display font-bold text-gray-900">Team Management</h1>
-            <p className="mt-1 text-gray-600">Manage employees, payroll, and performance</p>
+            <h1 className="text-3xl font-display font-bold text-gray-900 flex items-center gap-3">
+              <Users className="w-8 h-8 text-pulse-600" />
+              Team Management
+            </h1>
+            <p className="mt-1 text-gray-600">Manage your team and track performance</p>
           </div>
           <div className="mt-4 sm:mt-0 flex gap-3">
             <Link
-              to="/payroll"
+              to="/team/analytics"
               className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 transition-colors"
             >
-              <CreditCard className="w-4 h-4" />
-              Payroll
+              <BarChart3 className="w-4 h-4" />
+              Analytics
             </Link>
             <Link
               to="/performance"
               className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 transition-colors"
             >
-              <Target className="w-4 h-4" />
-              Performance
+              <Award className="w-4 h-4" />
+              Reviews
             </Link>
+            <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 transition-colors">
+              <Download className="w-4 h-4" />
+              Export
+            </button>
             <Link
               to="/employees/new"
               className="px-4 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 flex items-center gap-2 transition-colors"
@@ -214,73 +223,91 @@ const Employees = () => {
           </div>
         </div>
 
-        {/* Statistics Cards */}
-        {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Users className="h-8 w-8 text-blue-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Employees</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-                  <p className="text-sm text-green-600">{stats.active} active</p>
-                </div>
+        {/* Quick Stats with Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Users className="h-8 w-8 text-blue-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Total Employees</p>
+                <p className="text-2xl font-bold text-gray-900">{stats?.total || 0}</p>
               </div>
             </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <DollarSign className="h-8 w-8 text-green-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Monthly Payroll</p>
-                  <p className="text-2xl font-bold text-gray-900">${stats.total_payroll.toFixed(0)}</p>
-                  <p className="text-sm text-gray-500">Avg: ${stats.avg_hourly_rate.toFixed(2)}/hr</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Star className="h-8 w-8 text-yellow-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Avg Performance</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.avg_performance_rating.toFixed(1)}/5</p>
-                  <div className="flex">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        className={`w-4 h-4 ${
-                          star <= stats.avg_performance_rating
-                            ? 'text-yellow-400 fill-current'
-                            : 'text-gray-300'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Clock className="h-8 w-8 text-purple-600" />
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Hours This Month</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.total_hours_this_month.toFixed(0)}</p>
-                  <p className="text-sm text-gray-500">Across all employees</p>
-                </div>
-              </div>
+            <div className="mt-4">
+              <Link
+                to="/employees/new"
+                className="text-sm text-pulse-600 hover:text-pulse-700 font-medium"
+              >
+                Add new employee →
+              </Link>
             </div>
           </div>
-        )}
+
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <TrendingUp className="h-8 w-8 text-green-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Active Employees</p>
+                <p className="text-2xl font-bold text-gray-900">{stats?.active || 0}</p>
+              </div>
+            </div>
+            <div className="mt-4">
+              <Link
+                to="/team/analytics"
+                className="text-sm text-green-600 hover:text-green-700 font-medium"
+              >
+                View analytics →
+              </Link>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Star className="h-8 w-8 text-yellow-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Avg Performance</p>
+                <div className="flex items-center gap-1">
+                  <p className="text-2xl font-bold text-gray-900">{stats?.avg_performance_rating.toFixed(1) || '0.0'}</p>
+                  <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                </div>
+              </div>
+            </div>
+            <div className="mt-4">
+              <Link
+                to="/performance/new"
+                className="text-sm text-yellow-600 hover:text-yellow-700 font-medium"
+              >
+                Create review →
+              </Link>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Target className="h-8 w-8 text-pulse-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Total Hours/Month</p>
+                <p className="text-2xl font-bold text-gray-900">{stats?.total_hours_this_month.toLocaleString() || 0}</p>
+              </div>
+            </div>
+            <div className="mt-4">
+              <Link
+                to="/performance"
+                className="text-sm text-pulse-600 hover:text-pulse-700 font-medium"
+              >
+                View all reviews →
+              </Link>
+            </div>
+          </div>
+        </div>
 
         {/* Search and Filters */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
