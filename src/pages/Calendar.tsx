@@ -58,7 +58,7 @@ const Calendar = () => {
     try {
       setLoading(true);
       const [jobsData, clientsData] = await Promise.all([
-        jobsApi.getAll(),
+        jobsApi.getAllWithInstances(),
         clientsApi.getAll()
       ]);
       setJobs(jobsData);

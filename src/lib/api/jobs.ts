@@ -68,6 +68,62 @@ export const jobsApi = {
     return data || [];
   },
 
+  // Get all jobs including recurring instances (for calendar view)
+  async getAllWithInstances(filters?: JobFilters): Promise<Job[]> {
+    let query = supabase
+      .from('jobs')
+      .select(`
+        *,
+        client:clients(
+          id,
+          name,
+          email,
+          phone,
+          address,
+          city,
+          state,
+          zip
+        )
+      `)
+      .order('scheduled_date', { ascending: false });
+
+    // Apply filters
+    if (filters?.status && filters.status.length > 0) {
+      query = query.in('status', filters.status);
+    }
+    
+    if (filters?.service_type && filters.service_type.length > 0) {
+      query = query.in('service_type', filters.service_type);
+    }
+    
+    if (filters?.property_type && filters.property_type.length > 0) {
+      query = query.in('property_type', filters.property_type);
+    }
+    
+    if (filters?.client_id) {
+      query = query.eq('client_id', filters.client_id);
+    }
+    
+    if (filters?.date_from) {
+      query = query.gte('scheduled_date', filters.date_from);
+    }
+    
+    if (filters?.date_to) {
+      query = query.lte('scheduled_date', filters.date_to);
+    }
+
+    // This method intentionally includes ALL jobs (parents and instances)
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Error fetching jobs with instances:', error);
+      throw new Error('Failed to fetch jobs');
+    }
+
+    return data || [];
+  },
+
   // Get a single job by ID
   async getById(id: string): Promise<Job | null> {
     const { data, error } = await supabase
@@ -203,6 +259,7 @@ export const jobsApi = {
         )
       `)
       .eq('scheduled_date', today)
+      .is('parent_job_id', null) // Only get parent jobs, not instances
       .order('scheduled_time', { ascending: true });
 
     if (error) {
@@ -238,6 +295,7 @@ export const jobsApi = {
       .gte('scheduled_date', today)
       .lte('scheduled_date', nextWeekStr)
       .in('status', ['scheduled', 'in_progress'])
+      .is('parent_job_id', null) // Only get parent jobs, not instances
       .order('scheduled_date', { ascending: true })
       .order('scheduled_time', { ascending: true });
 
@@ -253,7 +311,8 @@ export const jobsApi = {
   async getStats(): Promise<JobStats> {
     const { data, error } = await supabase
       .from('jobs')
-      .select('status, actual_price, estimated_price');
+      .select('status, actual_price, estimated_price')
+      .is('parent_job_id', null); // Only count parent jobs, not recurring instances
 
     if (error) {
       console.error('Error fetching job stats:', error);
@@ -321,7 +380,8 @@ export const jobsApi = {
           zip
         )
       `)
-      .or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,special_instructions.ilike.%${searchTerm}%`)
+      .or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,special_instructions.ilike.%${searchTerm}%,address.ilike.%${searchTerm}%`)
+      .is('parent_job_id', null) // Only search parent jobs, not instances
       .order('scheduled_date', { ascending: false });
 
     if (error) {

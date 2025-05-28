@@ -55,7 +55,7 @@ const CreateInvoice = () => {
       try {
         const [clientsData, jobsData] = await Promise.all([
           clientsApi.getAll(),
-          jobsApi.getAll()
+          jobsApi.getAll({ show_instances: false })
         ]);
         setClients(clientsData);
         setJobs(jobsData);

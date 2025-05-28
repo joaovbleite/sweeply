@@ -29,6 +29,7 @@ import {
 import { toast } from "sonner";
 import { clientsApi } from "@/lib/api/clients";
 import { jobsApi } from "@/lib/api/jobs";
+import { invoicesApi } from "@/lib/api/invoices";
 import { Client } from "@/types/client";
 import { Job } from "@/types/job";
 import { format, differenceInDays, startOfYear, endOfYear } from "date-fns";
@@ -49,12 +50,13 @@ const ClientDashboard = () => {
       
       try {
         setLoading(true);
-        const [clientData, jobsData] = await Promise.all([
-          clientsApi.getById(id),
-          jobsApi.getAll()
+        const [clientsData, jobsData, invoicesData] = await Promise.all([
+          clientsApi.getAll(),
+          jobsApi.getAll({ show_instances: false }),
+          invoicesApi.getAll()
         ]);
         
-        setClient(clientData);
+        setClient(clientsData.find(c => c.id === id) || null);
         // Filter jobs for this client
         const clientJobs = jobsData.filter(job => job.client_id === id);
         setJobs(clientJobs);

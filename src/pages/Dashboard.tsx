@@ -67,7 +67,7 @@ const Dashboard = () => {
       setError(null);
 
       const [jobsData, clientsData, invoicesData] = await Promise.all([
-        jobsApi.getAll(),
+        jobsApi.getAll({ show_instances: false }),
         clientsApi.getAll(),
         invoicesApi.getAll()
       ]);
