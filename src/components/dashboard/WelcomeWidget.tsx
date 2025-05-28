@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { Sparkles, TrendingUp, Target, Zap, Plus, Calendar, Users, Lightbulb } from 'lucide-react';
+import { useProfile } from '@/hooks/useProfile';
+import { Sparkles, TrendingUp, Target, Zap, Plus, Calendar, Users, Lightbulb, Bell } from 'lucide-react';
 
 const WelcomeWidget = () => {
   const { user } = useAuth();
+  const { userProfile } = useProfile();
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'there';
   
   // Get time-based greeting
@@ -40,9 +42,39 @@ const WelcomeWidget = () => {
   const QuoteIcon = todayQuote.icon;
 
   return (
-    <div className="bg-gradient-to-r from-pulse-500 to-blue-700 rounded-2xl p-6 text-white shadow-xl">
+    <div className="bg-gradient-to-r from-pulse-500 to-blue-700 rounded-2xl p-6 text-white shadow-xl relative">
+      {/* Top right icons */}
+      <div className="absolute top-4 right-4 flex items-center gap-3">
+        {/* Star Icon */}
+        <div className="bg-white/20 backdrop-blur-sm rounded-full p-2 hover:bg-white/30 transition-colors">
+          <Sparkles className="w-5 h-5 text-white" />
+        </div>
+        
+        {/* Notifications Bell */}
+        <Link 
+          to="/notifications"
+          className="relative bg-white/20 backdrop-blur-sm rounded-full p-2 hover:bg-white/30 transition-colors"
+        >
+          <Bell className="w-5 h-5 text-white" />
+          <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+        </Link>
+        
+        {/* Profile Picture */}
+        {userProfile?.avatar_url ? (
+          <img 
+            src={userProfile.avatar_url} 
+            alt="Profile" 
+            className="w-9 h-9 rounded-full object-cover border-2 border-white/50 shadow-sm"
+          />
+        ) : (
+          <div className="w-9 h-9 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white font-semibold text-sm">
+            {userName.charAt(0).toUpperCase()}
+          </div>
+        )}
+      </div>
+
       <div className="flex items-start justify-between mb-6">
-        <div className="flex-1">
+        <div className="flex-1 pr-32">
           <h2 className="text-3xl font-bold mb-2">
             {getGreeting()}, {userName}! 👋
           </h2>
@@ -68,11 +100,6 @@ const WelcomeWidget = () => {
                 minute: '2-digit' 
               })}</p>
             </div>
-          </div>
-        </div>
-        <div className="hidden sm:block">
-          <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm">
-            <Sparkles className="w-12 h-12 text-white" />
           </div>
         </div>
       </div>
