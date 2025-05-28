@@ -4,7 +4,7 @@ import { RecurringPattern } from '@/components/RecurringJobPattern';
 
 export const jobsApi = {
   // Get all jobs for the current user
-  async getAll(filters?: JobFilters & { is_recurring?: boolean }): Promise<Job[]> {
+  async getAll(filters?: JobFilters & { is_recurring?: boolean, show_instances?: boolean }): Promise<Job[]> {
     let query = supabase
       .from('jobs')
       .select(`
@@ -50,6 +50,12 @@ export const jobsApi = {
     // Apply recurring filter
     if (filters?.is_recurring !== undefined) {
       query = query.eq('is_recurring', filters.is_recurring);
+    }
+
+    // By default, hide recurring instances unless specifically requested
+    // This prevents showing all 43 instances of a recurring job
+    if (!filters?.show_instances) {
+      query = query.is('parent_job_id', null);
     }
 
     const { data, error } = await query;

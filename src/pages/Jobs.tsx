@@ -229,17 +229,6 @@ const Jobs = () => {
       if (!matchesSearch) return false;
     }
 
-    // Recurring filter
-    if (filters.is_recurring !== undefined) {
-      if (filters.is_recurring === true) {
-        // For recurring jobs, show only parent jobs (not instances)
-        return job.is_recurring && !job.parent_job_id;
-      } else if (filters.is_recurring === false) {
-        // For non-recurring, show jobs that are not recurring or are instances
-        return !job.is_recurring || job.parent_job_id;
-      }
-    }
-
     return true;
   });
 
@@ -248,13 +237,12 @@ const Jobs = () => {
   today.setHours(0, 0, 0, 0);
   
   const stats = {
-    total: jobs.filter(j => !j.parent_job_id).length,
-    scheduled: jobs.filter(j => j.status === 'scheduled' && !j.parent_job_id).length,
-    in_progress: jobs.filter(j => j.status === 'in_progress' && !j.parent_job_id).length,
-    completed: jobs.filter(j => j.status === 'completed' && !j.parent_job_id).length,
+    total: jobs.length, // Now jobs only contains parent jobs, not instances
+    scheduled: jobs.filter(j => j.status === 'scheduled').length,
+    in_progress: jobs.filter(j => j.status === 'in_progress').length,
+    completed: jobs.filter(j => j.status === 'completed').length,
     overdue: jobs.filter(j => 
       j.status === 'scheduled' && 
-      !j.parent_job_id && 
       new Date(j.scheduled_date) < today
     ).length,
     total_revenue: jobs.filter(j => j.status === 'completed').reduce((sum, j) => sum + (j.actual_price || j.estimated_price || 0), 0)
