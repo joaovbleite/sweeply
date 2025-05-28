@@ -155,105 +155,6 @@ const Calendar = () => {
   return (
     <AppLayout>
       <div className="h-full flex bg-gray-50">
-        {/* Left Sidebar - Quick Stats & Actions */}
-        <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
-          {/* Header */}
-          <div className="p-6 border-b border-gray-200">
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3 mb-4">
-              <CalendarIcon className="w-7 h-7 text-blue-600" />
-              Calendar
-            </h1>
-            
-            {/* Quick Actions */}
-            <div className="space-y-2">
-              <button className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium">
-                <Plus className="w-4 h-4" />
-                New Job
-              </button>
-              <button className="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
-                <Filter className="w-4 h-4" />
-                Filters
-              </button>
-            </div>
-          </div>
-
-          {/* Today's Summary */}
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="font-semibold text-gray-900 mb-4">Today's Overview</h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-blue-900">Total Jobs</span>
-                </div>
-                <span className="text-lg font-bold text-blue-600">{todayJobs.length}</span>
-              </div>
-              
-              <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-orange-900">In Progress</span>
-                </div>
-                <span className="text-lg font-bold text-orange-600">{inProgressJobs}</span>
-              </div>
-              
-              <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-green-900">Completed</span>
-                </div>
-                <span className="text-lg font-bold text-green-600">{completedJobs}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Week Stats */}
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="font-semibold text-gray-900 mb-4">This Week</h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Total Jobs</span>
-                <span className="font-semibold">{weekJobs.length}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Revenue</span>
-                <span className="font-semibold text-green-600">{formatCurrency(weekRevenue)}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Completion Rate</span>
-                <span className="font-semibold">{weekJobs.length > 0 ? Math.round((completedJobs / weekJobs.length) * 100) : 0}%</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Recent Activity */}
-          <div className="p-6 flex-1">
-            <h3 className="font-semibold text-gray-900 mb-4">Recent Activity</h3>
-            <div className="space-y-3">
-              {todayJobs.slice(0, 4).map((job, index) => (
-                <div key={job.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50">
-                  <div className={`w-2 h-2 rounded-full ${
-                    job.status === 'completed' ? 'bg-green-500' :
-                    job.status === 'in_progress' ? 'bg-blue-500' :
-                    job.status === 'cancelled' ? 'bg-red-500' : 'bg-gray-500'
-                  }`}></div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {job.client?.name || 'Unknown Client'}
-                    </p>
-                    <p className="text-xs text-gray-500 truncate">
-                      {job.title || job.service_type}
-                    </p>
-                  </div>
-                  <span className="text-xs text-gray-400">
-                    {job.scheduled_time || 'TBD'}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
         {/* Main Calendar Area */}
         <div className="flex-1 flex flex-col">
           {/* Calendar Header */}
@@ -471,6 +372,105 @@ const Calendar = () => {
               <div className="text-gray-500">
                 Week of {format(weekStart, 'MMM d, yyyy')}
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Sidebar - Quick Stats & Actions */}
+        <div className="w-80 bg-white border-l border-gray-200 flex flex-col">
+          {/* Header */}
+          <div className="p-6 border-b border-gray-200">
+            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3 mb-4">
+              <CalendarIcon className="w-7 h-7 text-blue-600" />
+              Calendar
+            </h1>
+            
+            {/* Quick Actions */}
+            <div className="space-y-2">
+              <button className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium">
+                <Plus className="w-4 h-4" />
+                New Job
+              </button>
+              <button className="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
+              <Filter className="w-4 h-4" />
+              Filters
+              </button>
+            </div>
+          </div>
+
+          {/* Today's Summary */}
+          <div className="p-6 border-b border-gray-200">
+            <h3 className="font-semibold text-gray-900 mb-4">Today's Overview</h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span className="text-sm font-medium text-blue-900">Total Jobs</span>
+                </div>
+                <span className="text-lg font-bold text-blue-600">{todayJobs.length}</span>
+              </div>
+              
+              <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <span className="text-sm font-medium text-orange-900">In Progress</span>
+                </div>
+                <span className="text-lg font-bold text-orange-600">{inProgressJobs}</span>
+              </div>
+              
+              <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-sm font-medium text-green-900">Completed</span>
+                </div>
+                <span className="text-lg font-bold text-green-600">{completedJobs}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Week Stats */}
+          <div className="p-6 border-b border-gray-200">
+            <h3 className="font-semibold text-gray-900 mb-4">This Week</h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Total Jobs</span>
+                <span className="font-semibold">{weekJobs.length}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Revenue</span>
+                <span className="font-semibold text-green-600">{formatCurrency(weekRevenue)}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Completion Rate</span>
+                <span className="font-semibold">{weekJobs.length > 0 ? Math.round((completedJobs / weekJobs.length) * 100) : 0}%</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Recent Activity */}
+          <div className="p-6 flex-1">
+            <h3 className="font-semibold text-gray-900 mb-4">Recent Activity</h3>
+            <div className="space-y-3">
+              {todayJobs.slice(0, 4).map((job, index) => (
+                <div key={job.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50">
+                  <div className={`w-2 h-2 rounded-full ${
+                    job.status === 'completed' ? 'bg-green-500' :
+                    job.status === 'in_progress' ? 'bg-blue-500' :
+                    job.status === 'cancelled' ? 'bg-red-500' : 'bg-gray-500'
+                  }`}></div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {job.client?.name || 'Unknown Client'}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">
+                      {job.title || job.service_type}
+                    </p>
+                  </div>
+                  <span className="text-xs text-gray-400">
+                    {job.scheduled_time || 'TBD'}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
