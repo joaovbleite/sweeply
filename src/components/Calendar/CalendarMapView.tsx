@@ -41,6 +41,7 @@ const CalendarMapView: React.FC<CalendarMapViewProps> = ({
   const [mapZoom, setMapZoom] = useState(12);
   const [showRouteOptimization, setShowRouteOptimization] = useState(false);
   const [filterDate, setFilterDate] = useState(new Date().toISOString().split('T')[0]);
+  const [showMapOptions, setShowMapOptions] = useState(false);
 
   // Filter jobs for selected date with addresses
   const jobsWithLocation = useMemo(() => {
@@ -372,7 +373,25 @@ const CalendarMapView: React.FC<CalendarMapViewProps> = ({
                       <span className="text-sm font-medium">Location</span>
                     </div>
                     <div className="text-sm">{selectedJob.address}</div>
-                    <button className="mt-2 text-xs text-pulse-500 hover:text-pulse-600 flex items-center gap-1">
+                    <button 
+                      onClick={() => {
+                        const encodedAddress = encodeURIComponent(selectedJob.address);
+                        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                        
+                        if (isMobile) {
+                          const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+                          
+                          if (isIOS) {
+                            setShowMapOptions(true);
+                          } else {
+                            window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+                          }
+                        } else {
+                          window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+                        }
+                      }}
+                      className="mt-2 text-xs text-pulse-500 hover:text-pulse-600 flex items-center gap-1"
+                    >
                       <Navigation className="w-3 h-3" />
                       Get Directions
                     </button>
@@ -458,6 +477,56 @@ const CalendarMapView: React.FC<CalendarMapViewProps> = ({
             <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
               Jobs need addresses to appear on the map
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* Map Options Modal for iOS */}
+      {showMapOptions && selectedJob && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end justify-center z-[60] p-4">
+          <div className="bg-white rounded-t-xl w-full max-w-md animate-slide-up">
+            <div className="p-4 border-b">
+              <h3 className="text-lg font-semibold text-center text-gray-900">
+                Open directions in...
+              </h3>
+            </div>
+            <div className="p-2">
+              <button
+                onClick={() => {
+                  const encodedAddress = encodeURIComponent(selectedJob.address);
+                  window.location.href = `maps://?address=${encodedAddress}`;
+                  setShowMapOptions(false);
+                }}
+                className="w-full p-4 text-left hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-3"
+              >
+                <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-lg flex items-center justify-center">
+                  <MapPin className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-lg">Apple Maps</span>
+              </button>
+              
+              <button
+                onClick={() => {
+                  const encodedAddress = encodeURIComponent(selectedJob.address);
+                  window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+                  setShowMapOptions(false);
+                }}
+                className="w-full p-4 text-left hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-3"
+              >
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-red-500 rounded-lg flex items-center justify-center">
+                  <MapPin className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-lg">Google Maps</span>
+              </button>
+            </div>
+            <div className="p-2 border-t">
+              <button
+                onClick={() => setShowMapOptions(false)}
+                className="w-full p-3 text-center text-blue-600 font-medium hover:bg-gray-50 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}

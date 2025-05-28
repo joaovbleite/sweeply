@@ -71,6 +71,7 @@ const JobDetailsModal: React.FC<JobDetailsModalProps> = ({
   const [photos, setPhotos] = useState<JobPhoto[]>([]);
   const [newNote, setNewNote] = useState('');
   const [showRecurringSettings, setShowRecurringSettings] = useState(false);
+  const [showMapOptions, setShowMapOptions] = useState(false);
 
   // Mock data for demonstration
   useEffect(() => {
@@ -382,7 +383,31 @@ const JobDetailsModal: React.FC<JobDetailsModalProps> = ({
                   </h3>
                   <div className="bg-gray-50 rounded-lg p-4">
                     <p className="text-gray-900">{job.address}</p>
-                    <button className="mt-2 text-sm text-pulse-600 hover:underline flex items-center gap-1">
+                    <button 
+                      onClick={() => {
+                        const encodedAddress = encodeURIComponent(job.address);
+                        
+                        // Check if on mobile device
+                        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                        
+                        if (isMobile) {
+                          // Check if iOS
+                          const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+                          
+                          if (isIOS) {
+                            // Show custom modal for iOS
+                            setShowMapOptions(true);
+                          } else {
+                            // Android - Google Maps will open in app if installed
+                            window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+                          }
+                        } else {
+                          // Desktop - open in new tab
+                          window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+                        }
+                      }}
+                      className="mt-2 text-sm text-pulse-600 hover:underline flex items-center gap-1"
+                    >
                       <Route className="w-4 h-4" />
                       Get directions
                     </button>
@@ -511,31 +536,82 @@ const JobDetailsModal: React.FC<JobDetailsModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between p-6 border-t bg-gray-50">
-          <div className="text-sm text-gray-600">
-            Created {format(new Date(job.created_at), 'MMM d, yyyy')}
-            {job.updated_at !== job.created_at && (
-              <span> • Updated {format(new Date(job.updated_at), 'MMM d, yyyy')}</span>
-            )}
-          </div>
-          
-          <div className="flex gap-3">
-            <button
-              onClick={() => onDelete(job.id)}
-              className="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors flex items-center gap-2"
-            >
-              <Trash2 className="w-4 h-4" />
-              Delete
-            </button>
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
-            >
-              Close
-            </button>
+        <div className="p-6 border-t bg-gray-50">
+          <div className="flex justify-between">
+            <p className="text-sm text-gray-600">
+              Created {job.created_at ? format(new Date(job.created_at), 'PPP') : 'Unknown'}
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  onDelete(job.id);
+                  onClose();
+                }}
+                className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete
+              </button>
+              <button
+                onClick={onClose}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Map Options Modal for iOS */}
+      {showMapOptions && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-end justify-center z-[60] p-4">
+          <div className="bg-white rounded-t-xl w-full max-w-md animate-slide-up">
+            <div className="p-4 border-b">
+              <h3 className="text-lg font-semibold text-center text-gray-900">
+                Open directions in...
+              </h3>
+            </div>
+            <div className="p-2">
+              <button
+                onClick={() => {
+                  const encodedAddress = encodeURIComponent(job.address);
+                  window.location.href = `maps://?address=${encodedAddress}`;
+                  setShowMapOptions(false);
+                }}
+                className="w-full p-4 text-left hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-3"
+              >
+                <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-lg flex items-center justify-center">
+                  <MapPin className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-lg">Apple Maps</span>
+              </button>
+              
+              <button
+                onClick={() => {
+                  const encodedAddress = encodeURIComponent(job.address);
+                  window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+                  setShowMapOptions(false);
+                }}
+                className="w-full p-4 text-left hover:bg-gray-50 rounded-lg transition-colors flex items-center gap-3"
+              >
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-red-500 rounded-lg flex items-center justify-center">
+                  <MapPin className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-lg">Google Maps</span>
+              </button>
+            </div>
+            <div className="p-2 border-t">
+              <button
+                onClick={() => setShowMapOptions(false)}
+                className="w-full p-3 text-center text-blue-600 font-medium hover:bg-gray-50 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
