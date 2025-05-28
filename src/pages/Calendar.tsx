@@ -169,25 +169,25 @@ const Calendar = () => {
                   <ChevronLeft className="w-5 h-5 text-gray-600" />
                 </button>
                 
-                <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
                   <span className="text-xl font-semibold text-gray-900">
                     {format(weekStart, 'MMM d')} - {format(addDays(weekStart, 6), 'MMM d, yyyy')}
-                  </span>
+                </span>
                   <button
                     onClick={goToToday}
                     className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
                   >
                     Today
                   </button>
-                </div>
-                
+          </div>
+
                 <button
                   onClick={() => navigateWeek('next')}
                   className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 >
                   <ChevronRight className="w-5 h-5 text-gray-600" />
                 </button>
-              </div>
+        </div>
 
               {/* Search and actions */}
               <div className="flex items-center gap-4">

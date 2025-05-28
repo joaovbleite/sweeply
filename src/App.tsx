@@ -22,6 +22,9 @@ import Calendar from "./pages/Calendar";
 import Invoices from "./pages/Invoices";
 import CreateInvoice from "./pages/CreateInvoice";
 import Employees from "./pages/Employees";
+import AddEmployee from "./pages/AddEmployee";
+import EmployeeDetail from "./pages/EmployeeDetail";
+import EditEmployee from "./pages/EditEmployee";
 import Payroll from "./pages/Payroll";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
@@ -135,6 +138,30 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Employees />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/employees/new" 
+              element={
+                <ProtectedRoute>
+                  <AddEmployee />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/employees/:id" 
+              element={
+                <ProtectedRoute>
+                  <EmployeeDetail />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/employees/:id/edit" 
+              element={
+                <ProtectedRoute>
+                  <EditEmployee />
                 </ProtectedRoute>
               } 
             />
