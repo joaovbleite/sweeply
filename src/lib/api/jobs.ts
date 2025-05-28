@@ -98,20 +98,50 @@ export const jobsApi = {
       throw new Error('User not authenticated');
     }
 
+    // Build the insert data object more explicitly
+    const insertData: any = {
+      client_id: jobData.client_id,
+      title: jobData.title,
+      service_type: jobData.service_type,
+      property_type: jobData.property_type || 'residential', // Default value
+      scheduled_date: jobData.scheduled_date,
+      status: 'scheduled',
+      user_id: user.id,
+      is_recurring: jobData.is_recurring || false,
+    };
+
+    // Add optional fields only if they have values
+    if (jobData.description) insertData.description = jobData.description;
+    if (jobData.scheduled_time) insertData.scheduled_time = jobData.scheduled_time;
+    if (jobData.estimated_duration) insertData.estimated_duration = jobData.estimated_duration;
+    if (jobData.estimated_price) insertData.estimated_price = jobData.estimated_price;
+    if (jobData.address) insertData.address = jobData.address;
+    if (jobData.special_instructions) insertData.special_instructions = jobData.special_instructions;
+    if (jobData.access_instructions) insertData.access_instructions = jobData.access_instructions;
+    if (jobData.square_footage) insertData.square_footage = jobData.square_footage;
+    if (jobData.number_of_floors) insertData.number_of_floors = jobData.number_of_floors;
+    if (jobData.building_type) insertData.building_type = jobData.building_type;
+    if (jobData.number_of_bedrooms) insertData.number_of_bedrooms = jobData.number_of_bedrooms;
+    if (jobData.number_of_bathrooms) insertData.number_of_bathrooms = jobData.number_of_bathrooms;
+    if (jobData.house_type) insertData.house_type = jobData.house_type;
+    if (jobData.recurring_frequency) insertData.recurring_frequency = jobData.recurring_frequency;
+    if (jobData.recurring_end_date) insertData.recurring_end_date = jobData.recurring_end_date;
+
+    console.log('Creating job with cleaned data:', insertData);
+
     const { data, error } = await supabase
       .from('jobs')
-      .insert([
-        {
-          ...jobData,
-          user_id: user.id,
-        }
-      ])
+      .insert(insertData)
       .select('*')
       .single();
 
     if (error) {
-      console.error('Error creating job:', error);
-      throw new Error('Failed to create job');
+      console.error('Supabase error creating job:', error);
+      console.error('Error code:', error.code);
+      console.error('Error details:', error.details);
+      console.error('Error message:', error.message);
+      console.error('Error hint:', error.hint);
+      throw new Error(error.message || 'Failed to create job');
     }
 
     return data;
@@ -522,5 +552,4 @@ export const jobsApi = {
 
     return conflicts;
   },
-}; 
- 
+};
