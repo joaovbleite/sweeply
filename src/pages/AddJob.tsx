@@ -83,71 +83,94 @@ const AddJob = () => {
     loadClients();
   }, []);
 
-  // Update form when client is selected
+  // Update selected client when client_id changes
   useEffect(() => {
-    if (selectedClient) {
-      const clientAddress = [
-        selectedClient.address,
-        selectedClient.city,
-        selectedClient.state,
-        selectedClient.zip
-      ].filter(Boolean).join(', ');
-
+    const client = clients.find(c => c.id === formData.client_id);
+    setSelectedClient(client || null);
+    
+    // Auto-generate title when client is selected
+    if (client && !formData.title) {
+      const serviceDisplay = getServiceTypeDisplay(formData.service_type);
       setFormData(prev => ({
         ...prev,
-        client_id: selectedClient.id,
-        address: clientAddress,
-        title: `${getServiceTypeDisplay(prev.service_type)} - ${selectedClient.name}`
+        title: `${serviceDisplay} - ${client.name}`
       }));
     }
-  }, [selectedClient]);
+  }, [formData.client_id, clients]);
 
-  // Update title when service type changes
+  // Update price based on property details
   useEffect(() => {
-    if (selectedClient) {
-      setFormData(prev => ({
-        ...prev,
-        title: `${getServiceTypeDisplay(prev.service_type)} - ${selectedClient.name}`
-      }));
+    let basePrice = getBasePrice(formData.service_type);
+    
+    if (formData.property_type === 'residential') {
+      // Adjust price based on bedrooms and bathrooms
+      const bedrooms = formData.number_of_bedrooms || 0;
+      const bathrooms = formData.number_of_bathrooms || 0;
+      
+      // Add $20 per bedroom after the first 2
+      if (bedrooms > 2) {
+        basePrice += (bedrooms - 2) * 20;
+      }
+      
+      // Add $15 per bathroom after the first 1
+      if (bathrooms > 1) {
+        basePrice += (bathrooms - 1) * 15;
+      }
+    } else if (formData.property_type === 'commercial') {
+      // Adjust price based on square footage
+      const sqft = formData.square_footage || 0;
+      
+      // Base price covers up to 2000 sqft, add $0.05 per additional sqft
+      if (sqft > 2000) {
+        basePrice += (sqft - 2000) * 0.05;
+      }
+      
+      // Add for multiple floors
+      const floors = formData.number_of_floors || 1;
+      if (floors > 1) {
+        basePrice += (floors - 1) * 50;
+      }
     }
-  }, [formData.service_type, selectedClient]);
-
-  // Update pricing and duration when property type changes
-  useEffect(() => {
-    const basePrice = getDefaultPrice(formData.service_type, formData.property_type);
+    
+    // Round to nearest $5
+    basePrice = Math.round(basePrice / 5) * 5;
+    
     setFormData(prev => ({
       ...prev,
-      estimated_price: basePrice,
-      estimated_duration: formData.property_type === 'commercial' ? 240 : 120 // 4 hours for commercial, 2 for residential
+      estimated_price: basePrice
     }));
-  }, [formData.property_type, formData.service_type]);
+  }, [formData.service_type, formData.property_type, formData.number_of_bedrooms, 
+      formData.number_of_bathrooms, formData.square_footage, formData.number_of_floors]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     
-    if (type === 'checkbox') {
-      const checked = (e.target as HTMLInputElement).checked;
-      setFormData(prev => ({
-        ...prev,
-        [name]: checked
-      }));
-    } else if (name === 'client_id') {
+    // Handle client change specifically
+    if (name === 'client_id') {
       const client = clients.find(c => c.id === value);
-      setSelectedClient(client || null);
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    } else if (name === 'estimated_price' || name === 'estimated_duration' || name === 'number_of_bedrooms' || name === 'number_of_bathrooms' || name === 'square_footage' || name === 'number_of_floors') {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value ? parseInt(value) : undefined
-      }));
+      if (client) {
+        // Build client address
+        const clientAddress = [
+          client.address,
+          client.city,
+          client.state,
+          client.zip
+        ].filter(Boolean).join(', ');
+        
+        setFormData(prev => ({
+          ...prev,
+          client_id: value,
+          address: clientAddress || prev.address
+        }));
+        return;
+      }
+    }
+    
+    // Convert number inputs
+    if (type === 'number') {
+      setFormData(prev => ({ ...prev, [name]: value ? Number(value) : undefined }));
     } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
@@ -194,9 +217,19 @@ const AddJob = () => {
     }
 
     // Validate recurring job settings
-    if (recurringPattern.is_recurring && !recurringPattern.recurring_frequency) {
-      toast.error("Please select a recurring frequency");
-      return;
+    if (recurringPattern.is_recurring) {
+      if (!recurringPattern.frequency) {
+        toast.error("Please select a recurring frequency");
+        return;
+      }
+      if (recurringPattern.endType === 'date' && !recurringPattern.endDate) {
+        toast.error("Please select an end date for the recurring job");
+        return;
+      }
+      if (recurringPattern.endType === 'occurrences' && !recurringPattern.occurrences) {
+        toast.error("Please specify the number of occurrences");
+        return;
+      }
     }
 
     setLoading(true);
@@ -213,8 +246,9 @@ const AddJob = () => {
         access_instructions: formData.access_instructions?.trim() || undefined,
         house_type: formData.house_type?.trim() || undefined,
         building_type: formData.building_type?.trim() || undefined,
-        recurring_frequency: recurringPattern.is_recurring ? recurringPattern.recurring_frequency : undefined,
-        recurring_end_date: recurringPattern.is_recurring && recurringPattern.recurring_end_date ? recurringPattern.recurring_end_date : undefined,
+        is_recurring: recurringPattern.is_recurring,
+        recurring_frequency: recurringPattern.is_recurring ? recurringPattern.frequency : undefined,
+        recurring_end_date: recurringPattern.is_recurring && recurringPattern.endType === 'date' ? recurringPattern.endDate : undefined,
       };
 
       // Check for scheduling conflicts
@@ -238,7 +272,13 @@ const AddJob = () => {
       if (recurringPattern.is_recurring) {
         const recurringJobData = {
           ...jobData,
-          ...recurringPattern
+          ...recurringPattern,
+          recurring_frequency: recurringPattern.frequency,
+          recurring_end_type: recurringPattern.endType,
+          recurring_end_date: recurringPattern.endDate,
+          recurring_occurrences: recurringPattern.occurrences,
+          recurring_days_of_week: recurringPattern.daysOfWeek,
+          recurring_day_of_month: recurringPattern.dayOfMonth
         };
         
         await jobsApi.createRecurring(recurringJobData);
@@ -246,16 +286,17 @@ const AddJob = () => {
         // Show info about recurring job creation
         toast.success(
           `Recurring job created! ${
-            recurringPattern.recurring_end_type === 'never' 
+            recurringPattern.endType === 'never' 
               ? 'This job will repeat indefinitely.' 
-              : recurringPattern.recurring_end_type === 'date'
-              ? `This job will repeat until ${recurringPattern.recurring_end_date}.`
-              : `This job will repeat ${recurringPattern.recurring_occurrences} times.`
-          }`
+              : recurringPattern.endType === 'date'
+              ? `This job will repeat until ${recurringPattern.endDate}.`
+              : `This job will repeat ${recurringPattern.occurrences} times.`
+          }`,
+          { duration: 5000 }
         );
       } else {
-      await jobsApi.create(jobData);
-      toast.success("Job created successfully!");
+        await jobsApi.create(jobData);
+        toast.success("Job created successfully!");
       }
       
       navigate("/jobs");
@@ -280,43 +321,36 @@ const AddJob = () => {
     return types[serviceType] || serviceType;
   };
 
-  // Get default pricing based on service type and property type
-  const getDefaultPrice = (serviceType: ServiceType, propertyType: PropertyType) => {
-    const residentialPrices = {
-      regular: 120,
-      deep_clean: 200,
-      move_in: 250,
-      move_out: 200,
-      post_construction: 300,
-      one_time: 150
-    };
-    
-    const commercialPrices = {
-      regular: 200,
-      deep_clean: 350,
-      move_in: 400,
-      move_out: 350,
-      post_construction: 500,
-      one_time: 250
-    };
-    
-    const prices = propertyType === 'commercial' ? commercialPrices : residentialPrices;
-    return prices[serviceType] || (propertyType === 'commercial' ? 200 : 120);
-  };
-
-  // Update price when service type changes
-  const handleServiceTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newServiceType = e.target.value as ServiceType;
-    setFormData(prev => ({
-      ...prev,
-      service_type: newServiceType,
-      estimated_price: getDefaultPrice(newServiceType, prev.property_type)
-    }));
-  };
-
   // Get minimum date (today)
   const getMinDate = () => {
     return new Date().toISOString().split('T')[0];
+  };
+
+  const getBasePrice = (serviceType: ServiceType) => {
+    const prices = {
+      regular: 120,
+      deep_clean: 200,
+      move_in: 250,
+      move_out: 250,
+      post_construction: 350,
+      one_time: 150
+    };
+    return prices[serviceType] || 120;
+  };
+
+  // Handle service type change to update title
+  const handleServiceTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newServiceType = e.target.value as ServiceType;
+    handleChange(e);
+    
+    // Update title if client is selected
+    if (selectedClient) {
+      const serviceDisplay = getServiceTypeDisplay(newServiceType);
+      setFormData(prev => ({
+        ...prev,
+        title: `${serviceDisplay} - ${selectedClient.name}`
+      }));
+    }
   };
 
   return (
@@ -664,18 +698,39 @@ const AddJob = () => {
 
             {/* Recurring Job Settings */}
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-                <Repeat className="w-5 h-5" />
-                Recurring Job
-              </h3>
-              <RecurringJobPattern
-                pattern={recurringPattern}
-                isRecurring={recurringPattern.is_recurring}
-                frequency={recurringPattern.recurring_frequency}
-                endDate={recurringPattern.recurring_end_date}
-                startDate={formData.scheduled_date}
-                onChange={handleRecurringPatternChange}
-              />
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-900 flex items-center gap-2">
+                  <Repeat className="w-5 h-5" />
+                  Recurring Job
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setRecurringPattern(prev => ({ ...prev, is_recurring: !prev.is_recurring }))}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    recurringPattern.is_recurring ? 'bg-pulse-600' : 'bg-gray-200'
+                  }`}
+                >
+                  <span className="sr-only">Enable recurring</span>
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      recurringPattern.is_recurring ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+              
+              {recurringPattern.is_recurring && (
+                <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                  <p className="text-sm text-purple-700 mb-4">
+                    This job will automatically repeat based on your selected pattern
+                  </p>
+                  <RecurringJobPattern
+                    pattern={recurringPattern}
+                    onChange={setRecurringPattern}
+                    startDate={formData.scheduled_date || getMinDate()}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Pricing */}

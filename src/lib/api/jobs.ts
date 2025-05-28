@@ -345,7 +345,9 @@ export const jobsApi = {
 
     const updatedJob = await this.update(id, updates);
 
+    // TODO: Re-enable email notifications after SendGrid setup is complete
     // Send email notification for status changes
+    /*
     if (status === 'in_progress' || status === 'completed') {
       try {
         const { data: { user } } = await supabase.auth.getUser();
@@ -369,6 +371,7 @@ export const jobsApi = {
         // Don't throw - email failure shouldn't block status update
       }
     }
+    */
 
     return updatedJob;
   },
