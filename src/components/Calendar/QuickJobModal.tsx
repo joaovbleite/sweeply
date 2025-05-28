@@ -220,6 +220,10 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
       toast.error("Job title is required");
       return;
     }
+    if (!formData.scheduled_date) {
+      toast.error("Scheduled date is required");
+      return;
+    }
 
     // Warn about conflicts
     if (getConflicts.length > 0) {
@@ -233,7 +237,15 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
 
     try {
       const jobData: CreateJobInput = {
-        ...formData,
+        client_id: formData.client_id,
+        title: formData.title,
+        service_type: formData.service_type,
+        property_type: formData.property_type,
+        scheduled_date: formData.scheduled_date,
+        estimated_duration: formData.estimated_duration,
+        estimated_price: formData.estimated_price,
+        is_recurring: formData.is_recurring,
+        // Optional fields
         description: formData.description?.trim() || undefined,
         scheduled_time: formData.scheduled_time || undefined,
         address: formData.address?.trim() || undefined,

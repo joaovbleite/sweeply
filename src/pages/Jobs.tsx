@@ -248,8 +248,14 @@ const Jobs = () => {
     }
 
     // Recurring filter
-    if (filters.is_recurring !== undefined && job.is_recurring !== filters.is_recurring) {
-      return false;
+    if (filters.is_recurring !== undefined) {
+      if (filters.is_recurring === true) {
+        // For recurring jobs, show only parent jobs (not instances)
+        return job.is_recurring && !job.parent_job_id;
+      } else if (filters.is_recurring === false) {
+        // For non-recurring, show jobs that are not recurring or are instances
+        return !job.is_recurring || job.parent_job_id;
+      }
     }
 
     return true;
@@ -257,10 +263,10 @@ const Jobs = () => {
 
   // Calculate statistics
   const stats = {
-    total: jobs.length,
-    scheduled: jobs.filter(j => j.status === 'scheduled').length,
-    in_progress: jobs.filter(j => j.status === 'in_progress').length,
-    completed: jobs.filter(j => j.status === 'completed').length,
+    total: jobs.filter(j => !j.parent_job_id).length,
+    scheduled: jobs.filter(j => j.status === 'scheduled' && !j.parent_job_id).length,
+    in_progress: jobs.filter(j => j.status === 'in_progress' && !j.parent_job_id).length,
+    completed: jobs.filter(j => j.status === 'completed' && !j.parent_job_id).length,
     total_revenue: jobs.filter(j => j.status === 'completed').reduce((sum, j) => sum + (j.actual_price || j.estimated_price || 0), 0)
   };
 
@@ -467,8 +473,8 @@ const Jobs = () => {
                 className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
               >
                 <option value="">All Jobs</option>
-                <option value="true">Recurring Only</option>
-                <option value="false">One-time Only</option>
+                <option value="true">Recurring Series</option>
+                <option value="false">One-time Jobs</option>
               </select>
 
               <button
@@ -591,20 +597,10 @@ const Jobs = () => {
                         />
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-start gap-3">
-                          <div className="flex-shrink-0">
-                            <div className="w-10 h-10 bg-pulse-100 rounded-lg flex items-center justify-center">
-                              <div className="w-5 h-5 text-pulse-600">
-                                {job.is_recurring && (
-                                  <Repeat className="w-3 h-3" />
-                                )}
-                              </div>
-                            </div>
-                          </div>
                         <div>
                             <div className="flex items-center gap-2">
                               <h4 className="font-medium text-gray-900">{job.title}</h4>
-                              {job.is_recurring && (
+                              {job.is_recurring && !job.parent_job_id && (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
                                   <Repeat className="w-3 h-3" />
                                   {job.recurring_frequency?.replace('_', ' ')}
@@ -621,7 +617,6 @@ const Jobs = () => {
                                 Part of recurring series
                               </p>
                           )}
-                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
