@@ -187,6 +187,76 @@
   .dark .hover\:bg-gray-50:hover {
     @apply bg-gray-800;
   }
+
+  /* Enhanced dark mode for forms and UI elements */
+  .dark input[type="text"],
+  .dark input[type="email"],
+  .dark input[type="password"],
+  .dark input[type="number"],
+  .dark input[type="tel"],
+  .dark input[type="url"],
+  .dark textarea,
+  .dark select {
+    @apply bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400;
+  }
+
+  .dark input[type="text"]:focus,
+  .dark input[type="email"]:focus,
+  .dark input[type="password"]:focus,
+  .dark input[type="number"]:focus,
+  .dark input[type="tel"]:focus,
+  .dark input[type="url"]:focus,
+  .dark textarea:focus,
+  .dark select:focus {
+    @apply border-pulse-500 ring-pulse-500 bg-gray-600;
+  }
+
+  /* Dark mode for cards and containers */
+  .dark .shadow-sm {
+    @apply shadow-gray-900/50;
+  }
+
+  .dark .shadow-lg {
+    @apply shadow-gray-900/50;
+  }
+
+  .dark .shadow-xl {
+    @apply shadow-gray-900/50;
+  }
+
+  /* Dark mode for buttons */
+  .dark button {
+    @apply text-gray-100;
+  }
+
+  .dark .bg-pulse-50 {
+    @apply bg-pulse-900/30;
+  }
+
+  .dark .text-pulse-700 {
+    @apply text-pulse-300;
+  }
+
+  .dark .text-pulse-600 {
+    @apply text-pulse-400;
+  }
+
+  .dark .border-pulse-500 {
+    @apply border-pulse-400;
+  }
+
+  /* Dark mode scrollbars */
+  .dark ::-webkit-scrollbar-track {
+    @apply bg-gray-800;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    @apply bg-gray-600;
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500;
+  }
 }
 
 @layer components {
