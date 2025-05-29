@@ -352,7 +352,7 @@ const Settings = () => {
             currency: profile.currency || 'USD',
             dateFormat: profile.date_format || 'MM/DD/YYYY',
             timeFormat: profile.time_format || '12h',
-            theme: 'light',
+            theme: getTheme(),
             defaultJobDuration: profile.default_job_duration?.toString() || '120',
             autoInvoicing: profile.auto_invoicing ?? true,
             showTips: profile.show_tips ?? true
@@ -593,6 +593,12 @@ const Settings = () => {
 
       // Apply theme change
       setTheme(preferences.theme);
+
+      // Ensure language is set in localStorage and i18n
+      if (i18n.language !== preferences.language) {
+        i18n.changeLanguage(preferences.language);
+        localStorage.setItem('i18nextLng', preferences.language);
+      }
 
       toast.success(t('settings:preferencesUpdated'));
     } catch (error: any) {
@@ -1079,6 +1085,41 @@ const Settings = () => {
       </AppLayout>
     );
   }
+
+  // Handle language change
+  const handleLanguageChange = (language: string) => {
+    setPreferences(prev => ({ ...prev, language }));
+    i18n.changeLanguage(language);
+    localStorage.setItem('i18nextLng', language);
+    toast.success(`Language changed to ${language.toUpperCase()}`);
+  };
+
+  // Format date according to selected format
+  const formatDatePreview = (date: Date) => {
+    switch (preferences.dateFormat) {
+      case 'MM/DD/YYYY':
+        return date.toLocaleDateString('en-US');
+      case 'DD/MM/YYYY':
+        return date.toLocaleDateString('en-GB');
+      case 'YYYY-MM-DD':
+        return date.toISOString().split('T')[0];
+      case 'DD MMM YYYY':
+        return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+      case 'MMM DD, YYYY':
+        return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+      default:
+        return date.toLocaleDateString('en-US');
+    }
+  };
+
+  // Format time according to selected format
+  const formatTimePreview = (date: Date) => {
+    return date.toLocaleTimeString('en-US', {
+      hour12: preferences.timeFormat === '12h',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
   return (
     <AppLayout>
@@ -2192,7 +2233,17 @@ const Settings = () => {
                         <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
                         <div className="flex items-center gap-3">
                           <Globe className="w-5 h-5 text-gray-400" />
-                          <LanguageSwitcher />
+                          <select
+                            value={preferences.language}
+                            onChange={(e) => handleLanguageChange(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                          >
+                            <option value="en">English</option>
+                            <option value="es">Español</option>
+                            <option value="pt">Português</option>
+                            <option value="fr">Français</option>
+                            <option value="zh">中文</option>
+                          </select>
                         </div>
                       </div>
 
@@ -2276,27 +2327,40 @@ const Settings = () => {
                           {(['light', 'dark', 'system'] as Theme[]).map((theme) => (
                             <button
                               key={theme}
-                              onClick={() => handleThemeChange(theme)}
-                              className={`p-3 rounded-lg border-2 transition-colors ${
+                              onClick={() => {
+                                setPreferences(prev => ({ ...prev, theme }));
+                                setTheme(theme);
+                                toast.success(`Theme changed to ${theme === 'system' ? 'Auto' : theme}`);
+                              }}
+                              className={`p-4 rounded-lg border-2 transition-all duration-200 ${
                                 preferences.theme === theme
-                                  ? 'border-pulse-500 bg-pulse-50'
-                                  : 'border-gray-200 hover:border-gray-300'
+                                  ? 'border-pulse-500 bg-pulse-50 shadow-md'
+                                  : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
                               }`}
                             >
                               <div className="text-center">
-                                {theme === 'light' && <div className="w-8 h-8 bg-white border border-gray-300 rounded mx-auto mb-2"></div>}
-                                {theme === 'dark' && <div className="w-8 h-8 bg-gray-800 rounded mx-auto mb-2"></div>}
+                                {theme === 'light' && (
+                                  <div className="w-8 h-8 bg-white border-2 border-gray-300 rounded mx-auto mb-2 shadow-sm"></div>
+                                )}
+                                {theme === 'dark' && (
+                                  <div className="w-8 h-8 bg-gray-800 rounded mx-auto mb-2 shadow-sm"></div>
+                                )}
                                 {theme === 'system' && (
-                                  <div className="flex mx-auto mb-2 w-8 h-8 rounded overflow-hidden">
+                                  <div className="flex mx-auto mb-2 w-8 h-8 rounded overflow-hidden shadow-sm">
                                     <div className="w-4 h-8 bg-white border-r border-gray-300"></div>
                                     <div className="w-4 h-8 bg-gray-800"></div>
                                   </div>
                                 )}
-                                <span className="text-sm font-medium capitalize">{theme === 'system' ? 'Auto' : theme}</span>
+                                <span className="text-sm font-medium capitalize">
+                                  {theme === 'system' ? 'Auto' : theme}
+                                </span>
                               </div>
                             </button>
                           ))}
                         </div>
+                        <p className="text-xs text-gray-500 mt-2">
+                          Auto mode follows your system preference
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -2374,19 +2438,10 @@ const Settings = () => {
                       <h5 className="text-sm font-medium text-gray-700 mb-2">Date & Time Format</h5>
                       <div className="bg-white rounded border p-3">
                         <p className="text-sm">
-                          Today: {new Date().toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: preferences.dateFormat.includes('MMM') ? 'short' : '2-digit',
-                            day: '2-digit',
-                            ...(preferences.dateFormat === 'YYYY-MM-DD' && { year: 'numeric', month: '2-digit', day: '2-digit' })
-                          })}
+                          Today: {formatDatePreview(new Date())}
                         </p>
                         <p className="text-sm">
-                          Time: {new Date().toLocaleTimeString('en-US', {
-                            hour12: preferences.timeFormat === '12h',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
+                          Time: {formatTimePreview(new Date())}
                         </p>
                       </div>
                     </div>
