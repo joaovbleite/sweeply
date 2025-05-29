@@ -2968,24 +2968,108 @@ const Settings = () => {
                                 }`} />
                               </div>
                               
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <p className="font-medium">Email verification</p>
-                        <p className="text-sm text-gray-600">
-                          {user?.email_confirmed_at ? (
-                            `Verified on ${new Date(user.email_confirmed_at).toLocaleDateString()}`
-                          ) : (
-                            'Not verified'
-                          )}
-                        </p>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between mb-1">
+                                  <h4 className={`font-medium ${
+                                    activity.success ? 'text-gray-900' : 'text-red-900'
+                                  }`}>
+                                    {activity.description}
+                                  </h4>
+                                  {activity.success ? (
+                                    <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                                  ) : (
+                                    <X className="w-4 h-4 text-red-600 flex-shrink-0" />
+                                  )}
+                                </div>
+                                
+                                <div className="flex items-center gap-4 text-sm text-gray-600">
+                                  <span>{new Date(activity.timestamp).toLocaleString()}</span>
+                                  
+                                  {activity.device_info && (
+                                    <div className="flex items-center gap-1">
+                                      <Monitor className="w-3 h-3" />
+                                      <span>{activity.device_info}</span>
+                                    </div>
+                                  )}
+                                  
+                                  {activity.ip_address && (
+                                    <div className="flex items-center gap-1">
+                                      <Wifi className="w-3 h-3" />
+                                      <span>{activity.ip_address}</span>
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                {!activity.success && activity.type === 'login' && (
+                                  <div className="mt-2 p-2 bg-red-100 rounded text-sm text-red-700">
+                                    <strong>Security Alert:</strong> Failed login attempt detected. If this wasn't you, consider changing your password.
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      
+                      {/* Account Milestones */}
+                      <div className="border-t border-gray-200 pt-4 mt-6">
+                        <h4 className="text-sm font-medium text-gray-700 mb-3">Account Milestones</h4>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-blue-100 rounded-full">
+                                <User className="w-4 h-4 text-blue-600" />
+                              </div>
+                              <div>
+                                <p className="font-medium text-blue-900">Account created</p>
+                                <p className="text-sm text-blue-700">
+                                  {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}
+                                </p>
+                              </div>
+                            </div>
+                            <Check className="w-5 h-5 text-blue-600" />
+                          </div>
+                          
+                          <div className={`flex items-center justify-between p-3 rounded-lg border ${
+                            user?.email_confirmed_at 
+                              ? 'bg-green-50 border-green-200' 
+                              : 'bg-yellow-50 border-yellow-200'
+                          }`}>
+                            <div className="flex items-center gap-3">
+                              <div className={`p-2 rounded-full ${
+                                user?.email_confirmed_at ? 'bg-green-100' : 'bg-yellow-100'
+                              }`}>
+                                <Mail className={`w-4 h-4 ${
+                                  user?.email_confirmed_at ? 'text-green-600' : 'text-yellow-600'
+                                }`} />
+                              </div>
+                              <div>
+                                <p className={`font-medium ${
+                                  user?.email_confirmed_at ? 'text-green-900' : 'text-yellow-900'
+                                }`}>
+                                  Email verification
+                                </p>
+                                <p className={`text-sm ${
+                                  user?.email_confirmed_at ? 'text-green-700' : 'text-yellow-700'
+                                }`}>
+                                  {user?.email_confirmed_at ? (
+                                    `Verified on ${new Date(user.email_confirmed_at).toLocaleDateString()}`
+                                  ) : (
+                                    'Not verified - Check your email'
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+                            {user?.email_confirmed_at ? (
+                              <Check className="w-5 h-5 text-green-600" />
+                            ) : (
+                              <AlertCircle className="w-5 h-5 text-yellow-600" />
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      {user?.email_confirmed_at ? (
-                        <Check className="w-5 h-5 text-green-600" />
-                      ) : (
-                        <X className="w-5 h-5 text-red-600" />
-                      )}
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* Danger Zone */}
