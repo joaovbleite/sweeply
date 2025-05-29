@@ -580,7 +580,7 @@ const Settings = () => {
 
   const handleSavePreferences = async () => {
     try {
-      setLoading(true);
+      setLoading(prev => ({ ...prev, preferences: true }));
       
       await profileApi.upsertProfile({
         timezone: preferences.timezone,
@@ -603,7 +603,7 @@ const Settings = () => {
       console.error('Error updating preferences:', error);
       toast.error(error.message || t('common:errorOccurred'));
     } finally {
-      setLoading(false);
+      setLoading(prev => ({ ...prev, preferences: false }));
     }
   };
 
@@ -651,7 +651,7 @@ const Settings = () => {
     }
 
     try {
-      setLoading(true);
+      setLoading(prev => ({ ...prev, deleteAccount: true }));
       await profileApi.deleteAccount();
       toast.success('Account deleted successfully');
       // User will be redirected by auth state change
@@ -659,11 +659,16 @@ const Settings = () => {
       console.error('Error deleting account:', error);
       toast.error(error.message || 'Failed to delete account');
     } finally {
-      setLoading(false);
+      setLoading(prev => ({ ...prev, deleteAccount: false }));
     }
   };
 
-  // Theme change handler removed - dark mode feature disabled
+  // Theme change handler
+  const handleThemeChange = (newTheme: Theme) => {
+    setPreferences(prev => ({ ...prev, theme: newTheme }));
+    setTheme(newTheme);
+    toast.success(`Theme changed to ${newTheme}`);
+  };
 
   // Team Management Functions
   const handleInviteTeamMember = async () => {
@@ -2223,6 +2228,17 @@ const Settings = () => {
                     
                     <div className="space-y-4">
                       <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                        <div className="flex items-center gap-3">
+                          <Globe className="w-5 h-5 text-gray-400" />
+                          <GoogleTranslate />
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          This will translate the entire website automatically using Google Translate
+                        </p>
+                      </div>
+
+                      <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Timezone</label>
                         <select
                           value={preferences.timezone}
@@ -2294,6 +2310,48 @@ const Settings = () => {
                           <option value="12h">12-hour (2:30 PM)</option>
                           <option value="24h">24-hour (14:30)</option>
                         </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Theme</label>
+                        <div className="grid grid-cols-3 gap-3">
+                          {(['light', 'dark', 'system'] as Theme[]).map((theme) => (
+                            <button
+                              key={theme}
+                              onClick={() => {
+                                setPreferences(prev => ({ ...prev, theme }));
+                                setTheme(theme);
+                                toast.success(`Theme changed to ${theme === 'system' ? 'Auto' : theme}`);
+                              }}
+                              className={`p-4 rounded-lg border-2 transition-all duration-200 ${
+                                preferences.theme === theme
+                                  ? 'border-pulse-500 bg-pulse-50 shadow-md'
+                                  : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                              }`}
+                            >
+                              <div className="text-center">
+                                {theme === 'light' && (
+                                  <div className="w-8 h-8 bg-white border-2 border-gray-300 rounded mx-auto mb-2 shadow-sm"></div>
+                                )}
+                                {theme === 'dark' && (
+                                  <div className="w-8 h-8 bg-gray-800 rounded mx-auto mb-2 shadow-sm"></div>
+                                )}
+                                {theme === 'system' && (
+                                  <div className="flex mx-auto mb-2 w-8 h-8 rounded overflow-hidden shadow-sm">
+                                    <div className="w-4 h-8 bg-white border-r border-gray-300"></div>
+                                    <div className="w-4 h-8 bg-gray-800"></div>
+                                  </div>
+                                )}
+                                <span className="text-sm font-medium capitalize">
+                                  {theme === 'system' ? 'Auto' : theme}
+                                </span>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">
+                          Auto mode follows your system preference
+                        </p>
                       </div>
                     </div>
                   </div>
