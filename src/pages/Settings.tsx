@@ -97,7 +97,7 @@ interface ActivityEntry {
 
 const Settings = () => {
   const { t, i18n } = useTranslation(['settings', 'common']);
-  const { formatCurrency, refreshPreferences } = useLocale();
+  const { formatCurrency, refreshPreferences, preferences: localePreferences, loading: localeLoading } = useLocale();
   const { user } = useAuth();
   const { refreshProfile } = useProfile();
   
@@ -1301,11 +1301,43 @@ const Settings = () => {
 
   // Format time according to selected format
   const formatTimePreview = (date: Date) => {
-    return date.toLocaleTimeString('en-US', {
-      hour12: preferences.timeFormat === '12h',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return new Intl.DateTimeFormat('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: preferences.timeFormat === '12h'
+    }).format(date);
+  };
+
+  // Format currency preview based on currently selected currency
+  const formatCurrencyPreview = (amount: number) => {
+    const currencyOptions: { [key: string]: { currency: string; locale: string } } = {
+      USD: { currency: 'USD', locale: 'en-US' },
+      EUR: { currency: 'EUR', locale: 'de-DE' },
+      GBP: { currency: 'GBP', locale: 'en-GB' },
+      CAD: { currency: 'CAD', locale: 'en-CA' },
+      AUD: { currency: 'AUD', locale: 'en-AU' },
+      JPY: { currency: 'JPY', locale: 'ja-JP' },
+      CHF: { currency: 'CHF', locale: 'de-CH' },
+      SEK: { currency: 'SEK', locale: 'sv-SE' },
+      NOK: { currency: 'NOK', locale: 'nb-NO' },
+      DKK: { currency: 'DKK', locale: 'da-DK' }
+    };
+
+    const currencyConfig = currencyOptions[preferences.currency] || currencyOptions.USD;
+
+    try {
+      return new Intl.NumberFormat(currencyConfig.locale, {
+        style: 'currency',
+        currency: currencyConfig.currency,
+      }).format(amount);
+    } catch (error) {
+      console.error('Error formatting currency:', error, 'Currency:', preferences.currency);
+      // Fallback to USD if there's an error
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      }).format(amount);
+    }
   };
 
   return (
@@ -2514,14 +2546,14 @@ const Settings = () => {
                           </p>
                         </div>
                       </div>
-                      <div>
+                      <div key={preferences.currency}>
                         <h5 className="text-sm font-medium text-gray-700 mb-2">Currency Format</h5>
                         <div className="bg-white rounded border p-3">
                           <p className="text-sm">
-                            Service Price: {formatCurrency(150)}
+                            Service Price: {formatCurrencyPreview(150)}
                           </p>
                           <p className="text-sm">
-                            Total Amount: {formatCurrency(1250.50)}
+                            Total Amount: {formatCurrencyPreview(1250.50)}
                           </p>
                         </div>
                       </div>
