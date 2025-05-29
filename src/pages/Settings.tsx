@@ -1000,7 +1000,6 @@ const Settings = () => {
     { id: 'business' as const, label: t('settings:business'), icon: Building2 },
     { id: 'team' as const, label: 'Team Management', icon: Users },
     { id: 'services' as const, label: 'Services & Pricing', icon: Briefcase },
-    { id: 'integrations' as const, label: 'Integrations', icon: Zap },
     { id: 'branding' as const, label: 'Branding', icon: Paintbrush },
     { id: 'notifications' as const, label: t('settings:notifications'), icon: Bell },
     { id: 'security' as const, label: t('settings:security'), icon: Shield },
@@ -1337,6 +1336,107 @@ const Settings = () => {
                     {loading ? t('common:saving') : t('common:save')}
                   </button>
                 </div>
+
+                {/* CSV Export for Accounting */}
+                <div className="mt-8 bg-blue-50 rounded-lg p-6">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                    <Receipt className="w-5 h-5 text-blue-600" />
+                    Export to Accounting Software
+                  </h3>
+                  <p className="text-gray-600 mb-6">Export your business data in QuickBooks-compatible CSV format for easy import into accounting software.</p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Export Customers */}
+                    <div className="bg-white rounded-lg border border-blue-200 p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <Users className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900">Customer List</h4>
+                          <p className="text-sm text-gray-600">Export all customer data</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleExportCustomers}
+                        disabled={loading}
+                        className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
+                      >
+                        {loading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Download className="w-4 h-4" />
+                        )}
+                        Export Customers
+                      </button>
+                    </div>
+
+                    {/* Export Invoices */}
+                    <div className="bg-white rounded-lg border border-blue-200 p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                          <FileText className="w-5 h-5 text-green-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900">Invoice Data</h4>
+                          <p className="text-sm text-gray-600">Export invoice records</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleExportInvoices}
+                        disabled={loading}
+                        className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
+                      >
+                        {loading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Download className="w-4 h-4" />
+                        )}
+                        Export Invoices
+                      </button>
+                    </div>
+
+                    {/* Export Jobs/Services */}
+                    <div className="bg-white rounded-lg border border-blue-200 p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                          <Briefcase className="w-5 h-5 text-purple-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900">Job Records</h4>
+                          <p className="text-sm text-gray-600">Export service/job data</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleExportJobs}
+                        disabled={loading}
+                        className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
+                      >
+                        {loading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Download className="w-4 h-4" />
+                        )}
+                        Export Jobs
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <Info className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                      <div className="text-sm">
+                        <p className="text-yellow-800 font-medium mb-1">How to import into QuickBooks:</p>
+                        <ol className="text-yellow-700 list-decimal list-inside space-y-1">
+                          <li>Download the CSV file using the buttons above</li>
+                          <li>In QuickBooks, go to File → Utilities → Import → IIF Files (for Customers) or Excel Files</li>
+                          <li>Select your downloaded CSV file and follow the import wizard</li>
+                          <li>Map the fields as needed during import</li>
+                        </ol>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -1668,222 +1768,6 @@ const Settings = () => {
                     <Save className="w-4 h-4" />
                     {loading ? 'Saving...' : 'Save Changes'}
                   </button>
-                </div>
-              </div>
-            )}
-
-            {/* Integrations */}
-            {activeTab === 'integrations' && (
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">Integrations</h2>
-                <p className="text-gray-600 mb-8">Connect your favorite tools and services to streamline your workflow.</p>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {integrations.map((integration) => (
-                    <div key={integration.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                            integration.integration_type === 'payment' ? 'bg-green-100' :
-                            integration.integration_type === 'calendar' ? 'bg-blue-100' :
-                            integration.integration_type === 'accounting' ? 'bg-purple-100' :
-                            integration.integration_type === 'marketing' ? 'bg-orange-100' :
-                            'bg-gray-100'
-                          }`}>
-                            {integration.integration_type === 'payment' && <CreditCard className="w-6 h-6 text-green-600" />}
-                            {integration.integration_type === 'calendar' && <CalendarIcon className="w-6 h-6 text-blue-600" />}
-                            {integration.integration_type === 'accounting' && <Receipt className="w-6 h-6 text-purple-600" />}
-                            {integration.integration_type === 'marketing' && <TrendingUp className="w-6 h-6 text-orange-600" />}
-                            {integration.integration_type === 'communication' && <MessageSquare className="w-6 h-6 text-gray-600" />}
-                          </div>
-                          <div>
-                            <h3 className="font-medium text-gray-900">{integration.display_name}</h3>
-                            <p className="text-sm text-gray-600 capitalize">{integration.integration_type}</p>
-                          </div>
-                        </div>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          integration.is_connected 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {integration.is_connected ? 'Connected' : 'Not Connected'}
-                        </span>
-                      </div>
-
-                      <div className="mb-4">
-                        <p className="text-sm text-gray-600">
-                          {integration.integration_name === 'stripe' && 'Accept online payments securely'}
-                          {integration.integration_name === 'quickbooks' && 'Sync your financial data automatically'}
-                          {integration.integration_name === 'google-calendar' && 'Sync appointments with your calendar'}
-                          {integration.integration_name === 'mailchimp' && 'Manage customer communications and marketing'}
-                        </p>
-                        {integration.last_sync && (
-                          <p className="text-xs text-gray-500 mt-1">
-                            Last synced: {new Date(integration.last_sync).toLocaleDateString()}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="flex gap-2">
-                        {integration.is_connected ? (
-                          <>
-                            <button
-                              onClick={() => handleDisconnectIntegration(integration.integration_name)}
-                              disabled={loading}
-                              className="flex-1 px-3 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 disabled:opacity-50 text-sm"
-                            >
-                              Disconnect
-                            </button>
-                            <button className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">
-                              <SettingsIcon className="w-4 h-4" />
-                            </button>
-                          </>
-                        ) : (
-                          <button
-                            onClick={() => handleConnectIntegration(integration.integration_name)}
-                            disabled={loading}
-                            className="flex-1 px-3 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 text-sm"
-                          >
-                            Connect
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Webhook Settings */}
-                <div className="mt-8 bg-gray-50 rounded-lg p-6">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-                    <Webhook className="w-5 h-5" />
-                    Webhook Settings
-                  </h3>
-                  <p className="text-gray-600 mb-4">Configure webhooks for real-time data synchronization with external systems.</p>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Webhook URL</label>
-                      <input
-                        type="url"
-                        placeholder="https://your-app.com/webhooks/sweeply"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                      />
-                    </div>
-                    <div className="flex gap-4">
-                      <label className="flex items-center">
-                        <input type="checkbox" className="rounded border-gray-300 text-pulse-600 focus:ring-pulse-500" />
-                        <span className="ml-2 text-sm text-gray-700">Job updates</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input type="checkbox" className="rounded border-gray-300 text-pulse-600 focus:ring-pulse-500" />
-                        <span className="ml-2 text-sm text-gray-700">Payment updates</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input type="checkbox" className="rounded border-gray-300 text-pulse-600 focus:ring-pulse-500" />
-                        <span className="ml-2 text-sm text-gray-700">Client updates</span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-
-                {/* CSV Export for Accounting */}
-                <div className="mt-8 bg-blue-50 rounded-lg p-6">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-                    <Receipt className="w-5 h-5 text-blue-600" />
-                    Export to Accounting Software
-                  </h3>
-                  <p className="text-gray-600 mb-6">Export your business data in QuickBooks-compatible CSV format for easy import into accounting software.</p>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Export Customers */}
-                    <div className="bg-white rounded-lg border border-blue-200 p-4">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <Users className="w-5 h-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900">Customer List</h4>
-                          <p className="text-sm text-gray-600">Export all customer data</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={handleExportCustomers}
-                        disabled={loading}
-                        className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
-                      >
-                        {loading ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Download className="w-4 h-4" />
-                        )}
-                        Export Customers
-                      </button>
-                    </div>
-
-                    {/* Export Invoices */}
-                    <div className="bg-white rounded-lg border border-blue-200 p-4">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                          <FileText className="w-5 h-5 text-green-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900">Invoice Data</h4>
-                          <p className="text-sm text-gray-600">Export invoice records</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={handleExportInvoices}
-                        disabled={loading}
-                        className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
-                      >
-                        {loading ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Download className="w-4 h-4" />
-                        )}
-                        Export Invoices
-                      </button>
-                    </div>
-
-                    {/* Export Jobs/Services */}
-                    <div className="bg-white rounded-lg border border-blue-200 p-4">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                          <Briefcase className="w-5 h-5 text-purple-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900">Job Records</h4>
-                          <p className="text-sm text-gray-600">Export service/job data</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={handleExportJobs}
-                        disabled={loading}
-                        className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
-                      >
-                        {loading ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Download className="w-4 h-4" />
-                        )}
-                        Export Jobs
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <div className="flex items-start gap-3">
-                      <Info className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-                      <div className="text-sm">
-                        <p className="text-yellow-800 font-medium mb-1">How to import into QuickBooks:</p>
-                        <ol className="text-yellow-700 list-decimal list-inside space-y-1">
-                          <li>Download the CSV file using the buttons above</li>
-                          <li>In QuickBooks, go to File → Utilities → Import → IIF Files (for Customers) or Excel Files</li>
-                          <li>Select your downloaded CSV file and follow the import wizard</li>
-                          <li>Map the fields as needed during import</li>
-                        </ol>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             )}
