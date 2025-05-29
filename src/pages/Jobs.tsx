@@ -29,10 +29,16 @@ import { jobsApi } from "@/lib/api/jobs";
 import { invoicesApi } from "@/lib/api/invoices";
 import { Job, JobFilters, ServiceType, JobStatus } from "@/types/job";
 import { format } from "date-fns";
+import { useTranslation } from "react-i18next";
+import { useLocale } from "@/hooks/useLocale";
 import AppLayout from "@/components/AppLayout";
 import RecurringJobManager from "@/components/RecurringJobManager";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Jobs = () => {
+  const { user } = useAuth();
+  const { t } = useTranslation(['jobs', 'common']);
+  const { formatDate, formatTime } = useLocale();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -196,26 +202,6 @@ const Jobs = () => {
     return types[serviceType] || serviceType;
   };
 
-  // Format date
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  };
-
-  // Format time
-  const formatTime = (timeString?: string) => {
-    if (!timeString) return 'No time set';
-    return new Date(`2000-01-01T${timeString}`).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
-  };
-
   // Filter jobs based on search term and filters
   const filteredJobs = jobs.filter(job => {
     // Search filter
@@ -252,6 +238,18 @@ const Jobs = () => {
   const handleManageRecurringSeries = (jobId: string) => {
     setSelectedRecurringJobId(jobId);
     setShowRecurringManager(true);
+  };
+
+  // Helper to format job time with fallback
+  const formatJobTime = (timeString?: string) => {
+    if (!timeString) return 'No time set';
+    try {
+      // Create a date object with the time string
+      const timeDate = new Date(`2000-01-01T${timeString}`);
+      return formatTime(timeDate);
+    } catch (error) {
+      return 'Invalid time';
+    }
   };
 
   return (
@@ -649,7 +647,7 @@ const Jobs = () => {
                           {job.scheduled_time && (
                             <div className="text-sm text-gray-500 flex items-center gap-1 mt-1">
                               <Clock className="w-3 h-3" />
-                              {formatTime(job.scheduled_time)}
+                              {formatJobTime(job.scheduled_time)}
                             </div>
                           )}
                           {job.estimated_duration && (
