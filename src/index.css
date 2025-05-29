@@ -229,22 +229,6 @@
     @apply text-gray-100;
   }
 
-  .dark .bg-pulse-50 {
-    @apply bg-pulse-900/30;
-  }
-
-  .dark .text-pulse-700 {
-    @apply text-pulse-300;
-  }
-
-  .dark .text-pulse-600 {
-    @apply text-pulse-400;
-  }
-
-  .dark .border-pulse-500 {
-    @apply border-pulse-400;
-  }
-
   /* Dark mode scrollbars */
   .dark ::-webkit-scrollbar-track {
     @apply bg-gray-800;
