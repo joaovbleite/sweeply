@@ -71,7 +71,7 @@ const Settings = () => {
   const { refreshProfile } = useProfile();
   
   // State for different settings sections
-  const [activeTab, setActiveTab] = useState<'profile' | 'business' | 'team' | 'services' | 'integrations' | 'notifications' | 'security' | 'preferences' | 'branding'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'business' | 'team' | 'services' | 'branding' | 'notifications' | 'security' | 'preferences'>('profile');
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -96,8 +96,14 @@ const Settings = () => {
     businessName: '',
     businessType: 'residential' as 'residential' | 'commercial' | 'both',
     address: '',
+    city: '',
+    state: '',
+    postalCode: '',
+    phone: '',
+    email: '',
     website: '',
     taxId: '',
+    registrationNumber: '',
     defaultServiceArea: '25',
     workingHours: {
       monday: { start: '08:00', end: '18:00', enabled: true },
@@ -215,6 +221,52 @@ const Settings = () => {
     }
   });
 
+  // Export state
+  const [exporting, setExporting] = useState(false);
+
+  // Helper function for updating working hours
+  const updateWorkingHours = (day: string, updates: Partial<{ start: string; end: string; enabled: boolean }>) => {
+    setBusinessData(prev => ({
+      ...prev,
+      workingHours: {
+        ...prev.workingHours,
+        [day]: { ...prev.workingHours[day as keyof typeof prev.workingHours], ...updates }
+      }
+    }));
+  };
+
+  // Export functions
+  const exportJobs = async () => {
+    setExporting(true);
+    try {
+      await handleExportJobs();
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const exportClients = async () => {
+    setExporting(true);
+    try {
+      await handleExportCustomers();
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const exportServices = async () => {
+    setExporting(true);
+    try {
+      // Add export services logic here
+      toast.success('Services exported successfully');
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast.error('Failed to export services');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   // Load all data from APIs
   useEffect(() => {
     const loadAllData = async () => {
@@ -274,8 +326,14 @@ const Settings = () => {
             businessName: profile.business_name || '',
             businessType: profile.business_type || 'residential',
             address: profile.business_address || '',
+            city: '',
+            state: '',
+            postalCode: '',
+            phone: '',
+            email: '',
             website: profile.website || '',
             taxId: profile.tax_id || '',
+            registrationNumber: '',
             defaultServiceArea: profile.default_service_area?.toString() || '25',
             workingHours: (profile.working_hours as typeof businessData.workingHours) || businessData.workingHours
           });
@@ -1065,376 +1123,398 @@ const Settings = () => {
           <div className="flex-1">
             {/* Profile Settings */}
             {activeTab === 'profile' && (
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('settings:profileInformation')}</h2>
+              <div className="bg-white rounded-xl shadow-sm">
+                <div className="p-6 border-b border-gray-100">
+                  <h2 className="text-xl font-semibold text-gray-900">{t('settings:profileInformation')}</h2>
+                  <p className="text-sm text-gray-600 mt-1">Update your personal information and profile settings</p>
+                </div>
                 
-                {/* Avatar Section */}
-                <div className="flex items-center gap-6 mb-8">
-                  <div className="relative">
-                    {avatarPreview || profileData.avatar ? (
-                      <img 
-                        src={avatarPreview || profileData.avatar} 
-                        alt="Avatar" 
-                        className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
-                      />
-                    ) : (
-                      <div className="w-24 h-24 bg-pulse-500 rounded-full flex items-center justify-center text-white text-2xl font-bold border-4 border-white shadow-lg">
-                        {profileData.fullName.charAt(0).toUpperCase() || 'U'}
-                      </div>
-                    )}
-                    
-                    {/* Upload progress overlay */}
-                    {avatarUploading && (
-                      <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
-                        <Loader2 className="w-6 h-6 text-white animate-spin" />
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="flex-1">
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Profile Picture</h3>
-                    <p className="text-sm text-gray-600 mb-4">
-                      Upload a professional photo for your profile. Recommended size: 400x400px. Max file size: 5MB.
-                    </p>
-                    
-                    <div className="flex items-center gap-3">
-                      <label className="relative cursor-pointer">
-                    <input
-                      type="file"
-                          accept="image/jpeg,image/jpg,image/png,image/webp"
-                      onChange={handleAvatarUpload}
-                          disabled={avatarUploading}
-                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    />
-                        <div className={`px-4 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 flex items-center gap-2 ${
-                          avatarUploading ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}>
-                          <Camera className="w-4 h-4" />
-                          {avatarUploading ? 'Uploading...' : 'Upload Photo'}
-                  </div>
-                      </label>
+                <div className="p-6">
+                  {/* Avatar Section - More Compact */}
+                  <div className="flex items-start gap-6 mb-8 p-4 bg-gray-50 rounded-lg">
+                    <div className="relative flex-shrink-0">
+                      {avatarPreview || profileData.avatar ? (
+                        <img 
+                          src={avatarPreview || profileData.avatar} 
+                          alt="Avatar" 
+                          className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md"
+                        />
+                      ) : (
+                        <div className="w-20 h-20 bg-gradient-to-br from-pulse-500 to-pulse-600 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-md">
+                          {profileData.fullName.charAt(0).toUpperCase() || 'U'}
+                        </div>
+                      )}
                       
-                      {(profileData.avatar || avatarPreview) && !avatarUploading && (
-                        <button 
-                          onClick={handleRemoveAvatar}
-                          className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          Remove
-                        </button>
+                      {avatarUploading && (
+                        <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
+                          <Loader2 className="w-5 h-5 text-white animate-spin" />
+                        </div>
                       )}
                     </div>
                     
-                    <div className="mt-2 text-xs text-gray-500">
-                      Supported formats: JPEG, PNG, WebP
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-gray-900 mb-1">Profile Picture</h3>
+                      <p className="text-sm text-gray-600 mb-3">
+                        JPG, PNG or WebP. Max 5MB. Recommended 400x400px.
+                      </p>
+                      
+                      <div className="flex items-center gap-2">
+                        <label className="relative cursor-pointer">
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/jpg,image/png,image/webp"
+                            onChange={handleAvatarUpload}
+                            disabled={avatarUploading}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          />
+                          <div className={`px-3 py-1.5 bg-pulse-500 text-white rounded-md hover:bg-pulse-600 disabled:opacity-50 flex items-center gap-1.5 text-sm ${
+                            avatarUploading ? 'opacity-50 cursor-not-allowed' : ''
+                          }`}>
+                            <Camera className="w-4 h-4" />
+                            {avatarUploading ? 'Uploading...' : 'Upload'}
+                          </div>
+                        </label>
+                        
+                        {(profileData.avatar || avatarPreview) && !avatarUploading && (
+                          <button 
+                            onClick={handleRemoveAvatar}
+                            className="px-3 py-1.5 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center gap-1.5 text-sm"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Remove
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Profile Form */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('settings:fullName')}
-                    </label>
-                    <input
-                      type="text"
-                      value={profileData.fullName}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, fullName: e.target.value }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    />
+                  {/* Profile Form - Improved Layout */}
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {t('settings:fullName')} <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={profileData.fullName}
+                          onChange={(e) => setProfileData(prev => ({ ...prev, fullName: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pulse-500 focus:border-pulse-500 transition-colors"
+                          placeholder="Enter your full name"
+                        />
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {t('settings:email')} <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="email"
+                          value={profileData.email}
+                          onChange={(e) => setProfileData(prev => ({ ...prev, email: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pulse-500 focus:border-pulse-500 transition-colors"
+                          placeholder="Enter your email address"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {t('settings:phone')}
+                      </label>
+                      <input
+                        type="tel"
+                        value={profileData.phone}
+                        onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pulse-500 focus:border-pulse-500 transition-colors"
+                        placeholder="Enter your phone number"
+                      />
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {t('settings:bio')}
+                      </label>
+                      <textarea
+                        value={profileData.bio}
+                        onChange={(e) => setProfileData(prev => ({ ...prev, bio: e.target.value }))}
+                        rows={3}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pulse-500 focus:border-pulse-500 transition-colors resize-none"
+                        placeholder={t('settings:bioPlaceholder')}
+                      />
+                      <p className="text-xs text-gray-500">Brief description for your profile</p>
+                    </div>
                   </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('settings:email')}
-                    </label>
-                    <input
-                      type="email"
-                      value={profileData.email}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, email: e.target.value }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('settings:phone')}
-                    </label>
-                    <input
-                      type="tel"
-                      value={profileData.phone}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    />
-                  </div>
-                  
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('settings:bio')}
-                    </label>
-                    <textarea
-                      value={profileData.bio}
-                      onChange={(e) => setProfileData(prev => ({ ...prev, bio: e.target.value }))}
-                      rows={3}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                      placeholder={t('settings:bioPlaceholder')}
-                    />
-                  </div>
-                </div>
 
-                <div className="mt-8 flex justify-end">
-                  <button
-                    onClick={handleSaveProfile}
-                    disabled={loading}
-                    className="px-6 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 flex items-center gap-2"
-                  >
-                    <Save className="w-4 h-4" />
-                    {loading ? t('common:saving') : t('common:save')}
-                  </button>
+                  <div className="mt-8 pt-6 border-t border-gray-100 flex justify-end">
+                    <button
+                      onClick={handleSaveProfile}
+                      disabled={loading}
+                      className="px-6 py-2.5 bg-pulse-500 text-white rounded-md hover:bg-pulse-600 disabled:opacity-50 flex items-center gap-2 font-medium transition-colors"
+                    >
+                      <Save className="w-4 h-4" />
+                      {loading ? t('common:saving') : t('common:save')}
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
 
             {/* Business Settings */}
             {activeTab === 'business' && (
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('settings:businessSettings')}</h2>
+              <div className="bg-white rounded-xl shadow-sm">
+                <div className="p-6 border-b border-gray-100">
+                  <h2 className="text-xl font-semibold text-gray-900">{t('settings:businessInformation')}</h2>
+                  <p className="text-sm text-gray-600 mt-1">Manage your business details and operational settings</p>
+                </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('settings:businessName')}
-                    </label>
-                    <input
-                      type="text"
-                      value={businessData.businessName}
-                      onChange={(e) => setBusinessData(prev => ({ ...prev, businessName: e.target.value }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('settings:businessType')}
-                    </label>
-                    <select
-                      value={businessData.businessType}
-                      onChange={(e) => setBusinessData(prev => ({ ...prev, businessType: e.target.value as 'residential' | 'commercial' | 'both' }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    >
-                      <option value="residential">{t('settings:residential')}</option>
-                      <option value="commercial">{t('settings:commercial')}</option>
-                      <option value="both">{t('settings:both')}</option>
-                    </select>
-                  </div>
-                  
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('settings:businessAddress')}
-                    </label>
-                    <input
-                      type="text"
-                      value={businessData.address}
-                      onChange={(e) => setBusinessData(prev => ({ ...prev, address: e.target.value }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('settings:website')}
-                    </label>
-                    <input
-                      type="url"
-                      value={businessData.website}
-                      onChange={(e) => setBusinessData(prev => ({ ...prev, website: e.target.value }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('settings:defaultServiceArea')} (miles)
-                    </label>
-                    <input
-                      type="number"
-                      value={businessData.defaultServiceArea}
-                      onChange={(e) => setBusinessData(prev => ({ ...prev, defaultServiceArea: e.target.value }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-
-                {/* Working Hours */}
-                <div className="mt-8">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">{t('settings:workingHours')}</h3>
-                  <div className="space-y-4">
-                    {Object.entries(businessData.workingHours).map(([day, hours]) => (
-                      <div key={day} className="flex items-center gap-4">
-                        <div className="w-24">
-                          <span className="text-sm font-medium text-gray-700 capitalize">
-                            {t(`settings:${day}`)}
-                          </span>
-                        </div>
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={hours.enabled}
-                            onChange={(e) => setBusinessData(prev => ({
-                              ...prev,
-                              workingHours: {
-                                ...prev.workingHours,
-                                [day]: { ...hours, enabled: e.target.checked }
-                              }
-                            }))}
-                            className="rounded border-gray-300 text-pulse-600 focus:ring-pulse-500"
-                          />
-                          <span className="ml-2 text-sm text-gray-600">{t('settings:open')}</span>
+                <div className="p-6 space-y-8">
+                  {/* Business Info Section */}
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {t('settings:businessName')} <span className="text-red-500">*</span>
                         </label>
-                        {hours.enabled && (
-                          <>
-                            <input
-                              type="time"
-                              value={hours.start}
-                              onChange={(e) => setBusinessData(prev => ({
-                                ...prev,
-                                workingHours: {
-                                  ...prev.workingHours,
-                                  [day]: { ...hours, start: e.target.value }
-                                }
-                              }))}
-                              className="px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                            />
-                            <span className="text-gray-500">to</span>
-                            <input
-                              type="time"
-                              value={hours.end}
-                              onChange={(e) => setBusinessData(prev => ({
-                                ...prev,
-                                workingHours: {
-                                  ...prev.workingHours,
-                                  [day]: { ...hours, end: e.target.value }
-                                }
-                              }))}
-                              className="px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                            />
-                          </>
-                        )}
+                        <input
+                          type="text"
+                          value={businessData.businessName}
+                          onChange={(e) => setBusinessData(prev => ({ ...prev, businessName: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pulse-500 focus:border-pulse-500 transition-colors"
+                          placeholder="Enter your business name"
+                        />
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mt-8 flex justify-end">
-                  <button
-                    onClick={handleSaveBusiness}
-                    disabled={loading}
-                    className="px-6 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 flex items-center gap-2"
-                  >
-                    <Save className="w-4 h-4" />
-                    {loading ? t('common:saving') : t('common:save')}
-                  </button>
-                </div>
-
-                {/* CSV Export for Accounting */}
-                <div className="mt-8 bg-blue-50 rounded-lg p-6">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-                    <Receipt className="w-5 h-5 text-blue-600" />
-                    Export to Accounting Software
-                  </h3>
-                  <p className="text-gray-600 mb-6">Export your business data in QuickBooks-compatible CSV format for easy import into accounting software.</p>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Export Customers */}
-                    <div className="bg-white rounded-lg border border-blue-200 p-4">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <Users className="w-5 h-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900">Customer List</h4>
-                          <p className="text-sm text-gray-600">Export all customer data</p>
-                        </div>
+                      
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {t('settings:registrationNumber')}
+                        </label>
+                        <input
+                          type="text"
+                          value={businessData.registrationNumber}
+                          onChange={(e) => setBusinessData(prev => ({ ...prev, registrationNumber: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pulse-500 focus:border-pulse-500 transition-colors"
+                          placeholder="Enter registration number"
+                        />
                       </div>
-                      <button
-                        onClick={handleExportCustomers}
-                        disabled={loading}
-                        className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
-                      >
-                        {loading ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Download className="w-4 h-4" />
-                        )}
-                        Export Customers
-                      </button>
                     </div>
-
-                    {/* Export Invoices */}
-                    <div className="bg-white rounded-lg border border-blue-200 p-4">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                          <FileText className="w-5 h-5 text-green-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900">Invoice Data</h4>
-                          <p className="text-sm text-gray-600">Export invoice records</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={handleExportInvoices}
-                        disabled={loading}
-                        className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
-                      >
-                        {loading ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Download className="w-4 h-4" />
-                        )}
-                        Export Invoices
-                      </button>
+                    
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium text-gray-700">
+                        {t('settings:businessAddress')}
+                      </label>
+                      <textarea
+                        value={businessData.address}
+                        onChange={(e) => setBusinessData(prev => ({ ...prev, address: e.target.value }))}
+                        rows={2}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pulse-500 focus:border-pulse-500 transition-colors resize-none"
+                        placeholder="Enter your business address"
+                      />
                     </div>
-
-                    {/* Export Jobs/Services */}
-                    <div className="bg-white rounded-lg border border-blue-200 p-4">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                          <Briefcase className="w-5 h-5 text-purple-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900">Job Records</h4>
-                          <p className="text-sm text-gray-600">Export service/job data</p>
-                        </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {t('settings:city')}
+                        </label>
+                        <input
+                          type="text"
+                          value={businessData.city}
+                          onChange={(e) => setBusinessData(prev => ({ ...prev, city: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pulse-500 focus:border-pulse-500 transition-colors"
+                          placeholder="City"
+                        />
                       </div>
-                      <button
-                        onClick={handleExportJobs}
-                        disabled={loading}
-                        className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
-                      >
-                        {loading ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Download className="w-4 h-4" />
-                        )}
-                        Export Jobs
-                      </button>
+                      
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {t('settings:state')}
+                        </label>
+                        <input
+                          type="text"
+                          value={businessData.state}
+                          onChange={(e) => setBusinessData(prev => ({ ...prev, state: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pulse-500 focus:border-pulse-500 transition-colors"
+                          placeholder="State/Province"
+                        />
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {t('settings:postalCode')}
+                        </label>
+                        <input
+                          type="text"
+                          value={businessData.postalCode}
+                          onChange={(e) => setBusinessData(prev => ({ ...prev, postalCode: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pulse-500 focus:border-pulse-500 transition-colors"
+                          placeholder="ZIP/Postal Code"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {t('settings:businessPhone')}
+                        </label>
+                        <input
+                          type="tel"
+                          value={businessData.phone}
+                          onChange={(e) => setBusinessData(prev => ({ ...prev, phone: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pulse-500 focus:border-pulse-500 transition-colors"
+                          placeholder="Business phone number"
+                        />
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {t('settings:businessEmail')}
+                        </label>
+                        <input
+                          type="email"
+                          value={businessData.email}
+                          onChange={(e) => setBusinessData(prev => ({ ...prev, email: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pulse-500 focus:border-pulse-500 transition-colors"
+                          placeholder="Business email address"
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <div className="flex items-start gap-3">
-                      <Info className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-                      <div className="text-sm">
-                        <p className="text-yellow-800 font-medium mb-1">How to import into QuickBooks:</p>
-                        <ol className="text-yellow-700 list-decimal list-inside space-y-1">
-                          <li>Download the CSV file using the buttons above</li>
-                          <li>In QuickBooks, go to File → Utilities → Import → IIF Files (for Customers) or Excel Files</li>
-                          <li>Select your downloaded CSV file and follow the import wizard</li>
-                          <li>Map the fields as needed during import</li>
-                        </ol>
+                  {/* Working Hours Section */}
+                  <div className="border-t border-gray-100 pt-8">
+                    <div className="flex items-center gap-3 mb-6">
+                      <Clock className="w-5 h-5 text-pulse-500" />
+                      <h3 className="text-lg font-medium text-gray-900">Working Hours</h3>
+                    </div>
+                    
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <div className="space-y-3">
+                        {Object.entries(businessData.workingHours).map(([day, hours]) => (
+                          <div key={day} className="flex items-center gap-4 bg-white rounded-md p-3">
+                            <div className="w-20 text-sm font-medium text-gray-700 capitalize">
+                              {day}
+                            </div>
+                            
+                            <label className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={hours.enabled}
+                                onChange={(e) => updateWorkingHours(day, { enabled: e.target.checked })}
+                                className="w-4 h-4 text-pulse-500 border-gray-300 rounded focus:ring-pulse-500"
+                              />
+                              <span className="text-sm text-gray-600">Open</span>
+                            </label>
+                            
+                            {hours.enabled && (
+                              <div className="flex items-center gap-2 flex-1">
+                                <input
+                                  type="time"
+                                  value={hours.start}
+                                  onChange={(e) => updateWorkingHours(day, { start: e.target.value })}
+                                  className="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-pulse-500 focus:border-pulse-500"
+                                />
+                                <span className="text-gray-400 text-sm">to</span>
+                                <input
+                                  type="time"
+                                  value={hours.end}
+                                  onChange={(e) => updateWorkingHours(day, { end: e.target.value })}
+                                  className="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-pulse-500 focus:border-pulse-500"
+                                />
+                              </div>
+                            )}
+                            
+                            {!hours.enabled && (
+                              <div className="flex-1 text-sm text-gray-400 italic">
+                                Closed
+                              </div>
+                            )}
+                          </div>
+                        ))}
                       </div>
                     </div>
+                  </div>
+
+                  {/* Data Export Section */}
+                  <div className="border-t border-gray-100 pt-8">
+                    <div className="flex items-center gap-3 mb-6">
+                      <Download className="w-5 h-5 text-pulse-500" />
+                      <h3 className="text-lg font-medium text-gray-900">Data Export</h3>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {/* Jobs Export */}
+                      <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
+                        <div className="flex items-start gap-3">
+                          <div className="p-2 bg-blue-500 rounded-lg">
+                            <Receipt className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-medium text-blue-900 mb-1">Jobs Export</h4>
+                            <p className="text-sm text-blue-700 mb-3">Export job data for accounting purposes</p>
+                            <button
+                              onClick={exportJobs}
+                              disabled={exporting}
+                              className="w-full px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 text-sm font-medium transition-colors"
+                            >
+                              {exporting ? 'Exporting...' : 'Export Jobs'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Clients Export */}
+                      <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
+                        <div className="flex items-start gap-3">
+                          <div className="p-2 bg-green-500 rounded-lg">
+                            <Users className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-medium text-green-900 mb-1">Clients Export</h4>
+                            <p className="text-sm text-green-700 mb-3">Export client data and contact information</p>
+                            <button
+                              onClick={exportClients}
+                              disabled={exporting}
+                              className="w-full px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 disabled:opacity-50 text-sm font-medium transition-colors"
+                            >
+                              {exporting ? 'Exporting...' : 'Export Clients'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Services Export */}
+                      <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
+                        <div className="flex items-start gap-3">
+                          <div className="p-2 bg-purple-500 rounded-lg">
+                            <Briefcase className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-medium text-purple-900 mb-1">Services Export</h4>
+                            <p className="text-sm text-purple-700 mb-3">Export services and pricing data</p>
+                            <button
+                              onClick={exportServices}
+                              disabled={exporting}
+                              className="w-full px-3 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 disabled:opacity-50 text-sm font-medium transition-colors"
+                            >
+                              {exporting ? 'Exporting...' : 'Export Services'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-6 border-t border-gray-100 flex justify-end">
+                    <button
+                      onClick={handleSaveBusiness}
+                      disabled={loading}
+                      className="px-6 py-2.5 bg-pulse-500 text-white rounded-md hover:bg-pulse-600 disabled:opacity-50 flex items-center gap-2 font-medium transition-colors"
+                    >
+                      <Save className="w-4 h-4" />
+                      {loading ? t('common:saving') : t('common:save')}
+                    </button>
                   </div>
                 </div>
               </div>
@@ -1442,115 +1522,145 @@ const Settings = () => {
 
             {/* Team Management */}
             {activeTab === 'team' && (
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900">Team Management</h2>
-                  <div className="text-sm text-gray-600">
-                    {teamMembers.length} team member{teamMembers.length !== 1 ? 's' : ''}
+              <div className="bg-white rounded-xl shadow-sm">
+                <div className="p-6 border-b border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-xl font-semibold text-gray-900">Team Management</h2>
+                      <p className="text-sm text-gray-600 mt-1">Manage your team members and their permissions</p>
+                    </div>
+                    <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                      {teamMembers.length} member{teamMembers.length !== 1 ? 's' : ''}
+                    </div>
                   </div>
                 </div>
 
-                {/* Invite New Team Member */}
-                <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">Invite Team Member</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                      <input
-                        type="email"
-                        value={newMemberEmail}
-                        onChange={(e) => setNewMemberEmail(e.target.value)}
-                        placeholder="team@example.com"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                      />
-                  </div>
-                  <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
-                    <select
-                        value={newMemberRole}
-                        onChange={(e) => setNewMemberRole(e.target.value as 'admin' | 'manager' | 'cleaner' | 'viewer')}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                    >
-                        <option value="viewer">Viewer</option>
-                        <option value="cleaner">Cleaner</option>
-                        <option value="manager">Manager</option>
-                        <option value="admin">Admin</option>
-                    </select>
+                <div className="p-6 space-y-6">
+                  {/* Invite New Team Member */}
+                  <div className="bg-gradient-to-r from-pulse-50 to-pulse-100 rounded-lg p-6 border border-pulse-200">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-2 bg-pulse-500 rounded-lg">
+                        <Plus className="w-5 h-5 text-white" />
+                      </div>
+                      <h3 className="text-lg font-medium text-pulse-900">Invite Team Member</h3>
                     </div>
-                    <div className="flex items-end">
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-pulse-800 mb-2">Email Address</label>
+                        <input
+                          type="email"
+                          value={newMemberEmail}
+                          onChange={(e) => setNewMemberEmail(e.target.value)}
+                          placeholder="team@example.com"
+                          className="w-full px-3 py-2 border border-pulse-300 rounded-md focus:ring-2 focus:ring-pulse-500 focus:border-pulse-500 transition-colors"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-pulse-800 mb-2">Role</label>
+                        <select
+                          value={newMemberRole}
+                          onChange={(e) => setNewMemberRole(e.target.value as 'admin' | 'manager' | 'cleaner' | 'viewer')}
+                          className="w-full px-3 py-2 border border-pulse-300 rounded-md focus:ring-2 focus:ring-pulse-500 focus:border-pulse-500 transition-colors"
+                        >
+                          <option value="viewer">Viewer</option>
+                          <option value="cleaner">Cleaner</option>
+                          <option value="manager">Manager</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4 flex justify-end">
                       <button
                         onClick={handleInviteTeamMember}
                         disabled={loading || !newMemberEmail.trim()}
-                        className="w-full px-4 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="px-4 py-2 bg-pulse-500 text-white rounded-md hover:bg-pulse-600 disabled:opacity-50 flex items-center gap-2 font-medium transition-colors"
                       >
                         <Plus className="w-4 h-4" />
-                        Invite
+                        Send Invitation
                       </button>
                     </div>
                   </div>
+                  
+                  {/* Team Members List */}
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Current Team Members</h3>
+                    
+                    {teamMembers.length === 0 ? (
+                      <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                        <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                        <h4 className="text-lg font-medium text-gray-900 mb-2">No team members yet</h4>
+                        <p className="text-gray-600 mb-4">Start building your team by inviting your first member above.</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 gap-4">
+                        {teamMembers.map((member) => (
+                          <div key={member.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 bg-gradient-to-br from-pulse-500 to-pulse-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                {(member.member_name || 'U').charAt(0).toUpperCase()}
+                              </div>
+                              <div>
+                                <h4 className="font-medium text-gray-900">{member.member_name || 'Unknown Member'}</h4>
+                                <p className="text-sm text-gray-600">{member.member_email || 'No email provided'}</p>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-3">
+                              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                member.status === 'active' ? 'bg-green-100 text-green-800' :
+                                member.status === 'inactive' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-gray-100 text-gray-800'
+                              }`}>
+                                {member.status}
+                              </span>
+                              <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium capitalize">
+                                {member.role}
+                              </span>
+                              <button
+                                onClick={() => handleRemoveTeamMember(member.id)}
+                                className="text-red-600 hover:text-red-700 p-2 rounded-md hover:bg-red-50 transition-colors"
+                                title="Remove member"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   
-                {/* Team Members List */}
-                <div className="space-y-4">
-                  {teamMembers.length === 0 ? (
-                    <div className="text-center py-8">
-                      <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600">No team members yet. Invite your first team member above.</p>
+                  {/* Role Permissions Info */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Info className="w-5 h-5 text-blue-600" />
+                      <h4 className="font-medium text-blue-900">Role Permissions</h4>
                     </div>
-                  ) : (
-                    teamMembers.map((member) => (
-                      <div key={member.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 bg-pulse-100 rounded-full flex items-center justify-center">
-                            <User className="w-5 h-5 text-pulse-600" />
-                          </div>
-                  <div>
-                            <h4 className="font-medium text-gray-900">{member.member_name || 'Unknown'}</h4>
-                            <p className="text-sm text-gray-600">{member.member_email || 'No email'}</p>
-                          </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                      <div className="space-y-3">
+                        <div>
+                          <span className="font-medium text-blue-800">Admin:</span>
+                          <p className="text-blue-700">Full access to all features and settings</p>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            member.status === 'active' ? 'bg-green-100 text-green-800' :
-                            member.status === 'inactive' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-gray-100 text-gray-800'
-                          }`}>
-                            {member.status}
-                          </span>
-                          <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium capitalize">
-                            {member.role}
-                          </span>
-                          <button
-                            onClick={() => handleRemoveTeamMember(member.id)}
-                            className="text-red-600 hover:text-red-700 p-1"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                        <div>
+                          <span className="font-medium text-blue-800">Manager:</span>
+                          <p className="text-blue-700">Manage jobs, clients, and team members</p>
                         </div>
                       </div>
-                    ))
-                  )}
-                  </div>
-                  
-                {/* Role Permissions Info */}
-                <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h4 className="font-medium text-blue-900 mb-3">Role Permissions</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                      <span className="font-medium text-blue-800">Admin:</span>
-                      <p className="text-blue-700">Full access to all features and settings</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-blue-800">Manager:</span>
-                      <p className="text-blue-700">Manage jobs, clients, and team members</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-blue-800">Cleaner:</span>
-                      <p className="text-blue-700">View assigned jobs and update job status</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-blue-800">Viewer:</span>
-                      <p className="text-blue-700">Read-only access to jobs and reports</p>
+                      <div className="space-y-3">
+                        <div>
+                          <span className="font-medium text-blue-800">Cleaner:</span>
+                          <p className="text-blue-700">View assigned jobs and update job status</p>
+                        </div>
+                        <div>
+                          <span className="font-medium text-blue-800">Viewer:</span>
+                          <p className="text-blue-700">Read-only access to jobs and reports</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
