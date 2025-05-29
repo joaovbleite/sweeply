@@ -202,7 +202,7 @@
   animation: slide-up 0.3s ease-out;
 }
 
-/* Google Translate custom styles */
+/* Google Translate custom styles - hide UI but keep functionality */
 .goog-te-banner-frame.skiptranslate {
   display: none !important;
 }
@@ -212,15 +212,25 @@ body {
 }
 
 .goog-te-gadget {
-  display: none !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
 }
 
 iframe.skiptranslate {
-  display: none !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
 }
 
+/* Keep the combo visible but hidden off-screen so it can be accessed */
 .goog-te-combo {
-  display: none !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  visibility: visible !important;
+  width: auto !important;
+  height: auto !important;
 }
 
 .goog-text-highlight {
@@ -237,11 +247,21 @@ iframe.skiptranslate {
   border: none !important;
 }
 
-/* Ensure Google Translate doesn't interfere with layout */
+/* Hide Google branding but keep functional elements accessible */
+.goog-te-gadget > span > a {
+  display: none !important;
+}
+
+.goog-te-gadget .goog-te-gadget-simple .goog-te-menu-value span {
+  color: transparent !important;
+}
+
+/* Position Google Translate element off-screen but accessible */
 #google_translate_element {
-  visibility: hidden !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
   width: 1px !important;
   height: 1px !important;
-  position: absolute !important;
-  top: -9999px !important;
+  overflow: hidden !important;
 }
