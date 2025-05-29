@@ -63,6 +63,7 @@ import { teamManagementApi, TeamMember, TeamInvitation } from "@/lib/api/team-ma
 import { integrationsApi, IntegrationConfig } from "@/lib/api/integrations";
 import { settingsApi, BrandingSettings, AdvancedBusinessSettings } from "@/lib/api/settings";
 import { useProfile } from "@/hooks/useProfile";
+import GoogleTranslate from "@/components/GoogleTranslate";
 
 const Settings = () => {
   const { t, i18n } = useTranslation(['settings', 'common']);
@@ -2233,18 +2234,11 @@ const Settings = () => {
                         <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
                         <div className="flex items-center gap-3">
                           <Globe className="w-5 h-5 text-gray-400" />
-                          <select
-                            value={preferences.language}
-                            onChange={(e) => handleLanguageChange(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                          >
-                            <option value="en">English</option>
-                            <option value="es">Español</option>
-                            <option value="pt">Português</option>
-                            <option value="fr">Français</option>
-                            <option value="zh">中文</option>
-                          </select>
+                          <GoogleTranslate />
                         </div>
+                        <p className="text-xs text-gray-500 mt-1">
+                          This will translate the entire website automatically using Google Translate
+                        </p>
                       </div>
 
                       <div>
