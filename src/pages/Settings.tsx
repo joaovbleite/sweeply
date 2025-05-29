@@ -54,7 +54,7 @@ import { useLocale } from "@/hooks/useLocale";
 import AppLayout from "@/components/AppLayout";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { profileApi, UserProfile } from "@/lib/api/profile";
-import { downloadAsJSON, setTheme, getTheme, Theme } from "@/lib/utils";
+import { downloadAsJSON } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 
 // Import new API functions
@@ -63,7 +63,6 @@ import { teamManagementApi, TeamMember, TeamInvitation } from "@/lib/api/team-ma
 import { integrationsApi, IntegrationConfig } from "@/lib/api/integrations";
 import { settingsApi, BrandingSettings, AdvancedBusinessSettings } from "@/lib/api/settings";
 import { useProfile } from "@/hooks/useProfile";
-import GoogleTranslate from "@/components/GoogleTranslate";
 
 const Settings = () => {
   const { t, i18n } = useTranslation(['settings', 'common']);
@@ -154,7 +153,7 @@ const Settings = () => {
     currency: 'USD',
     dateFormat: 'MM/DD/YYYY',
     timeFormat: '12h' as '12h' | '24h',
-    theme: getTheme(),
+    theme: 'system',
     defaultJobDuration: '120',
     autoInvoicing: true,
     showTips: true
@@ -353,7 +352,7 @@ const Settings = () => {
             currency: profile.currency || 'USD',
             dateFormat: profile.date_format || 'MM/DD/YYYY',
             timeFormat: profile.time_format || '12h',
-            theme: getTheme(),
+            theme: 'system',
             defaultJobDuration: profile.default_job_duration?.toString() || '120',
             autoInvoicing: profile.auto_invoicing ?? true,
             showTips: profile.show_tips ?? true
@@ -580,8 +579,9 @@ const Settings = () => {
   };
 
   const handleSavePreferences = async () => {
-    setLoading(true);
     try {
+      setLoading(prev => ({ ...prev, preferences: true }));
+      
       await profileApi.upsertProfile({
         timezone: preferences.timezone,
         currency: preferences.currency,
@@ -591,9 +591,6 @@ const Settings = () => {
         auto_invoicing: preferences.autoInvoicing,
         show_tips: preferences.showTips
       });
-
-      // Apply theme change
-      setTheme(preferences.theme);
 
       // Ensure language is set in localStorage and i18n
       if (i18n.language !== preferences.language) {
@@ -606,7 +603,7 @@ const Settings = () => {
       console.error('Error updating preferences:', error);
       toast.error(error.message || t('common:errorOccurred'));
     } finally {
-      setLoading(false);
+      setLoading(prev => ({ ...prev, preferences: false }));
     }
   };
 
@@ -654,7 +651,7 @@ const Settings = () => {
     }
 
     try {
-      setLoading(true);
+      setLoading(prev => ({ ...prev, deleteAccount: true }));
       await profileApi.deleteAccount();
       toast.success('Account deleted successfully');
       // User will be redirected by auth state change
@@ -662,7 +659,7 @@ const Settings = () => {
       console.error('Error deleting account:', error);
       toast.error(error.message || 'Failed to delete account');
     } finally {
-      setLoading(false);
+      setLoading(prev => ({ ...prev, deleteAccount: false }));
     }
   };
 

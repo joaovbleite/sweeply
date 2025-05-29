@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
-import GoogleTranslate from "@/components/GoogleTranslate";
 import { useProfile } from "@/hooks/useProfile";
 
 interface AppLayoutProps {
@@ -98,12 +97,6 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </nav>
 
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t space-y-2">
-          {/* Google Translate */}
-          <div className="space-y-2">
-            <span className="text-xs text-gray-500 font-medium">Translate Website</span>
-            <GoogleTranslate />
-          </div>
-          
           {/* Logout Button */}
           <button
             onClick={handleLogout}
