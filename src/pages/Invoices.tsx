@@ -20,15 +20,22 @@ import {
   Clock,
   TrendingUp,
   CreditCard,
-  Receipt
+  Receipt,
+  MoreVertical,
+  RefreshCw
 } from "lucide-react";
 import { toast } from "sonner";
 import { invoicesApi } from "@/lib/api/invoices";
 import { Invoice, InvoiceFilters, InvoiceStatus, InvoiceStats, PaymentMethod } from "@/types/invoice";
 import { format, differenceInDays } from "date-fns";
 import AppLayout from "@/components/AppLayout";
+import { useTranslation } from "react-i18next";
+import { useLocale } from "@/hooks/useLocale";
 
 const Invoices = () => {
+  const { t } = useTranslation(['invoices', 'common']);
+  const { formatCurrency } = useLocale();
+  
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -259,7 +266,7 @@ const Invoices = () => {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-                  <p className="text-2xl font-bold text-gray-900">${stats.total_revenue.toFixed(2)}</p>
+                  <p className="text-2xl font-bold text-gray-900">{formatCurrency(stats.total_revenue)}</p>
                 </div>
               </div>
             </div>
@@ -271,7 +278,7 @@ const Invoices = () => {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Outstanding</p>
-                  <p className="text-2xl font-bold text-gray-900">${stats.outstanding_amount.toFixed(2)}</p>
+                  <p className="text-2xl font-bold text-gray-900">{formatCurrency(stats.outstanding_amount)}</p>
                 </div>
               </div>
             </div>
@@ -468,16 +475,16 @@ const Invoices = () => {
                         <td className="px-6 py-4">
                           <div>
                             <div className="text-sm font-medium text-gray-900">
-                              ${invoice.total_amount.toFixed(2)}
+                              {formatCurrency(invoice.total_amount)}
                             </div>
                             {invoice.paid_amount > 0 && (
                               <div className="text-sm text-green-600">
-                                ${invoice.paid_amount.toFixed(2)} paid
+                                {formatCurrency(invoice.paid_amount)} paid
                               </div>
                             )}
                             {invoice.balance_due > 0 && (
                               <div className="text-sm text-orange-600">
-                                ${invoice.balance_due.toFixed(2)} due
+                                {formatCurrency(invoice.balance_due)} due
                               </div>
                             )}
                           </div>

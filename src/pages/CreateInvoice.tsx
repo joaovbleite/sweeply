@@ -23,9 +23,11 @@ import { Client } from "@/types/client";
 import { Job } from "@/types/job";
 import AppLayout from "@/components/AppLayout";
 import { format, addDays } from "date-fns";
+import { useLocale } from "@/hooks/useLocale";
 
 const CreateInvoice = () => {
   const navigate = useNavigate();
+  const { formatCurrency } = useLocale();
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -379,7 +381,7 @@ const CreateInvoice = () => {
                     <div className="md:col-span-2">
                       <label className="block text-xs text-gray-600 mb-1">Amount</label>
                       <div className="px-3 py-2 bg-gray-100 rounded-lg text-sm font-medium">
-                        ${item.amount.toFixed(2)}
+                        {formatCurrency(item.amount)}
                       </div>
                     </div>
                     <div className="md:col-span-1 flex items-end">
@@ -449,24 +451,24 @@ const CreateInvoice = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Subtotal</span>
-                    <span className="font-medium">${totals.subtotal.toFixed(2)}</span>
+                    <span className="font-medium">{formatCurrency(totals.subtotal)}</span>
                   </div>
                   {formData.tax_rate > 0 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Tax ({formData.tax_rate}%)</span>
-                      <span className="font-medium">${totals.taxAmount.toFixed(2)}</span>
+                      <span className="font-medium">{formatCurrency(totals.taxAmount)}</span>
                     </div>
                   )}
                   {formData.discount_amount > 0 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Discount</span>
-                      <span className="font-medium text-red-600">-${formData.discount_amount.toFixed(2)}</span>
+                      <span className="font-medium text-red-600">-{formatCurrency(formData.discount_amount)}</span>
                     </div>
                   )}
                   <div className="pt-3 border-t border-gray-200">
                     <div className="flex justify-between">
                       <span className="text-lg font-semibold">Total</span>
-                      <span className="text-lg font-bold text-pulse-600">${totals.total.toFixed(2)}</span>
+                      <span className="text-lg font-bold text-pulse-600">{formatCurrency(totals.total)}</span>
                     </div>
                   </div>
                 </div>
