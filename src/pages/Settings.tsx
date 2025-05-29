@@ -97,7 +97,7 @@ interface ActivityEntry {
 
 const Settings = () => {
   const { t, i18n } = useTranslation(['settings', 'common']);
-  const { formatCurrency } = useLocale();
+  const { formatCurrency, refreshPreferences } = useLocale();
   const { user } = useAuth();
   const { refreshProfile } = useProfile();
   
@@ -179,15 +179,10 @@ const Settings = () => {
 
   // Preference settings
   const [preferences, setPreferences] = useState({
-    language: i18n.language,
     timezone: 'America/New_York',
     currency: 'USD',
     dateFormat: 'MM/DD/YYYY',
-    timeFormat: '12h' as '12h' | '24h',
-    theme: 'system',
-    defaultJobDuration: '120',
-    autoInvoicing: true,
-    showTips: true
+    timeFormat: '12h' as '12h' | '24h'
   });
 
   // Team Management
@@ -550,15 +545,10 @@ const Settings = () => {
 
           // Update preferences
           setPreferences({
-            language: i18n.language,
             timezone: profile.timezone || 'America/New_York',
             currency: profile.currency || 'USD',
             dateFormat: profile.date_format || 'MM/DD/YYYY',
-            timeFormat: profile.time_format || '12h',
-            theme: 'system',
-            defaultJobDuration: profile.default_job_duration?.toString() || '120',
-            autoInvoicing: profile.auto_invoicing ?? true,
-            showTips: profile.show_tips ?? true
+            timeFormat: profile.time_format || '12h'
           });
         } else {
           // Set defaults from user auth data
@@ -796,17 +786,11 @@ const Settings = () => {
         timezone: preferences.timezone,
         currency: preferences.currency,
         date_format: preferences.dateFormat,
-        time_format: preferences.timeFormat,
-        default_job_duration: parseInt(preferences.defaultJobDuration),
-        auto_invoicing: preferences.autoInvoicing,
-        show_tips: preferences.showTips
+        time_format: preferences.timeFormat
       });
 
-      // Ensure language is set in localStorage and i18n
-      if (i18n.language !== preferences.language) {
-        i18n.changeLanguage(preferences.language);
-        localStorage.setItem('i18nextLng', preferences.language);
-      }
+      // Refresh locale preferences to update formatting throughout the app
+      await refreshPreferences();
 
       toast.success(t('settings:preferencesUpdated'));
     } catch (error: any) {
@@ -2424,193 +2408,136 @@ const Settings = () => {
 
             {/* Preferences Settings */}
             {activeTab === 'preferences' && (
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('settings:preferences')}</h2>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  <div className="space-y-6">
-                    <h3 className="text-lg font-medium text-gray-900">Language & Region</h3>
-                    
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Timezone</label>
-                        <select
-                          value={preferences.timezone}
-                          onChange={(e) => setPreferences(prev => ({ ...prev, timezone: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                        >
-                          <option value="America/New_York">Eastern Time (UTC-5)</option>
-                          <option value="America/Chicago">Central Time (UTC-6)</option>
-                          <option value="America/Denver">Mountain Time (UTC-7)</option>
-                          <option value="America/Los_Angeles">Pacific Time (UTC-8)</option>
-                          <option value="America/Phoenix">Arizona Time (UTC-7)</option>
-                          <option value="America/Anchorage">Alaska Time (UTC-9)</option>
-                          <option value="Pacific/Honolulu">Hawaii Time (UTC-10)</option>
-                          <option value="Europe/London">London Time (UTC+0)</option>
-                          <option value="Europe/Paris">Paris Time (UTC+1)</option>
-                          <option value="Asia/Tokyo">Tokyo Time (UTC+9)</option>
-                          <option value="Australia/Sydney">Sydney Time (UTC+11)</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
-                        <select
-                          value={preferences.currency}
-                          onChange={(e) => setPreferences(prev => ({ ...prev, currency: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                        >
-                          <option value="USD">USD - US Dollar ($)</option>
-                          <option value="EUR">EUR - Euro (€)</option>
-                          <option value="GBP">GBP - British Pound (£)</option>
-                          <option value="CAD">CAD - Canadian Dollar ($)</option>
-                          <option value="AUD">AUD - Australian Dollar ($)</option>
-                          <option value="JPY">JPY - Japanese Yen (¥)</option>
-                          <option value="CHF">CHF - Swiss Franc (₣)</option>
-                          <option value="SEK">SEK - Swedish Krona (kr)</option>
-                          <option value="NOK">NOK - Norwegian Krone (kr)</option>
-                          <option value="DKK">DKK - Danish Krone (kr)</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-6">
-                    <h3 className="text-lg font-medium text-gray-900">Display & Format</h3>
-                    
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Date Format</label>
-                        <select
-                          value={preferences.dateFormat}
-                          onChange={(e) => setPreferences(prev => ({ ...prev, dateFormat: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                        >
-                          <option value="MM/DD/YYYY">MM/DD/YYYY (12/25/2024)</option>
-                          <option value="DD/MM/YYYY">DD/MM/YYYY (25/12/2024)</option>
-                          <option value="YYYY-MM-DD">YYYY-MM-DD (2024-12-25)</option>
-                          <option value="DD MMM YYYY">DD MMM YYYY (25 Dec 2024)</option>
-                          <option value="MMM DD, YYYY">MMM DD, YYYY (Dec 25, 2024)</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Time Format</label>
-                        <select
-                          value={preferences.timeFormat}
-                          onChange={(e) => setPreferences(prev => ({ ...prev, timeFormat: e.target.value as '12h' | '24h' }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                        >
-                          <option value="12h">12-hour (2:30 PM)</option>
-                          <option value="24h">24-hour (14:30)</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
+              <div className="bg-white rounded-xl shadow-sm">
+                <div className="p-6 border-b border-gray-100">
+                  <h2 className="text-xl font-semibold text-gray-900">{t('settings:preferences')}</h2>
+                  <p className="text-sm text-gray-600 mt-1">Customize how information is displayed in your account</p>
                 </div>
-
-                {/* Business Preferences */}
-                <div className="mt-8 space-y-6">
-                  <h3 className="text-lg font-medium text-gray-900">Business Preferences</h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Default Job Duration</label>
-                      <div className="relative">
-                        <Clock className="absolute left-3 top-2 w-4 h-4 text-gray-400" />
-                        <select
-                          value={preferences.defaultJobDuration}
-                          onChange={(e) => setPreferences(prev => ({ ...prev, defaultJobDuration: e.target.value }))}
-                          className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                        >
-                          <option value="30">30 minutes</option>
-                          <option value="60">1 hour</option>
-                          <option value="90">1.5 hours</option>
-                          <option value="120">2 hours</option>
-                          <option value="150">2.5 hours</option>
-                          <option value="180">3 hours</option>
-                          <option value="240">4 hours</option>
-                          <option value="300">5 hours</option>
-                          <option value="360">6 hours</option>
-                          <option value="480">8 hours</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
+                
+                <div className="p-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Language & Region */}
+                    <div className="space-y-6">
+                      <h3 className="text-lg font-medium text-gray-900">Language & Region</h3>
+                      
+                      <div className="space-y-4">
                         <div>
-                          <h4 className="text-sm font-medium text-gray-900">Automatic Invoicing</h4>
-                          <p className="text-sm text-gray-600">Create invoices automatically when jobs are completed</p>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Timezone</label>
+                          <select
+                            value={preferences.timezone}
+                            onChange={(e) => setPreferences(prev => ({ ...prev, timezone: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                          >
+                            <option value="America/New_York">Eastern Time (UTC-5)</option>
+                            <option value="America/Chicago">Central Time (UTC-6)</option>
+                            <option value="America/Denver">Mountain Time (UTC-7)</option>
+                            <option value="America/Los_Angeles">Pacific Time (UTC-8)</option>
+                            <option value="America/Phoenix">Arizona Time (UTC-7)</option>
+                            <option value="America/Anchorage">Alaska Time (UTC-9)</option>
+                            <option value="Pacific/Honolulu">Hawaii Time (UTC-10)</option>
+                            <option value="Europe/London">London Time (UTC+0)</option>
+                            <option value="Europe/Paris">Paris Time (UTC+1)</option>
+                            <option value="Asia/Tokyo">Tokyo Time (UTC+9)</option>
+                            <option value="Australia/Sydney">Sydney Time (UTC+11)</option>
+                          </select>
                         </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={preferences.autoInvoicing}
-                            onChange={(e) => setPreferences(prev => ({ ...prev, autoInvoicing: e.target.checked }))}
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
-                        </label>
-                      </div>
 
-                      <div className="flex items-center justify-between">
                         <div>
-                          <h4 className="text-sm font-medium text-gray-900">Show Tips & Tutorials</h4>
-                          <p className="text-sm text-gray-600">Display helpful tips and onboarding guides</p>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
+                          <select
+                            value={preferences.currency}
+                            onChange={(e) => setPreferences(prev => ({ ...prev, currency: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                          >
+                            <option value="USD">USD - US Dollar ($)</option>
+                            <option value="EUR">EUR - Euro (€)</option>
+                            <option value="GBP">GBP - British Pound (£)</option>
+                            <option value="CAD">CAD - Canadian Dollar ($)</option>
+                            <option value="AUD">AUD - Australian Dollar ($)</option>
+                            <option value="JPY">JPY - Japanese Yen (¥)</option>
+                            <option value="CHF">CHF - Swiss Franc (₣)</option>
+                            <option value="SEK">SEK - Swedish Krona (kr)</option>
+                            <option value="NOK">NOK - Norwegian Krone (kr)</option>
+                            <option value="DKK">DKK - Danish Krone (kr)</option>
+                          </select>
                         </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={preferences.showTips}
-                            onChange={(e) => setPreferences(prev => ({ ...prev, showTips: e.target.checked }))}
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pulse-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pulse-600"></div>
-                        </label>
+                      </div>
+                    </div>
+
+                    {/* Display & Format */}
+                    <div className="space-y-6">
+                      <h3 className="text-lg font-medium text-gray-900">Display & Format</h3>
+                      
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Date Format</label>
+                          <select
+                            value={preferences.dateFormat}
+                            onChange={(e) => setPreferences(prev => ({ ...prev, dateFormat: e.target.value }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                          >
+                            <option value="MM/DD/YYYY">MM/DD/YYYY (12/25/2024)</option>
+                            <option value="DD/MM/YYYY">DD/MM/YYYY (25/12/2024)</option>
+                            <option value="YYYY-MM-DD">YYYY-MM-DD (2024-12-25)</option>
+                            <option value="DD MMM YYYY">DD MMM YYYY (25 Dec 2024)</option>
+                            <option value="MMM DD, YYYY">MMM DD, YYYY (Dec 25, 2024)</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Time Format</label>
+                          <select
+                            value={preferences.timeFormat}
+                            onChange={(e) => setPreferences(prev => ({ ...prev, timeFormat: e.target.value as '12h' | '24h' }))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                          >
+                            <option value="12h">12-hour (2:30 PM)</option>
+                            <option value="24h">24-hour (14:30)</option>
+                          </select>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Preview Section */}
-                <div className="mt-8 bg-gray-50 rounded-lg p-6">
-                  <h4 className="text-lg font-medium text-gray-900 mb-4">Preview</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h5 className="text-sm font-medium text-gray-700 mb-2">Date & Time Format</h5>
-                      <div className="bg-white rounded border p-3">
-                        <p className="text-sm">
-                          Today: {formatDatePreview(new Date())}
-                        </p>
-                        <p className="text-sm">
-                          Time: {formatTimePreview(new Date())}
-                        </p>
+                  {/* Preview Section */}
+                  <div className="mt-8 bg-gray-50 rounded-lg p-6">
+                    <h4 className="text-lg font-medium text-gray-900 mb-4">Preview</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <h5 className="text-sm font-medium text-gray-700 mb-2">Date & Time Format</h5>
+                        <div className="bg-white rounded border p-3">
+                          <p className="text-sm">
+                            Today: {formatDatePreview(new Date())}
+                          </p>
+                          <p className="text-sm">
+                            Time: {formatTimePreview(new Date())}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    <div>
-                      <h5 className="text-sm font-medium text-gray-700 mb-2">Currency Format</h5>
-                      <div className="bg-white rounded border p-3">
-                        <p className="text-sm">
-                          Service Price: {formatCurrency(150)}
-                        </p>
-                        <p className="text-sm">
-                          Total Amount: {formatCurrency(1250.50)}
-                        </p>
+                      <div>
+                        <h5 className="text-sm font-medium text-gray-700 mb-2">Currency Format</h5>
+                        <div className="bg-white rounded border p-3">
+                          <p className="text-sm">
+                            Service Price: {formatCurrency(150)}
+                          </p>
+                          <p className="text-sm">
+                            Total Amount: {formatCurrency(1250.50)}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="mt-8 flex justify-end">
-                  <button
-                    onClick={handleSavePreferences}
-                    disabled={loading}
-                    className="px-6 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 flex items-center gap-2"
-                  >
-                    <Save className="w-4 h-4" />
-                    {loading ? t('common:saving') : t('common:save')}
-                  </button>
+                  <div className="mt-8 flex justify-end">
+                    <button
+                      onClick={handleSavePreferences}
+                      disabled={loading}
+                      className="px-6 py-2.5 bg-pulse-500 text-white rounded-md hover:bg-pulse-600 disabled:opacity-50 flex items-center gap-2 font-medium transition-colors"
+                    >
+                      <Save className="w-4 h-4" />
+                      {loading ? t('common:saving') : t('common:save')}
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
