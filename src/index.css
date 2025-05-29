@@ -202,7 +202,7 @@
   animation: slide-up 0.3s ease-out;
 }
 
-/* Google Translate custom styles - hide UI but keep functionality */
+/* Google Translate styles - minimal interference approach */
 .goog-te-banner-frame.skiptranslate {
   display: none !important;
 }
@@ -211,26 +211,18 @@ body {
   top: 0px !important;
 }
 
-.goog-te-gadget {
-  position: absolute !important;
-  left: -9999px !important;
-  top: -9999px !important;
-}
-
+/* Hide Google's UI elements but keep them functional */
+.goog-te-gadget,
 iframe.skiptranslate {
   position: absolute !important;
   left: -9999px !important;
   top: -9999px !important;
+  opacity: 0 !important;
 }
 
-/* Keep the combo visible but hidden off-screen so it can be accessed */
+/* Allow the combo element to exist and be accessible */
 .goog-te-combo {
-  position: absolute !important;
-  left: -9999px !important;
-  top: -9999px !important;
-  visibility: visible !important;
-  width: auto !important;
-  height: auto !important;
+  /* Don't hide completely - just move off screen */
 }
 
 .goog-text-highlight {
@@ -242,26 +234,13 @@ iframe.skiptranslate {
   display: none !important;
 }
 
-.goog-te-gadget .goog-te-gadget-simple {
-  background: transparent !important;
-  border: none !important;
-}
-
-/* Hide Google branding but keep functional elements accessible */
-.goog-te-gadget > span > a {
+/* Hide Google branding */
+.goog-te-gadget > span > a,
+.goog-te-gadget .goog-te-gadget-simple .goog-te-menu-value span {
   display: none !important;
 }
 
-.goog-te-gadget .goog-te-gadget-simple .goog-te-menu-value span {
-  color: transparent !important;
-}
-
-/* Position Google Translate element off-screen but accessible */
+/* Ensure our container stays accessible */
 #google_translate_element {
-  position: absolute !important;
-  left: -9999px !important;
-  top: -9999px !important;
-  width: 1px !important;
-  height: 1px !important;
-  overflow: hidden !important;
+  /* Let it exist naturally but positioned off-screen */
 }
