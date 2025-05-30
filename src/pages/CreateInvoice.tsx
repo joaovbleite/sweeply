@@ -13,7 +13,8 @@ import {
   Calculator,
   Percent,
   Hash,
-  ListFilter
+  ListFilter,
+  CheckCircle
 } from "lucide-react";
 import { toast } from "sonner";
 import { invoicesApi } from "@/lib/api/invoices";
@@ -112,9 +113,12 @@ const CreateInvoice = () => {
           // Get service type details if available
           const jobServiceType = serviceTypes.find(st => st.name?.toLowerCase() === jobToSelect.service_type?.replace('_', ' ')?.toLowerCase());
           
+          // Set job date in formatted string
+          const formattedJobDate = format(new Date(jobToSelect.scheduled_date), 'MMM d, yyyy');
+          
           // Automatically add this job as an invoice item
           const newItem = {
-            description: `${jobToSelect.title} - ${jobToSelect.service_type.replace('_', ' ')} (${format(new Date(jobToSelect.scheduled_date), 'MMM d, yyyy')})`,
+            description: `${jobToSelect.title} - ${jobToSelect.service_type.replace('_', ' ')} (${formattedJobDate})`,
             quantity: 1,
             rate: jobToSelect.actual_price || jobToSelect.estimated_price || (jobServiceType?.default_price || 0),
             amount: jobToSelect.actual_price || jobToSelect.estimated_price || (jobServiceType?.default_price || 0),
@@ -133,13 +137,20 @@ const CreateInvoice = () => {
             jobNotes.push(`Service Location: ${jobToSelect.address}`);
           }
           
+          // Set invoice defaults based on job
           setFormData(prev => ({
             ...prev,
             items: [...prev.items.filter(item => item.description), newItem],
             notes: jobNotes.length > 0 ? 
               `Job Details:\n${jobNotes.join('\n')}\n\n${prev.notes || ''}` : 
-              prev.notes
+              prev.notes,
+            issue_date: format(new Date(), 'yyyy-MM-dd'),
+            due_date: format(addDays(new Date(), 30), 'yyyy-MM-dd'),
+            service_date: jobToSelect.scheduled_date
           }));
+          
+          // Show toast notification that job was auto-selected
+          toast.success(`Job "${jobToSelect.title}" automatically added to invoice`);
         }
       }
     } else {
@@ -307,6 +318,39 @@ const CreateInvoice = () => {
     }
   };
 
+  // Handle select all jobs checkbox
+  const handleSelectAllJobs = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = e.target.checked;
+    if (isChecked) {
+      // Select all available jobs
+      setFormData(prev => ({
+        ...prev,
+        job_ids: availableJobs.map(job => job.id)
+      }));
+    } else {
+      // Deselect all jobs
+      setFormData(prev => ({
+        ...prev,
+        job_ids: []
+      }));
+    }
+  };
+
+  // Handle individual job selection
+  const handleJobSelect = (jobId: string) => {
+    setFormData(prev => {
+      const currentJobIds = prev.job_ids || [];
+      const isSelected = currentJobIds.includes(jobId);
+      
+      return {
+        ...prev,
+        job_ids: isSelected
+          ? currentJobIds.filter(id => id !== jobId)
+          : [...currentJobIds, jobId]
+      };
+    });
+  };
+
   return (
     <AppLayout>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -354,6 +398,44 @@ const CreateInvoice = () => {
                   ))}
                 </select>
               </div>
+              
+              {/* Display selected client information */}
+              {selectedClient && (
+                <div className="bg-gray-50 rounded-lg p-4 mt-2">
+                  <h4 className="font-medium text-gray-900 mb-2">Selected Client Information</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Name</p>
+                      <p className="font-medium">{selectedClient.name}</p>
+                    </div>
+                    {selectedClient.email && (
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Email</p>
+                        <p className="font-medium">{selectedClient.email}</p>
+                      </div>
+                    )}
+                    {selectedClient.phone && (
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Phone</p>
+                        <p className="font-medium">{selectedClient.phone}</p>
+                      </div>
+                    )}
+                    {selectedClient.address && (
+                      <div className="col-span-2">
+                        <p className="text-sm text-gray-600 mb-1">Address</p>
+                        <p className="font-medium">
+                          {[
+                            selectedClient.address,
+                            selectedClient.city,
+                            selectedClient.state,
+                            selectedClient.zip
+                          ].filter(Boolean).join(', ')}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -362,58 +444,113 @@ const CreateInvoice = () => {
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
                 <Calendar className="w-5 h-5" />
-                Add from Completed Jobs
+                Jobs
               </h3>
-
-              {availableJobs.length > 0 ? (
-                <>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Select Jobs to Add
-                    </label>
-                    <div className="border border-gray-200 rounded-lg max-h-60 overflow-y-auto p-2">
-                      {availableJobs.map(job => (
-                        <div key={job.id} className="py-2 px-3 hover:bg-gray-50 rounded-lg">
-                          <label className="flex items-start gap-2 cursor-pointer">
+              
+              {jobIdFromUrl && (
+                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-blue-500" />
+                    <span className="font-medium text-blue-700">
+                      Job automatically selected from calendar
+                    </span>
+                  </div>
+                  <p className="text-sm text-blue-600 mt-1">
+                    The selected job details have been added to this invoice
+                  </p>
+                </div>
+              )}
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Add from Completed Jobs
+                  </label>
+                  <div className="border border-gray-300 rounded-lg overflow-hidden">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             <input
                               type="checkbox"
-                              checked={formData.job_ids?.includes(job.id) || false}
-                              onChange={(e) => {
-                                const isChecked = e.target.checked;
-                                setFormData(prev => ({
-                                  ...prev,
-                                  job_ids: isChecked
-                                    ? [...(prev.job_ids || []), job.id]
-                                    : (prev.job_ids || []).filter(id => id !== job.id)
-                                }));
-                              }}
-                              className="mt-1 rounded border-gray-300 text-pulse-600 focus:ring-pulse-500"
+                              className="h-4 w-4 text-pulse-600 focus:ring-pulse-500 border-gray-300 rounded"
+                              onChange={handleSelectAllJobs}
+                              checked={
+                                availableJobs.length > 0 &&
+                                formData.job_ids?.length === availableJobs.length
+                              }
                             />
-                            <div>
-                              <p className="font-medium">{job.title}</p>
-                              <p className="text-sm text-gray-600">
-                                {format(new Date(job.scheduled_date), 'MMM d, yyyy')} • {job.service_type.replace('_', ' ')} • {formatCurrency(job.actual_price || job.estimated_price || 0)}
-                              </p>
-                            </div>
-                          </label>
-                        </div>
-                      ))}
-                    </div>
+                          </th>
+                          <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Job
+                          </th>
+                          <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Date
+                          </th>
+                          <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Price
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {availableJobs.length > 0 ? (
+                          availableJobs.map(job => (
+                            <tr 
+                              key={job.id}
+                              className={job.id === jobIdFromUrl ? "bg-blue-50" : ""}
+                            >
+                              <td className="px-4 py-3 whitespace-nowrap">
+                                <input
+                                  type="checkbox"
+                                  className="h-4 w-4 text-pulse-600 focus:ring-pulse-500 border-gray-300 rounded"
+                                  checked={formData.job_ids?.includes(job.id)}
+                                  onChange={() => handleJobSelect(job.id)}
+                                />
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap">
+                                <div className="text-sm font-medium text-gray-900">
+                                  {job.title}
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                  {job.service_type?.replace('_', ' ')}
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap">
+                                <div className="text-sm text-gray-900">
+                                  {format(new Date(job.scheduled_date), 'MMM d, yyyy')}
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap">
+                                <div className="text-sm text-gray-900">
+                                  {formatCurrency(job.actual_price || job.estimated_price || 0)}
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={4} className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                              No completed jobs found for this client
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
                   </div>
+                </div>
+                
+                <div className="flex justify-end">
                   <button
                     type="button"
                     onClick={handleAddJobsAsItems}
-                    className="px-4 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 transition-colors flex items-center gap-2"
+                    disabled={!formData.job_ids?.length}
+                    className="px-4 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   >
                     <Plus className="w-4 h-4" />
                     Add Selected Jobs to Invoice
                   </button>
-                </>
-              ) : (
-                <div className="text-center py-4">
-                  <p className="text-gray-600">No completed jobs found for this client</p>
                 </div>
-              )}
+              </div>
             </div>
           )}
 
