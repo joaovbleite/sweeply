@@ -109,25 +109,43 @@ const CreateInvoice = () => {
             job_ids: [...(prev.job_ids || []), jobToSelect.id]
           }));
           
+          // Get service type details if available
+          const jobServiceType = serviceTypes.find(st => st.name?.toLowerCase() === jobToSelect.service_type?.replace('_', ' ')?.toLowerCase());
+          
           // Automatically add this job as an invoice item
           const newItem = {
             description: `${jobToSelect.title} - ${jobToSelect.service_type.replace('_', ' ')} (${format(new Date(jobToSelect.scheduled_date), 'MMM d, yyyy')})`,
             quantity: 1,
-            rate: jobToSelect.actual_price || jobToSelect.estimated_price || 0,
-            amount: jobToSelect.actual_price || jobToSelect.estimated_price || 0,
+            rate: jobToSelect.actual_price || jobToSelect.estimated_price || (jobServiceType?.default_price || 0),
+            amount: jobToSelect.actual_price || jobToSelect.estimated_price || (jobServiceType?.default_price || 0),
             job_id: jobToSelect.id
           };
           
+          // Collect any notes from the job
+          const jobNotes = [];
+          if (jobToSelect.special_instructions) {
+            jobNotes.push(`Special Instructions: ${jobToSelect.special_instructions}`);
+          }
+          if (jobToSelect.access_instructions) {
+            jobNotes.push(`Access Details: ${jobToSelect.access_instructions}`);
+          }
+          if (jobToSelect.address) {
+            jobNotes.push(`Service Location: ${jobToSelect.address}`);
+          }
+          
           setFormData(prev => ({
             ...prev,
-            items: [...prev.items.filter(item => item.description), newItem]
+            items: [...prev.items.filter(item => item.description), newItem],
+            notes: jobNotes.length > 0 ? 
+              `Job Details:\n${jobNotes.join('\n')}\n\n${prev.notes || ''}` : 
+              prev.notes
           }));
         }
       }
     } else {
       setAvailableJobs([]);
     }
-  }, [selectedClient, jobs, jobIdFromUrl]);
+  }, [selectedClient, jobs, jobIdFromUrl, serviceTypes]);
 
   // Handle client selection
   const handleClientSelect = (clientId: string) => {
@@ -200,17 +218,42 @@ const CreateInvoice = () => {
     }
 
     const selectedJobs = availableJobs.filter(job => formData.job_ids?.includes(job.id));
-    const newItems = selectedJobs.map(job => ({
-      description: `${job.title} - ${job.service_type.replace('_', ' ')} (${format(new Date(job.scheduled_date), 'MMM d, yyyy')})`,
-      quantity: 1,
-      rate: job.actual_price || job.estimated_price || 0,
-      amount: job.actual_price || job.estimated_price || 0,
-      job_id: job.id
-    }));
+    
+    // Collect job notes
+    const allJobNotes: string[] = [];
+    
+    const newItems = selectedJobs.map(job => {
+      // Find matching service type if available
+      const jobServiceType = serviceTypes.find(st => 
+        st.name?.toLowerCase() === job.service_type?.replace('_', ' ')?.toLowerCase()
+      );
+      
+      // Add job notes
+      if (job.special_instructions) {
+        allJobNotes.push(`Job ${job.title} Special Instructions: ${job.special_instructions}`);
+      }
+      if (job.access_instructions) {
+        allJobNotes.push(`Job ${job.title} Access Details: ${job.access_instructions}`);
+      }
+      if (job.address) {
+        allJobNotes.push(`Job ${job.title} Location: ${job.address}`);
+      }
+      
+      return {
+        description: `${job.title} - ${job.service_type.replace('_', ' ')} (${format(new Date(job.scheduled_date), 'MMM d, yyyy')})`,
+        quantity: 1,
+        rate: job.actual_price || job.estimated_price || (jobServiceType?.default_price || 0),
+        amount: job.actual_price || job.estimated_price || (jobServiceType?.default_price || 0),
+        job_id: job.id
+      };
+    });
 
     setFormData(prev => ({
       ...prev,
-      items: [...prev.items.filter(item => item.description), ...newItems]
+      items: [...prev.items.filter(item => item.description), ...newItems],
+      notes: allJobNotes.length > 0 ? 
+        `${prev.notes || ''}\n\nJob Details:\n${allJobNotes.join('\n')}` : 
+        prev.notes
     }));
   };
 
