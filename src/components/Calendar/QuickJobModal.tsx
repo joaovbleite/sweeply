@@ -35,7 +35,9 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
   const [recurringPattern, setRecurringPattern] = useState<RecurringPattern>({
     is_recurring: false,
     frequency: 'weekly',
-    endType: 'never'
+    endType: 'never',
+    recurring_frequency: 'weekly',
+    recurring_end_type: 'never'
   });
 
   const [formData, setFormData] = useState<CreateJobInput>({
@@ -273,7 +275,8 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
     setLoading(true);
 
     try {
-      const jobData: CreateJobInput & Partial<RecurringPattern> = {
+      // Start with basic job data
+      const jobData: CreateJobInput = {
         client_id: formData.client_id,
         title: formData.title,
         service_type: formData.service_type,
@@ -292,13 +295,21 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
 
       // Add recurring fields if applicable
       if (formData.is_recurring && recurringPattern.is_recurring) {
-        jobData.recurring_frequency = recurringPattern.frequency || recurringPattern.recurring_frequency;
-        jobData.recurring_end_type = recurringPattern.endType || recurringPattern.recurring_end_type || 'never';
-        jobData.recurring_end_date = recurringPattern.endDate || recurringPattern.recurring_end_date;
-        jobData.recurring_occurrences = recurringPattern.occurrences || recurringPattern.recurring_occurrences;
-        jobData.recurring_days_of_week = recurringPattern.daysOfWeek || recurringPattern.recurring_days_of_week;
-        jobData.recurring_day_of_month = recurringPattern.dayOfMonth || recurringPattern.recurring_day_of_month;
+        // Only add database fields, not frontend-only fields
+        const recurringData = {
+          recurring_frequency: recurringPattern.recurring_frequency,
+          recurring_end_type: recurringPattern.recurring_end_type,
+          recurring_end_date: recurringPattern.recurring_end_date,
+          recurring_occurrences: recurringPattern.recurring_occurrences,
+          recurring_days_of_week: recurringPattern.recurring_days_of_week,
+          recurring_day_of_month: recurringPattern.recurring_day_of_month
+        };
+        
+        // Merge recurring data with job data
+        Object.assign(jobData, recurringData);
       }
+
+      console.log('Creating job with data:', jobData);
 
       if (formData.is_recurring) {
         await jobsApi.createRecurring(jobData as any);

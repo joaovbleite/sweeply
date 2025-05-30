@@ -3,18 +3,22 @@ import { Calendar, Clock, Repeat, X } from 'lucide-react';
 
 export interface RecurringPattern {
   is_recurring: boolean;
-  frequency: 'weekly' | 'biweekly' | 'monthly' | 'quarterly';
-  recurring_frequency?: 'weekly' | 'biweekly' | 'monthly' | 'quarterly';
+  
+  // Frontend fields (these will be mapped to database fields)
+  frequency?: 'weekly' | 'biweekly' | 'monthly' | 'quarterly';
   daysOfWeek?: number[]; // 0 = Sunday, 1 = Monday, etc.
   dayOfMonth?: number; // 1-31 for monthly
-  endType: 'never' | 'date' | 'occurrences';
-  recurring_end_type?: 'never' | 'date' | 'occurrences';
+  endType?: 'never' | 'date' | 'occurrences';
   endDate?: string;
-  recurring_end_date?: string;
   occurrences?: number;
-  recurring_occurrences?: number;
+  
+  // Database fields (these are the actual fields stored in Supabase)
+  recurring_frequency?: 'weekly' | 'biweekly' | 'monthly' | 'quarterly';
   recurring_days_of_week?: number[];
   recurring_day_of_month?: number;
+  recurring_end_type?: 'never' | 'date' | 'occurrences';
+  recurring_end_date?: string;
+  recurring_occurrences?: number;
 }
 
 interface RecurringJobPatternProps {
@@ -106,15 +110,18 @@ const RecurringJobPattern: React.FC<RecurringJobPatternProps> = ({
   }, [pattern, startDate, currentFrequency, currentIsRecurring, currentEndDate]);
 
   const handleFrequencyChange = (frequency: RecurringPattern['frequency']) => {
+    const today = new Date(startDate);
     onChange({
       ...pattern,
+      // Frontend fields
       frequency,
+      daysOfWeek: frequency === 'weekly' ? [today.getDay()] : undefined,
+      dayOfMonth: frequency === 'monthly' ? today.getDate() : undefined,
+      
+      // Database fields (matched to frontend fields)
       recurring_frequency: frequency,
-      // Reset specific settings when frequency changes
-      daysOfWeek: frequency === 'weekly' ? [new Date(startDate).getDay()] : undefined,
-      recurring_days_of_week: frequency === 'weekly' ? [new Date(startDate).getDay()] : undefined,
-      dayOfMonth: frequency === 'monthly' ? new Date(startDate).getDate() : undefined,
-      recurring_day_of_month: frequency === 'monthly' ? new Date(startDate).getDate() : undefined,
+      recurring_days_of_week: frequency === 'weekly' ? [today.getDay()] : undefined,
+      recurring_day_of_month: frequency === 'monthly' ? today.getDate() : undefined,
     });
   };
 
@@ -126,20 +133,61 @@ const RecurringJobPattern: React.FC<RecurringJobPatternProps> = ({
     
     onChange({
       ...pattern,
+      // Update both frontend and database fields
       daysOfWeek: newDays.length > 0 ? newDays : undefined,
       recurring_days_of_week: newDays.length > 0 ? newDays : undefined
     });
   };
 
-  const handleEndTypeChange = (endType: RecurringPattern['endType']) => {
+  const handleDayOfMonthChange = (day: number) => {
     onChange({
       ...pattern,
+      // Update both frontend and database fields
+      dayOfMonth: day,
+      recurring_day_of_month: day
+    });
+  };
+
+  const handleEndTypeChange = (endType: RecurringPattern['endType']) => {
+    // Setup default values
+    let endDate = pattern.endDate || pattern.recurring_end_date;
+    let occurrences = pattern.occurrences || pattern.recurring_occurrences || 10;
+    
+    // If we don't have an end date and the endType is 'date', set a default
+    if (endType === 'date' && !endDate) {
+      const defaultEndDate = new Date(startDate);
+      defaultEndDate.setMonth(defaultEndDate.getMonth() + 3); // Default to 3 months
+      endDate = defaultEndDate.toISOString().split('T')[0];
+    }
+    
+    onChange({
+      ...pattern,
+      // Update both frontend and database fields
       endType,
       recurring_end_type: endType,
-      endDate: endType === 'date' ? (pattern.endDate || pattern.recurring_end_date) : undefined,
-      recurring_end_date: endType === 'date' ? (pattern.endDate || pattern.recurring_end_date) : undefined,
-      occurrences: endType === 'occurrences' ? (pattern.occurrences || pattern.recurring_occurrences || 10) : undefined,
-      recurring_occurrences: endType === 'occurrences' ? (pattern.occurrences || pattern.recurring_occurrences || 10) : undefined,
+      // Set values based on end type
+      endDate: endType === 'date' ? endDate : undefined,
+      recurring_end_date: endType === 'date' ? endDate : undefined,
+      occurrences: endType === 'occurrences' ? occurrences : undefined,
+      recurring_occurrences: endType === 'occurrences' ? occurrences : undefined
+    });
+  };
+
+  const handleEndDateChange = (date: string) => {
+    onChange({
+      ...pattern,
+      // Update both frontend and database fields
+      endDate: date,
+      recurring_end_date: date
+    });
+  };
+
+  const handleOccurrencesChange = (occurrences: number) => {
+    onChange({
+      ...pattern,
+      // Update both frontend and database fields
+      occurrences,
+      recurring_occurrences: occurrences
     });
   };
 
@@ -220,11 +268,7 @@ const RecurringJobPattern: React.FC<RecurringJobPatternProps> = ({
             min="1"
             max="31"
             value={(pattern.dayOfMonth || pattern.recurring_day_of_month) || ''}
-            onChange={(e) => onChange({
-              ...pattern,
-              dayOfMonth: e.target.value ? parseInt(e.target.value) : undefined,
-              recurring_day_of_month: e.target.value ? parseInt(e.target.value) : undefined
-            })}
+            onChange={(e) => handleDayOfMonthChange(e.target.value ? parseInt(e.target.value) : undefined)}
             className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
             placeholder="Day"
           />
@@ -263,11 +307,7 @@ const RecurringJobPattern: React.FC<RecurringJobPatternProps> = ({
               <input
                 type="date"
                 value={currentEndDate || ''}
-                onChange={(e) => onChange({
-                  ...pattern,
-                  endDate: e.target.value,
-                  recurring_end_date: e.target.value
-                })}
+                onChange={(e) => handleEndDateChange(e.target.value)}
                 className="ml-2 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-pulse-500"
               />
             )}
@@ -290,11 +330,7 @@ const RecurringJobPattern: React.FC<RecurringJobPatternProps> = ({
                   min="1"
                   max="100"
                   value={(pattern.occurrences || pattern.recurring_occurrences) || ''}
-                  onChange={(e) => onChange({
-                    ...pattern,
-                    occurrences: e.target.value ? parseInt(e.target.value) : undefined,
-                    recurring_occurrences: e.target.value ? parseInt(e.target.value) : undefined
-                  })}
+                  onChange={(e) => handleOccurrencesChange(e.target.value ? parseInt(e.target.value) : undefined)}
                   className="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-pulse-500"
                 />
                 <span className="text-sm text-gray-700">occurrences</span>
