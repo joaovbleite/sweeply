@@ -100,13 +100,17 @@ const CreateInvoice = () => {
     loadData();
   }, [clientIdFromUrl]);
 
+  // Add a useEffect to debug the items state when it changes
+  useEffect(() => {
+    console.log("Current invoice items:", formData.items);
+  }, [formData.items]);
+
   // Update available jobs when client is selected
   useEffect(() => {
     if (selectedClient) {
       const clientJobs = jobs.filter(job => 
         job.client_id === selectedClient.id && 
         job.status === 'completed'
-        // Note: We can't check if a job is already invoiced without invoice_id field
       );
       setAvailableJobs(clientJobs);
       
@@ -121,17 +125,34 @@ const CreateInvoice = () => {
           }));
           
           // Get service type details if available
-          const jobServiceType = serviceTypes.find(st => st.name?.toLowerCase() === jobToSelect.service_type?.replace('_', ' ')?.toLowerCase());
+          const jobServiceType = serviceTypes.find(st => 
+            st.name?.toLowerCase() === jobToSelect.service_type?.replace('_', ' ')?.toLowerCase()
+          );
           
-          // Set job date in formatted string
+          // Format job date
           const formattedJobDate = format(new Date(jobToSelect.scheduled_date), 'MMM d, yyyy');
+          
+          // Get job price, prioritizing actual price over estimated price over service type default
+          const jobPrice = jobToSelect.actual_price || 
+                           jobToSelect.estimated_price || 
+                           (jobServiceType?.default_price || 0);
+          
+          // Format job service type for display
+          const formattedServiceType = jobToSelect.service_type
+            .replace('_', ' ')
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+          
+          // Create a detailed description
+          const itemDescription = `${formattedServiceType} - ${jobToSelect.title} (${formattedJobDate})`;
           
           // Automatically add this job as an invoice item
           const newItem = {
-            description: `${jobToSelect.title} - ${jobToSelect.service_type.replace('_', ' ')} (${formattedJobDate})`,
+            description: itemDescription,
             quantity: 1,
-            rate: jobToSelect.actual_price || jobToSelect.estimated_price || (jobServiceType?.default_price || 0),
-            amount: jobToSelect.actual_price || jobToSelect.estimated_price || (jobServiceType?.default_price || 0),
+            rate: jobPrice,
+            amount: jobPrice,
             job_id: jobToSelect.id
           };
           
@@ -147,17 +168,25 @@ const CreateInvoice = () => {
             jobNotes.push(`Service Location: ${jobToSelect.address}`);
           }
           
+          console.log("Creating invoice item from job:", newItem);
+          
           // Set invoice defaults based on job
-          setFormData(prev => ({
-            ...prev,
-            items: [...prev.items.filter(item => item.description), newItem],
-            notes: jobNotes.length > 0 ? 
-              `Job Details:\n${jobNotes.join('\n')}\n\n${prev.notes || ''}` : 
-              prev.notes,
-            issue_date: format(new Date(), 'yyyy-MM-dd'),
-            due_date: format(addDays(new Date(), 30), 'yyyy-MM-dd'),
-            service_date: jobToSelect.scheduled_date
-          }));
+          setFormData(prev => {
+            // First, remove any empty default items
+            const filteredItems = prev.items.filter(item => item.description && item.description.trim() !== "");
+            
+            return {
+              ...prev,
+              // Replace all items with our filtered items plus the new job item
+              items: [...filteredItems, newItem],
+              notes: jobNotes.length > 0 ? 
+                `Job Details:\n${jobNotes.join('\n')}\n\n${prev.notes || ''}` : 
+                prev.notes,
+              issue_date: format(new Date(), 'yyyy-MM-dd'),
+              due_date: format(addDays(new Date(), 30), 'yyyy-MM-dd'),
+              service_date: jobToSelect.scheduled_date
+            };
+          });
           
           // Show toast notification that job was auto-selected
           toast.success(`Job "${jobToSelect.title}" automatically added to invoice`);
@@ -583,7 +612,16 @@ const CreateInvoice = () => {
 
             <div className="space-y-3">
               {formData.items.map((item, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-4">
+                <div 
+                  key={index} 
+                  className={`border ${item.job_id ? 'border-blue-200 bg-blue-50' : 'border-gray-200'} rounded-lg p-4`}
+                >
+                  {item.job_id && (
+                    <div className="mb-2 text-sm text-blue-700 flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      Added from job
+                    </div>
+                  )}
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                     <div className="md:col-span-5">
                       <div className="flex flex-col gap-2">
@@ -593,25 +631,27 @@ const CreateInvoice = () => {
                           value={item.description}
                           onChange={(e) => updateItem(index, 'description', e.target.value)}
                           placeholder="Service description..."
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pulse-500"
+                          className={`w-full px-3 py-2 border ${item.job_id ? 'border-blue-300 bg-blue-50' : 'border-gray-300'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pulse-500`}
                         />
                         
-                        {/* Service Type Selector */}
-                        <div className="relative">
-                          <select
-                            onChange={(e) => handleServiceTypeSelect(index, e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pulse-500 text-gray-600"
-                            value=""
-                          >
-                            <option value="">Select a service...</option>
-                            {serviceTypes.map(serviceType => (
-                              <option key={serviceType.id} value={serviceType.id}>
-                                {serviceType.name} - {formatCurrency(serviceType.default_price)}
-                              </option>
-                            ))}
-                          </select>
-                          <ListFilter className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                        </div>
+                        {/* Service Type Selector - Only show for manually added items */}
+                        {!item.job_id && (
+                          <div className="relative">
+                            <select
+                              onChange={(e) => handleServiceTypeSelect(index, e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pulse-500 text-gray-600"
+                              value=""
+                            >
+                              <option value="">Select a service...</option>
+                              {serviceTypes.map(serviceType => (
+                                <option key={serviceType.id} value={serviceType.id}>
+                                  {serviceType.name} - {formatCurrency(serviceType.default_price)}
+                                </option>
+                              ))}
+                            </select>
+                            <ListFilter className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="md:col-span-2">
@@ -622,7 +662,7 @@ const CreateInvoice = () => {
                         onChange={(e) => updateItem(index, 'quantity', parseFloat(e.target.value) || 0)}
                         min="0"
                         step="0.01"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pulse-500"
+                        className={`w-full px-3 py-2 border ${item.job_id ? 'border-blue-300 bg-blue-50' : 'border-gray-300'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pulse-500`}
                       />
                     </div>
                     <div className="md:col-span-2">
@@ -635,7 +675,7 @@ const CreateInvoice = () => {
                           onChange={(e) => updateItem(index, 'rate', parseFloat(e.target.value) || 0)}
                           min="0"
                           step="0.01"
-                          className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pulse-500"
+                          className={`w-full pl-10 pr-3 py-2 border ${item.job_id ? 'border-blue-300 bg-blue-50' : 'border-gray-300'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pulse-500`}
                         />
                       </div>
                     </div>
@@ -649,7 +689,7 @@ const CreateInvoice = () => {
                           onChange={(e) => updateItem(index, 'amount', parseFloat(e.target.value) || 0)}
                           min="0"
                           step="0.01"
-                          className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pulse-500"
+                          className={`w-full pl-10 pr-3 py-2 border ${item.job_id ? 'border-blue-300 bg-blue-50' : 'border-gray-300'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pulse-500`}
                         />
                       </div>
                     </div>
