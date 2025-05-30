@@ -76,13 +76,13 @@ const Navbar = () => {
   }}>
       {children}
     </a>;
-  return <header className={cn("fixed top-0 left-0 right-0 z-50 -mt-8 py-0 transition-all duration-300", isScrolled ? "bg-white/80 backdrop-blur-md shadow-sm" : "bg-transparent")}>
-      <div className="container flex items-center justify-between sm:px-6 lg:px-8 px-3 py-3 my-0 rounded-none">
-        <a href="/" className="flex items-center space-x-1" onClick={e => {
+  return <header className={cn("fixed top-0 left-0 right-0 z-50 -mt-6 sm:-mt-8 py-0 transition-all duration-300", isScrolled ? "bg-white/80 backdrop-blur-md shadow-sm" : "bg-transparent")}>
+      <div className="container flex items-center justify-between sm:px-6 lg:px-8 px-2 py-2 sm:py-3 my-0 rounded-none">
+        <a href="/" className="flex items-center space-x-0.5 sm:space-x-1" onClick={e => {
         e.preventDefault();
         handleNavigate("/");
       }} aria-label="Sweeply">
-          <img src="/lovable-uploads/64f9ad74-6bcc-41ac-85ed-b821343cc480.png" alt="Sweeply Logo" className="h-8 xs:h-10 sm:h-16 md:h-20 lg:h-24" />
+          <img src="/lovable-uploads/64f9ad74-6bcc-41ac-85ed-b821343cc480.png" alt="Sweeply Logo" className="h-6 xs:h-8 sm:h-12 md:h-16 lg:h-20" />
         </a>
 
         {/* Desktop Navigation */}
@@ -93,8 +93,8 @@ const Navbar = () => {
         </nav>
 
         {/* Mobile menu button - increased touch target */}
-        <button className="md:hidden text-gray-700 p-2 focus:outline-none" onClick={toggleMenu} aria-label={isMenuOpen ? "Close menu" : "Open menu"}>
-          {isMenuOpen ? <X size={18} /> : <Menu size={18} />}
+        <button className="md:hidden text-gray-700 p-1.5 focus:outline-none" onClick={toggleMenu} aria-label={isMenuOpen ? "Close menu" : "Open menu"}>
+          {isMenuOpen ? <X size={16} /> : <Menu size={16} />}
         </button>
       </div>
 
