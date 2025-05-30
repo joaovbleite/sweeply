@@ -202,6 +202,13 @@ const ClientDashboard = () => {
               </div>
             )}
             <Link
+              to={`/invoices/new?client=${id}`}
+              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2"
+            >
+              <FileText className="w-4 h-4" />
+              Create Invoice
+            </Link>
+            <Link
               to={`/clients/${id}/edit`}
               className="px-4 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 transition-colors flex items-center gap-2"
             >

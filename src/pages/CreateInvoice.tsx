@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { 
   ArrowLeft, 
   Save, 
@@ -30,6 +30,7 @@ import { useLocale } from "@/hooks/useLocale";
 
 const CreateInvoice = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { formatCurrency } = useLocale();
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
@@ -37,6 +38,11 @@ const CreateInvoice = () => {
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [availableJobs, setAvailableJobs] = useState<Job[]>([]);
+  
+  // Get URL parameters
+  const searchParams = new URLSearchParams(location.search);
+  const clientIdFromUrl = searchParams.get('client');
+  const jobIdFromUrl = searchParams.get('job');
   
   const [formData, setFormData] = useState<CreateInvoiceInput>({
     client_id: "",
@@ -67,13 +73,21 @@ const CreateInvoice = () => {
         setClients(clientsData);
         setJobs(jobsData);
         setServiceTypes(serviceTypesData);
+        
+        // Auto-select client from URL parameter
+        if (clientIdFromUrl && clientsData.length > 0) {
+          const client = clientsData.find(c => c.id === clientIdFromUrl);
+          if (client) {
+            handleClientSelect(client.id);
+          }
+        }
       } catch (error) {
         console.error('Error loading data:', error);
         toast.error("Failed to load data");
       }
     };
     loadData();
-  }, []);
+  }, [clientIdFromUrl]);
 
   // Update available jobs when client is selected
   useEffect(() => {
@@ -84,10 +98,36 @@ const CreateInvoice = () => {
         // Note: We can't check if a job is already invoiced without invoice_id field
       );
       setAvailableJobs(clientJobs);
+      
+      // Auto-select job from URL parameter
+      if (jobIdFromUrl && clientJobs.length > 0) {
+        const jobToSelect = clientJobs.find(j => j.id === jobIdFromUrl);
+        if (jobToSelect) {
+          // Add this job to selected jobs
+          setFormData(prev => ({
+            ...prev,
+            job_ids: [...(prev.job_ids || []), jobToSelect.id]
+          }));
+          
+          // Automatically add this job as an invoice item
+          const newItem = {
+            description: `${jobToSelect.title} - ${jobToSelect.service_type.replace('_', ' ')} (${format(new Date(jobToSelect.scheduled_date), 'MMM d, yyyy')})`,
+            quantity: 1,
+            rate: jobToSelect.actual_price || jobToSelect.estimated_price || 0,
+            amount: jobToSelect.actual_price || jobToSelect.estimated_price || 0,
+            job_id: jobToSelect.id
+          };
+          
+          setFormData(prev => ({
+            ...prev,
+            items: [...prev.items.filter(item => item.description), newItem]
+          }));
+        }
+      }
     } else {
       setAvailableJobs([]);
     }
-  }, [selectedClient, jobs]);
+  }, [selectedClient, jobs, jobIdFromUrl]);
 
   // Handle client selection
   const handleClientSelect = (clientId: string) => {

@@ -27,7 +27,7 @@ import {
 import { toast } from "sonner";
 import { invoicesApi } from "@/lib/api/invoices";
 import { Invoice, InvoiceFilters, InvoiceStatus, InvoiceStats, PaymentMethod } from "@/types/invoice";
-import { format, differenceInDays } from "date-fns";
+import { format, differenceInDays, addDays } from "date-fns";
 import AppLayout from "@/components/AppLayout";
 import { useTranslation } from "react-i18next";
 import { useLocale } from "@/hooks/useLocale";
@@ -39,7 +39,16 @@ const Invoices = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState<InvoiceFilters>({});
+  const [filters, setFilters] = useState<InvoiceFilters & {
+    client_type?: string;
+    min_amount?: number;
+    max_amount?: number;
+    sort_by?: 'date' | 'amount' | 'due_date' | 'client_name';
+    sort_order?: 'asc' | 'desc';
+  }>({
+    sort_by: 'date',
+    sort_order: 'desc'
+  });
   const [showFilters, setShowFilters] = useState(false);
   const [selectedInvoices, setSelectedInvoices] = useState<Set<string>>(new Set());
   const [stats, setStats] = useState<InvoiceStats | null>(null);
@@ -203,18 +212,88 @@ const Invoices = () => {
     }
   };
 
-  // Filter invoices based on search term
-  const filteredInvoices = searchTerm 
-    ? invoices.filter(invoice => 
-        invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        invoice.client?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        invoice.notes?.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : invoices;
+  // Sort invoices
+  const sortInvoices = (invoicesToSort: Invoice[]) => {
+    return [...invoicesToSort].sort((a, b) => {
+      const sortOrder = filters.sort_order === 'asc' ? 1 : -1;
+      
+      switch(filters.sort_by) {
+        case 'date':
+          return (new Date(b.issue_date).getTime() - new Date(a.issue_date).getTime()) * sortOrder;
+        case 'amount':
+          return (b.total_amount - a.total_amount) * sortOrder;
+        case 'due_date':
+          return (new Date(b.due_date).getTime() - new Date(a.due_date).getTime()) * sortOrder;
+        case 'client_name':
+          return (a.client?.name.localeCompare(b.client?.name || '') || 0) * sortOrder;
+        default:
+          return (new Date(b.issue_date).getTime() - new Date(a.issue_date).getTime()) * sortOrder;
+      }
+    });
+  };
+
+  // Filter invoices based on search term and filters
+  const filteredInvoices = (() => {
+    // First filter by search term
+    let result = searchTerm 
+      ? invoices.filter(invoice => 
+          invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          invoice.client?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          invoice.notes?.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      : invoices;
+      
+    // Then apply additional filters
+    if (filters.client_type) {
+      result = result.filter(invoice => 
+        invoice.client && 
+        'client_type' in invoice.client && 
+        invoice.client.client_type === filters.client_type
+      );
+    }
+    
+    if (filters.min_amount) {
+      result = result.filter(invoice => invoice.total_amount >= (filters.min_amount || 0));
+    }
+    
+    if (filters.max_amount) {
+      result = result.filter(invoice => invoice.total_amount <= (filters.max_amount || Infinity));
+    }
+    
+    // Apply sorting
+    return sortInvoices(result);
+  })();
 
   // Calculate days overdue
   const getDaysOverdue = (dueDate: string) => {
     return differenceInDays(new Date(), new Date(dueDate));
+  };
+
+  // Get progress percentage for invoice status
+  const getInvoiceProgress = (invoice: Invoice) => {
+    const statusMap = {
+      draft: 10,
+      sent: 40,
+      paid: 100,
+      cancelled: 100
+    };
+    
+    // For overdue invoices, calculate progress based on how late they are
+    if (invoice.status === 'sent' && new Date(invoice.due_date) < new Date()) {
+      const daysOverdue = getDaysOverdue(invoice.due_date);
+      // Progress decreases the more overdue it is, to a minimum of 25%
+      return Math.max(25, 40 - Math.min(daysOverdue, 15));
+    }
+    
+    return statusMap[invoice.status] || 0;
+  };
+
+  // Get color for progress bar
+  const getProgressColor = (invoice: Invoice) => {
+    if (invoice.status === 'paid') return 'bg-green-500';
+    if (invoice.status === 'cancelled') return 'bg-gray-400';
+    if (invoice.status === 'sent' && new Date(invoice.due_date) < new Date()) return 'bg-red-500';
+    return 'bg-blue-500';
   };
 
   return (
@@ -305,7 +384,7 @@ const Invoices = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
                   type="text"
-                  placeholder="Search invoices, clients, or notes..."
+                  placeholder="Search invoices by number, client name, or notes..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
@@ -318,71 +397,187 @@ const Invoices = () => {
               className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
             >
               <Filter className="w-4 h-4" />
-              Filters
+              Filters {Object.keys(filters).filter(k => k !== 'sort_by' && k !== 'sort_order' && filters[k as keyof typeof filters]).length > 0 && 
+                `(${Object.keys(filters).filter(k => k !== 'sort_by' && k !== 'sort_order' && filters[k as keyof typeof filters]).length})`
+              }
             </button>
           </div>
 
           {/* Filter Panel */}
           {showFilters && (
-            <div className="mt-4 pt-4 border-t grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                <select
-                  value={filters.status?.[0] || ''}
-                  onChange={(e) => setFilters(prev => ({
-                    ...prev,
-                    status: e.target.value ? [e.target.value as InvoiceStatus] : undefined
-                  }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
-                >
-                  <option value="">All Statuses</option>
-                  <option value="draft">Draft</option>
-                  <option value="sent">Sent</option>
-                  <option value="paid">Paid</option>
-                  <option value="overdue">Overdue</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">From Date</label>
-                <input
-                  type="date"
-                  value={filters.date_from || ''}
-                  onChange={(e) => setFilters(prev => ({
-                    ...prev,
-                    date_from: e.target.value || undefined
-                  }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">To Date</label>
-                <input
-                  type="date"
-                  value={filters.date_to || ''}
-                  onChange={(e) => setFilters(prev => ({
-                    ...prev,
-                    date_to: e.target.value || undefined
-                  }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
-                />
-              </div>
-
-              <div className="flex items-end">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={filters.overdue_only || false}
+            <div className="mt-4 pt-4 border-t space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                  <select
+                    value={filters.status?.[0] || ''}
                     onChange={(e) => setFilters(prev => ({
                       ...prev,
-                      overdue_only: e.target.checked || undefined
+                      status: e.target.value ? [e.target.value as InvoiceStatus] : undefined
                     }))}
-                    className="rounded border-gray-300 text-pulse-500 focus:ring-pulse-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
+                  >
+                    <option value="">All Statuses</option>
+                    <option value="draft">Draft</option>
+                    <option value="sent">Sent</option>
+                    <option value="paid">Paid</option>
+                    <option value="overdue">Overdue</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Client Type</label>
+                  <select
+                    value={filters.client_type || ''}
+                    onChange={(e) => setFilters(prev => ({
+                      ...prev,
+                      client_type: e.target.value || undefined
+                    }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
+                  >
+                    <option value="">All Client Types</option>
+                    <option value="residential">Residential</option>
+                    <option value="commercial">Commercial</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">From Date</label>
+                  <input
+                    type="date"
+                    value={filters.date_from || ''}
+                    onChange={(e) => setFilters(prev => ({
+                      ...prev,
+                      date_from: e.target.value || undefined
+                    }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
                   />
-                  <span className="text-sm text-gray-700">Overdue only</span>
-                </label>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">To Date</label>
+                  <input
+                    type="date"
+                    value={filters.date_to || ''}
+                    onChange={(e) => setFilters(prev => ({
+                      ...prev,
+                      date_to: e.target.value || undefined
+                    }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Min Amount</label>
+                  <input
+                    type="number"
+                    value={filters.min_amount || ''}
+                    onChange={(e) => setFilters(prev => ({
+                      ...prev,
+                      min_amount: e.target.value ? Number(e.target.value) : undefined
+                    }))}
+                    placeholder="Min $"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Max Amount</label>
+                  <input
+                    type="number"
+                    value={filters.max_amount || ''}
+                    onChange={(e) => setFilters(prev => ({
+                      ...prev,
+                      max_amount: e.target.value ? Number(e.target.value) : undefined
+                    }))}
+                    placeholder="Max $"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                  <select
+                    value={filters.sort_by || 'date'}
+                    onChange={(e) => setFilters(prev => ({
+                      ...prev,
+                      sort_by: e.target.value as 'date' | 'amount' | 'due_date' | 'client_name'
+                    }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
+                  >
+                    <option value="date">Issue Date</option>
+                    <option value="due_date">Due Date</option>
+                    <option value="amount">Amount</option>
+                    <option value="client_name">Client Name</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Sort Order</label>
+                  <select
+                    value={filters.sort_order || 'desc'}
+                    onChange={(e) => setFilters(prev => ({
+                      ...prev,
+                      sort_order: e.target.value as 'asc' | 'desc'
+                    }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
+                  >
+                    <option value="desc">Newest First</option>
+                    <option value="asc">Oldest First</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between pt-4 border-t">
+                <div className="flex items-center gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={filters.overdue_only || false}
+                      onChange={(e) => setFilters(prev => ({
+                        ...prev,
+                        overdue_only: e.target.checked || undefined
+                      }))}
+                      className="rounded border-gray-300 text-pulse-500 focus:ring-pulse-500"
+                    />
+                    <span className="text-sm text-gray-700">Overdue only</span>
+                  </label>
+                  
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={!!filters.status?.includes('draft')}
+                      onChange={(e) => setFilters(prev => {
+                        if (e.target.checked) {
+                          return {
+                            ...prev,
+                            status: [...(prev.status || []), 'draft']
+                          };
+                        } else {
+                          return {
+                            ...prev,
+                            status: prev.status?.filter(s => s !== 'draft')
+                          };
+                        }
+                      })}
+                      className="rounded border-gray-300 text-pulse-500 focus:ring-pulse-500"
+                    />
+                    <span className="text-sm text-gray-700">Show drafts</span>
+                  </label>
+                </div>
+                
+                <button
+                  onClick={() => setFilters({
+                    sort_by: 'date',
+                    sort_order: 'desc'
+                  })}
+                  className="px-3 py-1 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  Clear Filters
+                </button>
               </div>
             </div>
           )}
@@ -414,26 +609,26 @@ const Invoices = () => {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Invoice
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Client
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Amount
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Due Date
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
+                    <th scope="col" className="relative px-6 py-3">
+                      <span className="sr-only">Actions</span>
                     </th>
                   </tr>
                 </thead>
@@ -441,6 +636,8 @@ const Invoices = () => {
                   {filteredInvoices.map((invoice) => {
                     const isOverdue = invoice.status === 'sent' && new Date(invoice.due_date) < new Date();
                     const daysOverdue = isOverdue ? getDaysOverdue(invoice.due_date) : 0;
+                    const progressPercent = getInvoiceProgress(invoice);
+                    const progressColor = getProgressColor(invoice);
                     
                     return (
                       <tr key={invoice.id} className="hover:bg-gray-50">
@@ -453,6 +650,14 @@ const Invoices = () => {
                               </div>
                               <div className="text-sm text-gray-500">
                                 {format(new Date(invoice.issue_date), 'MMM d, yyyy')}
+                              </div>
+                              
+                              {/* Progress bar */}
+                              <div className="w-24 h-1 bg-gray-200 rounded-full mt-2">
+                                <div 
+                                  className={`h-1 rounded-full ${progressColor}`}
+                                  style={{ width: `${progressPercent}%` }}
+                                />
                               </div>
                             </div>
                           </div>
@@ -561,6 +766,9 @@ const Invoices = () => {
           <div className="mt-4 text-sm text-gray-600 text-center">
             Showing {filteredInvoices.length} of {invoices.length} invoices
             {searchTerm && ` matching "${searchTerm}"`}
+            {Object.keys(filters).filter(k => k !== 'sort_by' && k !== 'sort_order' && filters[k as keyof typeof filters]).length > 0 && 
+              ` with ${Object.keys(filters).filter(k => k !== 'sort_by' && k !== 'sort_order' && filters[k as keyof typeof filters]).length} active filters`
+            }
           </div>
         )}
       </div>

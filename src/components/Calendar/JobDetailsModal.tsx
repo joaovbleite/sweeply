@@ -25,11 +25,13 @@ import {
   Copy,
   Share,
   Download,
-  Settings
+  Settings,
+  Receipt
 } from "lucide-react";
 import { Job, ServiceType } from "@/types/job";
 import { format, parseISO, differenceInMinutes } from "date-fns";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface JobDetailsModalProps {
   job: Job | null;
@@ -66,6 +68,7 @@ const JobDetailsModal: React.FC<JobDetailsModalProps> = ({
   onStatusChange,
   onDuplicate
 }) => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'details' | 'notes' | 'photos' | 'history'>('details');
   const [notes, setNotes] = useState<JobNote[]>([]);
   const [photos, setPhotos] = useState<JobPhoto[]>([]);
@@ -185,6 +188,15 @@ const JobDetailsModal: React.FC<JobDetailsModalProps> = ({
     }
   };
 
+  const handleCreateInvoice = () => {
+    if (job && job.client) {
+      onClose(); // Close the modal
+      navigate(`/invoices/new?client=${job.client_id}&job=${job.id}`);
+    } else {
+      toast.error("Cannot create invoice: Missing client information");
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
@@ -278,6 +290,15 @@ const JobDetailsModal: React.FC<JobDetailsModalProps> = ({
                 </div>
 
                 <div className="flex gap-2">
+                  <button
+                    onClick={handleCreateInvoice}
+                    className="px-3 py-1 text-sm bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center gap-1"
+                    title="Create invoice from this job"
+                  >
+                    <Receipt className="w-3 h-3" />
+                    Create Invoice
+                  </button>
+                  
                   <select
                     value={job.status}
                     onChange={(e) => handleStatusChange(e.target.value)}
