@@ -82,7 +82,7 @@ const Navbar = () => {
         e.preventDefault();
         handleNavigate("/");
       }} aria-label="Sweeply">
-          <img src="/lovable-uploads/64f9ad74-6bcc-41ac-85ed-b821343cc480.png" alt="Sweeply Logo" className="h-30 sm:h-32" />
+          <img src="/lovable-uploads/64f9ad74-6bcc-41ac-85ed-b821343cc480.png" alt="Sweeply Logo" className="h-16 xs:h-20 sm:h-24 md:h-28 lg:h-30" />
         </a>
 
         {/* Desktop Navigation */}
