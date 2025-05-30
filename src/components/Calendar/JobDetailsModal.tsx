@@ -190,8 +190,10 @@ const JobDetailsModal: React.FC<JobDetailsModalProps> = ({
 
   const handleCreateInvoice = () => {
     if (job && job.client) {
+      console.log("Creating invoice from job:", job.id, "with client:", job.client_id);
       onClose(); // Close the modal
       navigate(`/invoices/new?client=${job.client_id}&job=${job.id}`);
+      toast.success("Opening invoice creation page...");
     } else {
       toast.error("Cannot create invoice: Missing client information");
     }

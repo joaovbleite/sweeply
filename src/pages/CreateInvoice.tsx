@@ -66,6 +66,7 @@ const CreateInvoice = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
+        console.log("Loading data with client ID from URL:", clientIdFromUrl);
         const [clientsData, jobsData, serviceTypesData] = await Promise.all([
           clientsApi.getAll(),
           jobsApi.getAll({ show_instances: false }),
@@ -77,9 +78,18 @@ const CreateInvoice = () => {
         
         // Auto-select client from URL parameter
         if (clientIdFromUrl && clientsData.length > 0) {
+          console.log("Found client ID in URL:", clientIdFromUrl);
           const client = clientsData.find(c => c.id === clientIdFromUrl);
           if (client) {
-            handleClientSelect(client.id);
+            console.log("Found matching client:", client.name);
+            // Set the client directly in state
+            setSelectedClient(client);
+            setFormData(prev => ({
+              ...prev,
+              client_id: client.id
+            }));
+          } else {
+            console.log("No matching client found for ID:", clientIdFromUrl);
           }
         }
       } catch (error) {
