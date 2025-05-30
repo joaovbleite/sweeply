@@ -12,15 +12,18 @@ import {
   AlertCircle,
   Calculator,
   Percent,
-  Hash
+  Hash,
+  ListFilter
 } from "lucide-react";
 import { toast } from "sonner";
 import { invoicesApi } from "@/lib/api/invoices";
 import { clientsApi } from "@/lib/api/clients";
 import { jobsApi } from "@/lib/api/jobs";
+import { serviceTypesApi } from "@/lib/api/service-types";
 import { CreateInvoiceInput, InvoiceItem } from "@/types/invoice";
 import { Client } from "@/types/client";
 import { Job } from "@/types/job";
+import { ServiceType } from "@/lib/api/service-types";
 import AppLayout from "@/components/AppLayout";
 import { format, addDays } from "date-fns";
 import { useLocale } from "@/hooks/useLocale";
@@ -31,6 +34,7 @@ const CreateInvoice = () => {
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [availableJobs, setAvailableJobs] = useState<Job[]>([]);
   
@@ -51,16 +55,18 @@ const CreateInvoice = () => {
     job_ids: []
   });
 
-  // Load clients and jobs
+  // Load clients, jobs, and service types
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [clientsData, jobsData] = await Promise.all([
+        const [clientsData, jobsData, serviceTypesData] = await Promise.all([
           clientsApi.getAll(),
-          jobsApi.getAll({ show_instances: false })
+          jobsApi.getAll({ show_instances: false }),
+          serviceTypesApi.getActiveServiceTypes()
         ]);
         setClients(clientsData);
         setJobs(jobsData);
+        setServiceTypes(serviceTypesData);
       } catch (error) {
         console.error('Error loading data:', error);
         toast.error("Failed to load data");
@@ -113,6 +119,16 @@ const CreateInvoice = () => {
       ...prev,
       items: prev.items.filter((_, i) => i !== index)
     }));
+  };
+
+  // Handle service type selection for an item
+  const handleServiceTypeSelect = (index: number, serviceTypeId: string) => {
+    const serviceType = serviceTypes.find(s => s.id === serviceTypeId);
+    if (!serviceType) return;
+
+    updateItem(index, 'description', serviceType.name);
+    updateItem(index, 'rate', serviceType.default_price);
+    updateItem(index, 'amount', serviceType.default_price * formData.items[index].quantity);
   };
 
   // Update item
@@ -233,22 +249,21 @@ const CreateInvoice = () => {
           <div className="bg-white rounded-xl shadow-sm p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
               <User className="w-5 h-5" />
-              Client Information
+              Client Details
             </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <div className="grid grid-cols-1 gap-6">
               <div>
                 <label htmlFor="client" className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Client *
+                  Select Client
                 </label>
                 <select
                   id="client"
                   value={formData.client_id}
                   onChange={(e) => handleClientSelect(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
                 >
-                  <option value="">Choose a client...</option>
+                  <option value="">Select a client...</option>
                   {clients.map(client => (
                     <option key={client.id} value={client.id}>
                       {client.name}
@@ -256,74 +271,68 @@ const CreateInvoice = () => {
                   ))}
                 </select>
               </div>
-
-              <div>
-                <label htmlFor="due_date" className="block text-sm font-medium text-gray-700 mb-2">
-                  Due Date *
-                </label>
-                <input
-                  type="date"
-                  id="due_date"
-                  value={formData.due_date}
-                  onChange={(e) => setFormData(prev => ({ ...prev, due_date: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-                  required
-                />
-              </div>
             </div>
-
-            {/* Jobs Selection (if client selected) */}
-            {selectedClient && availableJobs.length > 0 && (
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Add Completed Jobs
-                </label>
-                <div className="border border-gray-300 rounded-lg p-4">
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {availableJobs.map(job => (
-                      <label key={job.id} className="flex items-center gap-3 hover:bg-gray-50 p-2 rounded cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={formData.job_ids?.includes(job.id) || false}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setFormData(prev => ({
-                                ...prev,
-                                job_ids: [...(prev.job_ids || []), job.id]
-                              }));
-                            } else {
-                              setFormData(prev => ({
-                                ...prev,
-                                job_ids: (prev.job_ids || []).filter(id => id !== job.id)
-                              }));
-                            }
-                          }}
-                          className="rounded border-gray-300 text-pulse-500 focus:ring-pulse-500"
-                        />
-                        <div className="flex-1">
-                          <div className="text-sm font-medium text-gray-900">
-                            {job.title} - {format(new Date(job.scheduled_date), 'MMM d, yyyy')}
-                          </div>
-                          <div className="text-xs text-gray-600">
-                            {job.service_type.replace('_', ' ')} - ${job.actual_price || job.estimated_price || 0}
-                          </div>
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-                  {formData.job_ids && formData.job_ids.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={handleAddJobsAsItems}
-                      className="mt-3 px-4 py-2 bg-pulse-100 text-pulse-700 rounded-lg hover:bg-pulse-200 transition-colors text-sm"
-                    >
-                      Add Selected Jobs as Items
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
+
+          {/* Jobs Selection */}
+          {selectedClient && (
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                <Calendar className="w-5 h-5" />
+                Add from Completed Jobs
+              </h3>
+
+              {availableJobs.length > 0 ? (
+                <>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Select Jobs to Add
+                    </label>
+                    <div className="border border-gray-200 rounded-lg max-h-60 overflow-y-auto p-2">
+                      {availableJobs.map(job => (
+                        <div key={job.id} className="py-2 px-3 hover:bg-gray-50 rounded-lg">
+                          <label className="flex items-start gap-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={formData.job_ids?.includes(job.id) || false}
+                              onChange={(e) => {
+                                const isChecked = e.target.checked;
+                                setFormData(prev => ({
+                                  ...prev,
+                                  job_ids: isChecked
+                                    ? [...(prev.job_ids || []), job.id]
+                                    : (prev.job_ids || []).filter(id => id !== job.id)
+                                }));
+                              }}
+                              className="mt-1 rounded border-gray-300 text-pulse-600 focus:ring-pulse-500"
+                            />
+                            <div>
+                              <p className="font-medium">{job.title}</p>
+                              <p className="text-sm text-gray-600">
+                                {format(new Date(job.scheduled_date), 'MMM d, yyyy')} • {job.service_type.replace('_', ' ')} • {formatCurrency(job.actual_price || job.estimated_price || 0)}
+                              </p>
+                            </div>
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddJobsAsItems}
+                    className="px-4 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 transition-colors flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Selected Jobs to Invoice
+                  </button>
+                </>
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-gray-600">No completed jobs found for this client</p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Invoice Items */}
           <div className="bg-white rounded-xl shadow-sm p-6">
@@ -335,7 +344,7 @@ const CreateInvoice = () => {
               <button
                 type="button"
                 onClick={addItem}
-                className="px-3 py-1 bg-pulse-100 text-pulse-700 rounded-lg hover:bg-pulse-200 transition-colors text-sm flex items-center gap-1"
+                className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-1"
               >
                 <Plus className="w-4 h-4" />
                 Add Item
@@ -347,14 +356,33 @@ const CreateInvoice = () => {
                 <div key={index} className="border border-gray-200 rounded-lg p-4">
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                     <div className="md:col-span-5">
-                      <label className="block text-xs text-gray-600 mb-1">Description</label>
-                      <input
-                        type="text"
-                        value={item.description}
-                        onChange={(e) => updateItem(index, 'description', e.target.value)}
-                        placeholder="Service description..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pulse-500"
-                      />
+                      <div className="flex flex-col gap-2">
+                        <label className="block text-xs text-gray-600">Description</label>
+                        <input
+                          type="text"
+                          value={item.description}
+                          onChange={(e) => updateItem(index, 'description', e.target.value)}
+                          placeholder="Service description..."
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pulse-500"
+                        />
+                        
+                        {/* Service Type Selector */}
+                        <div className="relative">
+                          <select
+                            onChange={(e) => handleServiceTypeSelect(index, e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pulse-500 text-gray-600"
+                            value=""
+                          >
+                            <option value="">Select a service...</option>
+                            {serviceTypes.map(serviceType => (
+                              <option key={serviceType.id} value={serviceType.id}>
+                                {serviceType.name} - {formatCurrency(serviceType.default_price)}
+                              </option>
+                            ))}
+                          </select>
+                          <ListFilter className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                        </div>
+                      </div>
                     </div>
                     <div className="md:col-span-2">
                       <label className="block text-xs text-gray-600 mb-1">Quantity</label>
@@ -368,28 +396,38 @@ const CreateInvoice = () => {
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-xs text-gray-600 mb-1">Rate ($)</label>
-                      <input
-                        type="number"
-                        value={item.rate}
-                        onChange={(e) => updateItem(index, 'rate', parseFloat(e.target.value) || 0)}
-                        min="0"
-                        step="0.01"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pulse-500"
-                      />
+                      <label className="block text-xs text-gray-600 mb-1">Rate</label>
+                      <div className="relative">
+                        <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                          type="number"
+                          value={item.rate}
+                          onChange={(e) => updateItem(index, 'rate', parseFloat(e.target.value) || 0)}
+                          min="0"
+                          step="0.01"
+                          className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pulse-500"
+                        />
+                      </div>
                     </div>
                     <div className="md:col-span-2">
                       <label className="block text-xs text-gray-600 mb-1">Amount</label>
-                      <div className="px-3 py-2 bg-gray-100 rounded-lg text-sm font-medium">
-                        {formatCurrency(item.amount)}
+                      <div className="relative">
+                        <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                          type="number"
+                          value={item.amount}
+                          onChange={(e) => updateItem(index, 'amount', parseFloat(e.target.value) || 0)}
+                          min="0"
+                          step="0.01"
+                          className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pulse-500"
+                        />
                       </div>
                     </div>
-                    <div className="md:col-span-1 flex items-end">
+                    <div className="md:col-span-1 flex items-end justify-center">
                       <button
                         type="button"
                         onClick={() => removeItem(index)}
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        disabled={formData.items.length === 1}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -397,6 +435,20 @@ const CreateInvoice = () => {
                   </div>
                 </div>
               ))}
+
+              {formData.items.length === 0 && (
+                <div className="text-center py-6 border border-dashed border-gray-300 rounded-lg">
+                  <p className="text-gray-500">No items added yet</p>
+                  <button
+                    type="button"
+                    onClick={addItem}
+                    className="mt-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors inline-flex items-center gap-1"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add First Item
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -430,9 +482,10 @@ const CreateInvoice = () => {
 
                 <div>
                   <label htmlFor="discount" className="block text-sm font-medium text-gray-700 mb-2">
-                    Discount Amount ($)
+                    Discount Amount
                   </label>
                   <div className="relative">
+                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
                       type="number"
                       id="discount"
@@ -440,9 +493,8 @@ const CreateInvoice = () => {
                       onChange={(e) => setFormData(prev => ({ ...prev, discount_amount: parseFloat(e.target.value) || 0 }))}
                       min="0"
                       step="0.01"
-                      className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
+                      className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
                     />
-                    <DollarSign className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   </div>
                 </div>
               </div>
@@ -478,79 +530,74 @@ const CreateInvoice = () => {
 
           {/* Additional Information */}
           <div className="bg-white rounded-xl shadow-sm p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-              <FileText className="w-5 h-5" />
-              Additional Information
-            </h3>
-
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Additional Information</h3>
             <div className="space-y-4">
               <div>
+                <label htmlFor="due_date" className="block text-sm font-medium text-gray-700 mb-2">
+                  Due Date
+                </label>
+                <input
+                  type="date"
+                  id="due_date"
+                  value={formData.due_date}
+                  onChange={(e) => setFormData(prev => ({ ...prev, due_date: e.target.value }))}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
+                />
+              </div>
+              
+              <div>
                 <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2">
-                  Invoice Notes
+                  Notes (Optional)
                 </label>
                 <textarea
                   id="notes"
-                  value={formData.notes}
+                  value={formData.notes || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                  rows={3}
+                  rows={2}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
-                  placeholder="Add any notes or special instructions..."
+                  placeholder="Any special notes for this invoice..."
                 />
               </div>
-
+              
               <div>
                 <label htmlFor="terms" className="block text-sm font-medium text-gray-700 mb-2">
-                  Terms & Conditions
+                  Terms
                 </label>
                 <textarea
                   id="terms"
-                  value={formData.terms}
+                  value={formData.terms || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, terms: e.target.value }))}
-                  rows={3}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="footer" className="block text-sm font-medium text-gray-700 mb-2">
-                  Footer Text
-                </label>
-                <input
-                  type="text"
-                  id="footer"
-                  value={formData.footer_text}
-                  onChange={(e) => setFormData(prev => ({ ...prev, footer_text: e.target.value }))}
+                  rows={2}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500"
                 />
               </div>
             </div>
           </div>
 
-          {/* Form Actions */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          {/* Submit Button */}
+          <div className="flex justify-end">
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 sm:flex-none px-6 py-3 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
+              className="px-6 py-3 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Creating Invoice...
+                  <span className="animate-spin">
+                    <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  </span>
+                  <span>Creating...</span>
                 </>
               ) : (
                 <>
-                  <Save className="w-4 h-4" />
-                  Create Invoice
+                  <Save className="w-5 h-5" />
+                  <span>Create Invoice</span>
                 </>
               )}
             </button>
-            <Link
-              to="/invoices"
-              className="flex-1 sm:flex-none px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center justify-center gap-2 transition-colors"
-            >
-              Cancel
-            </Link>
           </div>
         </form>
       </div>

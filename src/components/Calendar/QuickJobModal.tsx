@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { X, Save, User, Clock, DollarSign, Search, AlertTriangle, CheckCircle, Calendar, MapPin, Repeat } from "lucide-react";
+import { X, Save, User, Clock, DollarSign, Search, AlertTriangle, CheckCircle, Calendar, MapPin, Repeat, Info } from "lucide-react";
 import { toast } from "sonner";
 import { jobsApi } from "@/lib/api/jobs";
 import { clientsApi } from "@/lib/api/clients";
+import { serviceTypesApi, ServiceType as ServiceTypeData } from "@/lib/api/service-types";
 import { Job, CreateJobInput, ServiceType, PropertyType } from "@/types/job";
 import { Client } from "@/types/client";
 import { format, addHours, parseISO } from "date-fns";
@@ -27,6 +28,7 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
+  const [serviceTypeOptions, setServiceTypeOptions] = useState<ServiceTypeData[]>([]);
   const [loadingClients, setLoadingClients] = useState(true);
   const [clientSearch, setClientSearch] = useState("");
   const [showClientDropdown, setShowClientDropdown] = useState(false);
@@ -52,10 +54,10 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
     is_recurring: false
   });
 
-  // Load clients when modal opens
+  // Load clients and service types when modal opens
   useEffect(() => {
     if (isOpen) {
-      loadClients();
+      loadData();
       resetForm();
     }
   }, [isOpen]);
@@ -71,14 +73,28 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
     }
   }, [selectedDate, selectedTime]);
 
-  const loadClients = async () => {
+  const loadData = async () => {
     try {
       setLoadingClients(true);
-      const data = await clientsApi.getAll();
-      setClients(data);
+      const [clientsData, serviceTypesData] = await Promise.all([
+        clientsApi.getAll(),
+        serviceTypesApi.getActiveServiceTypes()
+      ]);
+      setClients(clientsData);
+      setServiceTypeOptions(serviceTypesData);
+      
+      // Set default values from the first active service type if available
+      if (serviceTypesData.length > 0) {
+        const defaultService = serviceTypesData.find(s => s.service_order === 1) || serviceTypesData[0];
+        setFormData(prev => ({
+          ...prev,
+          estimated_price: defaultService.default_price,
+          estimated_duration: defaultService.default_duration
+        }));
+      }
     } catch (error) {
-      console.error('Error loading clients:', error);
-      toast.error("Failed to load clients");
+      console.error('Error loading data:', error);
+      toast.error("Failed to load data");
     } finally {
       setLoadingClients(false);
     }
@@ -181,10 +197,15 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
     } else if (name === 'service_type') {
       const newServiceType = value as ServiceType;
       const selectedClient = clients.find(c => c.id === formData.client_id);
+      
+      // Find the corresponding service type data to get price and duration
+      const serviceData = serviceTypeOptions.find(s => s.name.toLowerCase().includes(newServiceType.replace('_', ' ')));
+      
       setFormData(prev => ({
         ...prev,
         service_type: newServiceType,
-        estimated_price: getDefaultPrice(newServiceType),
+        estimated_price: serviceData ? serviceData.default_price : getDefaultPrice(newServiceType),
+        estimated_duration: serviceData ? serviceData.default_duration : prev.estimated_duration,
         title: selectedClient ? `${getServiceTypeDisplay(newServiceType)} - ${selectedClient.name}` : prev.title
       }));
     } else if (name === 'estimated_price' || name === 'estimated_duration') {
@@ -308,6 +329,7 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
     return types[serviceType] || serviceType;
   };
 
+  // Fallback default prices if service types aren't loaded from settings
   const getDefaultPrice = (serviceType: ServiceType) => {
     const prices = {
       regular: 120,
@@ -325,42 +347,16 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
   const selectedClient = clients.find(c => c.id === formData.client_id);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Quick Schedule Job</h2>
-            {selectedDate && (
-              <p className="text-sm text-gray-600 mt-1 flex items-center gap-1">
-                <Calendar className="w-4 h-4" />
-                {format(selectedDate, 'EEEE, MMMM d, yyyy')}
-                {selectedTime && ` at ${format(new Date(`2000-01-01T${selectedTime}`), 'h:mm a')}`}
-              </p>
-            )}
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
+    <div className="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+          <h2 className="text-xl font-semibold text-gray-800">Schedule a Job</h2>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <X className="w-5 h-5" />
           </button>
         </div>
-
-        {/* Conflicts Warning */}
-        {getConflicts.length > 0 && (
-          <div className="mx-6 mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <div className="flex items-center gap-2 text-red-800">
-              <AlertTriangle className="w-4 h-4" />
-              <span className="font-medium">Scheduling Conflict Detected</span>
-            </div>
-            <p className="text-sm text-red-700 mt-1">
-              This time slot conflicts with {getConflicts.length} existing job(s). Consider choosing a different time.
-            </p>
-          </div>
-        )}
-
-        {/* Form */}
+        
+        <div className="overflow-y-auto">
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Client Selection */}
           <div>
@@ -389,31 +385,20 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
                 </div>
                 
                 {showClientDropdown && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                    {filteredClients.length === 0 ? (
-                      <div className="p-3 text-gray-500 text-center">
-                        No clients found
-                      </div>
-                    ) : (
-                      filteredClients.map((client) => (
-                        <button
+                  <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    {filteredClients.length > 0 ? (
+                      filteredClients.map(client => (
+                        <div
                           key={client.id}
-                          type="button"
                           onClick={() => handleClientSelect(client)}
-                          className="w-full text-left p-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                          className="px-4 py-3 hover:bg-gray-100 cursor-pointer"
                         >
                           <div className="font-medium">{client.name}</div>
-                          {client.email && (
-                            <div className="text-sm text-gray-600">{client.email}</div>
-                          )}
-                          {client.address && (
-                            <div className="text-sm text-gray-500 flex items-center gap-1">
-                              <MapPin className="w-3 h-3" />
-                              {client.city}, {client.state}
-                            </div>
-                          )}
-                        </button>
+                          {client.email && <div className="text-sm text-gray-600">{client.email}</div>}
+                        </div>
                       ))
+                    ) : (
+                      <div className="px-4 py-3 text-gray-500">No clients found</div>
                     )}
                   </div>
                 )}
@@ -453,9 +438,16 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
                 <option value="post_construction">Post-Construction</option>
                 <option value="one_time">One-time Clean</option>
               </select>
+              {serviceTypeOptions.length > 0 && (
+                <div className="mt-1 text-xs text-blue-600 flex items-center gap-1">
+                  <Info className="w-3 h-3" />
+                  <span>Using prices from Services & Pricing settings</span>
+                </div>
+              )}
             </div>
             <div>
               <label htmlFor="estimated_duration" className="block text-sm font-medium text-gray-700 mb-2">
+                <Clock className="inline w-4 h-4 mr-1" />
                 Duration (minutes)
               </label>
               <input
@@ -471,24 +463,26 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
             </div>
           </div>
 
-          {/* Scheduling */}
+          {/* Scheduled Date and Time */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label htmlFor="scheduled_date" className="block text-sm font-medium text-gray-700 mb-2">
+                <Calendar className="inline w-4 h-4 mr-1" />
                 Date *
               </label>
               <input
                 type="date"
                 id="scheduled_date"
                 name="scheduled_date"
-                required
                 value={formData.scheduled_date}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                required
               />
             </div>
             <div>
               <label htmlFor="scheduled_time" className="block text-sm font-medium text-gray-700 mb-2">
+                <Clock className="inline w-4 h-4 mr-1" />
                 Time
               </label>
               <input
@@ -501,8 +495,20 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
               />
             </div>
           </div>
-
-          {/* Suggested Times */}
+          
+          {/* Conflict Warning */}
+          {getConflicts.length > 0 && (
+            <div className="bg-red-50 border-l-4 border-red-500 p-4">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-red-500" />
+                <h3 className="text-sm font-medium text-red-800">Scheduling Conflict Detected</h3>
+              </div>
+              <p className="mt-1 text-sm text-red-700">
+                This job overlaps with {getConflicts.length} existing job(s) on {format(new Date(formData.scheduled_date), 'MMM d, yyyy')}.
+              </p>
+            </div>
+          )}
+          
           {getSuggestedTimes.length > 0 && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -547,92 +553,137 @@ const QuickJobModal: React.FC<QuickJobModalProps> = ({
           </div>
 
           {/* Recurring Toggle */}
-          <div className="border-t pt-4">
-            <label className="flex items-center gap-3 cursor-pointer">
+          <div>
+            <div className="flex items-center mb-4">
               <input
                 type="checkbox"
+                id="is_recurring"
                 name="is_recurring"
                 checked={formData.is_recurring}
                 onChange={handleChange}
-                className="h-5 w-5 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                className="h-4 w-4 text-pulse-600 focus:ring-pulse-500 border-gray-300 rounded"
               />
-              <div className="flex items-center gap-2">
-                <Repeat className="w-5 h-5 text-purple-600" />
-                <span className="font-medium text-gray-900">Make this a recurring job</span>
+              <label htmlFor="is_recurring" className="ml-2 block text-sm text-gray-700 font-medium">
+                <Repeat className="inline w-4 h-4 mr-1" />
+                Make this a recurring job
+              </label>
+            </div>
+
+            {formData.is_recurring && (
+              <div className="bg-blue-50 rounded-lg p-4">
+                <RecurringJobPattern
+                  pattern={recurringPattern}
+                  onChange={setRecurringPattern}
+                  startDate={formData.scheduled_date}
+                />
               </div>
-            </label>
+            )}
           </div>
 
-          {/* Recurring Pattern */}
-          {formData.is_recurring && (
-            <RecurringJobPattern
-              pattern={recurringPattern}
-              onChange={setRecurringPattern}
-              startDate={formData.scheduled_date}
-            />
-          )}
+          {/* Job Title and Description */}
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                Job Title *
+              </label>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                placeholder="e.g. Regular Cleaning - Smith Residence"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                Description (Optional)
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows={2}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                placeholder="Details about the job..."
+              />
+            </div>
+          </div>
 
-          {/* Job Title */}
+          {/* Location */}
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-              Job Title *
+            <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
+              <MapPin className="inline w-4 h-4 mr-1" />
+              Address
             </label>
             <input
               type="text"
-              id="title"
-              name="title"
-              required
-              value={formData.title}
+              id="address"
+              name="address"
+              value={formData.address}
               onChange={handleChange}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-              placeholder="e.g., Regular Cleaning - John Doe"
+              placeholder="Full address..."
             />
           </div>
 
           {/* Special Instructions */}
-          <div>
-            <label htmlFor="special_instructions" className="block text-sm font-medium text-gray-700 mb-2">
-              Special Instructions
-            </label>
-            <textarea
-              id="special_instructions"
-              name="special_instructions"
-              rows={3}
-              value={formData.special_instructions}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
-              placeholder="Any special requirements or notes..."
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="special_instructions" className="block text-sm font-medium text-gray-700 mb-2">
+                Special Instructions
+              </label>
+              <textarea
+                id="special_instructions"
+                name="special_instructions"
+                value={formData.special_instructions}
+                onChange={handleChange}
+                rows={3}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                placeholder="Any special requests..."
+              />
+            </div>
+            <div>
+              <label htmlFor="access_instructions" className="block text-sm font-medium text-gray-700 mb-2">
+                Access Instructions
+              </label>
+              <textarea
+                id="access_instructions"
+                name="access_instructions"
+                value={formData.access_instructions}
+                onChange={handleChange}
+                rows={3}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent"
+                placeholder="Gate codes, key location, etc..."
+              />
+            </div>
           </div>
 
-          {/* Form Actions */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
+          {/* Submit Button */}
+          <div className="border-t pt-4 flex justify-end">
             <button
               type="submit"
-              disabled={loading || clients.length === 0}
-              className="flex-1 sm:flex-none px-6 py-3 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
+              disabled={loading}
+              className="px-6 py-3 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 transition-colors flex items-center gap-2"
             >
               {loading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Scheduling...
+                  <span>Creating...</span>
                 </>
               ) : (
                 <>
                   <Save className="w-4 h-4" />
-                  Schedule Job
+                  <span>Schedule Job</span>
                 </>
               )}
             </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 sm:flex-none px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
           </div>
         </form>
+        </div>
       </div>
     </div>
   );

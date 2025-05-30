@@ -1931,7 +1931,10 @@ const Settings = () => {
             {activeTab === 'services' && (
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900">Services & Pricing</h2>
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900">Services & Pricing</h2>
+                    <p className="text-sm text-gray-600 mt-1">These services are used in job scheduling and invoice creation</p>
+                  </div>
                   <button
                     onClick={handleAddServiceType}
                     className="px-4 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 flex items-center gap-2"
@@ -1939,7 +1942,7 @@ const Settings = () => {
                     <Plus className="w-4 h-4" />
                     Add Service
                   </button>
-                  </div>
+                </div>
                   
                 <div className="space-y-6">
                   {serviceTypes.map((service) => (
