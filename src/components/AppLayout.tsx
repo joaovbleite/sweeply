@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
   LayoutDashboard,
@@ -12,7 +12,6 @@ import {
   Menu,
   X,
   UserCheck,
-  Target,
   BarChart3,
   Calculator
 } from "lucide-react";
@@ -34,6 +33,33 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   // Get user's name from profile or metadata or email
   const userName = userProfile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'there';
 
+  // Close sidebar when clicking outside on mobile
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isSidebarOpen && window.innerWidth < 1024) {
+        const sidebar = document.getElementById('mobile-sidebar');
+        const menuButton = document.getElementById('menu-button');
+        
+        if (sidebar && !sidebar.contains(event.target as Node) && 
+            menuButton && !menuButton.contains(event.target as Node)) {
+          setIsSidebarOpen(false);
+        }
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSidebarOpen]);
+  
+  // Close sidebar when route changes on mobile
+  useEffect(() => {
+    if (window.innerWidth < 1024) {
+      setIsSidebarOpen(false);
+    }
+  }, [location.pathname]);
+
   const handleLogout = async () => {
     await signOut();
   };
@@ -52,28 +78,32 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
       {/* Sidebar */}
-      <aside className={`${
-        isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transition-transform duration-300 lg:translate-x-0 lg:static lg:inset-0`}>
-        <div className="flex items-center justify-between p-6 border-b">
+      <aside 
+        id="mobile-sidebar"
+        className={`fixed inset-y-0 left-0 z-50 w-[270px] bg-white shadow-lg transition-transform duration-300 transform 
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
+          lg:translate-x-0 lg:static lg:inset-0 lg:w-64 lg:z-0 lg:min-h-screen overflow-y-auto`}
+      >
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b sticky top-0 bg-white z-10">
           <Link to="/" className="flex items-center gap-2">
-            <img src="/sweeply-favicon.png" alt="Sweeply" className="w-8 h-8" />
-            <span className="text-xl font-bold bg-gradient-to-r from-pulse-500 to-pulse-600 bg-clip-text text-transparent">
+            <img src="/sweeply-favicon.png" alt="Sweeply" className="w-7 h-7 sm:w-8 sm:h-8" />
+            <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-pulse-500 to-pulse-600 bg-clip-text text-transparent">
               Sweeply
             </span>
           </Link>
           <button
             onClick={() => setIsSidebarOpen(false)}
-            className="lg:hidden"
+            className="lg:hidden p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+            aria-label="Close sidebar"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <nav className="p-4">
-          <ul className="space-y-2">
+        <nav className="p-3 sm:p-4">
+          <ul className="space-y-1 sm:space-y-2">
             {sidebarItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -81,14 +111,14 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                 <li key={item.id}>
                   <Link
                     to={item.path}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    className={`w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors ${
                       isActive
                         ? 'bg-pulse-50 text-pulse-600'
                         : 'text-gray-700 hover:bg-gray-100'
                     }`}
                   >
-                    <Icon className="w-5 h-5" />
-                    <span className="font-medium">{item.label}</span>
+                    <Icon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                    <span className="font-medium text-sm sm:text-base truncate">{item.label}</span>
                   </Link>
                 </li>
               );
@@ -96,34 +126,45 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           </ul>
         </nav>
 
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t space-y-2">
+        <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 border-t space-y-1 sm:space-y-2 bg-white">
           {/* Logout Button */}
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            className="w-full flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <LogOut className="w-5 h-5" />
-            <span className="font-medium">{t('common:logout')}</span>
+            <LogOut className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+            <span className="font-medium text-sm sm:text-base">{t('common:logout')}</span>
           </button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-screen">
         {/* Top Bar */}
-        <header className="bg-white shadow-sm">
-          <div className="flex items-center justify-between px-6 py-4">
+        <header className="bg-white shadow-sm sticky top-0 z-10">
+          <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
             <button
+              id="menu-button"
               onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden"
+              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors lg:hidden"
+              aria-label="Open sidebar"
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-5 h-5" />
             </button>
+            
+            <div className="text-sm sm:text-base text-gray-500 lg:hidden">
+              {/* Show current page name on mobile */}
+              {sidebarItems.find(item => item.path === location.pathname)?.label || 'Sweeply'}
+            </div>
+            
+            <div className="lg:hidden w-5 h-5">
+              {/* Empty div for flex spacing */}
+            </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="flex-1">
+        <main className="flex-1 overflow-x-hidden">
           {children}
         </main>
       </div>
@@ -131,8 +172,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {/* Mobile sidebar overlay */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
+          aria-hidden="true"
         />
       )}
     </div>
