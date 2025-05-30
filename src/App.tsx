@@ -33,8 +33,16 @@ import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import PricingAssistant from "./pages/PricingAssistant";
 import Notifications from "./pages/Notifications";
+import InstallPrompt from "@/components/ui/InstallPrompt";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -43,6 +51,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <InstallPrompt />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<AboutPage />} /> {/* Add route for About page */}
