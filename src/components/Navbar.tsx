@@ -56,7 +56,7 @@ const Navbar = () => {
     to: string;
     hash?: string;
     children: React.ReactNode;
-  }) => <a href={hash ? `${to}${hash}` : to} className="nav-link" onClick={e => {
+  }) => <a href={hash ? `${to}${hash}` : to} className="nav-link text-lg font-medium hover:text-primary transition-colors" onClick={e => {
     e.preventDefault();
     handleNavigate(to, hash);
   }}>
@@ -70,37 +70,37 @@ const Navbar = () => {
     to: string;
     hash?: string;
     children: React.ReactNode;
-  }) => <a href={hash ? `${to}${hash}` : to} className="text-xl font-medium py-3 px-6 w-full text-center rounded-lg hover:bg-gray-100" onClick={e => {
+  }) => <a href={hash ? `${to}${hash}` : to} className="text-2xl font-medium py-4 px-6 w-full text-center rounded-lg hover:bg-gray-100" onClick={e => {
     e.preventDefault();
     handleNavigate(to, hash);
   }}>
       {children}
     </a>;
-  return <header className={cn("fixed top-0 left-0 right-0 z-50 mt-0 py-0 transition-all duration-300", isScrolled ? "bg-white/80 backdrop-blur-md shadow-sm" : "bg-transparent")}>
-      <div className="container flex items-center justify-between sm:px-6 lg:px-8 px-3 py-3 my-0 rounded-none">
-        <a href="/" className="flex items-center space-x-1 sm:space-x-1" onClick={e => {
+  return <header className={cn("fixed top-0 left-0 right-0 z-50 mt-0 py-0 transition-all duration-300", isScrolled ? "bg-white shadow-md" : "bg-white/80 backdrop-blur-md")}>
+      <div className="container flex items-center justify-between sm:px-6 lg:px-8 px-4 py-4 my-0 rounded-none">
+        <a href="/" className="flex items-center space-x-2 sm:space-x-2" onClick={e => {
         e.preventDefault();
         handleNavigate("/");
       }} aria-label="Sweeply">
-          <img src="/lovable-uploads/64f9ad74-6bcc-41ac-85ed-b821343cc480.png" alt="Sweeply Logo" className="h-10 xs:h-12 sm:h-14 md:h-16 lg:h-20" />
+          <img src="/lovable-uploads/64f9ad74-6bcc-41ac-85ed-b821343cc480.png" alt="Sweeply Logo" className="h-12 xs:h-14 sm:h-16 md:h-20 lg:h-24" />
         </a>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex space-x-8">
+        <nav className="hidden md:flex space-x-10">
           <NavLink to="/">Home</NavLink>
           <NavLink to="/about">About</NavLink> {/* Updated Link */}
           <NavLink to="/" hash="#details">Contact</NavLink> {/* Assuming contact is on home page */}
         </nav>
 
         {/* Mobile menu button - increased touch target */}
-        <button className="md:hidden text-gray-700 p-1.5 focus:outline-none" onClick={toggleMenu} aria-label={isMenuOpen ? "Close menu" : "Open menu"}>
-          {isMenuOpen ? <X size={18} /> : <Menu size={18} />}
+        <button className="md:hidden text-gray-700 p-2 rounded-full bg-gray-100 hover:bg-gray-200 shadow-sm focus:outline-none transition-colors" onClick={toggleMenu} aria-label={isMenuOpen ? "Close menu" : "Open menu"}>
+          {isMenuOpen ? <X size={26} /> : <Menu size={26} />}
         </button>
       </div>
 
       {/* Mobile Navigation - improved for better touch experience */}
       <div className={cn("fixed inset-0 z-40 bg-white flex flex-col pt-16 px-6 md:hidden transition-all duration-300 ease-in-out", isMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full pointer-events-none")}>
-        <nav className="flex flex-col space-y-8 items-center mt-8">
+        <nav className="flex flex-col space-y-8 items-center mt-10">
           <MobileNavLink to="/">Home</MobileNavLink>
           <MobileNavLink to="/about">About</MobileNavLink> {/* Updated Link */}
           <MobileNavLink to="/" hash="#details">Contact</MobileNavLink> {/* Assuming contact is on home page */}
