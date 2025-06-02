@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
-import { Sparkles, TrendingUp, Target, Zap, Plus, Calendar, Users, Lightbulb, Bell, Menu } from 'lucide-react';
+import { Sparkles, TrendingUp, Target, Zap, Plus, Calendar, Users, Lightbulb, Bell, ClipboardCheck, DollarSign } from 'lucide-react';
 import { notificationsApi } from '@/lib/api/notifications';
 
 const WelcomeWidget = () => {
@@ -71,7 +71,7 @@ const WelcomeWidget = () => {
   const QuoteIcon = todayQuote.icon;
 
   return (
-    <div className="bg-gradient-to-r from-pulse-500 to-blue-700 rounded-xl sm:rounded-2xl p-3 sm:p-5 md:p-6 text-white shadow-xl relative overflow-hidden mt-0">
+    <div className="bg-gradient-to-r from-pulse-500 to-blue-700 rounded-xl sm:rounded-2xl p-3 sm:p-5 md:p-6 text-white shadow-xl relative overflow-hidden mt-14 sm:mt-4 md:mt-2">
       {/* Menu Icon - Removed */}
       
       {/* Top right icons - improved for mobile */}
@@ -117,22 +117,21 @@ const WelcomeWidget = () => {
             <QuoteIcon className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5 md:w-5 md:h-5" />
             <p className="text-sm sm:text-base md:text-lg opacity-90">{todayQuote.text}</p>
           </div>
-          <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[10px] sm:text-xs md:text-sm">
-            <div>
-              <p className="opacity-75">Today's Date</p>
-              <p className="font-semibold">{new Date().toLocaleDateString('en-US', { 
-                weekday: 'short', 
-                month: 'short', 
-                day: 'numeric' 
-              })}</p>
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[10px] sm:text-xs md:text-sm">
+            <div className="flex items-center gap-1.5">
+              <ClipboardCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <div>
+                <p className="opacity-75">Today's Tasks</p>
+                <p className="font-semibold">2 Pending</p>
+              </div>
             </div>
             <div className="h-6 w-px bg-white/20"></div>
-            <div>
-              <p className="opacity-75">Current Time</p>
-              <p className="font-semibold">{new Date().toLocaleTimeString('en-US', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-              })}</p>
+            <div className="flex items-center gap-1.5">
+              <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <div>
+                <p className="opacity-75">Weekly Earnings</p>
+                <p className="font-semibold">$180.00</p>
+              </div>
             </div>
           </div>
         </div>
