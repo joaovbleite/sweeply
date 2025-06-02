@@ -1384,12 +1384,12 @@ const Settings = () => {
             {/* Profile Settings */}
             {activeTab === 'profile' && (
               <div className="bg-white rounded-xl shadow-sm">
-                <div className="p-6 border-b border-gray-100">
+                <div className="p-4 sm:p-5 lg:p-6 border-b border-gray-100">
                   <h2 className="text-xl font-semibold text-gray-900">{t('settings:profileInformation')}</h2>
                   <p className="text-sm text-gray-600 mt-1">Update your personal information and profile settings</p>
                 </div>
                 
-                <div className="p-6">
+                <div className="p-4 sm:p-5 lg:p-6">
                   {/* Avatar Section - More Compact */}
                   <div className="flex items-start gap-6 mb-8 p-4 bg-gray-50 rounded-lg">
                     <div className="relative flex-shrink-0">
@@ -1523,12 +1523,12 @@ const Settings = () => {
             {/* Business Settings */}
             {activeTab === 'business' && (
               <div className="bg-white rounded-xl shadow-sm">
-                <div className="p-6 border-b border-gray-100">
+                <div className="p-4 sm:p-5 lg:p-6 border-b border-gray-100">
                   <h2 className="text-xl font-semibold text-gray-900">{t('settings:businessInformation')}</h2>
                   <p className="text-sm text-gray-600 mt-1">Manage your business details and operational settings</p>
                 </div>
                 
-                <div className="p-6 space-y-8">
+                <div className="p-4 sm:p-5 lg:p-6 space-y-8">
                   {/* Business Info Section */}
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1783,7 +1783,7 @@ const Settings = () => {
             {/* Team Management */}
             {activeTab === 'team' && (
               <div className="bg-white rounded-xl shadow-sm">
-                <div className="p-6 border-b border-gray-100">
+                <div className="p-4 sm:p-5 lg:p-6 border-b border-gray-100">
                   <div className="flex items-center justify-between">
                     <div>
                       <h2 className="text-xl font-semibold text-gray-900">Team Management</h2>
@@ -1795,7 +1795,7 @@ const Settings = () => {
                   </div>
                 </div>
 
-                <div className="p-6 space-y-6">
+                <div className="p-4 sm:p-5 lg:p-6 space-y-6">
                   {/* Invite New Team Member */}
                   <div className="bg-gradient-to-r from-pulse-50 to-pulse-100 rounded-lg p-6 border border-pulse-200">
                     <div className="flex items-center gap-3 mb-4">
@@ -2444,12 +2444,12 @@ const Settings = () => {
             {/* Preferences Settings */}
             {activeTab === 'preferences' && (
               <div className="bg-white rounded-xl shadow-sm">
-                <div className="p-6 border-b border-gray-100">
+                <div className="p-4 sm:p-5 lg:p-6 border-b border-gray-100">
                   <h2 className="text-xl font-semibold text-gray-900">{t('settings:preferences')}</h2>
                   <p className="text-sm text-gray-600 mt-1">Customize how information is displayed in your account</p>
                 </div>
                 
-                <div className="p-6">
+                <div className="p-4 sm:p-5 lg:p-6">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Language & Region */}
                     <div className="space-y-6">
