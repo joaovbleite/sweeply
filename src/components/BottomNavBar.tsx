@@ -17,7 +17,8 @@ const BottomNavBar: React.FC = () => {
   const navItems = [
     { id: "home", icon: Home, path: "/dashboard" },
     { id: "explore", icon: LayoutGrid, path: "/jobs" },
-    { id: "stats", icon: BarChart3, path: "/reports" }
+    { id: "stats", icon: BarChart3, path: "/reports" },
+    { id: "profile", icon: User, path: "/settings" } // Add profile to main nav items
   ];
 
   return (
@@ -27,6 +28,25 @@ const BottomNavBar: React.FC = () => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
           
+          // Special styling for profile button
+          if (item.id === "profile") {
+            return (
+              <Link
+                key={item.id}
+                to={item.path}
+                className={`flex items-center justify-center w-11 h-11 bg-white rounded-full shadow-sm transition-all duration-200 ease-in-out hover:scale-105 ${
+                  isActive 
+                    ? "ring-2 ring-white" 
+                    : ""
+                }`}
+                aria-label={item.id}
+              >
+                <Icon className="w-5 h-5 text-black" strokeWidth={2} />
+              </Link>
+            );
+          }
+          
+          // Regular styling for other navigation items
           return (
             <Link
               key={item.id}
@@ -42,19 +62,6 @@ const BottomNavBar: React.FC = () => {
             </Link>
           );
         })}
-        
-        {/* Profile button - special styling to match the image */}
-        <Link
-          to="/settings"
-          className={`flex items-center justify-center w-11 h-11 bg-white rounded-full shadow-sm transition-all duration-200 ease-in-out hover:scale-105 ${
-            location.pathname === "/settings" 
-              ? "ring-2 ring-white" 
-              : ""
-          }`}
-          aria-label="profile"
-        >
-          <User className="w-5 h-5 text-black" strokeWidth={2} />
-        </Link>
       </nav>
     </div>
   );

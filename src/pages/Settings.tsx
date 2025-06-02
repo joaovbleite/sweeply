@@ -253,6 +253,33 @@ const Settings = () => {
   const [recentActivity, setRecentActivity] = useState<ActivityEntry[]>([]);
   const [loadingDevices, setLoadingDevices] = useState(false);
 
+  // Add useEffect to load initial data
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        // Set default profile data if user exists
+        if (user) {
+          setProfileData(prev => ({
+            ...prev,
+            fullName: user.user_metadata?.full_name || '',
+            email: user.email || '',
+            phone: user.user_metadata?.phone || '',
+            avatar: user.user_metadata?.avatar_url || ''
+          }));
+        }
+        
+        // Set initialLoading to false to display the settings page
+        setInitialLoading(false);
+      } catch (error) {
+        console.error("Error loading initial settings data:", error);
+        setInitialLoading(false); // Make sure to set to false even on error
+        toast.error("Failed to load settings. Please try again.");
+      }
+    };
+
+    loadInitialData();
+  }, [user]);
+
   // Add your handleSaveProfile, handleAvatarUpload, etc. methods here
 
   const tabs = [
