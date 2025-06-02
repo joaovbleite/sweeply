@@ -141,16 +141,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-h-screen">
-        {/* Remove top bar for mobile - only show on desktop */}
-        <header className="bg-white shadow-sm sticky top-0 z-10 hidden lg:block">
-          <div className="flex items-center justify-between px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4">
-            <div className="text-xs sm:text-sm md:text-base text-gray-500">
-              {/* Show current page name on desktop */}
-              {sidebarItems.find(item => item.path === location.pathname)?.label || 'Sweeply'}
-            </div>
-          </div>
-        </header>
-
+        {/* Remove the header component completely, as it's redundant with the bottom navigation */}
+        
         {/* Page Content */}
         <main className="flex-1 overflow-x-hidden pb-20 lg:pb-0">
           {children}
