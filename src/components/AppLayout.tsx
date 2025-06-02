@@ -18,6 +18,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { useProfile } from "@/hooks/useProfile";
+import BottomNavBar from "./BottomNavBar";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -164,9 +165,12 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-x-hidden">
+        <main className="flex-1 overflow-x-hidden pb-20 lg:pb-0">
           {children}
         </main>
+
+        {/* Bottom Navigation Bar - Mobile Only */}
+        <BottomNavBar />
       </div>
 
       {/* Mobile sidebar overlay */}
