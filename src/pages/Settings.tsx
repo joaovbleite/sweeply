@@ -53,7 +53,10 @@ import {
   Chrome,
   Globe as BrowserIcon,
   LogOut,
-  RefreshCw
+  RefreshCw,
+  Menu,
+  ChevronRight,
+  ArrowLeft
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -108,6 +111,9 @@ const Settings = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [showDangerZone, setShowDangerZone] = useState(false);
+  
+  // Mobile navigation state
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   
   // Profile settings
   const [profileData, setProfileData] = useState({
@@ -253,6 +259,17 @@ const Settings = () => {
   const [recentActivity, setRecentActivity] = useState<ActivityEntry[]>([]);
   const [loadingDevices, setLoadingDevices] = useState(false);
 
+  // Toggle mobile navigation
+  const toggleMobileNav = () => {
+    setMobileNavOpen(!mobileNavOpen);
+  };
+
+  // Select tab and close mobile nav if open
+  const selectTab = (tab: typeof activeTab) => {
+    setActiveTab(tab);
+    setMobileNavOpen(false);
+  };
+
   // Add your handleSaveProfile, handleAvatarUpload, etc. methods here
 
   const tabs = [
@@ -270,7 +287,7 @@ const Settings = () => {
   if (initialLoading) {
     return (
       <AppLayout>
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex items-center justify-center h-96">
             <div className="text-center">
               <Loader2 className="w-12 h-12 text-pulse-500 animate-spin mx-auto mb-4" />
@@ -284,35 +301,88 @@ const Settings = () => {
 
   return (
     <AppLayout>
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
-        {/* Header */}
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-display font-bold text-gray-900 flex items-center gap-2 sm:gap-3">
-            <SettingsIcon className="w-7 h-7 sm:w-8 sm:h-8 text-pulse-500" />
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
+        {/* Mobile Header with Navigation Toggle */}
+        <div className="mb-4 sm:mb-6 flex flex-wrap items-center justify-between gap-2">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-gray-900 flex items-center gap-2">
+            <SettingsIcon className="w-6 h-6 sm:w-7 sm:h-7 text-pulse-500" />
             {t('settings:settings')}
           </h1>
-          <p className="mt-1 text-gray-600">{t('settings:manageYourAccount')}</p>
+          
+          <div className="lg:hidden">
+            <button
+              onClick={toggleMobileNav}
+              className="flex items-center gap-2 bg-pulse-500 text-white px-3 py-1.5 rounded-lg"
+            >
+              {activeTab} <Menu className="w-5 h-5" />
+            </button>
+          </div>
+          
+          <p className="w-full text-sm text-gray-600 mt-1">{t('settings:manageYourAccount')}</p>
         </div>
 
+        {/* Mobile Navigation Overlay */}
+        {mobileNavOpen && (
+          <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setMobileNavOpen(false)}>
+            <div 
+              className="absolute right-0 top-0 bottom-0 w-3/4 max-w-sm bg-white shadow-xl p-4 overflow-y-auto"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4 pb-2 border-b">
+                <h2 className="font-semibold text-lg">Settings Menu</h2>
+                <button onClick={() => setMobileNavOpen(false)} className="p-1">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <nav>
+                <ul className="space-y-1">
+                  {tabs.map((tab) => {
+                    const Icon = tab.icon;
+                    return (
+                      <li key={tab.id}>
+                        <button
+                          onClick={() => selectTab(tab.id)}
+                          className={`w-full flex items-center justify-between px-3 py-3 rounded-lg transition-colors ${
+                            activeTab === tab.id
+                              ? 'bg-pulse-50 text-pulse-600 border border-pulse-200'
+                              : 'text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <Icon className="w-5 h-5" />
+                            <span className="font-medium">{tab.label}</span>
+                          </div>
+                          <ChevronRight className="w-5 h-5 opacity-50" />
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </nav>
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
-          {/* Sidebar Navigation */}
-          <div className="lg:w-64">
-            <nav className="bg-white rounded-xl shadow-sm p-2 sm:p-3 lg:p-4">
-              <ul className="flex overflow-x-auto lg:overflow-visible lg:block flex-row lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2 pb-1 lg:pb-0">
+          {/* Desktop Sidebar Navigation - Hidden on Mobile */}
+          <div className="hidden lg:block lg:w-64">
+            <nav className="bg-white rounded-xl shadow-sm p-2 sm:p-3 lg:p-4 sticky top-4">
+              <ul className="lg:block flex-row lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
                   return (
                     <li key={tab.id}>
                       <button
                         onClick={() => setActiveTab(tab.id)}
-                        className={`flex-shrink-0 lg:w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-colors text-left ${
+                        className={`w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-colors text-left ${
                           activeTab === tab.id
                             ? 'bg-pulse-50 text-pulse-600 border border-pulse-200'
                             : 'text-gray-700 hover:bg-gray-50'
                         }`}
                       >
                         <Icon className="w-5 h-5" />
-                        <span className="font-medium whitespace-nowrap">{tab.label}</span>
+                        <span className="font-medium">{tab.label}</span>
                       </button>
                     </li>
                   );
@@ -332,17 +402,17 @@ const Settings = () => {
                 </div>
                 
                 <div className="p-4 sm:p-6">
-                  {/* Avatar Section - More Mobile Friendly */}
+                  {/* Avatar Section - Mobile Optimized */}
                   <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 mb-6 sm:mb-8 p-3 sm:p-4 bg-gray-50 rounded-lg">
                     <div className="relative flex-shrink-0 mb-2 sm:mb-0">
                       {avatarPreview || profileData.avatar ? (
                         <img 
                           src={avatarPreview || profileData.avatar} 
                           alt="Avatar" 
-                          className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md"
+                          className="w-24 h-24 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-white shadow-md"
                         />
                       ) : (
-                        <div className="w-20 h-20 bg-gradient-to-br from-pulse-500 to-pulse-600 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-md">
+                        <div className="w-24 h-24 sm:w-20 sm:h-20 bg-gradient-to-br from-pulse-500 to-pulse-600 rounded-full flex items-center justify-center text-white text-2xl sm:text-xl font-bold shadow-md">
                           {profileData.fullName.charAt(0).toUpperCase() || 'U'}
                         </div>
                       )}
@@ -357,7 +427,7 @@ const Settings = () => {
                     <div className="flex-1 min-w-0 text-center sm:text-left">
                       <h3 className="font-medium text-gray-900 mb-1">Profile Picture</h3>
                       <p className="text-sm text-gray-600 mb-3">
-                        JPG, PNG or WebP. Max 5MB. Recommended 400x400px.
+                        JPG, PNG or WebP. Max 5MB.
                       </p>
                       
                       <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2">
@@ -367,14 +437,14 @@ const Settings = () => {
                             accept="image/jpeg,image/jpg,image/png,image/webp"
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                           />
-                          <div className="px-3 py-1.5 bg-pulse-500 text-white rounded-md hover:bg-pulse-600 disabled:opacity-50 flex items-center gap-1.5 text-sm">
+                          <div className="px-3 py-2 bg-pulse-500 text-white rounded-md hover:bg-pulse-600 disabled:opacity-50 flex items-center gap-1.5 text-sm">
                             <Camera className="w-4 h-4" />
                             Upload
                           </div>
                         </label>
                         
                         <button 
-                          className="px-3 py-1.5 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center gap-1.5 text-sm"
+                          className="px-3 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center gap-1.5 text-sm"
                         >
                           <Trash2 className="w-4 h-4" />
                           Remove
@@ -386,7 +456,7 @@ const Settings = () => {
                   {/* Profile Form - Mobile-optimized Layout */}
                   <div className="space-y-5">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-1">
+                      <div className="space-y-1.5">
                         <label className="block text-sm font-medium text-gray-700">
                           {t('settings:fullName')} <span className="text-red-500">*</span>
                         </label>
@@ -394,12 +464,12 @@ const Settings = () => {
                           type="text"
                           value={profileData.fullName}
                           onChange={(e) => setProfileData(prev => ({ ...prev, fullName: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pulse-500 focus:border-pulse-500 transition-colors"
+                          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-pulse-500 transition-colors text-base"
                           placeholder="Enter your full name"
                         />
                       </div>
                       
-                      <div className="space-y-1">
+                      <div className="space-y-1.5">
                         <label className="block text-sm font-medium text-gray-700">
                           {t('settings:email')} <span className="text-red-500">*</span>
                         </label>
@@ -407,13 +477,13 @@ const Settings = () => {
                           type="email"
                           value={profileData.email}
                           onChange={(e) => setProfileData(prev => ({ ...prev, email: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pulse-500 focus:border-pulse-500 transition-colors"
+                          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-pulse-500 transition-colors text-base"
                           placeholder="Enter your email address"
                         />
                       </div>
                     </div>
                     
-                    <div className="space-y-1">
+                    <div className="space-y-1.5">
                       <label className="block text-sm font-medium text-gray-700">
                         {t('settings:phone')}
                       </label>
@@ -421,29 +491,29 @@ const Settings = () => {
                         type="tel"
                         value={profileData.phone}
                         onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pulse-500 focus:border-pulse-500 transition-colors"
+                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-pulse-500 transition-colors text-base"
                         placeholder="Enter your phone number"
                       />
                     </div>
                     
-                    <div className="space-y-1">
+                    <div className="space-y-1.5">
                       <label className="block text-sm font-medium text-gray-700">
                         {t('settings:bio')}
                       </label>
                       <textarea
                         value={profileData.bio}
                         onChange={(e) => setProfileData(prev => ({ ...prev, bio: e.target.value }))}
-                        rows={3}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-pulse-500 focus:border-pulse-500 transition-colors resize-none"
+                        rows={4}
+                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pulse-500 focus:border-pulse-500 transition-colors resize-none text-base"
                         placeholder={t('settings:bioPlaceholder')}
                       />
-                      <p className="text-xs text-gray-500">Brief description for your profile</p>
+                      <p className="text-xs text-gray-500 mt-1">Brief description for your profile</p>
                     </div>
                   </div>
 
                   <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-100 flex justify-end">
                     <button
-                      className="w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-pulse-500 text-white rounded-md hover:bg-pulse-600 disabled:opacity-50 flex items-center justify-center sm:justify-start gap-2 font-medium transition-colors"
+                      className="w-full sm:w-auto px-4 sm:px-6 py-3 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 disabled:opacity-50 flex items-center justify-center gap-2 font-medium transition-colors text-base"
                     >
                       <Save className="w-4 h-4" />
                       Save Profile
@@ -453,7 +523,7 @@ const Settings = () => {
               </div>
             )}
 
-            {/* Add other tabs here */}
+            {/* Add other tabs here - just showing the profile tab optimization for now */}
           </div>
         </div>
       </div>
