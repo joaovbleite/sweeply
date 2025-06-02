@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
-import { Sparkles, TrendingUp, Target, Zap, Plus, Calendar, Users, Lightbulb, Bell } from 'lucide-react';
+import { Sparkles, TrendingUp, Target, Zap, Plus, Calendar, Users, Lightbulb, Bell, Menu } from 'lucide-react';
 import { notificationsApi } from '@/lib/api/notifications';
 
 const WelcomeWidget = () => {
@@ -72,6 +72,8 @@ const WelcomeWidget = () => {
 
   return (
     <div className="bg-gradient-to-r from-pulse-500 to-blue-700 rounded-xl sm:rounded-2xl p-3 sm:p-5 md:p-6 text-white shadow-xl relative overflow-hidden mt-0">
+      {/* Menu Icon - Removed */}
+      
       {/* Top right icons - improved for mobile */}
       <div className="absolute top-3 right-3 flex items-center gap-2 sm:gap-2.5 md:gap-3">
         {/* Star Icon */}
@@ -106,7 +108,7 @@ const WelcomeWidget = () => {
         )}
       </div>
 
-      <div className="flex items-start justify-between mb-3 sm:mb-5 md:mb-6">
+      <div className="flex items-start justify-between mb-3 sm:mb-5 md:mb-6 mt-10 sm:mt-0">
         <div className="flex-1 pr-14 sm:pr-20 md:pr-32">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-0.5 sm:mb-1.5 md:mb-2 leading-tight">
             {getGreeting()}, {userName.split(' ')[0]} <span className="inline-block">👋</span>

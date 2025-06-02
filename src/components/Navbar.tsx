@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom"; // Import Link and useNavigate
+import { Link, useNavigate, useLocation } from "react-router-dom"; // Import Link, useNavigate and useLocation
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate(); // Hook for navigation
+  const location = useLocation(); // Get current location
+  
+  // Check if we're in the app (post-login pages)
+  const isInApp = location.pathname.includes('/dashboard') || 
+                  location.pathname.includes('/jobs') || 
+                  location.pathname.includes('/clients') || 
+                  location.pathname.includes('/reports') ||
+                  location.pathname.includes('/mobile-settings') ||
+                  location.pathname.includes('/profile');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -76,7 +85,11 @@ const Navbar = () => {
   }}>
       {children}
     </a>;
-  return <header className={cn("fixed top-0 left-0 right-0 z-50 mt-0 py-0 transition-all duration-300", isScrolled ? "bg-white/80 backdrop-blur-md shadow-sm" : "bg-transparent")}>
+  return <header className={cn(
+    "fixed top-0 left-0 right-0 z-50 mt-0 py-0 transition-all duration-300", 
+    isScrolled ? "bg-white/80 backdrop-blur-md shadow-sm" : "bg-transparent",
+    isInApp ? "hidden" : "" // Hide navbar completely in app pages
+  )}>
       <div className="container flex items-center justify-between sm:px-6 lg:px-8 px-3 py-3 my-0 rounded-none">
         <a href="/" className="flex items-center space-x-1 sm:space-x-1" onClick={e => {
         e.preventDefault();
@@ -92,8 +105,12 @@ const Navbar = () => {
           <NavLink to="/" hash="#details">Contact</NavLink> {/* Assuming contact is on home page */}
         </nav>
 
-        {/* Mobile menu button - increased touch target */}
-        <button className="md:hidden text-gray-700 p-1.5 focus:outline-none" onClick={toggleMenu} aria-label={isMenuOpen ? "Close menu" : "Open menu"}>
+        {/* Mobile menu button - increased touch target - hidden in app */}
+        <button 
+          className="md:hidden text-gray-700 p-1.5 focus:outline-none" 
+          onClick={toggleMenu} 
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+        >
           {isMenuOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
       </div>
