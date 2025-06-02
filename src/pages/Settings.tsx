@@ -1355,15 +1355,15 @@ const Settings = () => {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Navigation */}
           <div className="lg:w-64">
-            <nav className="bg-white rounded-xl shadow-sm p-4">
-              <ul className="space-y-2">
+            <nav className="bg-white rounded-xl shadow-sm p-2 sm:p-3 lg:p-4">
+              <ul className="flex overflow-x-auto lg:overflow-visible lg:block flex-row lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
                   return (
                     <li key={tab.id}>
                       <button
                         onClick={() => setActiveTab(tab.id)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-left ${
+                        className={`flex-shrink-0 lg:w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-colors text-left ${
                           activeTab === tab.id
                             ? 'bg-pulse-50 text-pulse-600 border border-pulse-200'
                             : 'text-gray-700 hover:bg-gray-50'
