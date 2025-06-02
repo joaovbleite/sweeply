@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   Home,
   LayoutGrid,
@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 const BottomNavBar: React.FC = () => {
   const { t } = useTranslation(['navigation', 'common']);
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Define the navigation items based on the image
   // Home, Grid, Stats, Profile
@@ -19,6 +20,12 @@ const BottomNavBar: React.FC = () => {
     { id: "explore", icon: LayoutGrid, path: "/jobs" },
     { id: "stats", icon: BarChart3, path: "/reports" }
   ];
+
+  // Handle direct navigation to settings page
+  const handleProfileClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate('/settings');
+  };
 
   return (
     <div className="fixed bottom-4 left-0 right-0 mx-auto px-4 z-50 lg:hidden pb-safe">
@@ -44,8 +51,8 @@ const BottomNavBar: React.FC = () => {
         })}
         
         {/* Profile button - special styling to match the image */}
-        <Link
-          to="/settings"
+        <button
+          onClick={handleProfileClick}
           className={`flex items-center justify-center w-11 h-11 bg-white rounded-full shadow-sm transition-all duration-200 ease-in-out hover:scale-105 ${
             location.pathname === "/settings" 
               ? "ring-2 ring-white" 
@@ -54,7 +61,7 @@ const BottomNavBar: React.FC = () => {
           aria-label="profile"
         >
           <User className="w-5 h-5 text-black" strokeWidth={2} />
-        </Link>
+        </button>
       </nav>
     </div>
   );

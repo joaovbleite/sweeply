@@ -104,7 +104,7 @@ const Settings = () => {
   // State for different settings sections
   const [activeTab, setActiveTab] = useState<'profile' | 'business' | 'team' | 'services' | 'branding' | 'notifications' | 'security' | 'preferences'>('profile');
   const [loading, setLoading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [showDangerZone, setShowDangerZone] = useState(false);
@@ -285,15 +285,6 @@ const Settings = () => {
   return (
     <AppLayout>
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
-        {/* Header */}
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-display font-bold text-gray-900 flex items-center gap-2 sm:gap-3">
-            <SettingsIcon className="w-7 h-7 sm:w-8 sm:h-8 text-pulse-500" />
-            {t('settings:settings')}
-          </h1>
-          <p className="mt-1 text-gray-600">{t('settings:manageYourAccount')}</p>
-        </div>
-
         <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
           {/* Sidebar Navigation */}
           <div className="lg:w-64">
