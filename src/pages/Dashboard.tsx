@@ -288,7 +288,9 @@ const Dashboard = () => {
     <AppLayout>
       <div className="px-3 sm:px-4 md:px-6 lg:px-8 py-0 sm:py-4 md:py-6">
         {/* Welcome Widget */}
-        <WelcomeWidget />
+        <div className="mt-4 sm:mt-5 md:mt-6">
+          <WelcomeWidget />
+        </div>
         
         {/* Stats Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 mt-3 sm:mt-5 md:mt-6">
