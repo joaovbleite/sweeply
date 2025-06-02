@@ -141,25 +141,12 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-h-screen">
-        {/* Top Bar */}
-        <header className="bg-white shadow-sm sticky top-0 z-10">
+        {/* Remove top bar for mobile - only show on desktop */}
+        <header className="bg-white shadow-sm sticky top-0 z-10 hidden lg:block">
           <div className="flex items-center justify-between px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4">
-            <button
-              id="menu-button"
-              onClick={() => setIsSidebarOpen(true)}
-              className="p-1 sm:p-1.5 hover:bg-gray-100 rounded-lg transition-colors lg:hidden"
-              aria-label="Open sidebar"
-            >
-              <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-            
-            <div className="text-xs sm:text-sm md:text-base text-gray-500 lg:hidden">
-              {/* Show current page name on mobile */}
+            <div className="text-xs sm:text-sm md:text-base text-gray-500">
+              {/* Show current page name on desktop */}
               {sidebarItems.find(item => item.path === location.pathname)?.label || 'Sweeply'}
-            </div>
-            
-            <div className="lg:hidden w-4 h-4 sm:w-5 sm:h-5">
-              {/* Empty div for flex spacing */}
             </div>
           </div>
         </header>
@@ -172,6 +159,16 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         {/* Bottom Navigation Bar - Mobile Only */}
         <BottomNavBar />
       </div>
+
+      {/* Open Sidebar Button - Float at top left for mobile only */}
+      <button
+        id="menu-button"
+        onClick={() => setIsSidebarOpen(true)}
+        className="fixed top-3 left-3 z-30 p-2 bg-white/80 backdrop-blur-sm hover:bg-white rounded-full shadow-md transition-colors lg:hidden"
+        aria-label="Open sidebar"
+      >
+        <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
+      </button>
 
       {/* Mobile sidebar overlay */}
       {isSidebarOpen && (
