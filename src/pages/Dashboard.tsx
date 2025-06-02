@@ -290,46 +290,46 @@ const Dashboard = () => {
         {/* Welcome Widget at top */}
         <WelcomeWidget />
         
-        <div className="p-3 sm:p-6 max-w-7xl mx-auto">
+        <div className="p-2 sm:p-3 md:p-6 max-w-7xl mx-auto">
           {/* Stats Grid - Enhanced with trends - Improved for mobile */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 mb-3 sm:mb-4 md:mb-6">
             {stats.map((stat, index) => {
               const Icon = stat.icon;
               const TrendIcon = stat.trend === 'up' ? ArrowUpRight : stat.trend === 'down' ? ArrowDownRight : Activity;
               return (
-                <div key={index} className="bg-white rounded-xl sm:rounded-2xl shadow-sm p-3 sm:p-5 hover:shadow-md transition-all hover:scale-[1.02] group">
-                  <div className="flex items-center justify-between mb-2 sm:mb-3">
-                    <div className={`p-2 sm:p-3 rounded-lg bg-gradient-to-r ${stat.color} group-hover:scale-110 transition-transform`}>
-                      <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                <div key={index} className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-sm p-2 sm:p-3 md:p-5 hover:shadow-md transition-all hover:scale-[1.02] group">
+                  <div className="flex items-center justify-between mb-1 sm:mb-2 md:mb-3">
+                    <div className={`p-1.5 sm:p-2 md:p-3 rounded-lg bg-gradient-to-r ${stat.color} group-hover:scale-110 transition-transform`}>
+                      <Icon className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white" />
                     </div>
-                    <div className={`flex items-center gap-1 text-xs sm:text-sm font-medium ${
+                    <div className={`flex items-center gap-0.5 sm:gap-1 text-[8px] sm:text-xs md:text-sm font-medium ${
                       stat.trend === 'up' ? 'text-green-600' : 
                       stat.trend === 'down' ? 'text-red-600' : 'text-gray-500'
                     }`}>
-                      <TrendIcon className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <TrendIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4" />
                       <span>{stat.trendValue}</span>
                     </div>
                   </div>
-                  <h3 className="text-base sm:text-lg md:text-2xl font-bold text-gray-900 truncate">{stat.value}</h3>
-                  <p className="text-gray-600 text-xs sm:text-sm truncate">{stat.label}</p>
-                  <p className="text-gray-500 text-[10px] sm:text-xs mt-0.5 sm:mt-1 truncate">{stat.subLabel}</p>
+                  <h3 className="text-sm sm:text-base md:text-2xl font-bold text-gray-900 truncate">{stat.value}</h3>
+                  <p className="text-gray-600 text-[10px] sm:text-xs md:text-sm truncate">{stat.label}</p>
+                  <p className="text-gray-500 text-[8px] sm:text-[10px] md:text-xs mt-0.5 truncate">{stat.subLabel}</p>
                 </div>
               );
             })}
           </div>
 
           {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
             {/* Left Column - Takes 2/3 on large screens */}
-            <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+            <div className="lg:col-span-2 space-y-3 sm:space-y-4 md:space-y-6">
               {/* Revenue Chart */}
-              <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6 hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-4 sm:mb-6">
-                  <h2 className="text-lg sm:text-xl font-display font-bold text-gray-900">Revenue Overview</h2>
+              <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-sm p-3 sm:p-4 md:p-6 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between mb-2 sm:mb-3 md:mb-6">
+                  <h2 className="text-base sm:text-lg md:text-xl font-display font-bold text-gray-900">Revenue Overview</h2>
                   <div className="flex items-center gap-1 sm:gap-2">
                     <button
                       onClick={() => setSelectedTimeRange('week')}
-                      className={`px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-lg transition-all ${
+                      className={`px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs md:text-sm rounded-lg transition-all ${
                         selectedTimeRange === 'week' 
                           ? 'bg-pulse-100 text-pulse-700 scale-105' 
                           : 'text-gray-600 hover:bg-gray-100'
@@ -339,7 +339,7 @@ const Dashboard = () => {
                     </button>
                     <button
                       onClick={() => setSelectedTimeRange('month')}
-                      className={`px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-lg transition-all ${
+                      className={`px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs md:text-sm rounded-lg transition-all ${
                         selectedTimeRange === 'month' 
                           ? 'bg-pulse-100 text-pulse-700 scale-105' 
                           : 'text-gray-600 hover:bg-gray-100'
@@ -349,7 +349,7 @@ const Dashboard = () => {
                     </button>
                   </div>
                 </div>
-                <div className="h-52 sm:h-64">
+                <div className="h-40 sm:h-52 md:h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={revenueData} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
                       <defs>
@@ -359,10 +359,10 @@ const Dashboard = () => {
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                      <XAxis dataKey="date" stroke="#9CA3AF" fontSize={10} tick={{fontSize: 10}} />
-                      <YAxis stroke="#9CA3AF" fontSize={10} tick={{fontSize: 10}} width={35} />
+                      <XAxis dataKey="date" stroke="#9CA3AF" fontSize={8} tick={{fontSize: 8}} />
+                      <YAxis stroke="#9CA3AF" fontSize={8} tick={{fontSize: 8}} width={30} />
                       <Tooltip 
-                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '12px' }}
+                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '10px' }}
                         formatter={(value: any) => formatCurrency(value)}
                       />
                       <Area 
@@ -378,51 +378,51 @@ const Dashboard = () => {
               </div>
 
               {/* Today's Schedule */}
-              <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6 hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-4 sm:mb-6">
-                  <h2 className="text-lg sm:text-xl font-display font-bold text-gray-900">
+              <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-sm p-3 sm:p-4 md:p-6 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between mb-2 sm:mb-3 md:mb-6">
+                  <h2 className="text-base sm:text-lg md:text-xl font-display font-bold text-gray-900">
                     {t('dashboard:todaysSchedule')}
                   </h2>
                   <Link 
                     to="/calendar"
-                    className="text-xs sm:text-sm text-pulse-600 hover:text-pulse-700 font-medium flex items-center gap-1 hover:gap-2 transition-all"
+                    className="text-[10px] sm:text-xs md:text-sm text-pulse-600 hover:text-pulse-700 font-medium flex items-center gap-0.5 sm:gap-1 hover:gap-1.5 transition-all"
                   >
-                    View all <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+                    View all <ChevronRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4" />
                   </Link>
                 </div>
                 
                 {upcomingJobs.length > 0 ? (
-                  <div className="space-y-2 sm:space-y-3">
+                  <div className="space-y-2 sm:space-y-2.5 md:space-y-3">
                     {upcomingJobs.map((job) => (
                       <Link
                         key={job.id}
                         to={`/jobs/${job.id}`}
-                        className="flex items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg sm:rounded-xl hover:from-pulse-50 hover:to-pulse-100 transition-all hover:shadow-sm group"
+                        className="flex items-center justify-between p-2 sm:p-3 md:p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg hover:from-pulse-50 hover:to-pulse-100 transition-all hover:shadow-sm group"
                       >
-                        <div className="flex items-start gap-3 sm:gap-4">
-                          <div className="p-1.5 sm:p-2 bg-white rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
-                            <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-pulse-600" />
+                        <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
+                          <div className="p-1 sm:p-1.5 md:p-2 bg-white rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
+                            <Clock className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-pulse-600" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-sm sm:text-base text-gray-900 group-hover:text-pulse-600 transition-colors truncate">
+                            <h4 className="font-semibold text-xs sm:text-sm md:text-base text-gray-900 group-hover:text-pulse-600 transition-colors truncate">
                               {job.title || t('dashboard:cleaningService')}
                             </h4>
-                            <p className="text-xs sm:text-sm text-gray-600 capitalize truncate">
+                            <p className="text-[10px] sm:text-xs md:text-sm text-gray-600 capitalize truncate">
                               {job.service_type?.replace('_', ' ') || t('dashboard:cleaningService')}
                             </p>
-                            <div className="flex items-center gap-1 sm:gap-2 mt-0.5 sm:mt-1">
-                              <MapPin className="w-3 h-3 text-gray-400 flex-shrink-0" />
-                              <p className="text-[10px] sm:text-xs text-gray-500 truncate">
+                            <div className="flex items-center gap-1 mt-0.5">
+                              <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-gray-400 flex-shrink-0" />
+                              <p className="text-[8px] sm:text-[10px] md:text-xs text-gray-500 truncate">
                                 {job.address || t('dashboard:noAddress')}
                               </p>
                             </div>
                           </div>
                         </div>
                         <div className="text-right pl-2 flex-shrink-0">
-                          <span className="text-xs sm:text-sm font-medium text-pulse-600 whitespace-nowrap">
+                          <span className="text-[10px] sm:text-xs md:text-sm font-medium text-pulse-600 whitespace-nowrap">
                             {job.scheduled_time || 'No time'}
                           </span>
-                          <p className="text-xs sm:text-sm font-semibold text-gray-900 mt-0.5 sm:mt-1 whitespace-nowrap">
+                          <p className="text-[10px] sm:text-xs md:text-sm font-semibold text-gray-900 mt-0.5 whitespace-nowrap">
                             {formatCurrency(job.estimated_price || 0)}
                           </p>
                         </div>
@@ -430,16 +430,16 @@ const Dashboard = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8 sm:py-12">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                      <Calendar className="w-8 h-8 sm:w-10 sm:h-10 text-gray-300" />
+                  <div className="text-center py-4 sm:py-6 md:py-8">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
+                      <Calendar className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-gray-300" />
                     </div>
-                    <p className="text-sm sm:text-base text-gray-500 mb-2 sm:mb-3">{t('dashboard:noJobsToday')}</p>
+                    <p className="text-xs sm:text-sm md:text-base text-gray-500 mb-1.5 sm:mb-2 md:mb-3">{t('dashboard:noJobsToday')}</p>
                     <Link 
                       to="/jobs/new"
-                      className="inline-flex items-center gap-1 sm:gap-2 text-pulse-600 hover:text-pulse-700 font-medium text-sm hover:gap-2 sm:hover:gap-3 transition-all"
+                      className="inline-flex items-center gap-1 text-pulse-600 hover:text-pulse-700 font-medium text-[10px] sm:text-xs md:text-sm hover:gap-1.5 transition-all"
                     >
-                      {t('dashboard:scheduleJob')} <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4" />
+                      {t('dashboard:scheduleJob')} <ArrowUpRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4" />
                     </Link>
                   </div>
                 )}
@@ -447,66 +447,66 @@ const Dashboard = () => {
             </div>
 
             {/* Right Column - Takes 1/3 on large screens */}
-            <div className="space-y-6">
+            <div className="space-y-3 sm:space-y-4 md:space-y-6">
               {/* Performance Metrics */}
-              <div className="mb-6">
+              <div className="mb-3 sm:mb-4 md:mb-6">
                 <PerformanceMetrics />
               </div>
 
               {/* Quick Actions */}
-              <div className="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow">
-                <h2 className="text-xl font-display font-bold text-gray-900 mb-6">
+              <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-sm p-3 sm:p-4 md:p-6 hover:shadow-md transition-shadow">
+                <h2 className="text-base sm:text-lg md:text-xl font-display font-bold text-gray-900 mb-2 sm:mb-3 md:mb-6">
                   {t('dashboard:quickActions')}
                 </h2>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
                   <Link 
                     to="/jobs/new"
-                    className="p-4 bg-gradient-to-br from-pulse-500 to-pulse-600 text-white rounded-xl hover:from-pulse-600 hover:to-pulse-700 transition-all transform hover:scale-[1.05] active:scale-[0.98] flex flex-col items-center gap-2 shadow-md hover:shadow-lg"
+                    className="p-2 sm:p-3 md:p-4 bg-gradient-to-br from-pulse-500 to-pulse-600 text-white rounded-lg sm:rounded-xl hover:from-pulse-600 hover:to-pulse-700 transition-all transform hover:scale-[1.05] active:scale-[0.98] flex flex-col items-center gap-1 sm:gap-1.5 md:gap-2 shadow-md hover:shadow-lg"
                   >
-                    <Calendar className="w-5 h-5" />
-                    <span className="text-xs font-medium text-center">{t('dashboard:newJob')}</span>
+                    <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
+                    <span className="text-[8px] sm:text-[10px] md:text-xs font-medium text-center">{t('dashboard:newJob')}</span>
                   </Link>
                   <Link 
                     to="/clients/new"
-                    className="p-4 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all transform hover:scale-[1.05] active:scale-[0.98] flex flex-col items-center gap-2 shadow-md hover:shadow-lg"
+                    className="p-2 sm:p-3 md:p-4 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-lg sm:rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all transform hover:scale-[1.05] active:scale-[0.98] flex flex-col items-center gap-1 sm:gap-1.5 md:gap-2 shadow-md hover:shadow-lg"
                   >
-                    <Users className="w-5 h-5" />
-                    <span className="text-xs font-medium text-center">{t('dashboard:addClient')}</span>
+                    <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
+                    <span className="text-[8px] sm:text-[10px] md:text-xs font-medium text-center">{t('dashboard:addClient')}</span>
                   </Link>
                   <Link 
                     to="/invoices/new"
-                    className="p-4 bg-gradient-to-br from-blue-700 to-blue-800 text-white rounded-xl hover:from-blue-800 hover:to-blue-900 transition-all transform hover:scale-[1.05] active:scale-[0.98] flex flex-col items-center gap-2 shadow-md hover:shadow-lg"
+                    className="p-2 sm:p-3 md:p-4 bg-gradient-to-br from-blue-700 to-blue-800 text-white rounded-lg sm:rounded-xl hover:from-blue-800 hover:to-blue-900 transition-all transform hover:scale-[1.05] active:scale-[0.98] flex flex-col items-center gap-1 sm:gap-1.5 md:gap-2 shadow-md hover:shadow-lg"
                   >
-                    <FileText className="w-5 h-5" />
-                    <span className="text-xs font-medium text-center">{t('dashboard:createInvoice')}</span>
+                    <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
+                    <span className="text-[8px] sm:text-[10px] md:text-xs font-medium text-center">{t('dashboard:createInvoice')}</span>
                   </Link>
                   <Link 
                     to="/reports"
-                    className="p-4 bg-gradient-to-br from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all transform hover:scale-[1.05] active:scale-[0.98] flex flex-col items-center gap-2 shadow-md hover:shadow-lg"
+                    className="p-2 sm:p-3 md:p-4 bg-gradient-to-br from-gray-600 to-gray-700 text-white rounded-lg sm:rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all transform hover:scale-[1.05] active:scale-[0.98] flex flex-col items-center gap-1 sm:gap-1.5 md:gap-2 shadow-md hover:shadow-lg"
                   >
-                    <BarChart3 className="w-5 h-5" />
-                    <span className="text-xs font-medium text-center">{t('dashboard:viewReports')}</span>
+                    <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
+                    <span className="text-[8px] sm:text-[10px] md:text-xs font-medium text-center">{t('dashboard:viewReports')}</span>
                   </Link>
                 </div>
               </div>
 
               {/* Recent Activity */}
-              <div className="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-display font-bold text-gray-900">Recent Activity</h2>
+              <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-sm p-3 sm:p-4 md:p-6 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between mb-2 sm:mb-3 md:mb-6">
+                  <h2 className="text-base sm:text-lg md:text-xl font-display font-bold text-gray-900">Recent Activity</h2>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-2 sm:space-y-3 md:space-y-4">
                   {recentActivities.map((activity) => {
                     const Icon = activity.icon;
                     return (
-                      <div key={activity.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                        <div className={`p-2 rounded-lg ${activity.color}`}>
-                          <Icon className="w-4 h-4" />
+                      <div key={activity.id} className="flex items-start gap-2 sm:gap-3 md:gap-4 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div className={`p-1 sm:p-1.5 md:p-2 rounded-lg ${activity.color}`}>
+                          <Icon className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900">{activity.title}</p>
-                          <p className="text-xs text-gray-600 truncate">{activity.description}</p>
-                          <p className="text-xs text-gray-500 mt-1">{formatRelativeTime(activity.time)}</p>
+                          <p className="text-xs sm:text-sm md:text-base font-medium text-gray-900">{activity.title}</p>
+                          <p className="text-[10px] sm:text-xs md:text-sm text-gray-600 truncate">{activity.description}</p>
+                          <p className="text-[8px] sm:text-[10px] md:text-xs text-gray-500 mt-0.5 sm:mt-1">{formatRelativeTime(activity.time)}</p>
                         </div>
                       </div>
                     );
