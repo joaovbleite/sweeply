@@ -1,3 +1,4 @@
+/** @jsxImportSource react */
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
@@ -159,16 +160,6 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         {/* Bottom Navigation Bar - Mobile Only */}
         <BottomNavBar />
       </div>
-
-      {/* Open Sidebar Button - Float at top left for mobile only */}
-      <button
-        id="menu-button"
-        onClick={() => setIsSidebarOpen(true)}
-        className="fixed top-3 left-3 z-30 p-2 bg-white/80 backdrop-blur-sm hover:bg-white rounded-full shadow-md transition-colors lg:hidden"
-        aria-label="Open sidebar"
-      >
-        <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
-      </button>
 
       {/* Mobile sidebar overlay */}
       {isSidebarOpen && (

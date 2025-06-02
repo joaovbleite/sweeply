@@ -286,12 +286,12 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
-      <div className="px-3 sm:px-4 md:px-6 lg:px-8 py-0 sm:py-4 md:py-6">
+      <div className="px-0 sm:px-0 md:px-0 lg:px-0 py-0 sm:py-0 md:py-0">
         {/* Welcome Widget */}
         <WelcomeWidget />
         
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 mt-3 sm:mt-5 md:mt-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 mx-3 sm:mx-4 md:mx-6 mt-3 sm:mt-5 md:mt-6">
           {stats.map((stat, index) => (
             <div 
               key={index} 
@@ -325,7 +325,7 @@ const Dashboard = () => {
         </div>
         
         {/* Revenue Chart */}
-        <div className="bg-white p-3 sm:p-4 md:p-5 rounded-xl shadow-sm border border-gray-100 mt-3 sm:mt-5 md:mt-6">
+        <div className="bg-white p-3 sm:p-4 md:p-5 rounded-xl shadow-sm border border-gray-100 mx-3 sm:mx-4 md:mx-6 mt-3 sm:mt-5 md:mt-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
             <div>
               <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">Revenue Overview</h3>
@@ -394,7 +394,7 @@ const Dashboard = () => {
         </div>
         
         {/* Today's Schedule & Recent Activities */}
-        <div className="mt-3 sm:mt-5 md:mt-6 grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+        <div className="mt-3 sm:mt-5 md:mt-6 mx-3 sm:mx-4 md:mx-6 grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
           {/* Today's Schedule */}
           <div className="bg-white p-3 sm:p-4 md:p-5 rounded-xl shadow-sm border border-gray-100">
             <div className="flex justify-between items-center mb-3 sm:mb-4">
@@ -494,7 +494,7 @@ const Dashboard = () => {
         </div>
         
         {/* Performance Metrics */}
-        <div className="mt-3 sm:mt-5 md:mt-6">
+        <div className="mt-3 sm:mt-5 md:mt-6 mx-3 sm:mx-4 md:mx-6">
           <PerformanceMetrics />
         </div>
       </div>
