@@ -81,5 +81,16 @@
   "notificationSettingsUpdated": "Notification settings updated successfully!",
   "securitySettingsUpdated": "Security settings updated successfully!",
   "preferencesUpdated": "Preferences updated successfully!",
-  "passwordMismatch": "Passwords do not match"
+  "passwordMismatch": "Passwords do not match",
+  
+  "account": "Account",
+  "darkMode": "Dark Mode",
+  "mobileApp": "Mobile App",
+  "billing": "Billing",
+  "subscription": "Subscription",
+  "invoices": "Invoices",
+  "support": "Support",
+  "helpCenter": "Help Center",
+  "contactSupport": "Contact Support",
+  "privacySecurity": "Privacy & Security"
 } 

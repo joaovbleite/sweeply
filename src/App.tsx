@@ -31,6 +31,7 @@ import TeamAnalytics from "./pages/TeamAnalytics";
 import Payroll from "./pages/Payroll";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import MobileSettings from "./pages/MobileSettings"; // Import the new Mobile Settings page
 import PricingAssistant from "./pages/PricingAssistant";
 import Notifications from "./pages/Notifications";
 import InstallPrompt from "@/components/ui/InstallPrompt";
@@ -238,6 +239,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <PricingAssistant />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/mobile-settings" 
+              element={
+                <ProtectedRoute>
+                  <MobileSettings />
                 </ProtectedRoute>
               } 
             />
