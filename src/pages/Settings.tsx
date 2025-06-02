@@ -104,17 +104,17 @@ const Settings = () => {
   // State for different settings sections
   const [activeTab, setActiveTab] = useState<'profile' | 'business' | 'team' | 'services' | 'branding' | 'notifications' | 'security' | 'preferences'>('profile');
   const [loading, setLoading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [showDangerZone, setShowDangerZone] = useState(false);
   
   // Profile settings
   const [profileData, setProfileData] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    avatar: '',
+    fullName: user?.user_metadata?.full_name || '',
+    email: user?.email || '',
+    phone: user?.user_metadata?.phone || '',
+    avatar: user?.user_metadata?.avatar_url || '',
     bio: ''
   });
 
@@ -268,12 +268,25 @@ const Settings = () => {
           }));
         }
         
-        // Set initialLoading to false to display the settings page
-        setInitialLoading(false);
+        // Try to load profile data in the background, but don't block rendering
+        try {
+          const profile = await profileApi.getProfile();
+          if (profile) {
+            setProfileData(prev => ({
+              ...prev,
+              fullName: profile.full_name || prev.fullName,
+              phone: profile.phone || prev.phone,
+              avatar: profile.avatar_url || prev.avatar,
+              bio: profile.bio || prev.bio
+            }));
+            setUserProfile(profile);
+          }
+        } catch (profileError) {
+          console.error("Error loading profile data:", profileError);
+          // Continue anyway, we'll use the basic user data from auth
+        }
       } catch (error) {
         console.error("Error loading initial settings data:", error);
-        setInitialLoading(false); // Make sure to set to false even on error
-        toast.error("Failed to load settings. Please try again.");
       }
     };
 
