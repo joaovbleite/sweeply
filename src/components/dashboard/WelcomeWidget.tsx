@@ -71,9 +71,9 @@ const WelcomeWidget = () => {
   const QuoteIcon = todayQuote.icon;
 
   return (
-    <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 text-white shadow-xl relative overflow-hidden">
-      {/* Top right icons - improved for mobile */}
-      <div className="absolute top-3 right-3 flex items-center gap-2 sm:gap-2.5 md:gap-3">
+    <div className="bg-gradient-to-br from-blue-600 to-blue-800 w-full text-white shadow-xl relative overflow-hidden mt-10 sm:mt-12 md:mt-14 lg:mt-16 pt-6 pb-5 px-3 sm:px-5 md:px-6 lg:px-8 rounded-b-xl sm:rounded-b-2xl">
+      {/* Top right icons */}
+      <div className="absolute top-3 right-3 sm:right-5 md:right-6 lg:right-8 flex items-center gap-2 sm:gap-2.5 md:gap-3">
         {/* Notifications Bell */}
         <Link 
           to="/notifications"
@@ -102,11 +102,11 @@ const WelcomeWidget = () => {
       </div>
 
       <div className="flex items-start justify-between mb-4 sm:mb-5 md:mb-6">
-        <div className="flex-1 pr-14 sm:pr-20 md:pr-32">
+        <div className="flex-1 pr-14 sm:pr-20 md:pr-24 lg:pr-32">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-3 md:mb-4 leading-tight">
             {getGreeting()}, {userName.split(' ')[0]}
           </h2>
-          <div className="flex items-center gap-1.5 mb-1">
+          <div className="flex items-center gap-1.5 mb-0">
             <QuoteIcon className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5 md:w-5 md:h-5" />
             <p className="text-sm sm:text-base md:text-lg opacity-90">{todayQuote.text}</p>
           </div>

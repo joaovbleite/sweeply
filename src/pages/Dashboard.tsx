@@ -286,14 +286,12 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
-      <div className="px-3 sm:px-4 md:px-6 lg:px-8 py-0 sm:py-4 md:py-6">
+      <div className="px-0 py-0">
         {/* Welcome Widget */}
-        <div className="mt-4 sm:mt-5 md:mt-6">
-          <WelcomeWidget />
-        </div>
+        <WelcomeWidget />
         
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 mt-3 sm:mt-5 md:mt-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 px-3 sm:px-4 md:px-6 lg:px-8 mt-6 sm:mt-8 md:mt-10">
           {stats.map((stat, index) => (
             <div 
               key={index} 
@@ -327,7 +325,7 @@ const Dashboard = () => {
         </div>
         
         {/* Revenue Chart */}
-        <div className="bg-white p-3 sm:p-4 md:p-5 rounded-xl shadow-sm border border-gray-100 mt-3 sm:mt-5 md:mt-6">
+        <div className="bg-white p-3 sm:p-4 md:p-5 rounded-xl shadow-sm border border-gray-100 mt-3 sm:mt-5 md:mt-6 mx-3 sm:mx-4 md:mx-6 lg:mx-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
             <div>
               <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">Revenue Overview</h3>
@@ -396,7 +394,7 @@ const Dashboard = () => {
         </div>
         
         {/* Today's Schedule & Recent Activities */}
-        <div className="mt-3 sm:mt-5 md:mt-6 grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+        <div className="mt-3 sm:mt-5 md:mt-6 grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6 px-3 sm:px-4 md:px-6 lg:px-8">
           {/* Today's Schedule */}
           <div className="bg-white p-3 sm:p-4 md:p-5 rounded-xl shadow-sm border border-gray-100">
             <div className="flex justify-between items-center mb-3 sm:mb-4">
@@ -496,7 +494,7 @@ const Dashboard = () => {
         </div>
         
         {/* Performance Metrics */}
-        <div className="mt-3 sm:mt-5 md:mt-6">
+        <div className="mt-3 sm:mt-5 md:mt-6 px-3 sm:px-4 md:px-6 lg:px-8 pb-6">
           <PerformanceMetrics />
         </div>
       </div>
