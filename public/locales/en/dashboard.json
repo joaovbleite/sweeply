@@ -29,5 +29,38 @@
   "viewReports": "View Reports",
   "recentActivity": "Recent Activity",
   "noRecentActivity": "No recent activity",
-  "startByAdding": "Start by adding your first job or client!"
+  "startByAdding": "Start by adding your first job or client!",
+  
+  "businessHealth": "Business health",
+  "viewAll": "View all",
+  
+  "businessHealthCategories": {
+    "clients": "Clients",
+    "quotes": "Quotes",
+    "jobs": "Jobs",
+    "invoices": "Invoices"
+  },
+  
+  "businessHealthMetrics": {
+    "newLeads": "New leads",
+    "newClients": "New clients",
+    "conversionRate": "Conversion rate",
+    "sent": "Sent",
+    "converted": "Converted",
+    "jobValue": "Job value",
+    "visitsScheduled": "Visits scheduled",
+    "averageValue": "Average value",
+    "totalValue": "Total value",
+    "completedJobs": "Completed Jobs",
+    "jobsInProgress": "Jobs in Progress",
+    "invoicesSent": "Invoices Sent",
+    "invoicesPaid": "Invoices Paid",
+    "outstandingAmount": "Outstanding Amount"
+  },
+  
+  "timeframes": {
+    "past30days": "Past 30 days",
+    "thisWeek": "This week",
+    "issuedPast30days": "Issued past 30 days"
+  }
 } 

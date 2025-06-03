@@ -35,7 +35,7 @@ import { Invoice } from "@/types/invoice";
 import { format, isToday, startOfDay, endOfDay, subDays, startOfWeek, endOfWeek } from "date-fns";
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import WelcomeWidget from "@/components/dashboard/WelcomeWidget";
-import PerformanceMetrics from "@/components/dashboard/PerformanceMetrics";
+import BusinessHealth from "@/components/dashboard/BusinessHealth";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -493,9 +493,9 @@ const Dashboard = () => {
           </div>
         </div>
         
-        {/* Performance Metrics */}
+        {/* Business Health - replacing Performance Metrics */}
         <div className="mt-3 sm:mt-5 md:mt-6">
-          <PerformanceMetrics />
+          <BusinessHealth />
         </div>
       </div>
     </AppLayout>
