@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, memo } from "react";
 import { cn } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
 import LottieAnimation from "./LottieAnimation";
@@ -106,21 +106,21 @@ const Hero = () => {
               style={{ animationDelay: "0.1s" }}
             >
               <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-pulse-500 text-white mr-2">01</span>
-              <span>Purpose</span>
+              <span>Seamless Management</span>
             </div>
             
             <h1 
               className="section-title text-3xl sm:text-4xl lg:text-5xl xl:text-6xl leading-tight opacity-0 animate-fade-in" 
               style={{ animationDelay: "0.3s" }}
             >
-              Sweeply: Where Cleaning<br className="hidden sm:inline" />Meets Efficiency
+              Streamline Your Cleaning<br className="hidden sm:inline" />Business with Sweeply
             </h1>
             
             <p 
               style={{ animationDelay: "0.5s" }} 
               className="section-subtitle mt-3 sm:mt-6 mb-4 sm:mb-8 leading-relaxed opacity-0 animate-fade-in text-gray-950 font-normal text-base sm:text-lg text-left"
             >
-              The all-in-one platform that helps cleaning professionals manage clients, schedule jobs, and grow their business with confidence.
+              The ultimate all-in-one platform designed specifically for cleaning professionals to efficiently manage clients, schedule jobs, track teams, and grow their business with powerful analytics.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 opacity-0 animate-fade-in" style={{ animationDelay: "0.4s" }}>
@@ -167,4 +167,4 @@ const Hero = () => {
   );
 };
 
-export default Hero;
+export default memo(Hero);
