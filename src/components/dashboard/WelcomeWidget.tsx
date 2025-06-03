@@ -57,27 +57,27 @@ const WelcomeWidget = () => {
     { text: "Quality service brings lasting clients", icon: Sparkles }
   ];
 
-  // Business tips that rotate hourly
-  const businessTips = [
-    "💡 Set aside 15 minutes each day to update your schedule",
-    "💡 Take before/after photos to showcase your quality work",
-    "💡 Seasonal deep cleaning services can boost your revenue",
-    "💡 Professional photos for your portfolio attract premium clients",
-    "💡 Follow up with clients after service to ensure satisfaction",
-    "💡 Bundle services to increase average job value",
-    "💡 Consider eco-friendly products to attract conscious clients",
-    "💡 Track cleaning supplies to optimize inventory costs"
+  // Tips of the day for cleaners
+  const cleaningTips = [
+    "💡 Start cleaning from the top down - dust ceiling fans before sweeping floors",
+    "💡 Microfiber cloths trap more dust than regular cloths and are reusable",
+    "💡 Use vinegar and baking soda for tough stains and odors in bathrooms",
+    "💡 Keep separate cloths for different areas (kitchen, bathroom) to prevent cross-contamination",
+    "💡 Clean shower glass with a squeegee after each use to prevent hard water stains",
+    "💡 Spray shower walls with diluted dish soap to prevent mildew between cleanings",
+    "💡 Use a toothbrush for tight spaces like faucet bases and grout lines",
+    "💡 Clean your vacuum filter regularly for maximum suction power"
   ];
 
   // Use the current hour to select a quote (changes daily)
   const todayQuote = quotes[new Date().getDay() % quotes.length];
   
-  // Use the current hour to select a tip (changes hourly)
-  const currentTip = businessTips[new Date().getHours() % businessTips.length];
+  // Use the current day to select a tip (changes daily)
+  const todayTip = cleaningTips[new Date().getDate() % cleaningTips.length];
   const QuoteIcon = todayQuote.icon;
 
   return (
-    <div className="bg-gradient-to-r from-pulse-500 to-blue-700 rounded-xl sm:rounded-2xl p-3 sm:p-5 md:p-6 text-white shadow-xl relative overflow-hidden mt-4 sm:mt-4 md:mt-2">
+    <div className="bg-gradient-to-r from-pulse-500 to-blue-700 rounded-0 sm:rounded-xl md:rounded-2xl p-3 sm:p-5 md:p-6 text-white shadow-xl relative overflow-hidden mt-4 sm:mt-4 md:mt-2 mx-0">
       {/* Menu Icon - Removed */}
       
       {/* Top right icons */}
@@ -142,7 +142,7 @@ const WelcomeWidget = () => {
         </div>
       </div>
 
-      {/* Quick Actions & Business Tip */}
+      {/* Quick Actions & Tip of the Day */}
       <div className="border-t border-white/20 pt-2.5 sm:pt-3.5 md:pt-4">
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-between items-start">
           {/* Quick Actions */}
@@ -170,10 +170,13 @@ const WelcomeWidget = () => {
             </Link>
           </div>
 
-          {/* Daily Business Tip - changed to hourly */}
+          {/* Tip of the Day */}
           <div className="flex items-center gap-1.5 bg-white/10 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-lg backdrop-blur-sm w-full sm:w-auto mt-1.5 sm:mt-0">
             <Lightbulb className="w-3.5 h-3.5 min-w-[14px] text-yellow-300" />
-            <span className="text-xs sm:text-sm md:text-base opacity-90 line-clamp-2">{currentTip}</span>
+            <div>
+              <span className="text-[10px] sm:text-xs opacity-75 block">Tip of the day</span>
+              <span className="text-xs sm:text-sm opacity-90 line-clamp-2">{todayTip}</span>
+            </div>
           </div>
         </div>
       </div>
