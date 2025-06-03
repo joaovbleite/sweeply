@@ -6,7 +6,7 @@ const Footer = () => {
         <div className="border-t border-gray-200 pt-8 pb-4">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="flex items-center space-x-2">
-              <img src="/lovable-uploads/64f9ad74-6bcc-41ac-85ed-b821343cc480.png" alt="Sweeply Logo" className="h-8" />
+              <img src="/logo.png" alt="Sweeply Logo" className="h-8" />
               <span className="text-lg font-semibold text-gray-900">Sweeply</span>
             </div>
             
