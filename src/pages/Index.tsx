@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import HumanoidSection from "@/components/HumanoidSection";
@@ -15,14 +15,38 @@ import { Navigate } from "react-router-dom";
 
 const Index = () => {
   const { user, loading } = useAuth();
+  const [isPwa, setIsPwa] = useState(false);
+  
+  // Check if the app is being run as PWA (installed on home screen)
+  useEffect(() => {
+    // Check if app is launched from home screen using display-mode media query
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    
+    // For iOS Safari which has navigator.standalone property
+    const isFromHomeScreen = Boolean(
+      // @ts-ignore - navigator.standalone exists in Safari but not in standard TS types
+      window.navigator.standalone
+    );
+    
+    setIsPwa(isStandalone || isFromHomeScreen);
+    
+    // For debugging
+    console.log("Is PWA:", isStandalone || isFromHomeScreen);
+  }, []);
 
-  // Redirect to login if not authenticated or to dashboard if authenticated
-  if (!loading) {
+  // Redirect to login/dashboard ONLY if opened as PWA
+  if (!loading && isPwa) {
     if (!user) {
       return <Navigate to="/login" replace />;
     } else {
       return <Navigate to="/dashboard" replace />;
     }
+  }
+  
+  // For browser visits, we'll show the landing page
+  // Only redirect authenticated users to dashboard
+  if (!loading && user) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   // Show loading while authentication state is being determined
