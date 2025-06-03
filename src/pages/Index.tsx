@@ -21,8 +21,8 @@ const Index = () => {
   useEffect(() => {
     // Check if app is launched from home screen
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-    // For iOS - need to use type assertion since TypeScript doesn't recognize this property
-    const isFromHomeScreen = !!(window.navigator as any).standalone;
+    // For iOS Safari which has navigator.standalone property
+    const isFromHomeScreen = !!window.navigator.standalone;
     setIsPwa(isStandalone || isFromHomeScreen);
   }, []);
 

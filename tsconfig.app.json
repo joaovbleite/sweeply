@@ -29,5 +29,5 @@
       "@public/*": ["./public/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "src/types"]
 }
