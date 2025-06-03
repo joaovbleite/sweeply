@@ -11,7 +11,10 @@ export default defineConfig(({ mode }) => ({
     port: 4000,
   },
   plugins: [
-    react(),
+    react({
+      jsxImportSource: 'react',
+      jsxRuntime: 'automatic'
+    }),
     mode === 'development' &&
     componentTagger(),
     VitePWA({
@@ -103,4 +106,7 @@ export default defineConfig(({ mode }) => ({
       "@public": path.resolve(__dirname, "./public"),
     },
   },
+  build: {
+    target: 'es2015'
+  }
 }));

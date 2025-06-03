@@ -106,3 +106,17 @@ export function initializeTheme() {
   const theme = getTheme();
   setTheme(theme);
 }
+
+/**
+ * Checks if the application is running as a PWA (installed on homescreen)
+ * @returns {boolean} True if running as PWA
+ */
+export function isRunningAsPWA(): boolean {
+  // Check if the app is running in standalone mode or as a PWA
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+  
+  // Check for iOS standalone mode (safely)
+  const isFromHomeScreen = 'standalone' in window.navigator && (window.navigator as any).standalone === true;
+  
+  return isStandalone || isFromHomeScreen;
+}

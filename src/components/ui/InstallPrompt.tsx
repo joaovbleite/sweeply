@@ -1,6 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { X, Download, ArrowDown } from 'lucide-react';
 
+/**
+ * InstallPrompt Component
+ * 
+ * This component handles prompting users to install the PWA.
+ * 
+ * PWA Behavior:
+ * - When installed as a PWA and launched from homescreen, the app will bypass the landing page
+ *   and go directly to login/signup for unauthenticated users or dashboard for authenticated users.
+ * - When accessed through a browser, it will show the landing page to all unauthenticated visitors.
+ * 
+ * The actual PWA behavior logic is implemented in the Index.tsx component using the isRunningAsPWA utility.
+ */
+
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;

@@ -12,12 +12,18 @@ import MadeByHumans from "@/components/MadeByHumans";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
+import { isRunningAsPWA } from "@/lib/utils";
 
 const Index = () => {
   const { user, loading } = useAuth();
+  const isPWA = isRunningAsPWA();
 
-  // Only redirect to dashboard if already authenticated
-  // Do NOT redirect unauthenticated users to login
+  // If running as PWA and not authenticated, redirect to login
+  if (!loading && isPWA && !user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // If authenticated (regardless of PWA or browser), redirect to dashboard
   if (!loading && user) {
     return <Navigate to="/dashboard" replace />;
   }
