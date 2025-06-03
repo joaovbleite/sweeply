@@ -1,18 +1,54 @@
+// Type definitions for @vitejs/plugin-react-swc version 3.7.1
 declare module '@vitejs/plugin-react-swc' {
+  import type { Plugin, UserConfig } from 'vite';
+  
   export interface Options {
-    jsxImportSource?: string;
+    /** 
+     * Enable jsx import source
+     * @default false 
+     */
+    jsxImportSource?: string | boolean;
+    
+    /** Configure SWC plugins */
     plugins?: any[];
-    swcOptions?: any;
+    
+    /** Configure SWC */
+    swcOptions?: Record<string, any>;
+    
+    /** Use SWC plugins to transform TypeScript experimental decorators */
     tsDecorators?: boolean;
   }
-
-  export default function reactSWC(options?: Options): any;
+  
+  function reactSWC(options?: Options): Plugin;
+  export default reactSWC;
 }
 
+// Type definitions for vite-plugin-pwa version 1.0.0
 declare module 'vite-plugin-pwa' {
+  import type { Plugin, ResolvedConfig } from 'vite';
+  import type { GenerateSWOptions } from 'workbox-build';
+  
   export interface VitePWAOptions {
+    /**
+     * Build mode
+     * @default 'generateSW'
+     */
+    mode?: 'generateSW' | 'injectManifest';
+    
+    /**
+     * Register Type
+     * @default 'prompt'
+     */
     registerType?: 'prompt' | 'autoUpdate';
+    
+    /**
+     * Include assets to precache
+     */
     includeAssets?: string[];
+    
+    /**
+     * Manifest options
+     */
     manifest?: {
       name?: string;
       short_name?: string;
@@ -25,9 +61,21 @@ declare module 'vite-plugin-pwa' {
         type: string;
         purpose?: string;
       }>;
+      [key: string]: any;
     };
-    workbox?: {
+    
+    /**
+     * Workbox options
+     */
+    workbox?: Partial<GenerateSWOptions> & {
+      /**
+       * Maximum file size that can be precached
+       */
       maximumFileSizeToCacheInBytes?: number;
+      
+      /**
+       * Runtime caching rules
+       */
       runtimeCaching?: Array<{
         urlPattern: RegExp | string;
         handler: string;
@@ -40,10 +88,63 @@ declare module 'vite-plugin-pwa' {
           cacheableResponse?: {
             statuses: number[];
           };
+          [key: string]: any;
         };
       }>;
+      
+      [key: string]: any;
     };
+    
+    [key: string]: any;
+  }
+  
+  export function VitePWA(options?: VitePWAOptions): Plugin;
+}
+
+// Declare the missing interface for workbox-build
+declare module 'workbox-build' {
+  export interface GenerateSWOptions {
+    swDest: string;
+    globDirectory?: string;
+    globPatterns?: string[];
+    globIgnores?: string[];
+    templatedURLs?: Record<string, string | string[]>;
+    maximumFileSizeToCacheInBytes?: number;
+    dontCacheBustURLsMatching?: RegExp;
+    navigateFallback?: string;
+    navigateFallbackDenylist?: RegExp[];
+    navigateFallbackAllowlist?: RegExp[];
+    directoryIndex?: string;
+    cacheId?: string;
+    clientsClaim?: boolean;
+    skipWaiting?: boolean;
+    offlineGoogleAnalytics?: boolean | object;
+    cleanupOutdatedCaches?: boolean;
+    mode?: string;
+    navigateFallbackBlacklist?: RegExp[];
+    navigateFallbackWhitelist?: RegExp[];
+    runtimeCaching?: Array<{
+      urlPattern: RegExp | string;
+      handler: string;
+      options?: Record<string, any>;
+    }>;
+    [key: string]: any;
+  }
+}
+
+// Add Vite types for better integration
+declare module 'vite' {
+  export interface UserConfig {
+    plugins?: (Plugin | Plugin[] | false | null | undefined)[];
+    [key: string]: any;
   }
 
-  export function VitePWA(options?: VitePWAOptions): any;
+  export interface Plugin {
+    name: string;
+    [key: string]: any;
+  }
+
+  export interface ResolvedConfig {
+    [key: string]: any;
+  }
 }
