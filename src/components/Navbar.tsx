@@ -99,10 +99,24 @@ const Navbar = () => {
         </a>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex space-x-8">
+        <nav className="hidden md:flex items-center space-x-8">
           <NavLink to="/">Home</NavLink>
           <NavLink to="/about">About</NavLink> {/* Updated Link */}
           <NavLink to="/" hash="#details">Contact</NavLink> {/* Assuming contact is on home page */}
+          
+          {/* Auth buttons */}
+          <button 
+            onClick={() => handleNavigate("/login")} 
+            className="text-gray-700 hover:text-gray-900"
+          >
+            Login
+          </button>
+          <button 
+            onClick={() => handleNavigate("/signup")} 
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
+          >
+            Sign up
+          </button>
         </nav>
 
         {/* Mobile menu button - increased touch target - hidden in app */}
@@ -121,6 +135,22 @@ const Navbar = () => {
           <MobileNavLink to="/">Home</MobileNavLink>
           <MobileNavLink to="/about">About</MobileNavLink> {/* Updated Link */}
           <MobileNavLink to="/" hash="#details">Contact</MobileNavLink> {/* Assuming contact is on home page */}
+          
+          {/* Auth buttons for mobile */}
+          <div className="flex flex-col w-full space-y-4 mt-4">
+            <button 
+              onClick={() => handleNavigate("/login")} 
+              className="text-xl font-medium py-3 px-6 w-full text-center rounded-lg hover:bg-gray-100"
+            >
+              Login
+            </button>
+            <button 
+              onClick={() => handleNavigate("/signup")} 
+              className="text-xl font-medium py-3 px-6 w-full text-center bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Sign up
+            </button>
+          </div>
         </nav>
       </div>
     </header>;

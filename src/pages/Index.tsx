@@ -16,13 +16,10 @@ import { Navigate } from "react-router-dom";
 const Index = () => {
   const { user, loading } = useAuth();
 
-  // Redirect to login if not authenticated or to dashboard if authenticated
-  if (!loading) {
-    if (!user) {
-      return <Navigate to="/login" replace />;
-    } else {
-      return <Navigate to="/dashboard" replace />;
-    }
+  // Only redirect to dashboard if already authenticated
+  // Do NOT redirect unauthenticated users to login
+  if (!loading && user) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   // Show loading while authentication state is being determined
