@@ -11,7 +11,9 @@ export default defineConfig(({ mode }) => ({
     port: 4000,
   },
   plugins: [
-    react(),
+    react({
+      jsxImportSource: 'react'
+    }),
     mode === 'development' &&
     componentTagger(),
     VitePWA({
