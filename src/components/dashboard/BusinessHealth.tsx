@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, X } from 'lucide-react';
+import { ChevronRight, X, ArrowLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocale } from '@/hooks/useLocale';
 
@@ -92,18 +92,25 @@ const BusinessHealth = () => {
   // Component for full-page view
   const FullHealthView = () => (
     <div className="fixed inset-0 bg-white z-50 overflow-y-auto pb-20">
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">{t('dashboard:businessHealth')}</h2>
+      {/* Mobile-optimized header with safe area spacing */}
+      <div className="sticky top-0 bg-white z-10 pt-safe">
+        <div className="flex items-center px-4 py-4">
           <button 
             onClick={toggleFullView}
-            className="p-2 rounded-full hover:bg-gray-100"
+            className="p-2 -ml-2 rounded-full hover:bg-gray-100"
+            aria-label="Back"
           >
-            <X className="w-6 h-6 text-gray-600" />
+            <ArrowLeft className="w-5 h-5 text-gray-600" />
           </button>
+          <h2 className="text-xl font-bold text-gray-900 flex-1 text-center">
+            {t('dashboard:businessHealth')}
+          </h2>
+          <div className="w-5"></div> {/* Empty space to balance the header */}
         </div>
+      </div>
 
-        {/* Full view content */}
+      {/* Full view content with safer padding */}
+      <div className="px-4 pb-4">
         <div className="space-y-6">
           {businessCategories.map((category, idx) => (
             <div key={idx} className="border-b border-gray-100 pb-6 last:border-0">
