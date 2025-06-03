@@ -10,8 +10,30 @@ import Testimonials from "@/components/Testimonials";
 import BusinessStats from "@/components/Newsletter";
 import MadeByHumans from "@/components/MadeByHumans";
 import Footer from "@/components/Footer";
+import { useAuth } from "@/contexts/AuthContext";
+import { Navigate } from "react-router-dom";
 
 const Index = () => {
+  const { user, loading } = useAuth();
+
+  // Redirect to login if not authenticated or to dashboard if authenticated
+  if (!loading) {
+    if (!user) {
+      return <Navigate to="/login" replace />;
+    } else {
+      return <Navigate to="/dashboard" replace />;
+    }
+  }
+
+  // Show loading while authentication state is being determined
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pulse-500"></div>
+      </div>
+    );
+  }
+
   // Initialize intersection observer to detect when elements enter viewport
   useEffect(() => {
     const observer = new IntersectionObserver(
