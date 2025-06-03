@@ -98,7 +98,7 @@ const WelcomeWidget = () => {
   const QuoteIcon = todayQuote.icon;
 
   return (
-    <div className="bg-gradient-to-r from-pulse-500 to-blue-700 rounded-none sm:rounded-xl md:rounded-2xl p-3 sm:p-5 md:p-6 text-white shadow-xl relative overflow-hidden mt-20 sm:mt-14 md:mt-10 -mx-4 sm:mx-0 w-[calc(100%+32px)] sm:w-auto">
+    <div className="bg-gradient-to-r from-pulse-500 to-blue-700 rounded-none sm:rounded-xl md:rounded-2xl p-3 sm:p-5 md:p-6 text-white shadow-xl relative overflow-hidden mt-16 sm:mt-12 md:mt-8 -mx-4 sm:mx-0 w-[calc(100%+32px)] sm:w-auto">
       {/* Notification icons aligned with greeting */}
       <div className="flex items-center justify-between mb-1">
         <h2 className="text-xl sm:text-2xl md:text-3xl font-bold leading-tight">
