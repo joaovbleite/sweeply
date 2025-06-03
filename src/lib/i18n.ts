@@ -3,12 +3,12 @@ import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import Backend from 'i18next-http-backend';
 
-// Available languages
+// Language configurations
 export const languages = {
   en: { nativeName: 'English' },
   es: { nativeName: 'Español' },
-  pt: { nativeName: 'Português' },
   fr: { nativeName: 'Français' },
+  pt: { nativeName: 'Português' },
   zh: { nativeName: '中文' }
 };
 
