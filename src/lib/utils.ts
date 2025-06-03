@@ -1,7 +1,12 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 
-export function cn(...inputs: ClassValue[]) {
+/**
+ * Merges Tailwind CSS classes with clsx conditions
+ * @param inputs - Class values or conditions
+ * @returns Merged class string
+ */
+export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs))
 }
 
@@ -58,51 +63,38 @@ function applyTheme(theme: 'light' | 'dark') {
   }
 }
 
-export function setTheme(theme: Theme) {
-  try {
-    if (theme === 'system') {
-      localStorage.removeItem('theme');
-      const systemTheme = getSystemTheme();
-      applyTheme(systemTheme);
-      
-      // Listen for system theme changes
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const handleChange = () => {
-        if (getTheme() === 'system') {
-          applyTheme(getSystemTheme());
-        }
-      };
-      
-      // Remove existing listener if any
-      mediaQuery.removeEventListener('change', handleChange);
-      mediaQuery.addEventListener('change', handleChange);
-    } else {
-      localStorage.setItem('theme', theme);
-      applyTheme(theme);
-    }
-    
-    // Dispatch custom event for theme change
-    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme } }));
-  } catch (error) {
-    console.error('Error setting theme:', error);
+/**
+ * Sets the theme in local storage
+ * @param theme - Theme to set ('dark' or 'light')
+ */
+export function setTheme(theme: string): void {
+  localStorage.setItem('theme', theme);
+  if (theme === 'dark') {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
   }
 }
 
-export function getTheme(): Theme {
-  try {
-    if (typeof window === 'undefined') return 'system';
-    
-    const stored = localStorage.getItem('theme') as Theme;
-    if (stored && stored in themes) return stored;
-    return 'system';
-  } catch (error) {
-    console.error('Error getting theme:', error);
-    return 'system';
+/**
+ * Gets the current theme from local storage or system preference
+ * @returns Current theme ('dark' or 'light')
+ */
+export function getTheme(): string {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) {
+    return savedTheme;
   }
+  // Use system preference as fallback
+  return window.matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light';
 }
 
-// Initialize theme on first load
-export function initializeTheme() {
+/**
+ * Initializes the theme on application startup
+ */
+export function initializeTheme(): void {
   const theme = getTheme();
   setTheme(theme);
 }
@@ -116,7 +108,7 @@ export function isRunningAsPWA(): boolean {
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
   
   // Check for iOS standalone mode (safely)
-  const isFromHomeScreen = 'standalone' in window.navigator && (window.navigator as any).standalone === true;
+  const isFromHomeScreen = 'standalone' in window.navigator && (window.navigator as Navigator).standalone === true;
   
   return isStandalone || isFromHomeScreen;
 }

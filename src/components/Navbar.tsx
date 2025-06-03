@@ -57,34 +57,38 @@ const Navbar = () => {
       navigate(path);
     }
   };
-  const NavLink = ({
-    to,
-    hash,
-    children
-  }: {
+  const NavLink: React.FC<{
     to: string;
     hash?: string;
     children: React.ReactNode;
-  }) => <a href={hash ? `${to}${hash}` : to} className="nav-link" onClick={e => {
-    e.preventDefault();
-    handleNavigate(to, hash);
-  }}>
+  }> = ({ to, hash, children }) => (
+    <a 
+      href={hash ? `${to}${hash}` : to} 
+      className="nav-link" 
+      onClick={(e) => {
+        e.preventDefault();
+        handleNavigate(to, hash);
+      }}
+    >
       {children}
-    </a>;
-  const MobileNavLink = ({
-    to,
-    hash,
-    children
-  }: {
+    </a>
+  );
+  const MobileNavLink: React.FC<{
     to: string;
     hash?: string;
     children: React.ReactNode;
-  }) => <a href={hash ? `${to}${hash}` : to} className="text-xl font-medium py-3 px-6 w-full text-center rounded-lg hover:bg-gray-100" onClick={e => {
-    e.preventDefault();
-    handleNavigate(to, hash);
-  }}>
+  }> = ({ to, hash, children }) => (
+    <a 
+      href={hash ? `${to}${hash}` : to} 
+      className="text-xl font-medium py-3 px-6 w-full text-center rounded-lg hover:bg-gray-100" 
+      onClick={(e) => {
+        e.preventDefault();
+        handleNavigate(to, hash);
+      }}
+    >
       {children}
-    </a>;
+    </a>
+  );
   return <header className={cn(
     "fixed top-0 left-0 right-0 z-50 mt-0 py-0 transition-all duration-300", 
     isScrolled ? "bg-white/80 backdrop-blur-md shadow-sm" : "bg-transparent",
