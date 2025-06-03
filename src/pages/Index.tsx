@@ -14,9 +14,9 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 
-const Index: React.FC = () => {
+const Index = () => {
   const { user, loading } = useAuth();
-  const [isPwa, setIsPwa] = React.useState<boolean>(false);
+  const [isPwa, setIsPwa] = React.useState(false);
 
   // Check if the app is being run as PWA (installed on home screen)
   React.useEffect(() => {
@@ -30,24 +30,27 @@ const Index: React.FC = () => {
   // Redirect to login/dashboard only if opened as PWA
   if (!loading && isPwa) {
     if (!user) {
-      return <Navigate to="/login" replace />;
+      return React.createElement(Navigate, { to: "/login", replace: true });
     } else {
-      return <Navigate to="/dashboard" replace />;
+      return React.createElement(Navigate, { to: "/dashboard", replace: true });
     }
   }
 
   // For browser visits, we'll show the landing page
   // Only redirect authenticated users to dashboard
   if (!loading && user && !isPwa) {
-    return <Navigate to="/dashboard" replace />;
+    return React.createElement(Navigate, { to: "/dashboard", replace: true });
   }
 
   // Show loading while authentication state is being determined
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pulse-500"></div>
-      </div>
+    return React.createElement(
+      "div", 
+      { className: "min-h-screen flex items-center justify-center" },
+      React.createElement(
+        "div", 
+        { className: "animate-spin rounded-full h-12 w-12 border-b-2 border-pulse-500" }
+      )
     );
   }
 
@@ -96,22 +99,24 @@ const Index: React.FC = () => {
     });
   }, []);
 
-  return (
-    <div className="min-h-screen">
-      <Navbar />
-      <main className="space-y-4 sm:space-y-8"> {/* Reduced space on mobile */}
-        <Hero />
-        <HumanoidSection />
-        <SpecsSection />
-        <DetailsSection />
-        <ImageShowcaseSection />
-        <Features />
-        <Testimonials />
-        <BusinessStats />
-        <MadeByHumans />
-      </main>
-      <Footer />
-    </div>
+  return React.createElement(
+    "div",
+    { className: "min-h-screen" },
+    React.createElement(Navbar),
+    React.createElement(
+      "main",
+      { className: "space-y-4 sm:space-y-8" },
+      React.createElement(Hero),
+      React.createElement(HumanoidSection),
+      React.createElement(SpecsSection),
+      React.createElement(DetailsSection),
+      React.createElement(ImageShowcaseSection),
+      React.createElement(Features),
+      React.createElement(Testimonials),
+      React.createElement(BusinessStats),
+      React.createElement(MadeByHumans)
+    ),
+    React.createElement(Footer)
   );
 };
 

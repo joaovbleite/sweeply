@@ -33,4 +33,11 @@ declare module 'react' {
     currentTarget: T;
     preventDefault(): void;
   }
+  
+  // React createElement
+  export function createElement(
+    type: string | React.ComponentType | (new (props: any) => any),
+    props?: any,
+    ...children: React.ReactNode[]
+  ): React.ReactElement;
 }
