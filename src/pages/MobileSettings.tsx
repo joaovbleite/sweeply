@@ -24,6 +24,7 @@ const MobileSettings: React.FC = () => {
   const { t } = useTranslation(['settings', 'common']);
   const { user, signOut } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -157,7 +158,7 @@ const MobileSettings: React.FC = () => {
 
         {/* Logout Button */}
         <button
-          onClick={handleLogout}
+          onClick={() => setShowLogoutConfirm(true)}
           className="w-full flex items-center justify-center gap-2 p-4 mt-4 bg-white text-red-600 rounded-xl shadow-sm hover:bg-red-50 transition"
         >
           <LogOut className="w-5 h-5" />
@@ -169,6 +170,33 @@ const MobileSettings: React.FC = () => {
           <p className="mt-1">&copy; {new Date().getFullYear()} Sweeply. All rights reserved.</p>
         </div>
       </div>
+
+      {/* Logout Confirmation Dialog */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl max-w-xs w-full p-6 shadow-xl">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('common:confirmLogout')}</h3>
+            <p className="text-gray-600 mb-6">{t('common:logoutConfirmMessage')}</p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+              >
+                {t('common:cancel')}
+              </button>
+              <button
+                onClick={() => {
+                  setShowLogoutConfirm(false);
+                  handleLogout();
+                }}
+                className="px-4 py-2 text-white bg-red-600 rounded-lg hover:bg-red-700 transition"
+              >
+                {t('common:logout')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppLayout>
   );
 };
