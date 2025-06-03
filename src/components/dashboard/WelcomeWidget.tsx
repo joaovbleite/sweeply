@@ -49,32 +49,38 @@ const WelcomeWidget = () => {
     return 'Good night';
   };
 
-  // Random motivational quotes
+  // Random motivational quotes - removed "A clean space is a happy place!"
   const quotes = [
     { text: "Building success one clean at a time", icon: TrendingUp },
-    { text: "A clean space is a happy place!", icon: Sparkles },
     { text: "Your dedication makes homes shine", icon: Target },
-    { text: "Excellence in every detail", icon: Zap }
+    { text: "Excellence in every detail", icon: Zap },
+    { text: "Quality service brings lasting clients", icon: Sparkles }
   ];
 
-  // Business tips that rotate daily
+  // Business tips that rotate hourly
   const businessTips = [
     "💡 Set aside 15 minutes each day to update your schedule",
     "💡 Take before/after photos to showcase your quality work",
-    "💡 Ask satisfied clients for referrals - word of mouth is powerful",
     "💡 Seasonal deep cleaning services can boost your revenue",
-    "💡 Professional photos for your portfolio attract premium clients"
+    "💡 Professional photos for your portfolio attract premium clients",
+    "💡 Follow up with clients after service to ensure satisfaction",
+    "💡 Bundle services to increase average job value",
+    "💡 Consider eco-friendly products to attract conscious clients",
+    "💡 Track cleaning supplies to optimize inventory costs"
   ];
 
+  // Use the current hour to select a quote (changes daily)
   const todayQuote = quotes[new Date().getDay() % quotes.length];
-  const todayTip = businessTips[new Date().getDate() % businessTips.length];
+  
+  // Use the current hour to select a tip (changes hourly)
+  const currentTip = businessTips[new Date().getHours() % businessTips.length];
   const QuoteIcon = todayQuote.icon;
 
   return (
-    <div className="bg-gradient-to-r from-pulse-500 to-blue-700 rounded-xl sm:rounded-2xl p-3 sm:p-5 md:p-6 text-white shadow-xl relative overflow-hidden mt-14 sm:mt-4 md:mt-2">
+    <div className="bg-gradient-to-r from-pulse-500 to-blue-700 rounded-xl sm:rounded-2xl p-3 sm:p-5 md:p-6 text-white shadow-xl relative overflow-hidden mt-4 sm:mt-4 md:mt-2">
       {/* Menu Icon - Removed */}
       
-      {/* Top right icons - improved for mobile */}
+      {/* Top right icons */}
       <div className="absolute top-3 right-3 flex items-center gap-2 sm:gap-2.5 md:gap-3">
         {/* Star Icon */}
         <div className="bg-white/20 backdrop-blur-sm rounded-full p-1.5 sm:p-2 md:p-2.5 hover:bg-white/30 transition-colors">
@@ -108,15 +114,14 @@ const WelcomeWidget = () => {
         )}
       </div>
 
-      <div className="flex items-start justify-between mb-3 sm:mb-5 md:mb-6 mt-10 sm:mt-0">
+      <div className="flex items-start justify-between mb-3 sm:mb-5 md:mb-6 mt-8 sm:mt-0">
         <div className="flex-1 pr-14 sm:pr-20 md:pr-32">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-0.5 sm:mb-1.5 md:mb-2 leading-tight">
             {getGreeting()}, {userName.split(' ')[0]} <span className="inline-block">👋</span>
           </h2>
-          <div className="flex items-center gap-1.5 mb-1.5 sm:mb-3 md:mb-4">
-            <QuoteIcon className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5 md:w-5 md:h-5" />
-            <p className="text-sm sm:text-base md:text-lg opacity-90">{todayQuote.text}</p>
-          </div>
+          
+          {/* Remove Today's Date and Current Time - already removed */}
+          
           <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[10px] sm:text-xs md:text-sm">
             <div className="flex items-center gap-1.5">
               <ClipboardCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -165,10 +170,10 @@ const WelcomeWidget = () => {
             </Link>
           </div>
 
-          {/* Daily Business Tip */}
+          {/* Daily Business Tip - changed to hourly */}
           <div className="flex items-center gap-1.5 bg-white/10 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-lg backdrop-blur-sm w-full sm:w-auto mt-1.5 sm:mt-0">
             <Lightbulb className="w-3.5 h-3.5 min-w-[14px] text-yellow-300" />
-            <span className="text-xs sm:text-sm md:text-base opacity-90 line-clamp-2">{todayTip}</span>
+            <span className="text-xs sm:text-sm md:text-base opacity-90 line-clamp-2">{currentTip}</span>
           </div>
         </div>
       </div>
