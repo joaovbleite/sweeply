@@ -13,43 +13,68 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 
+// This ensures we show the landing page when accessed via browser URL
+// and only redirect to login/dashboard when used as a PWA
 const Index = () => {
   const { user, loading } = useAuth();
   const [isPwa, setIsPwa] = useState(false);
+  const [showLanding, setShowLanding] = useState(true);
   
-  // Check if the app is being run as PWA (installed on home screen)
+  // Detect if the app is being run as a PWA
   useEffect(() => {
-    // Check if app is launched from home screen using display-mode media query
+    // Check if we should force landing page
+    const urlParams = new URLSearchParams(window.location.search);
+    const forceLanding = urlParams.get('landing') === 'true';
+    
+    if (forceLanding) {
+      setShowLanding(true);
+      // Remove PWA detection from local storage if force landing is used
+      localStorage.removeItem('isPwa');
+      return;
+    }
+    
+    // Check if app is launched as PWA using display-mode media query
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
     
     // For iOS Safari which has navigator.standalone property
-    const isFromHomeScreen = Boolean(
+    const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isFromHomeScreen = isiOS && Boolean(
       // @ts-ignore - navigator.standalone exists in Safari but not in standard TS types
       window.navigator.standalone
     );
     
-    setIsPwa(isStandalone || isFromHomeScreen);
+    const isPwaMode = isStandalone || isFromHomeScreen;
+    setIsPwa(isPwaMode);
     
-    // For debugging
-    console.log("Is PWA:", isStandalone || isFromHomeScreen);
-  }, []);
-
-  // Redirect to login/dashboard ONLY if opened as PWA
-  if (!loading && isPwa) {
-    if (!user) {
-      return <Navigate to="/login" replace />;
-    } else {
-      return <Navigate to="/dashboard" replace />;
+    // Store PWA detection in localStorage for debug purposes
+    localStorage.setItem('isPwa', String(isPwaMode));
+    localStorage.setItem('isStandalone', String(isStandalone));
+    localStorage.setItem('isFromHomeScreen', String(isFromHomeScreen));
+    
+    // Log for debugging
+    console.log("Index.tsx - PWA Detection:", {
+      isPwaMode,
+      isStandalone,
+      isFromHomeScreen,
+      isiOS,
+      userAgent: navigator.userAgent
+    });
+    
+    // If in PWA mode or user is authenticated, don't show landing
+    if (isPwaMode) {
+      setShowLanding(false);
     }
-  }
+  }, []);
   
-  // For browser visits, we'll show the landing page
-  // Only redirect authenticated users to dashboard
-  if (!loading && user) {
-    return <Navigate to="/dashboard" replace />;
-  }
+  // Update landing page visibility when auth state changes
+  useEffect(() => {
+    if (!loading && user) {
+      // If user is authenticated, don't show landing
+      setShowLanding(false);
+    }
+  }, [loading, user]);
 
-  // Show loading while authentication state is being determined
+  // Show loading state while authenticating
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -58,68 +83,84 @@ const Index = () => {
     );
   }
 
-  // Initialize intersection observer to detect when elements enter viewport
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("animate-fade-in");
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-    
-    const elements = document.querySelectorAll(".animate-on-scroll");
-    elements.forEach((el) => observer.observe(el));
-    
-    return () => {
-      elements.forEach((el) => observer.unobserve(el));
-    };
-  }, []);
+  // Redirect to login if in PWA mode and not authenticated
+  if (!loading && isPwa && !user) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  // Redirect to dashboard if authenticated (regardless of mode)
+  if (!loading && user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  
+  // If not in PWA mode and not authenticated, show landing page
+  if (showLanding) {
+    // Initialize intersection observer to detect when elements enter viewport
+    useEffect(() => {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("animate-fade-in");
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      
+      const elements = document.querySelectorAll(".animate-on-scroll");
+      elements.forEach((el) => observer.observe(el));
+      
+      return () => {
+        elements.forEach((el) => observer.unobserve(el));
+      };
+    }, []);
 
-  useEffect(() => {
-    // This helps ensure smooth scrolling for the anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        
-        const targetId = this.getAttribute('href')?.substring(1);
-        if (!targetId) return;
-        
-        const targetElement = document.getElementById(targetId);
-        if (!targetElement) return;
-        
-        // Increased offset to account for mobile nav
-        const offset = window.innerWidth < 768 ? 100 : 80;
-        
-        window.scrollTo({
-          top: targetElement.offsetTop - offset,
-          behavior: 'smooth'
+    useEffect(() => {
+      // This helps ensure smooth scrolling for the anchor links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          
+          const targetId = this.getAttribute('href')?.substring(1);
+          if (!targetId) return;
+          
+          const targetElement = document.getElementById(targetId);
+          if (!targetElement) return;
+          
+          // Increased offset to account for mobile nav
+          const offset = window.innerWidth < 768 ? 100 : 80;
+          
+          window.scrollTo({
+            top: targetElement.offsetTop - offset,
+            behavior: 'smooth'
+          });
         });
       });
-    });
-  }, []);
+    }, []);
 
-  return (
-    <div className="min-h-screen">
-      <Navbar />
-      <main className="space-y-4 sm:space-y-8"> {/* Reduced space on mobile */}
-        <Hero />
-        <HumanoidSection />
-        <SpecsSection />
-        <DetailsSection />
-        <ImageShowcaseSection />
-        <Features />
-        <Testimonials />
-        <BusinessStats />
-        <MadeByHumans />
-      </main>
-      <Footer />
-    </div>
-  );
+    return (
+      <div className="min-h-screen">
+        <Navbar />
+        <main className="space-y-4 sm:space-y-8"> {/* Reduced space on mobile */}
+          <Hero />
+          <HumanoidSection />
+          <SpecsSection />
+          <DetailsSection />
+          <ImageShowcaseSection />
+          <Features />
+          <Testimonials />
+          <BusinessStats />
+          <MadeByHumans />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+  
+  // Fallback redirect to login if something unexpected happens
+  return <Navigate to="/login" replace />;
 };
 
 export default Index;
