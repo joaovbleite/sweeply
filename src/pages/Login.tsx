@@ -55,8 +55,8 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4 py-8 sm:py-12">
       <div className="max-w-md w-full">
-        {/* Language Switcher */}
-        <div className="absolute top-4 right-4">
+        {/* Language Switcher - moved down */}
+        <div className="absolute top-20 right-4">
           <LanguageSwitcher />
         </div>
         

@@ -34,12 +34,12 @@ export function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
   if (compact) {
     return (
       <Select value={i18n.language} onValueChange={handleLanguageChange}>
-        <SelectTrigger className="w-[60px] h-8 text-xs">
+        <SelectTrigger className="w-[70px] h-10 text-sm">
           <SelectValue placeholder="EN" />
         </SelectTrigger>
         <SelectContent>
           {Object.entries(languages).map(([code, { nativeName }]) => (
-            <SelectItem key={code} value={code} className="text-xs">
+            <SelectItem key={code} value={code} className="text-sm">
               {languageAbbreviations[code]} - {nativeName}
             </SelectItem>
           ))}
@@ -49,15 +49,15 @@ export function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <Globe className="h-4 w-4 text-muted-foreground" />
+    <div className="flex items-center gap-2 shadow-sm rounded-lg bg-white/80 backdrop-blur-sm p-1">
+      <Globe className="h-5 w-5 text-muted-foreground" />
       <Select value={i18n.language} onValueChange={handleLanguageChange}>
-        <SelectTrigger className="w-[140px]">
+        <SelectTrigger className="w-[170px] h-10 text-base">
           <SelectValue placeholder="Select language" />
         </SelectTrigger>
         <SelectContent>
           {Object.entries(languages).map(([code, { nativeName }]) => (
-            <SelectItem key={code} value={code}>
+            <SelectItem key={code} value={code} className="text-base">
               {nativeName}
             </SelectItem>
           ))}
