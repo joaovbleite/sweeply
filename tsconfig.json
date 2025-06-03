@@ -16,11 +16,6 @@
     "skipLibCheck": true,
     "allowJs": true,
     "noUnusedLocals": false,
-    "strictNullChecks": false,
-    "typeRoots": [
-      "./node_modules/@types",
-      "./src/types"
-    ]
-  },
-  "include": ["src/types/global.d.ts"]
+    "strictNullChecks": false
+  }
 }
