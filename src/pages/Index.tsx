@@ -1,5 +1,5 @@
-// @jsxImportSource react
-import { useEffect, useState } from "react";
+/** @jsxImportSource react */
+import * as React from 'react';
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import HumanoidSection from "@/components/HumanoidSection";
@@ -14,12 +14,12 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 
-const Index = () => {
+const Index: React.FC = () => {
   const { user, loading } = useAuth();
-  const [isPwa, setIsPwa] = useState(false);
+  const [isPwa, setIsPwa] = React.useState<boolean>(false);
 
   // Check if the app is being run as PWA (installed on home screen)
-  useEffect(() => {
+  React.useEffect(() => {
     // Check if app is launched from home screen
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
     // For iOS Safari which has navigator.standalone property
@@ -52,7 +52,7 @@ const Index = () => {
   }
 
   // Initialize intersection observer to detect when elements enter viewport
-  useEffect(() => {
+  React.useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -73,7 +73,7 @@ const Index = () => {
     };
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     // This helps ensure smooth scrolling for the anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function (e) {
