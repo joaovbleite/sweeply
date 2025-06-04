@@ -72,14 +72,16 @@ const DesktopPromoModal: React.FC<DesktopPromoModalProps> = ({ isOpen, onClose }
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-end justify-center">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-center justify-center">
       <div 
         ref={modalRef}
-        className="relative w-full bg-white rounded-t-3xl overflow-hidden"
+        className="relative w-full h-[85%] bg-white rounded-t-3xl overflow-hidden"
         style={{
           transform: `translateY(${dragPosition}px)`,
           transition: isDragging ? 'none' : 'transform 0.3s ease-out',
-          maxHeight: '90vh',
+          position: 'absolute',
+          bottom: 0,
+          maxHeight: '85%',
         }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
@@ -102,8 +104,8 @@ const DesktopPromoModal: React.FC<DesktopPromoModalProps> = ({ isOpen, onClose }
         </div>
 
         {/* Content */}
-        <div className="px-6 pb-8 pt-2 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 40px)' }}>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#1a2e35] mt-2 mb-6">
+        <div className="px-6 pb-6 overflow-y-auto h-full">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#1a2e35] mb-6">
             Discover the full power of Sweeply
           </h1>
 
@@ -185,7 +187,7 @@ const DesktopPromoModal: React.FC<DesktopPromoModalProps> = ({ isOpen, onClose }
           </div>
 
           {/* Feature List */}
-          <div className="mb-8">
+          <div className="mb-6">
             <h2 className="text-lg text-gray-700 mb-4">
               Access Sweeply's full suite of time-saving tools like:
             </h2>
@@ -204,14 +206,14 @@ const DesktopPromoModal: React.FC<DesktopPromoModalProps> = ({ isOpen, onClose }
             </ul>
           </div>
 
-          <p className="text-gray-700 mb-8">
+          <p className="text-gray-700 mb-6">
             Log in, on your computer, through the email in your inbox.
           </p>
 
-          {/* Button - styled more like Jobber's green button */}
+          {/* Button - smaller size to match Jobber's design */}
           <button 
             onClick={onClose}
-            className="w-full bg-pulse-500 hover:bg-pulse-600 text-white py-4 rounded-md text-lg font-medium transition-colors mb-6"
+            className="w-full bg-pulse-500 hover:bg-pulse-600 text-white py-3 rounded-md text-base font-medium transition-colors"
           >
             Got it
           </button>
