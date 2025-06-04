@@ -41,10 +41,10 @@ const More: React.FC = () => {
   return (
     <AppLayout>
       <div className="min-h-screen bg-[#F7F8F5]">
-        {/* Fixed header */}
-        <div className="sticky top-0 left-0 right-0 z-20 bg-white">
-          <div className="p-6 pt-10 pb-4">
-            <h1 className="text-2xl font-bold text-[#0d3547]">More</h1>
+        {/* Fixed header with shadow to cover content when scrolling */}
+        <div className="sticky top-0 left-0 right-0 z-30 bg-white shadow-sm">
+          <div className="p-6 pt-12 pb-3">
+            <h1 className="text-2xl font-bold text-[#0d3547] mt-0.5">More</h1>
             {userEmail && (
               <p className="text-gray-600 text-sm mt-1">{userEmail}'s Company</p>
             )}
