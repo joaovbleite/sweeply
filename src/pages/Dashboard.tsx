@@ -39,11 +39,13 @@ import WelcomeWidget from "@/components/dashboard/WelcomeWidget";
 import BusinessHealth from "@/components/dashboard/BusinessHealth";
 import TodayScheduleSlider from "@/components/dashboard/TodayScheduleSlider";
 import GettingStartedTodo from "@/components/dashboard/GettingStartedTodo";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Dashboard = () => {
   const { user } = useAuth();
   const { t } = useTranslation(['dashboard', 'common', 'navigation']);
   const { formatCurrency, formatDate } = useLocale();
+  const isMobile = useIsMobile();
   
   // State management
   const [loading, setLoading] = useState(true);
@@ -52,17 +54,6 @@ const Dashboard = () => {
   const [clients, setClients] = useState<Client[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [selectedTimeRange, setSelectedTimeRange] = useState<'week' | 'month' | 'year'>('week');
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  // Add resize listener for mobile detection
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   // Get user's name from metadata or email
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'there';
@@ -242,9 +233,11 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
-      <div className="px-3 sm:px-4 md:px-6 lg:px-8 py-0 sm:py-4 md:py-6">
+      <div className={`${isMobile ? 'px-3 sm:px-4' : 'px-6 lg:px-8'} py-0 sm:py-4 md:py-6`}>
         {/* Welcome Widget */}
-        <WelcomeWidget />
+        <div className={isMobile ? '' : 'mt-6'}>
+          <WelcomeWidget />
+        </div>
         
         {/* Stats Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 mt-3 sm:mt-5 md:mt-6">
