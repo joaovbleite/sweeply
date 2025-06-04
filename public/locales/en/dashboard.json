@@ -62,5 +62,9 @@
     "past30days": "Past 30 days",
     "thisWeek": "This week",
     "issuedPast30days": "Issued past 30 days"
-  }
+  },
+  
+  "noVisitsScheduled": "No visits scheduled today",
+  "scheduleNewJob": "Schedule a New Job",
+  "seeMoreJobs": "See more jobs"
 } 
