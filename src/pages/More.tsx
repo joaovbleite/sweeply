@@ -38,15 +38,6 @@ const More: React.FC = () => {
   // Get user's email safely
   const userEmail = user?.email || '';
 
-  // FAB button for create new item
-  const FloatingActionButton = () => (
-    <div className="fixed bottom-28 right-6 z-20">
-      <button className="bg-[#0d3547] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg">
-        <span className="text-2xl">+</span>
-      </button>
-    </div>
-  );
-
   return (
     <AppLayout>
       <div className="min-h-screen bg-[#F7F8F5]">
@@ -290,9 +281,6 @@ const More: React.FC = () => {
             <span className="text-red-600 text-lg font-medium">Logout</span>
           </button>
         </div>
-        
-        {/* Floating action button */}
-        <FloatingActionButton />
       </div>
     </AppLayout>
   );
