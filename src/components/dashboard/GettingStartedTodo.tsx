@@ -13,7 +13,7 @@ const GettingStartedTodo = () => {
       title: t('dashboard:createQuote'),
       description: t('dashboard:boostRevenue'),
       link: '/quotes/new',
-      color: 'bg-rose-100 text-rose-600'
+      color: 'bg-blue-100 text-blue-600'
     },
     {
       id: 'add-client',
@@ -29,31 +29,31 @@ const GettingStartedTodo = () => {
       title: t('dashboard:tryDesktop'),
       description: t('dashboard:timeSavingFeatures'),
       link: 'https://app.sweeplypro.com',
-      color: 'bg-gray-100 text-gray-600'
+      color: 'bg-blue-100 text-blue-600'
     },
   ];
 
   return (
-    <div className="mb-8">
-      <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('dashboard:todo')}</h2>
+    <div className="mb-8 px-1">
+      <h2 className="text-xl font-bold text-gray-900 mb-3">{t('dashboard:todo')}</h2>
       
-      <div className="space-y-px">
+      <div className="space-y-1.5 rounded-lg overflow-hidden shadow-sm">
         {todoItems.map((item) => (
           <Link 
             key={item.id}
             to={item.link}
             className="flex items-center justify-between p-4 bg-white hover:bg-gray-50 transition-colors"
           >
-            <div className="flex items-start space-x-4">
+            <div className="flex items-start space-x-3">
               <div className={`p-2 rounded-full ${item.color}`}>
-                <item.icon className="w-6 h-6" />
+                <item.icon className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-lg font-medium text-gray-900">{item.title}</h3>
-                <p className="text-gray-600">{item.description}</p>
+                <h3 className="text-base font-medium text-gray-900">{item.title}</h3>
+                <p className="text-xs text-gray-600">{item.description}</p>
               </div>
             </div>
-            <ChevronRight className="w-5 h-5 text-blue-600" />
+            <ChevronRight className="w-4 h-4 text-blue-600 flex-shrink-0" />
           </Link>
         ))}
       </div>
