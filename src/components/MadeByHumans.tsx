@@ -9,7 +9,7 @@ const MadeByHumans = () => {
           backgroundImage: "url('/background-section3.png')"
         }}>
             <div className="flex items-center text-white">
-              <img src="/logo.png" alt="Sweeply Logo" className="h-5 sm:h-6 w-auto mr-3" />
+              <img src="/lovable-uploads/64f9ad74-6bcc-41ac-85ed-b821343cc480.png" alt="Sweeply Logo" className="h-5 sm:h-6 w-auto mr-3" />
               <span className="text-white text-xl font-medium">
                 Sweeply
             </span>
