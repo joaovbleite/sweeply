@@ -23,7 +23,7 @@ const BottomNavBar: React.FC = () => {
   ];
 
   return (
-    <div className="fixed bottom-4 left-0 right-0 mx-auto px-4 z-50 lg:hidden pb-safe">
+    <div className="fixed bottom-2 left-0 right-0 mx-auto px-4 z-50 lg:hidden pb-safe">
       <nav className="bg-[#121212] text-white rounded-full flex items-center justify-between px-6 py-3.5 max-w-md mx-auto shadow-lg">
         {navItems.map((item) => {
           const Icon = item.icon;
