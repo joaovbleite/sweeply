@@ -205,64 +205,6 @@ const Dashboard = () => {
       .slice(0, 5); // Show only next 5 jobs
   }, [jobs]);
 
-  // Recent activities
-  const recentActivities = React.useMemo(() => {
-    const activities = [];
-    
-    // Recent jobs
-    jobs.slice(0, 3).forEach(job => {
-      activities.push({
-        id: `job-${job.id}`,
-        type: 'job',
-        icon: Briefcase,
-        title: `New job scheduled`,
-        description: `${job.service_type?.replace('_', ' ')} - ${job.title || 'Cleaning Service'}`,
-        time: new Date(job.created_at),
-        color: 'text-blue-600 bg-blue-100'
-      });
-    });
-
-    // Recent clients
-    clients.slice(0, 2).forEach(client => {
-      activities.push({
-        id: `client-${client.id}`,
-        type: 'client',
-        icon: UserCheck,
-        title: `New client added`,
-        description: client.name,
-        time: new Date(client.created_at),
-        color: 'text-blue-600 bg-blue-100'
-      });
-    });
-
-    // Recent invoices
-    invoices.slice(0, 2).forEach(invoice => {
-      activities.push({
-        id: `invoice-${invoice.id}`,
-        type: 'invoice',
-        icon: FileCheck,
-        title: invoice.status === 'paid' ? 'Invoice paid' : 'Invoice sent',
-        description: `${invoice.invoice_number} - ${formatCurrency(invoice.total_amount)}`,
-        time: new Date(invoice.created_at),
-        color: invoice.status === 'paid' ? 'text-blue-700 bg-blue-100' : 'text-gray-600 bg-gray-100'
-      });
-    });
-
-    // Sort by time
-    return activities.sort((a, b) => b.time.getTime() - a.time.getTime()).slice(0, 5);
-  }, [jobs, clients, invoices, formatCurrency]);
-
-  // Format relative time
-  const formatRelativeTime = (date: Date) => {
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-    
-    if (diffInMinutes < 1) return 'just now';
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
-    return `${Math.floor(diffInMinutes / 1440)}d ago`;
-  };
-
   if (loading) {
     return (
       <AppLayout>
@@ -477,43 +419,20 @@ const Dashboard = () => {
         {/* Getting Started Todo Section - only on mobile */}
         {isMobile && <GettingStartedTodo />}
         
-        {/* Recent Activities */}
-        <div className="bg-white p-3 sm:p-4 md:p-5 rounded-xl shadow-sm border border-gray-100 mt-3 sm:mt-5 md:mt-6">
-          <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-3 sm:mb-4">Recent Activity</h3>
-          
-          <div className="space-y-2 sm:space-y-3">
-            {recentActivities.map((activity) => {
-              const ActivityIcon = activity.icon;
-              
-              return (
-                <div 
-                  key={activity.id} 
-                  className="flex items-start gap-2 sm:gap-3"
-                >
-                  <div className={`p-1.5 sm:p-2 rounded-lg ${activity.color}`}>
-                    <ActivityIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm sm:text-base text-gray-900">
-                      {activity.title}
-                    </p>
-                    <p className="text-xs sm:text-sm text-gray-600 truncate">
-                      {activity.description}
-                    </p>
-                  </div>
-                  <div className="text-[10px] sm:text-xs text-gray-500">
-                    {formatRelativeTime(activity.time)}
-                  </div>
-                </div>
-              );
-            })}
+        {/* Business Health section */}
+        {isMobile && <BusinessHealth />}
+
+        {/* Need Help? button at the bottom */}
+        {isMobile && (
+          <div className="fixed bottom-20 inset-x-4 z-10">
+            <Link 
+              to="/help" 
+              className="flex justify-center items-center py-4 bg-white rounded-lg shadow-md border border-gray-100 text-green-600 font-medium"
+            >
+              Need Help?
+            </Link>
           </div>
-        </div>
-        
-        {/* Business Health - replacing Performance Metrics */}
-        <div className="mt-3 sm:mt-5 md:mt-6">
-          <BusinessHealth />
-        </div>
+        )}
       </div>
     </AppLayout>
   );
