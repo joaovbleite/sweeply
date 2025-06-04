@@ -90,5 +90,13 @@
   "addClient": "Add your first client",
   "buildDatabase": "Start building your customer database",
   "tryDesktop": "Try Sweeply on desktop",
-  "timeSavingFeatures": "Check out the full suite of time-saving features"
+  "timeSavingFeatures": "Check out the full suite of time-saving features",
+  
+  "discoverFullPower": "Discover the full power of Sweeply",
+  "accessFullSuite": "Access Sweeply's full suite of time-saving tools like:",
+  "powerfulScheduling": "Powerful, full-view scheduling",
+  "customizableBooking": "Customizable online booking forms",
+  "automatedFollowUps": "Automated quote and invoice follow-ups",
+  "jobCosting": "Job costing and automatic billing",
+  "logInOnComputer": "Log in, on your computer, through the email in your inbox."
 } 
