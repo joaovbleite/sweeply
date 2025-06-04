@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ChevronRight, Clipboard, Monitor, UserPlus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useIsMobile } from '@/hooks/use-mobile';
+import DesktopPromoModal from './DesktopPromoModal';
 
 const GettingStartedTodo = () => {
   const { t } = useTranslation(['dashboard', 'common']);
+  const [isDesktopPromoOpen, setIsDesktopPromoOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   const todoItems = [
     {
@@ -33,6 +37,13 @@ const GettingStartedTodo = () => {
     },
   ];
 
+  const handleItemClick = (id: string, e: React.MouseEvent) => {
+    if (id === 'try-desktop' && isMobile) {
+      e.preventDefault();
+      setIsDesktopPromoOpen(true);
+    }
+  };
+
   return (
     <div className="mb-8 px-1">
       <h2 className="text-xl font-bold text-gray-900 mb-3">{t('dashboard:todo')}</h2>
@@ -43,6 +54,7 @@ const GettingStartedTodo = () => {
             key={item.id}
             to={item.link}
             className="flex items-center justify-between p-4 bg-white hover:bg-gray-50 transition-colors"
+            onClick={(e) => handleItemClick(item.id, e)}
           >
             <div className="flex items-start space-x-3">
               <div className={`p-2 rounded-full ${item.color}`}>
@@ -57,6 +69,12 @@ const GettingStartedTodo = () => {
           </Link>
         ))}
       </div>
+
+      {/* Desktop Promo Modal */}
+      <DesktopPromoModal 
+        isOpen={isDesktopPromoOpen} 
+        onClose={() => setIsDesktopPromoOpen(false)} 
+      />
     </div>
   );
 };
