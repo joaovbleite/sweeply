@@ -6,13 +6,16 @@ import AppLayout from '@/components/AppLayout';
 import { jobsApi } from '@/lib/api/jobs';
 import { Job } from '@/types/job';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Schedule = () => {
   const { t } = useTranslation(['calendar', 'common']);
+  const { user } = useAuth();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [activeView, setActiveView] = useState<'day' | 'list' | 'map'>('day');
+  const [searchTerm, setSearchTerm] = useState('');
   
   // Load jobs data
   useEffect(() => {
@@ -38,7 +41,13 @@ const Schedule = () => {
   // Get jobs for the selected day
   const dayJobs = jobs.filter(job => {
     if (!job.scheduled_date) return false;
-    return isSameDay(new Date(job.scheduled_date), currentDate);
+    const matches = isSameDay(new Date(job.scheduled_date), currentDate);
+    
+    if (searchTerm && job.client?.name) {
+      return matches && job.client.name.toLowerCase().includes(searchTerm.toLowerCase());
+    }
+    
+    return matches;
   });
   
   // Handle date selection
@@ -51,36 +60,36 @@ const Schedule = () => {
       <div className="flex flex-col h-full bg-gray-50 pt-12">
         {/* Header with month selector */}
         <div className="flex justify-between items-center px-4 py-3">
-          <button className="flex items-center text-2xl font-bold">
+          <button className="flex items-center text-2xl font-bold text-gray-800">
             {format(currentDate, 'MMMM')}
             <ChevronDown className="ml-2 w-6 h-6" />
           </button>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-5">
             <button className="p-2">
-              <CalendarIcon className="w-6 h-6" />
+              <CalendarIcon className="w-6 h-6 text-gray-800" />
             </button>
             <button className="p-2">
-              <Settings className="w-6 h-6" />
+              <Settings className="w-6 h-6 text-gray-800" />
             </button>
           </div>
         </div>
         
         {/* View selector tabs */}
-        <div className="bg-gray-100 rounded-lg mx-4 p-1 flex">
+        <div className="bg-gray-100 rounded-lg mx-4 p-1.5 flex">
           <button 
-            className={`flex-1 py-3 rounded-md text-center ${activeView === 'day' ? 'bg-white shadow' : ''}`}
+            className={`flex-1 py-3 rounded-md text-center font-medium ${activeView === 'day' ? 'bg-white shadow text-gray-800' : 'text-gray-600'}`}
             onClick={() => setActiveView('day')}
           >
             Day
           </button>
           <button 
-            className={`flex-1 py-3 rounded-md text-center ${activeView === 'list' ? 'bg-white shadow' : ''}`}
+            className={`flex-1 py-3 rounded-md text-center font-medium ${activeView === 'list' ? 'bg-white shadow text-gray-800' : 'text-gray-600'}`}
             onClick={() => setActiveView('list')}
           >
             List
           </button>
           <button 
-            className={`flex-1 py-3 rounded-md text-center ${activeView === 'map' ? 'bg-white shadow' : ''}`}
+            className={`flex-1 py-3 rounded-md text-center font-medium ${activeView === 'map' ? 'bg-white shadow text-gray-800' : 'text-gray-600'}`}
             onClick={() => setActiveView('map')}
           >
             Map
@@ -88,7 +97,7 @@ const Schedule = () => {
         </div>
         
         {/* Week day selector */}
-        <div className="flex justify-between px-2 mt-4 text-center">
+        <div className="flex justify-between px-4 mt-4 text-center">
           {weekDays.map((day, index) => {
             const isToday = isSameDay(day, new Date());
             const isSelected = isSameDay(day, currentDate);
@@ -99,12 +108,12 @@ const Schedule = () => {
                 className="flex flex-col items-center"
                 onClick={() => handleDateSelect(day)}
               >
-                <div className="text-sm text-gray-500 uppercase">
+                <div className="text-sm text-gray-500 uppercase font-medium">
                   {format(day, 'EEE').charAt(0)}
                 </div>
                 <div 
                   className={`w-10 h-10 flex items-center justify-center rounded-full mt-1 text-lg
-                    ${isSelected ? 'bg-green-500 text-white' : isToday ? 'text-green-500' : 'text-gray-800'}`}
+                    ${isSelected ? 'bg-pulse-500 text-white' : isToday ? 'text-pulse-500' : 'text-gray-800'}`}
                 >
                   {format(day, 'd')}
                 </div>
@@ -114,25 +123,35 @@ const Schedule = () => {
         </div>
         
         {/* Client filter/search */}
-        <div className="mx-4 mt-6 mb-2 flex items-center justify-between">
-          <div className="relative flex-1">
+        <div className="mx-4 mt-6 border-t border-gray-200 pt-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <span className="text-gray-800 font-medium text-lg">
+                {user ? (user.email?.split('@')[0] || 'All clients') : 'All clients'}
+              </span>
+            </div>
+            <div className="bg-gray-200 rounded-lg px-3 py-1 text-gray-800 font-medium">
+              {dayJobs.length} {dayJobs.length === 1 ? 'job' : 'jobs'}
+            </div>
+          </div>
+          
+          <div className="relative mt-4">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
               placeholder="Search clients..."
-              className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 bg-white"
             />
-          </div>
-          <div className="ml-2 text-gray-500 text-sm">
-            {dayJobs.length} {dayJobs.length === 1 ? 'job' : 'jobs'}
           </div>
         </div>
         
         {/* Jobs list */}
-        <div className="flex-1 overflow-y-auto pb-20">
+        <div className="flex-1 overflow-y-auto pb-32 mt-4">
           {loading ? (
             <div className="flex justify-center items-center h-40">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pulse-500"></div>
             </div>
           ) : dayJobs.length > 0 ? (
             <div className="px-4">
@@ -142,7 +161,7 @@ const Schedule = () => {
                   to={`/jobs/${job.id}`}
                   className="block bg-white rounded-lg shadow mb-3 overflow-hidden"
                 >
-                  <div className="border-l-4 border-green-500 p-4">
+                  <div className="border-l-4 border-pulse-500 p-4">
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-bold text-gray-900">{job.client?.name || 'Unknown Client'}</h3>
@@ -152,7 +171,7 @@ const Schedule = () => {
                         <div className="text-sm font-medium">
                           {job.scheduled_time ? format(new Date(`2000-01-01T${job.scheduled_time}`), 'h:mm a') : 'No time'}
                         </div>
-                        <div className="text-sm text-green-600 font-medium mt-1">
+                        <div className="text-sm text-pulse-500 font-medium mt-1">
                           ${job.estimated_price || 0}
                         </div>
                       </div>
@@ -163,11 +182,13 @@ const Schedule = () => {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center h-64">
-              <CalendarIcon className="w-16 h-16 text-gray-300 mb-4" />
-              <p className="text-gray-500 text-lg mb-2">No scheduled appointments</p>
+              <div className="text-dark-900 mb-4">
+                <CalendarIcon className="w-16 h-16 mx-auto" />
+              </div>
+              <p className="text-gray-700 text-lg mb-2 font-medium">No scheduled appointments</p>
               <Link
                 to="/jobs/new"
-                className="text-green-600 font-medium flex items-center"
+                className="text-pulse-500 font-medium flex items-center"
               >
                 <Plus className="w-4 h-4 mr-1" />
                 Schedule a job
@@ -180,7 +201,7 @@ const Schedule = () => {
         <div className="fixed bottom-24 right-6">
           <Link
             to="/jobs/new"
-            className="bg-green-500 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
+            className="bg-dark-900 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
           >
             <Plus className="w-6 h-6" />
           </Link>
