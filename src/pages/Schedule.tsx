@@ -148,7 +148,7 @@ const Schedule = () => {
         </div>
         
         {/* Jobs list */}
-        <div className="flex-1 overflow-y-auto pb-32 mt-4">
+        <div className="flex-1 overflow-y-auto pb-20 mt-4">
           {loading ? (
             <div className="flex justify-center items-center h-40">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pulse-500"></div>
@@ -195,16 +195,6 @@ const Schedule = () => {
               </Link>
             </div>
           )}
-        </div>
-        
-        {/* Floating action button */}
-        <div className="fixed bottom-24 right-6">
-          <Link
-            to="/jobs/new"
-            className="bg-dark-900 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
-          >
-            <Plus className="w-6 h-6" />
-          </Link>
         </div>
       </div>
     </AppLayout>
