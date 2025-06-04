@@ -106,10 +106,10 @@ const More: React.FC = () => {
 
           {/* Menu Lists */}
           <div className="mb-8">
-            <div className="space-y-px">
+            <div>
               <Link 
                 to="/support"
-                className="flex items-center justify-between py-4 px-1 border-b border-gray-100"
+                className="flex items-center justify-between py-4 px-0 border-b border-gray-200"
               >
                 <div className="flex items-center">
                   <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -127,7 +127,7 @@ const More: React.FC = () => {
               
               <Link 
                 to="/subscription"
-                className="flex items-center justify-between py-4 px-1 border-b border-gray-100"
+                className="flex items-center justify-between py-4 px-0 border-b border-gray-200"
               >
                 <div className="flex items-center">
                   <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -144,7 +144,7 @@ const More: React.FC = () => {
               
               <Link 
                 to="/product-updates"
-                className="flex items-center justify-between py-4 px-1 border-b border-gray-100"
+                className="flex items-center justify-between py-4 px-0 border-b border-gray-200"
               >
                 <div className="flex items-center">
                   <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -159,7 +159,7 @@ const More: React.FC = () => {
               
               <Link 
                 to="/refer"
-                className="flex items-center justify-between py-4 px-1 border-b border-gray-100"
+                className="flex items-center justify-between py-4 px-0 border-b border-gray-200"
               >
                 <div className="flex items-center">
                   <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -176,7 +176,7 @@ const More: React.FC = () => {
               
               <Link 
                 to="/about"
-                className="flex items-center justify-between py-4 px-1 border-b border-gray-100"
+                className="flex items-center justify-between py-4 px-0 border-b border-gray-200"
               >
                 <div className="flex items-center">
                   <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -194,14 +194,14 @@ const More: React.FC = () => {
           </div>
           
           {/* Divider */}
-          <div className="h-px bg-gray-200 my-1"></div>
+          <div className="h-px bg-gray-200 my-2"></div>
           
           {/* Second Menu List */}
           <div className="mb-8">
-            <div className="space-y-px">
+            <div>
               <Link 
                 to="/profile"
-                className="flex items-center justify-between py-4 px-1 border-b border-gray-100"
+                className="flex items-center justify-between py-4 px-0 border-b border-gray-200"
               >
                 <div className="flex items-center">
                   <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -218,7 +218,7 @@ const More: React.FC = () => {
               
               <Link 
                 to="/team"
-                className="flex items-center justify-between py-4 px-1 border-b border-gray-100"
+                className="flex items-center justify-between py-4 px-0 border-b border-gray-200"
               >
                 <div className="flex items-center">
                   <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -236,7 +236,7 @@ const More: React.FC = () => {
               
               <Link 
                 to="/company"
-                className="flex items-center justify-between py-4 px-1 border-b border-gray-100"
+                className="flex items-center justify-between py-4 px-0 border-b border-gray-200"
               >
                 <div className="flex items-center">
                   <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -255,7 +255,7 @@ const More: React.FC = () => {
               
               <Link 
                 to="/preferences"
-                className="flex items-center justify-between py-4 px-1 border-b border-gray-100"
+                className="flex items-center justify-between py-4 px-0 border-b border-gray-200"
               >
                 <div className="flex items-center">
                   <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -275,12 +275,12 @@ const More: React.FC = () => {
           </div>
           
           {/* Divider */}
-          <div className="h-px bg-gray-200 my-1"></div>
+          <div className="h-px bg-gray-200 my-2"></div>
           
           {/* Logout Button */}
           <button
             onClick={handleLogout}
-            className="w-full flex items-center py-4 px-1 text-left"
+            className="w-full flex items-center py-4 px-0 text-left border-b border-gray-200"
           >
             <svg className="w-5 h-5 mr-4 text-red-600" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M13 12L5 12" stroke="#E45D51" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
