@@ -71,7 +71,7 @@ const Index = () => {
     if (!loading && user) {
       // If user is authenticated, don't show landing
       setShowLanding(false);
-    }
+  }
   }, [loading, user]);
 
   // Initialize intersection observer to detect when elements enter viewport
@@ -105,22 +105,22 @@ const Index = () => {
     if (!showLanding) return;
     
     const handleAnchorClick = function(e: Event) {
-      e.preventDefault();
-      
+        e.preventDefault();
+        
       const target = e.currentTarget as HTMLAnchorElement;
       const targetId = target.getAttribute('href')?.substring(1);
-      if (!targetId) return;
-      
-      const targetElement = document.getElementById(targetId);
-      if (!targetElement) return;
-      
-      // Increased offset to account for mobile nav
-      const offset = window.innerWidth < 768 ? 100 : 80;
-      
-      window.scrollTo({
-        top: targetElement.offsetTop - offset,
-        behavior: 'smooth'
-      });
+        if (!targetId) return;
+        
+        const targetElement = document.getElementById(targetId);
+        if (!targetElement) return;
+        
+        // Increased offset to account for mobile nav
+        const offset = window.innerWidth < 768 ? 100 : 80;
+        
+        window.scrollTo({
+          top: targetElement.offsetTop - offset,
+          behavior: 'smooth'
+        });
     };
     
     // Add event listeners
@@ -157,23 +157,23 @@ const Index = () => {
   
   // If not in PWA mode and not authenticated, show landing page
   if (showLanding) {
-    return (
-      <div className="min-h-screen">
-        <Navbar />
-        <main className="space-y-4 sm:space-y-8"> {/* Reduced space on mobile */}
-          <Hero />
-          <HumanoidSection />
-          <SpecsSection />
-          <DetailsSection />
-          <ImageShowcaseSection />
-          <Features />
-          <Testimonials />
-          <BusinessStats />
-          <MadeByHumans />
-        </main>
-        <Footer />
-      </div>
-    );
+  return (
+    <div className="min-h-screen">
+      <Navbar />
+      <main className="space-y-4 sm:space-y-8"> {/* Reduced space on mobile */}
+        <Hero />
+        <HumanoidSection />
+        <SpecsSection />
+        <DetailsSection />
+        <ImageShowcaseSection />
+        <Features />
+        <Testimonials />
+        <BusinessStats />
+        <MadeByHumans />
+      </main>
+      <Footer />
+    </div>
+  );
   }
   
   // Fallback redirect to login if something unexpected happens

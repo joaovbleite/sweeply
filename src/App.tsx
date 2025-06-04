@@ -2,11 +2,12 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import PageTransition from "@/components/ui/PageTransition";
 import Index from "./pages/Index";
-import AboutPage from "./pages/About"; // Import the new About page
+import AboutPage from "./pages/About";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -31,8 +32,8 @@ import TeamAnalytics from "./pages/TeamAnalytics";
 import Payroll from "./pages/Payroll";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
-import MobileSettings from "./pages/MobileSettings"; // Import the old Mobile Settings page
-import More from "./pages/More"; // Import the new More page
+import MobileSettings from "./pages/MobileSettings";
+import More from "./pages/More";
 import PricingAssistant from "./pages/PricingAssistant";
 import Notifications from "./pages/Notifications";
 import InstallPrompt from "@/components/ui/InstallPrompt";
@@ -46,6 +47,258 @@ const queryClient = new QueryClient({
   },
 });
 
+// Create a wrapper component to handle the page transitions
+const AppRoutes = () => {
+  const location = useLocation();
+  
+  return (
+    <Routes location={location}>
+      <Route path="/" element={<Index />} />
+      <Route path="/about" element={<AboutPage />} /> {/* Add route for About page */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route 
+        path="/dashboard" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <Dashboard />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/clients" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <Clients />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/clients/new" 
+        element={
+          <ProtectedRoute>
+            <AddClient />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/clients/:id/edit" 
+        element={
+          <ProtectedRoute>
+            <EditClient />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/clients/:id" 
+        element={
+          <ProtectedRoute>
+            <ClientDashboard />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/jobs" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <Jobs />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/jobs/new" 
+        element={
+          <ProtectedRoute>
+            <AddJob />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/jobs/:id/edit" 
+        element={
+          <ProtectedRoute>
+            <EditJob />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/calendar" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <Calendar />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/invoices" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <Invoices />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/invoices/new" 
+        element={
+          <ProtectedRoute>
+            <CreateInvoice />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/employees" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <Employees />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/employees/new" 
+        element={
+          <ProtectedRoute>
+            <AddEmployee />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/employees/:id" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <EmployeeDetail />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/employees/:id/edit" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <EditEmployee />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/performance" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <PerformanceReviews />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/performance/new" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <CreatePerformanceReview />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/team/analytics" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <TeamAnalytics />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/payroll" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <Payroll />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/reports" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <Reports />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/settings" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <Settings />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/notifications" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <Notifications />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/pricing" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <PricingAssistant />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/mobile-settings" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <MobileSettings />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/more" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <More />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -54,214 +307,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <InstallPrompt />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/about" element={<AboutPage />} /> {/* Add route for About page */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/clients" 
-              element={
-                <ProtectedRoute>
-                  <Clients />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/clients/new" 
-              element={
-                <ProtectedRoute>
-                  <AddClient />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/clients/:id/edit" 
-              element={
-                <ProtectedRoute>
-                  <EditClient />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/clients/:id" 
-              element={
-                <ProtectedRoute>
-                  <ClientDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/jobs" 
-              element={
-                <ProtectedRoute>
-                  <Jobs />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/jobs/new" 
-              element={
-                <ProtectedRoute>
-                  <AddJob />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/jobs/:id/edit" 
-              element={
-                <ProtectedRoute>
-                  <EditJob />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/calendar" 
-              element={
-                <ProtectedRoute>
-                  <Calendar />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/invoices" 
-              element={
-                <ProtectedRoute>
-                  <Invoices />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/invoices/new" 
-              element={
-                <ProtectedRoute>
-                  <CreateInvoice />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/employees" 
-              element={
-                <ProtectedRoute>
-                  <Employees />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/employees/new" 
-              element={
-                <ProtectedRoute>
-                  <AddEmployee />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/employees/:id" 
-              element={
-                <ProtectedRoute>
-                  <EmployeeDetail />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/employees/:id/edit" 
-              element={
-                <ProtectedRoute>
-                  <EditEmployee />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/performance" 
-              element={
-                <ProtectedRoute>
-                  <PerformanceReviews />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/performance/new" 
-              element={
-                <ProtectedRoute>
-                  <CreatePerformanceReview />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/team/analytics" 
-              element={
-                <ProtectedRoute>
-                  <TeamAnalytics />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/payroll" 
-              element={
-                <ProtectedRoute>
-                  <Payroll />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/reports" 
-              element={
-                <ProtectedRoute>
-                  <Reports />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/settings" 
-              element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/notifications" 
-              element={
-                <ProtectedRoute>
-                  <Notifications />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/pricing" 
-              element={
-                <ProtectedRoute>
-                  <PricingAssistant />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/mobile-settings" 
-              element={
-                <ProtectedRoute>
-                  <MobileSettings />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/more" 
-              element={
-                <ProtectedRoute>
-                  <More />
-                </ProtectedRoute>
-              } 
-            />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AppRoutes />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

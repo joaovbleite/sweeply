@@ -87,11 +87,11 @@ const Navbar = () => {
           isActive ? "text-pulse-600 font-medium" : "hover:text-pulse-500"
         )} 
         onClick={e => {
-          e.preventDefault();
-          handleNavigate(to, hash);
+    e.preventDefault();
+    handleNavigate(to, hash);
         }}
       >
-        {children}
+      {children}
       </a>
     );
   };
@@ -115,11 +115,11 @@ const Navbar = () => {
           isActive ? "bg-pulse-50 text-pulse-600" : "hover:bg-gray-100"
         )} 
         onClick={e => {
-          e.preventDefault();
-          handleNavigate(to, hash);
+    e.preventDefault();
+    handleNavigate(to, hash);
         }}
       >
-        {children}
+      {children}
         <ChevronRight className={cn("ml-1 h-4 w-4 transition-transform", isActive ? "text-pulse-600" : "text-gray-400")} />
       </a>
     );
@@ -130,14 +130,14 @@ const Navbar = () => {
   
   return (
     <header className={cn(
-      "fixed top-0 left-0 right-0 z-50 mt-0 py-0 transition-all duration-300", 
+    "fixed top-0 left-0 right-0 z-50 mt-0 py-0 transition-all duration-300", 
       isScrolled ? "bg-white/90 backdrop-blur-md shadow-sm" : "bg-transparent"
-    )}>
+  )}>
       <div className="container flex items-center justify-between sm:px-6 lg:px-8 px-3 py-3 my-0 rounded-none">
         <a href="/" className="flex items-center space-x-1 sm:space-x-1" onClick={e => {
-          e.preventDefault();
-          handleNavigate("/");
-        }} aria-label="Sweeply">
+        e.preventDefault();
+        handleNavigate("/");
+      }} aria-label="Sweeply">
           <img src="/logo.png" alt="Sweeply Logo" className="h-10 xs:h-12 sm:h-14 md:h-16 lg:h-20" />
         </a>
 
