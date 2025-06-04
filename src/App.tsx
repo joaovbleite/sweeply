@@ -20,6 +20,7 @@ import Jobs from "./pages/Jobs";
 import AddJob from "./pages/AddJob";
 import EditJob from "./pages/EditJob";
 import Calendar from "./pages/Calendar";
+import Schedule from "./pages/Schedule";
 import Invoices from "./pages/Invoices";
 import CreateInvoice from "./pages/CreateInvoice";
 import Employees from "./pages/Employees";
@@ -133,6 +134,16 @@ const AppRoutes = () => {
           <ProtectedRoute>
             <PageTransition>
               <Calendar />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/schedule" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <Schedule />
             </PageTransition>
           </ProtectedRoute>
         } 
