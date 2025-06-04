@@ -1,0 +1,27 @@
+{
+  "github": {
+    "owner": "joaovbleite",
+    "repo": "sweeply"
+  },
+  "install_script": "npm install",
+  "start_script": "npm run dev",
+  "runtime": {
+    "node_version": "18.x",
+    "environment_variables": {}
+  },
+  "terminals": [
+    {
+      "name": "Development Server",
+      "command": "npm run dev"
+    },
+    {
+      "name": "Git Status",
+      "command": "git status"
+    }
+  ],
+  "base_environment": "ubuntu",
+  "agent_permissions": {
+    "can_update_snapshot": true
+  },
+  "secrets": {}
+} 
