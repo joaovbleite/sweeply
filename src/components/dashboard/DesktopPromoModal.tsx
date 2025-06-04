@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { X, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -9,12 +9,46 @@ interface DesktopPromoModalProps {
 
 const DesktopPromoModal: React.FC<DesktopPromoModalProps> = ({ isOpen, onClose }) => {
   const { t } = useTranslation(['dashboard', 'common']);
+  const modalRef = useRef<HTMLDivElement>(null);
+  
+  // Handle swipe down to close
+  const handleTouchStart = useRef<number | null>(null);
+  const handleTouchMove = useRef<number | null>(null);
+  
+  const onTouchStart = (e: React.TouchEvent) => {
+    handleTouchStart.current = e.touches[0].clientY;
+  };
+  
+  const onTouchMove = (e: React.TouchEvent) => {
+    handleTouchMove.current = e.touches[0].clientY;
+  };
+  
+  const onTouchEnd = () => {
+    if (!handleTouchStart.current || !handleTouchMove.current) return;
+    
+    const distance = handleTouchMove.current - handleTouchStart.current;
+    const isDownSwipe = distance > 100; // Minimum distance to trigger close
+    
+    if (isDownSwipe) {
+      onClose();
+    }
+    
+    // Reset values
+    handleTouchStart.current = null;
+    handleTouchMove.current = null;
+  };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-center justify-center">
-      <div className="relative w-full max-w-md mx-auto bg-white rounded-t-2xl rounded-b-lg overflow-hidden animate-fade-in">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-start justify-center">
+      <div 
+        ref={modalRef}
+        className="relative w-full bg-white rounded-t-2xl overflow-hidden animate-fade-in"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
         {/* Handle/Indicator at top */}
         <div className="flex justify-center pt-3 pb-2">
           <div className="w-12 h-1 bg-gray-300 rounded-full"></div>
@@ -32,7 +66,7 @@ const DesktopPromoModal: React.FC<DesktopPromoModalProps> = ({ isOpen, onClose }
         </div>
 
         {/* Content */}
-        <div className="px-6 pb-8 pt-2 overflow-y-auto max-h-[85vh]">
+        <div className="px-6 pb-8 pt-2 overflow-y-auto">
           <h1 className="text-2xl sm:text-3xl font-bold text-[#1a2e35] mt-2 mb-6">
             Discover the full power of Sweeply
           </h1>
@@ -136,7 +170,7 @@ const DesktopPromoModal: React.FC<DesktopPromoModalProps> = ({ isOpen, onClose }
           {/* Button */}
           <button 
             onClick={onClose}
-            className="w-full bg-pulse-500 hover:bg-pulse-600 text-white py-4 rounded-md text-lg font-medium transition-colors"
+            className="w-full bg-pulse-500 hover:bg-pulse-600 text-white py-4 rounded-md text-lg font-medium transition-colors mb-6"
           >
             Got it
           </button>
