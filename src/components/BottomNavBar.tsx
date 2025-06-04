@@ -6,7 +6,8 @@ import {
   BarChart3,
   User,
   MoreHorizontal,
-  Calendar
+  Calendar,
+  DollarSign
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -15,11 +16,11 @@ const BottomNavBar: React.FC = () => {
   const location = useLocation();
 
   // Define the navigation items based on the image
-  // Home, Schedule, Jobs, More, Profile
+  // Home, Schedule, Finance, Jobs, More, Profile
   const navItems = [
     { id: "home", icon: Home, path: "/dashboard" },
     { id: "schedule", icon: Calendar, path: "/schedule" },
-    { id: "explore", icon: LayoutGrid, path: "/jobs" },
+    { id: "finance", icon: DollarSign, path: "/finance" },
     { id: "more", icon: MoreHorizontal, path: "/more" }
   ];
 

@@ -21,6 +21,7 @@ import AddJob from "./pages/AddJob";
 import EditJob from "./pages/EditJob";
 import Calendar from "./pages/Calendar";
 import Schedule from "./pages/Schedule";
+import Finance from "./pages/Finance";
 import Invoices from "./pages/Invoices";
 import CreateInvoice from "./pages/CreateInvoice";
 import Employees from "./pages/Employees";
@@ -144,6 +145,16 @@ const AppRoutes = () => {
           <ProtectedRoute>
             <PageTransition>
               <Schedule />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/finance" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <Finance />
             </PageTransition>
           </ProtectedRoute>
         } 
