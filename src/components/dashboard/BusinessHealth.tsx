@@ -1,56 +1,243 @@
-import React from 'react';
-import { ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronRight, ChevronLeft, X, ArrowUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocale } from '@/hooks/useLocale';
 import { Link } from 'react-router-dom';
 
-const BusinessHealth = () => {
+const BusinessHealthPage = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
   const { t } = useTranslation(['dashboard', 'common']);
   const { formatCurrency } = useLocale();
 
+  if (!isOpen) return null;
+
   return (
-    <div className="mb-12 px-1">
-      <div className="flex justify-between items-center mb-3">
-        <h2 className="text-xl font-bold text-gray-900">{t('dashboard:businessHealth')}</h2>
-        <Link 
-          to="/reports"
-          className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center"
+    <div className="fixed inset-0 bg-white z-[60]">
+      <div className="flex items-center px-4 py-3 border-b border-gray-200">
+        <button 
+          onClick={onClose}
+          className="mr-2 text-gray-600"
+          aria-label="Back"
         >
-          {t('dashboard:viewAll')}
-          <ChevronRight className="w-4 h-4 ml-1" />
-        </Link>
+          <ChevronLeft className="w-6 h-6" />
+        </button>
+        <h1 className="text-2xl font-bold text-[#1a2e35]">
+          Business health
+        </h1>
       </div>
 
-      <div className="space-y-1.5 rounded-lg overflow-hidden shadow-sm">
-        {/* Job value */}
-        <div className="bg-white p-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h3 className="text-base font-medium text-gray-700">{t('dashboard:businessHealthMetrics.jobValue')}</h3>
-              <p className="text-xs text-gray-500">This week (Jun 1 - 7)</p>
+      <div className="overflow-y-auto h-[calc(100vh-60px)] pb-20">
+        {/* Clients Section */}
+        <div className="px-4 py-5 border-b border-gray-200">
+          <h2 className="text-xl font-bold text-[#1a2e35] mb-1">Clients</h2>
+          <p className="text-gray-500 text-sm mb-4">Past 30 days</p>
+          
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-gray-500 text-lg">New leads</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-[#1a2e35] text-2xl font-bold">3</span>
+                <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full flex items-center text-sm">
+                  <ArrowUp className="w-3 h-3 mr-1" />
+                  100%
+                </span>
+              </div>
             </div>
-            <div className="flex items-center">
-              <span className="text-xl font-bold text-gray-900 mr-3">$0</span>
-              <span className="bg-gray-100 text-gray-500 text-xs px-2.5 py-1 rounded-full">0%</span>
+            
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-gray-500 text-lg">New clients</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-[#1a2e35] text-2xl font-bold">2</span>
+                <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full flex items-center text-sm">
+                  <ArrowUp className="w-3 h-3 mr-1" />
+                  100%
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Visits scheduled */}
-        <div className="bg-white p-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h3 className="text-base font-medium text-gray-700">{t('dashboard:businessHealthMetrics.visitsScheduled')}</h3>
-              <p className="text-xs text-gray-500">This week (Jun 1 - 7)</p>
+        {/* Quotes Section */}
+        <div className="px-4 py-5 border-b border-gray-200">
+          <h2 className="text-xl font-bold text-[#1a2e35] mb-1">Quotes</h2>
+          <p className="text-gray-500 text-sm mb-4">Past 30 days</p>
+          
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-gray-500 text-lg">Conversion rate</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-[#1a2e35] text-2xl font-bold">0%</span>
+                <span className="px-2 py-1 bg-gray-100 text-gray-500 rounded-full flex items-center text-sm">
+                  0%
+                </span>
+              </div>
             </div>
-            <div className="flex items-center">
-              <span className="text-xl font-bold text-gray-900 mr-3">0</span>
-              <span className="bg-gray-100 text-gray-500 text-xs px-2.5 py-1 rounded-full">0%</span>
+            
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-gray-500 text-lg">Sent</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-gray-400 text-lg font-medium mr-2">$0</span>
+                <span className="text-[#1a2e35] text-2xl font-bold">0</span>
+                <span className="px-2 py-1 bg-gray-100 text-gray-500 rounded-full flex items-center text-sm">
+                  0%
+                </span>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-gray-500 text-lg">Converted</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-gray-400 text-lg font-medium mr-2">$0</span>
+                <span className="text-[#1a2e35] text-2xl font-bold">0</span>
+                <span className="px-2 py-1 bg-gray-100 text-gray-500 rounded-full flex items-center text-sm">
+                  0%
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Jobs Section */}
+        <div className="px-4 py-5 border-b border-gray-200">
+          <h2 className="text-xl font-bold text-[#1a2e35] mb-1">Jobs</h2>
+          <p className="text-gray-500 text-sm mb-4">This week (Jun 1 - 7)</p>
+          
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-gray-500 text-lg">Job value</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-[#1a2e35] text-2xl font-bold">$200</span>
+                <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full flex items-center text-sm">
+                  <ArrowUp className="w-3 h-3 mr-1" />
+                  100%
+                </span>
+              </div>
+            </div>
+            
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-gray-500 text-lg">Visits scheduled</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-[#1a2e35] text-2xl font-bold">2</span>
+                <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full flex items-center text-sm">
+                  <ArrowUp className="w-3 h-3 mr-1" />
+                  100%
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Invoices Section */}
+        <div className="px-4 py-5 border-b border-gray-200">
+          <h2 className="text-xl font-bold text-[#1a2e35] mb-1">Invoices</h2>
+          <p className="text-gray-500 text-sm mb-4">Issued past 30 days</p>
+          
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-gray-500 text-lg">Average value</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-[#1a2e35] text-2xl font-bold">$0</span>
+                <span className="px-2 py-1 bg-gray-100 text-gray-500 rounded-full flex items-center text-sm">
+                  0%
+                </span>
+              </div>
+            </div>
+            
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-gray-500 text-lg">Total value</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-[#1a2e35] text-2xl font-bold">$0</span>
+                <span className="px-2 py-1 bg-gray-100 text-gray-500 rounded-full flex items-center text-sm">
+                  0%
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+  );
+};
+
+const BusinessHealth = () => {
+  const { t } = useTranslation(['dashboard', 'common']);
+  const { formatCurrency } = useLocale();
+  const [showFullPage, setShowFullPage] = useState(false);
+
+  return (
+    <>
+      <div className="mb-12 px-1">
+        <div className="flex justify-between items-center mb-3">
+          <h2 className="text-xl font-bold text-gray-900">{t('dashboard:businessHealth')}</h2>
+          <button 
+            onClick={() => setShowFullPage(true)}
+            className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center"
+          >
+            {t('dashboard:viewAll')}
+            <ChevronRight className="w-4 h-4 ml-1" />
+          </button>
+        </div>
+
+        <div className="space-y-1.5 rounded-lg overflow-hidden shadow-sm">
+          {/* Job value */}
+          <div className="bg-white p-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-base font-medium text-gray-700">{t('dashboard:businessHealthMetrics.jobValue')}</h3>
+                <p className="text-xs text-gray-500">This week (Jun 1 - 7)</p>
+              </div>
+              <div className="flex items-center">
+                <span className="text-xl font-bold text-gray-900 mr-3">$200</span>
+                <span className="bg-green-100 text-green-700 text-xs px-2.5 py-1 rounded-full flex items-center">
+                  <ArrowUp className="w-3 h-3 mr-1" />
+                  100%
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Visits scheduled */}
+          <div className="bg-white p-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-base font-medium text-gray-700">{t('dashboard:businessHealthMetrics.visitsScheduled')}</h3>
+                <p className="text-xs text-gray-500">This week (Jun 1 - 7)</p>
+              </div>
+              <div className="flex items-center">
+                <span className="text-xl font-bold text-gray-900 mr-3">2</span>
+                <span className="bg-green-100 text-green-700 text-xs px-2.5 py-1 rounded-full flex items-center">
+                  <ArrowUp className="w-3 h-3 mr-1" />
+                  100%
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Full Page Business Health */}
+      <BusinessHealthPage 
+        isOpen={showFullPage} 
+        onClose={() => setShowFullPage(false)} 
+      />
+    </>
   );
 };
 
