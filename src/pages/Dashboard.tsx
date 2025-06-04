@@ -351,7 +351,7 @@ const Dashboard = () => {
         
         {/* Mobile Dashboard Sections */}
         {isMobile ? (
-          <div className="pb-24">
+          <div className="pb-28">
             {/* Today's Schedule */}
             <TodayScheduleSlider hasJobs={upcomingJobs.length > 0} />
             
@@ -361,17 +361,15 @@ const Dashboard = () => {
             {/* Business Health section */}
             <BusinessHealth />
             
-            {/* Need Help? button at the bottom with safe area padding */}
-            <div className="fixed bottom-0 inset-x-0 z-10 pb-safe">
-              <div className="px-4 pb-5">
-                <Link 
-                  to="/help" 
-                  className="flex justify-center items-center py-3.5 bg-white rounded-lg shadow-md border border-gray-100 text-blue-600 font-medium"
-                >
-                  <HelpCircle className="w-5 h-5 mr-2" />
-                  Need Help?
-                </Link>
-              </div>
+            {/* Need Help? button - positioned above the bottom toolbar */}
+            <div className="px-1 mt-6 mb-4">
+              <Link 
+                to="/help" 
+                className="flex justify-center items-center py-3.5 bg-white rounded-lg shadow-md border border-gray-100 text-blue-600 font-medium"
+              >
+                <HelpCircle className="w-5 h-5 mr-2" />
+                Need Help?
+              </Link>
             </div>
           </div>
         ) : (
