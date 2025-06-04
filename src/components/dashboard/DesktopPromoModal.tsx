@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { X, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -10,47 +10,83 @@ interface DesktopPromoModalProps {
 const DesktopPromoModal: React.FC<DesktopPromoModalProps> = ({ isOpen, onClose }) => {
   const { t } = useTranslation(['dashboard', 'common']);
   const modalRef = useRef<HTMLDivElement>(null);
+  const fallbackGridRef = useRef<HTMLDivElement>(null);
+  const [dragPosition, setDragPosition] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
   
-  // Handle swipe down to close
-  const handleTouchStart = useRef<number | null>(null);
-  const handleTouchMove = useRef<number | null>(null);
+  // Reset position when modal opens/closes
+  useEffect(() => {
+    if (isOpen) {
+      setDragPosition(0);
+      setIsDragging(false);
+    }
+  }, [isOpen]);
   
-  const onTouchStart = (e: React.TouchEvent) => {
-    handleTouchStart.current = e.touches[0].clientY;
+  // Handle touch interactions for dragging
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const startY = e.touches[0].clientY;
+    const target = e.target as HTMLElement;
+    
+    // Only allow dragging from the handle or close to the top of the modal
+    if (target.closest('.modal-handle') || e.touches[0].clientY < 100) {
+      setIsDragging(true);
+    }
   };
   
-  const onTouchMove = (e: React.TouchEvent) => {
-    handleTouchMove.current = e.touches[0].clientY;
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    
+    // Calculate how far we've dragged down
+    const currentY = e.touches[0].clientY;
+    const initialPosition = 0;
+    const newPosition = Math.max(0, currentY - 100); // Prevent dragging up
+    
+    setDragPosition(newPosition);
+    
+    // Prevent default to stop scrolling while dragging
+    e.preventDefault();
   };
   
-  const onTouchEnd = () => {
-    if (!handleTouchStart.current || !handleTouchMove.current) return;
+  const handleTouchEnd = () => {
+    if (!isDragging) return;
     
-    const distance = handleTouchMove.current - handleTouchStart.current;
-    const isDownSwipe = distance > 100; // Minimum distance to trigger close
-    
-    if (isDownSwipe) {
+    // If dragged more than 150px down, close the modal
+    if (dragPosition > 150) {
       onClose();
+    } else {
+      // Otherwise snap back to top
+      setDragPosition(0);
     }
     
-    // Reset values
-    handleTouchStart.current = null;
-    handleTouchMove.current = null;
+    setIsDragging(false);
+  };
+
+  // Handle image error
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    e.currentTarget.style.display = 'none';
+    if (fallbackGridRef.current) {
+      fallbackGridRef.current.style.display = 'grid';
+    }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-start justify-center">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-end justify-center">
       <div 
         ref={modalRef}
-        className="relative w-full bg-white rounded-t-2xl overflow-hidden animate-fade-in"
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
+        className="relative w-full bg-white rounded-t-3xl overflow-hidden"
+        style={{
+          transform: `translateY(${dragPosition}px)`,
+          transition: isDragging ? 'none' : 'transform 0.3s ease-out',
+          maxHeight: '90vh',
+        }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         {/* Handle/Indicator at top */}
-        <div className="flex justify-center pt-3 pb-2">
+        <div className="flex justify-center pt-3 pb-2 modal-handle cursor-grab active:cursor-grabbing">
           <div className="w-12 h-1 bg-gray-300 rounded-full"></div>
         </div>
 
@@ -66,15 +102,23 @@ const DesktopPromoModal: React.FC<DesktopPromoModalProps> = ({ isOpen, onClose }
         </div>
 
         {/* Content */}
-        <div className="px-6 pb-8 pt-2 overflow-y-auto">
+        <div className="px-6 pb-8 pt-2 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 40px)' }}>
           <h1 className="text-2xl sm:text-3xl font-bold text-[#1a2e35] mt-2 mb-6">
             Discover the full power of Sweeply
           </h1>
 
-          {/* Illustration */}
+          {/* Illustration - made to look more like Jobber's image */}
           <div className="relative mb-8">
-            <div className="bg-gray-100 rounded-lg p-6">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="bg-gray-100 rounded-lg p-4">
+              <img 
+                src="/images/desktop-illustration.png" 
+                alt="Desktop features" 
+                className="w-full h-auto object-contain"
+                onError={handleImageError}
+              />
+              
+              {/* Fallback grid layout */}
+              <div ref={fallbackGridRef} className="grid grid-cols-2 gap-4" style={{ display: 'none' }}>
                 {/* Reviews Card */}
                 <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
                   <p className="text-sm text-gray-600">Total reviews</p>
@@ -101,11 +145,8 @@ const DesktopPromoModal: React.FC<DesktopPromoModalProps> = ({ isOpen, onClose }
                     <div className="mt-1 h-3 bg-gray-200 rounded w-3/4"></div>
                   </div>
                 </div>
-              </div>
 
-              {/* Bottom Cards */}
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                {/* Booking Card */}
+                {/* Bottom Cards */}
                 <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
                   <p className="text-sm text-gray-600">Online Booking</p>
                   <p className="text-xs text-gray-500 mt-1">Time slot interval</p>
@@ -133,13 +174,13 @@ const DesktopPromoModal: React.FC<DesktopPromoModalProps> = ({ isOpen, onClose }
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Highlight Effect */}
-            <div className="absolute -top-3 -left-3">
-              <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M5 25L10 15L15 10L25 5" stroke="#3b82f6" strokeWidth="3" strokeLinecap="round"/>
-              </svg>
+              {/* Highlight Effect */}
+              <div className="absolute -top-3 -left-3">
+                <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5 25L10 15L15 10L25 5" stroke="#3b82f6" strokeWidth="3" strokeLinecap="round"/>
+                </svg>
+              </div>
             </div>
           </div>
 
@@ -167,7 +208,7 @@ const DesktopPromoModal: React.FC<DesktopPromoModalProps> = ({ isOpen, onClose }
             Log in, on your computer, through the email in your inbox.
           </p>
 
-          {/* Button */}
+          {/* Button - styled more like Jobber's green button */}
           <button 
             onClick={onClose}
             className="w-full bg-pulse-500 hover:bg-pulse-600 text-white py-4 rounded-md text-lg font-medium transition-colors mb-6"
