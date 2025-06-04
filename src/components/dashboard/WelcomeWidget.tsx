@@ -52,9 +52,9 @@ const WelcomeWidget = () => {
   const formattedDate = format(new Date(), "EEEE, MMMM do");
 
   return (
-    <div className="pt-16 pb-3 px-4 bg-white">
+    <div className="pt-11 pb-3 px-4 bg-white">
       {/* Header with date and icons */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-2 mt-0.5">
         <p className="text-[#0d3547]/70 text-base">{formattedDate}</p>
         
         <div className="flex items-center gap-4">
@@ -78,8 +78,8 @@ const WelcomeWidget = () => {
         </div>
       </div>
       
-      {/* Greeting on a single line */}
-      <h1 className="text-4xl font-bold text-[#0d3547] whitespace-nowrap">
+      {/* Greeting - smaller text size to fit on one line */}
+      <h1 className="text-4xl font-bold text-[#0d3547] whitespace-nowrap overflow-hidden text-ellipsis">
         {getGreeting()}, {userName.split(' ')[0]}
       </h1>
     </div>
