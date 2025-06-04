@@ -13,7 +13,8 @@ import {
   Building2,
   Settings,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Info
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
@@ -37,26 +38,51 @@ const More: React.FC = () => {
   // Get user's email safely
   const userEmail = user?.email || '';
 
+  // FAB button for create new item
+  const FloatingActionButton = () => (
+    <div className="fixed bottom-28 right-6 z-20">
+      <button className="bg-[#0d3547] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg">
+        <span className="text-2xl">+</span>
+      </button>
+    </div>
+  );
+
   return (
     <AppLayout>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[#F7F8F5]">
         {/* Fixed header */}
-        <div className="sticky top-0 left-0 right-0 z-20 bg-white shadow-sm">
-          <div className="px-4 py-3 flex items-center">
-            <h1 className="text-xl font-bold">{t('settings:more')}</h1>
+        <div className="sticky top-0 left-0 right-0 z-20 bg-white">
+          <div className="p-6 pb-4">
+            <h1 className="text-2xl font-bold text-[#0d3547]">More</h1>
+            {userEmail && (
+              <p className="text-gray-600 text-sm mt-1">{userEmail}'s Company</p>
+            )}
           </div>
         </div>
 
-        <div className="px-4 py-6">
+        <div className="px-4 pb-20">
           {/* Feature Boxes */}
-          <div className="grid grid-cols-2 gap-3 mb-8">
+          <div className="grid grid-cols-2 gap-4 mb-6">
             <Link 
               to="/integrations" 
-              className="flex flex-col items-start justify-between p-4 bg-white rounded-lg shadow border border-gray-100"
+              className="flex flex-col items-start justify-between p-5 bg-[#F2F3EE] rounded-lg"
             >
-              <Grid className="w-5 h-5 text-blue-600 mb-2" />
-              <div>
-                <div className="font-medium text-gray-900">{t('settings:appsAndIntegrations')}</div>
+              <div className="text-[#0d3547]">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 16H4V20H8V16Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M14 16H10V20H14V16Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M20 16H16V20H20V16Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M8 10H4V14H8V10Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M14 10H10V14H14V10Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M20 10H16V14H20V10Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M8 4H4V8H8V4Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M14 4H10V8H14V4Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M20 4H16V8H20V4Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div className="mt-2">
+                <div className="text-xl font-bold text-[#0d3547]">Apps &</div>
+                <div className="text-xl font-bold text-[#0d3547]">integrations</div>
               </div>
             </Link>
             
@@ -64,119 +90,209 @@ const More: React.FC = () => {
               href="https://barberops.vercel.app" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex flex-col items-start justify-between p-4 bg-white rounded-lg shadow border border-gray-100"
+              className="flex flex-col items-start justify-between p-5 bg-[#F2F3EE] rounded-lg"
             >
-              <Megaphone className="w-5 h-5 text-rose-600 mb-2" />
-              <div>
-                <div className="font-medium text-gray-900">{t('settings:marketing')}</div>
+              <div className="text-[#0d3547]">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M19.2049 10.3901C19.9862 10.9031 19.9862 12.0969 19.2049 12.6099L8.90485 18.9202C8.12354 19.4332 7.15485 18.8363 7.15485 17.9103V5.08968C7.15485 4.16371 8.12354 3.56683 8.90485 4.07984L19.2049 10.3901Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M4 4V20" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div className="mt-2">
+                <div className="text-xl font-bold text-[#0d3547]">Marketing</div>
               </div>
             </a>
           </div>
 
           {/* Menu Lists */}
           <div className="mb-8">
-            <div className="space-y-0.5">
+            <div className="space-y-px">
               <Link 
                 to="/support"
-                className="flex items-center justify-between px-3 py-3.5 bg-white rounded-lg"
+                className="flex items-center justify-between py-4 px-1 border-b border-gray-100"
               >
-                <span className="text-gray-800 font-medium">{t('settings:support')}</span>
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7.8 21H7.2C4.6 21 3 19.4 3 16.8V16.2C3 15.5373 3.53726 15 4.2 15H7.2C7.86274 15 8.4 15.5373 8.4 16.2V19.8C8.4 20.4627 7.86274 21 7.2 21" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M16.8 21H16.2C15.5373 21 15 20.4627 15 19.8V16.2C15 15.5373 15.5373 15 16.2 15H19.2C19.8627 15 20.4 15.5373 20.4 16.2V16.8C20.4 19.4 18.8 21 16.2 21" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M16.8 9H16.2C15.5373 9 15 8.46274 15 7.8V4.2C15 3.53726 15.5373 3 16.2 3H19.2C19.8627 3 20.4 3.53726 20.4 4.2V4.8C20.4 7.4 18.8 9 16.2 9" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M7.8 9H7.2C4.6 9 3 7.4 3 4.8V4.2C3 3.53726 3.53726 3 4.2 3H7.2C7.86274 3 8.4 3.53726 8.4 4.2V7.8C8.4 8.46274 7.86274 9 7.2 9" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-[#0d3547] text-lg font-medium">{t('settings:support')}</span>
+                </div>
                 <div className="text-gray-400">
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-6 h-6" />
                 </div>
               </Link>
               
               <Link 
                 to="/subscription"
-                className="flex items-center justify-between px-3 py-3.5 bg-white rounded-lg"
+                className="flex items-center justify-between py-4 px-1 border-b border-gray-100"
               >
-                <span className="text-gray-800 font-medium">{t('settings:subscription')}</span>
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="5" width="20" height="14" rx="2" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M2 10H22" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M6 15H10" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-[#0d3547] text-lg font-medium">{t('settings:subscription')}</span>
+                </div>
                 <div className="text-gray-400">
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-6 h-6" />
+                </div>
+              </Link>
+              
+              <Link 
+                to="/product-updates"
+                className="flex items-center justify-between py-4 px-1 border-b border-gray-100"
+              >
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 3L14.0357 8.32575L19.6085 8.32575L15.1221 11.6742L16.7889 17L12 13.9528L7.21115 17L8.87792 11.6742L4.39155 8.32575L9.96434 8.32575L12 3Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-[#0d3547] text-lg font-medium">{t('settings:productUpdates')}</span>
+                </div>
+                <div className="text-gray-400">
+                  <ChevronRight className="w-6 h-6" />
                 </div>
               </Link>
               
               <Link 
                 to="/refer"
-                className="flex items-center justify-between px-3 py-3.5 bg-white rounded-lg"
+                className="flex items-center justify-between py-4 px-1 border-b border-gray-100"
               >
-                <span className="text-gray-800 font-medium">{t('settings:referAFriend')}</span>
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="8" width="18" height="12" rx="2" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M12 8V4M12 4H9M12 4H15" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M7 14L10 14" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-[#0d3547] text-lg font-medium">{t('settings:referAFriend')}</span>
+                </div>
                 <div className="text-gray-400">
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-6 h-6" />
                 </div>
               </Link>
               
               <Link 
-                to="/help"
-                className="flex items-center justify-between px-3 py-3.5 bg-white rounded-lg"
+                to="/about"
+                className="flex items-center justify-between py-4 px-1 border-b border-gray-100"
               >
-                <span className="text-gray-800 font-medium">{t('settings:help')}</span>
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="9" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M12 16V12" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <circle cx="12" cy="8" r="0.5" stroke="#0d3547" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-[#0d3547] text-lg font-medium">{t('settings:about')}</span>
+                </div>
                 <div className="text-gray-400">
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-6 h-6" />
                 </div>
               </Link>
             </div>
           </div>
           
           {/* Divider */}
-          <div className="h-px bg-gray-200 my-4"></div>
+          <div className="h-px bg-gray-200 my-1"></div>
           
           {/* Second Menu List */}
           <div className="mb-8">
-            <div className="space-y-0.5">
+            <div className="space-y-px">
               <Link 
                 to="/profile"
-                className="flex items-center justify-between px-3 py-3.5 bg-white rounded-lg"
+                className="flex items-center justify-between py-4 px-1 border-b border-gray-100"
               >
-                <span className="text-gray-800 font-medium">{t('settings:profile')}</span>
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="8" r="4" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M5.33788 17.3206C6.87887 15.5269 9.26788 14.5 11.9999 14.5C14.7319 14.5 17.1199 15.5259 18.6619 17.3198" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <circle cx="12" cy="12" r="10" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-[#0d3547] text-lg font-medium">{t('settings:profile')}</span>
+                </div>
                 <div className="text-gray-400">
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-6 h-6" />
                 </div>
               </Link>
               
               <Link 
                 to="/team"
-                className="flex items-center justify-between px-3 py-3.5 bg-white rounded-lg"
+                className="flex items-center justify-between py-4 px-1 border-b border-gray-100"
               >
-                <span className="text-gray-800 font-medium">{t('settings:manageTeam')}</span>
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="9" cy="7" r="3" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M14 10C15.6569 10 17 8.65685 17 7C17 5.34315 15.6569 4 14 4" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M5 19.5C5 16.4624 7.46243 14 10.5 14C13.5376 14 16 16.4624 16 19.5" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M17 20C19.2091 20 21 18.2091 21 16" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-[#0d3547] text-lg font-medium">{t('settings:manageTeam')}</span>
+                </div>
                 <div className="text-gray-400">
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-6 h-6" />
                 </div>
               </Link>
               
               <Link 
                 to="/company"
-                className="flex items-center justify-between px-3 py-3.5 bg-white rounded-lg"
+                className="flex items-center justify-between py-4 px-1 border-b border-gray-100"
               >
-                <span className="text-gray-800 font-medium">{t('settings:companyDetails')}</span>
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="4" y="2" width="16" height="20" rx="2" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M9 6H15" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M9 10H15" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M9 14H15" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M9 18H13" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-[#0d3547] text-lg font-medium">{t('settings:companyDetails')}</span>
+                </div>
                 <div className="text-gray-400">
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-6 h-6" />
                 </div>
               </Link>
               
               <Link 
                 to="/preferences"
-                className="flex items-center justify-between px-3 py-3.5 bg-white rounded-lg"
+                className="flex items-center justify-between py-4 px-1 border-b border-gray-100"
               >
-                <span className="text-gray-800 font-medium">{t('settings:preferences')}</span>
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 14C4 15.1046 4.89543 16 6 16H12C13.1046 16 14 15.1046 14 14V10C14 8.89543 13.1046 8 12 8H6C4.89543 8 4 8.89543 4 10V14Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M14 12H20C20 10.3431 18.6569 9 17 9H14V12Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M6 8V7C6 5.89543 6.89543 5 8 5H15C17.7614 5 20 7.23858 20 10V14" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M10 16V19" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M6 19H14" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-[#0d3547] text-lg font-medium">{t('settings:preferences')}</span>
+                </div>
                 <div className="text-gray-400">
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-6 h-6" />
                 </div>
               </Link>
             </div>
           </div>
           
           {/* Divider */}
-          <div className="h-px bg-gray-200 my-4"></div>
+          <div className="h-px bg-gray-200 my-1"></div>
           
           {/* Logout Button */}
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center px-3 py-3.5 bg-white rounded-lg text-red-600 font-medium"
+            className="w-full flex items-center py-4 px-1 text-left"
           >
-            {t('common:logout')}
+            <svg className="w-5 h-5 mr-4 text-red-600" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M13 12L5 12" stroke="#E45D51" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M9 16L5 12L9 8" stroke="#E45D51" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M17 16V18C17 19.1046 16.1046 20 15 20H7C5.89543 20 5 19.1046 5 18V6C5 4.89543 5.89543 4 7 4H15C16.1046 4 17 4.89543 17 6V8" stroke="#E45D51" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span className="text-red-600 text-lg font-medium">Logout</span>
           </button>
         </div>
+        
+        {/* Floating action button */}
+        <FloatingActionButton />
       </div>
     </AppLayout>
   );
