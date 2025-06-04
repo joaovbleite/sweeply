@@ -52,7 +52,7 @@ const More: React.FC = () => {
       <div className="min-h-screen bg-[#F7F8F5]">
         {/* Fixed header */}
         <div className="sticky top-0 left-0 right-0 z-20 bg-white">
-          <div className="p-6 pb-4">
+          <div className="p-6 pt-10 pb-4">
             <h1 className="text-2xl font-bold text-[#0d3547]">More</h1>
             {userEmail && (
               <p className="text-gray-600 text-sm mt-1">{userEmail}'s Company</p>
@@ -60,7 +60,7 @@ const More: React.FC = () => {
           </div>
         </div>
 
-        <div className="px-4 pb-20">
+        <div className="px-4 pb-20 pt-3">
           {/* Feature Boxes */}
           <div className="grid grid-cols-2 gap-4 mb-6">
             <Link 
