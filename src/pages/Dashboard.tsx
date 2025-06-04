@@ -37,6 +37,7 @@ import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, Cartesia
 import WelcomeWidget from "@/components/dashboard/WelcomeWidget";
 import BusinessHealth from "@/components/dashboard/BusinessHealth";
 import TodayScheduleSlider from "@/components/dashboard/TodayScheduleSlider";
+import GettingStartedTodo from "@/components/dashboard/GettingStartedTodo";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -405,107 +406,107 @@ const Dashboard = () => {
           </div>
         </div>
         
-        {/* Today's Schedule & Recent Activities */}
-        <div className="mt-3 sm:mt-5 md:mt-6 grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
-          {/* Today's Schedule - Conditional rendering based on device */}
-          {isMobile ? (
-            <TodayScheduleSlider hasJobs={upcomingJobs.length > 0} />
-          ) : (
-            <div className="bg-white p-3 sm:p-4 md:p-5 rounded-xl shadow-sm border border-gray-100">
-              <div className="flex justify-between items-center mb-3 sm:mb-4">
-                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">Today's Schedule</h3>
-                <Link to="/calendar" className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium flex items-center gap-1">
-                  View all <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
-                </Link>
-              </div>
-              
-              {upcomingJobs.length > 0 ? (
-                <div className="space-y-2 sm:space-y-3">
-                  {upcomingJobs.map((job) => (
-                    <Link
-                      to={`/jobs/${job.id}`}
-                      key={job.id}
-                      className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 hover:bg-gray-50 rounded-lg transition-colors"
-                    >
-                      <div className="bg-blue-100 text-blue-600 p-1.5 sm:p-2 rounded-lg">
-                        <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm sm:text-base text-gray-900 truncate">
-                          {job.title || 'Cleaning Service'}
-                        </p>
-                        <div className="flex items-center mt-0.5">
-                          <Clock className="w-3 h-3 text-gray-400 mr-1" />
-                          <p className="text-xs text-gray-500">
-                            {new Date(job.scheduled_date).toLocaleTimeString('en-US', { 
-                              hour: '2-digit', 
-                              minute: '2-digit' 
-                            })}
-                          </p>
-                          {job.address && (
-                            <>
-                              <span className="mx-1 text-gray-300">•</span>
-                              <MapPin className="w-3 h-3 text-gray-400 mr-1" />
-                              <p className="text-xs text-gray-500 truncate">
-                                {job.address}
-                              </p>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                      <div className="bg-gray-100 rounded-lg px-2 py-1">
-                        <p className="text-xs text-gray-600">
-                          {formatCurrency(job.estimated_price || 0)}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-6 sm:py-8 text-center">
-                  <div className="bg-gray-100 p-3 sm:p-4 rounded-full mb-2 sm:mb-3">
-                    <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" />
-                  </div>
-                  <p className="text-gray-600 text-sm sm:text-base mb-1">No jobs scheduled for today</p>
-                  <Link to="/jobs/new" className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium">
-                    Schedule a job
-                  </Link>
-                </div>
-              )}
+        {/* Today's Schedule */}
+        {isMobile ? (
+          <TodayScheduleSlider hasJobs={upcomingJobs.length > 0} />
+        ) : (
+          <div className="bg-white p-3 sm:p-4 md:p-5 rounded-xl shadow-sm border border-gray-100 mt-3 sm:mt-5 md:mt-6">
+            <div className="flex justify-between items-center mb-3 sm:mb-4">
+              <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">Today's Schedule</h3>
+              <Link to="/calendar" className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium flex items-center gap-1">
+                View all <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+              </Link>
             </div>
-          )}
-          
-          {/* Recent Activities */}
-          <div className="bg-white p-3 sm:p-4 md:p-5 rounded-xl shadow-sm border border-gray-100">
-            <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-3 sm:mb-4">Recent Activity</h3>
             
-            <div className="space-y-2 sm:space-y-3">
-              {recentActivities.map((activity) => {
-                const ActivityIcon = activity.icon;
-                
-                return (
-                  <div 
-                    key={activity.id} 
-                    className="flex items-start gap-2 sm:gap-3"
+            {upcomingJobs.length > 0 ? (
+              <div className="space-y-2 sm:space-y-3">
+                {upcomingJobs.map((job) => (
+                  <Link
+                    to={`/jobs/${job.id}`}
+                    key={job.id}
+                    className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 hover:bg-gray-50 rounded-lg transition-colors"
                   >
-                    <div className={`p-1.5 sm:p-2 rounded-lg ${activity.color}`}>
-                      <ActivityIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
+                    <div className="bg-blue-100 text-blue-600 p-1.5 sm:p-2 rounded-lg">
+                      <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm sm:text-base text-gray-900">
-                        {activity.title}
+                      <p className="font-medium text-sm sm:text-base text-gray-900 truncate">
+                        {job.title || 'Cleaning Service'}
                       </p>
-                      <p className="text-xs sm:text-sm text-gray-600 truncate">
-                        {activity.description}
+                      <div className="flex items-center mt-0.5">
+                        <Clock className="w-3 h-3 text-gray-400 mr-1" />
+                        <p className="text-xs text-gray-500">
+                          {new Date(job.scheduled_date).toLocaleTimeString('en-US', { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          })}
+                        </p>
+                        {job.address && (
+                          <>
+                            <span className="mx-1 text-gray-300">•</span>
+                            <MapPin className="w-3 h-3 text-gray-400 mr-1" />
+                            <p className="text-xs text-gray-500 truncate">
+                              {job.address}
+                            </p>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <div className="bg-gray-100 rounded-lg px-2 py-1">
+                      <p className="text-xs text-gray-600">
+                        {formatCurrency(job.estimated_price || 0)}
                       </p>
                     </div>
-                    <div className="text-[10px] sm:text-xs text-gray-500">
-                      {formatRelativeTime(activity.time)}
-                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-6 sm:py-8 text-center">
+                <div className="bg-gray-100 p-3 sm:p-4 rounded-full mb-2 sm:mb-3">
+                  <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" />
+                </div>
+                <p className="text-gray-600 text-sm sm:text-base mb-1">No jobs scheduled for today</p>
+                <Link to="/jobs/new" className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium">
+                  Schedule a job
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
+        
+        {/* Getting Started Todo Section - only on mobile */}
+        {isMobile && <GettingStartedTodo />}
+        
+        {/* Recent Activities */}
+        <div className="bg-white p-3 sm:p-4 md:p-5 rounded-xl shadow-sm border border-gray-100 mt-3 sm:mt-5 md:mt-6">
+          <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-3 sm:mb-4">Recent Activity</h3>
+          
+          <div className="space-y-2 sm:space-y-3">
+            {recentActivities.map((activity) => {
+              const ActivityIcon = activity.icon;
+              
+              return (
+                <div 
+                  key={activity.id} 
+                  className="flex items-start gap-2 sm:gap-3"
+                >
+                  <div className={`p-1.5 sm:p-2 rounded-lg ${activity.color}`}>
+                    <ActivityIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                   </div>
-                );
-              })}
-            </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm sm:text-base text-gray-900">
+                      {activity.title}
+                    </p>
+                    <p className="text-xs sm:text-sm text-gray-600 truncate">
+                      {activity.description}
+                    </p>
+                  </div>
+                  <div className="text-[10px] sm:text-xs text-gray-500">
+                    {formatRelativeTime(activity.time)}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
         
