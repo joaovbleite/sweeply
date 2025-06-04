@@ -52,36 +52,36 @@ const WelcomeWidget = () => {
   const formattedDate = format(new Date(), "EEEE, MMMM do");
 
   return (
-    <div className="pt-6 pb-3 px-4 bg-white">
-      {/* Date display */}
-      <p className="text-[#0d3547]/70 text-lg mb-1">{formattedDate}</p>
-      
-      {/* Greeting with notification icons */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-[#0d3547]">
-          {getGreeting()}, {userName.split(' ')[0]}
-        </h1>
+    <div className="pt-10 pb-3 px-4 bg-white">
+      {/* Header with date and icons */}
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-[#0d3547]/70 text-base">{formattedDate}</p>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           {/* Star Icon */}
-          <button className="bg-transparent p-1">
-            <Sparkles className="w-6 h-6 text-[#0d3547]" />
+          <button className="bg-transparent">
+            <Sparkles className="w-5 h-5 text-[#0d3547]" />
           </button>
           
           {/* Notifications Bell */}
           <Link 
             to="/notifications"
-            className="relative bg-transparent p-1"
+            className="relative bg-transparent"
           >
-            <Bell className="w-6 h-6 text-[#0d3547]" />
+            <Bell className="w-5 h-5 text-[#0d3547]" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
           </Link>
         </div>
       </div>
+      
+      {/* Greeting */}
+      <h1 className="text-[2.5rem] font-bold text-[#0d3547] leading-tight">
+        {getGreeting()}, {userName.split(' ')[0]}
+      </h1>
     </div>
   );
 };
