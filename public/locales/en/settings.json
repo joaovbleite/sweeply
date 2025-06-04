@@ -92,5 +92,14 @@
   "support": "Support",
   "helpCenter": "Help Center",
   "contactSupport": "Contact Support",
-  "privacySecurity": "Privacy & Security"
+  "privacySecurity": "Privacy & Security",
+  
+  "more": "More",
+  "appsAndIntegrations": "Apps & integrations",
+  "marketing": "Marketing",
+  "productUpdates": "Product updates",
+  "referAFriend": "Refer a friend",
+  "help": "Help",
+  "manageTeam": "Manage team",
+  "companyDetails": "Company details"
 } 

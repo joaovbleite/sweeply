@@ -5,7 +5,7 @@ import {
   LayoutGrid,
   BarChart3,
   User,
-  Settings
+  MoreHorizontal
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -19,7 +19,7 @@ const BottomNavBar: React.FC = () => {
     { id: "home", icon: Home, path: "/dashboard" },
     { id: "explore", icon: LayoutGrid, path: "/jobs" },
     { id: "stats", icon: BarChart3, path: "/reports" },
-    { id: "settings", icon: Settings, path: "/mobile-settings" }
+    { id: "more", icon: MoreHorizontal, path: "/more" }
   ];
 
   return (
