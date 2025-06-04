@@ -12,7 +12,7 @@ const BusinessHealthPage = ({ isOpen, onClose }: { isOpen: boolean, onClose: () 
 
   return (
     <div className="fixed inset-0 bg-white z-[60]">
-      <div className="flex items-center px-4 py-3 border-b border-gray-200">
+      <div className="flex items-center px-4 pt-8 pb-3 border-b border-gray-200">
         <button 
           onClick={onClose}
           className="mr-2 text-gray-600"
@@ -25,7 +25,7 @@ const BusinessHealthPage = ({ isOpen, onClose }: { isOpen: boolean, onClose: () 
         </h1>
       </div>
 
-      <div className="overflow-y-auto h-[calc(100vh-60px)] pb-20">
+      <div className="overflow-y-auto h-[calc(100vh-73px)] pb-20">
         {/* Clients Section */}
         <div className="px-4 py-5 border-b border-gray-200">
           <h2 className="text-xl font-bold text-[#1a2e35] mb-1">Clients</h2>
