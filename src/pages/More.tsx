@@ -134,21 +134,6 @@ const More: React.FC = () => {
               </Link>
               
               <Link 
-                to="/product-updates"
-                className="flex items-center justify-between py-4 px-0 border-b border-gray-200"
-              >
-                <div className="flex items-center">
-                  <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 3L14.0357 8.32575L19.6085 8.32575L15.1221 11.6742L16.7889 17L12 13.9528L7.21115 17L8.87792 11.6742L4.39155 8.32575L9.96434 8.32575L12 3Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  <span className="text-[#0d3547] text-lg font-medium">{t('settings:productUpdates')}</span>
-                </div>
-                <div className="text-gray-400">
-                  <ChevronRight className="w-6 h-6" />
-                </div>
-              </Link>
-              
-              <Link 
                 to="/refer"
                 className="flex items-center justify-between py-4 px-0 border-b border-gray-200"
               >
