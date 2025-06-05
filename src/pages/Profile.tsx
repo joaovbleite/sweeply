@@ -128,7 +128,7 @@ const Profile: React.FC = () => {
           </div>
           
           {/* Account Closure */}
-          <div className="mt-8 border-t border-gray-200 pt-6">
+          <div className="mt-4 border-t border-gray-200 pt-4">
             <button 
               type="button"
               onClick={handleCloseAccount}
@@ -147,7 +147,7 @@ const Profile: React.FC = () => {
           {/* Save Button */}
           <button
             type="submit"
-            className="fixed bottom-24 left-4 right-4 py-4 bg-pulse-500 hover:bg-pulse-600 text-white text-lg font-medium rounded-lg transition-colors shadow-md"
+            className="w-full mt-8 mb-10 py-4 bg-pulse-500 hover:bg-pulse-600 text-white text-lg font-medium rounded-lg transition-colors shadow-md"
           >
             Save Profile
           </button>
