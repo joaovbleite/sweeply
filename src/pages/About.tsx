@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
@@ -35,11 +35,6 @@ const About: React.FC = () => {
 
   // App version (simulated)
   const appVersion = "v1.0.0 (2000000123)";
-
-  // Open links in system browser
-  const openExternalLink = (url: string) => {
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
 
   return (
     <AppLayout>
@@ -87,31 +82,6 @@ const About: React.FC = () => {
                 <p className="text-[#0d3547] text-lg">{deviceInfo}</p>
               </div>
             </div>
-          </div>
-          
-          {/* Legal Links */}
-          <div className="mb-8">
-            {/* Privacy Policy */}
-            <button 
-              onClick={() => openExternalLink('https://sweeply.com/privacy')}
-              className="w-full flex items-center justify-between py-5 border-b border-gray-200"
-            >
-              <div className="text-xl font-bold text-[#0d3547]">Privacy policy</div>
-              <div className="text-pulse-500">
-                <ExternalLink className="w-6 h-6" />
-              </div>
-            </button>
-            
-            {/* Terms of Service */}
-            <button 
-              onClick={() => openExternalLink('https://sweeply.com/terms')}
-              className="w-full flex items-center justify-between py-5 border-b border-gray-200"
-            >
-              <div className="text-xl font-bold text-[#0d3547]">Terms of service</div>
-              <div className="text-pulse-500">
-                <ExternalLink className="w-6 h-6" />
-              </div>
-            </button>
           </div>
         </div>
       </div>
