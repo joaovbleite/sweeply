@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ArrowLeft, Copy, Gift } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
@@ -63,7 +63,7 @@ const Refer: React.FC = () => {
             >
               <ArrowLeft className="w-6 h-6" />
             </button>
-            <h1 className="text-2xl font-bold text-[#1a2e35]">
+            <h1 className="text-2xl font-bold text-[#0d3547]">
               Refer a friend
             </h1>
           </div>
@@ -72,37 +72,48 @@ const Refer: React.FC = () => {
         <div className="flex-1 overflow-y-auto pb-20">
           {/* Hero Section with dark blue background */}
           <div className="bg-[#0d3547] text-white px-4 py-8">
-            <h2 className="text-3xl font-bold leading-tight mb-6">
+            <h2 className="text-4xl font-bold leading-tight mb-6">
               When your community is strong, you're strong
             </h2>
             
             {/* $100 Gift Card Image */}
-            <div className="bg-[#f5f5f0] rounded-lg p-6 mb-4 mx-auto max-w-sm">
-              <div className="bg-[#0d3547] text-[#a4ff00] p-4 inline-block font-bold text-4xl rounded">
-                $100
-              </div>
-              <div className="bg-[#0d3547] text-white p-3 text-2xl font-bold mt-2 rounded">
-                Prepaid
-              </div>
-              <div className="bg-[#0d3547] text-white p-3 text-2xl font-bold mt-2 rounded">
-                Mastercard
-              </div>
+            <div className="bg-[#f5f5f0] rounded-lg p-6 mb-4 mx-auto">
+              <img 
+                src="/images/100-prepaid-mastercard.svg" 
+                alt="$100 Prepaid Mastercard" 
+                className="w-full"
+                onError={(e) => {
+                  // Fallback if image doesn't load
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    const fallback = document.createElement('div');
+                    fallback.innerHTML = `
+                      <div class="bg-[#0d3547] text-[#a4ff00] p-4 inline-block font-bold text-4xl rounded">$100</div>
+                      <div class="bg-[#0d3547] text-white p-3 text-2xl font-bold mt-2 rounded">Prepaid</div>
+                      <div class="bg-[#0d3547] text-white p-3 text-2xl font-bold mt-2 rounded">Mastercard</div>
+                    `;
+                    parent.appendChild(fallback);
+                  }
+                }}
+              />
             </div>
           </div>
           
           {/* Share Code Section */}
           <div className="px-4 pt-6">
-            <h3 className="text-2xl font-bold text-[#0d3547] mb-3">Share your code</h3>
+            <h3 className="text-3xl font-bold text-[#0d3547] mb-3">Share your code</h3>
             <p className="text-gray-700 text-lg mb-4">
               Refer friends to Sweeply with your unique code! If they become a customer, you'll get a <span className="font-bold">$100 prepaid gift card</span> and they'll get rewarded too!
             </p>
             
             {/* Referral Code Display */}
             <div className="flex justify-between items-center mb-4">
-              <div className="text-3xl font-bold text-green-700">{referralCode}</div>
+              <div className="text-4xl font-bold text-[#4d9c41]">{referralCode}</div>
               <button 
                 onClick={handleCopy}
-                className="text-green-700 font-bold text-lg"
+                className="text-[#4d9c41] font-bold text-2xl"
               >
                 COPY
               </button>
@@ -111,13 +122,13 @@ const Refer: React.FC = () => {
             {/* Share Button */}
             <button
               onClick={handleShare}
-              className="w-full bg-green-700 text-white font-bold text-xl py-4 rounded-lg mb-8"
+              className="w-full bg-[#4d9c41] text-white font-bold text-xl py-4 rounded-lg mb-8"
             >
               Share Code
             </button>
             
             {/* Redeem Section */}
-            <h3 className="text-2xl font-bold text-[#0d3547] mb-3">Redeem a code</h3>
+            <h3 className="text-3xl font-bold text-[#0d3547] mb-3">Redeem a code</h3>
             <p className="text-gray-700 text-lg mb-4">
               Did your friend refer you to Sweeply? Enter their referral code and we will send you both a reward!
             </p>
@@ -129,20 +140,20 @@ const Refer: React.FC = () => {
                 value={redeemCode}
                 onChange={(e) => setRedeemCode(e.target.value.toUpperCase())}
                 placeholder="Enter referral code"
-                className="w-full px-4 py-4 border border-gray-300 rounded-lg text-gray-800 text-lg focus:ring-green-700 focus:border-green-700 mb-4"
+                className="w-full px-4 py-4 border border-gray-300 rounded-lg text-gray-800 text-lg focus:ring-[#4d9c41] focus:border-[#4d9c41] mb-4"
               />
               
               <button
                 onClick={handleRedeem}
-                className="w-full bg-white border border-green-700 text-green-700 font-bold text-xl py-4 rounded-lg mb-4"
+                className="w-full bg-white border border-[#4d9c41] text-[#4d9c41] font-bold text-xl py-4 rounded-lg mb-4"
               >
                 Redeem a Code
               </button>
             </div>
             
             {/* Terms Note */}
-            <p className="text-gray-600 text-center mb-8">
-              By sharing or redeeming a referral code, you agree to the <a href="#" className="text-green-700">program terms of use</a>.
+            <p className="text-gray-600 text-base mb-8">
+              By sharing or redeeming a referral code, you agree to the <a href="#" className="text-[#4d9c41]">program terms of use</a>.
             </p>
           </div>
         </div>

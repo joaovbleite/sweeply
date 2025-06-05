@@ -1,0 +1,21 @@
+<svg width="400" height="200" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="200" fill="#f5f5f0" />
+  
+  <!-- $100 -->
+  <g transform="translate(50, 50)">
+    <rect x="0" y="0" width="300" height="60" rx="5" fill="#0d3547" />
+    <text x="20" y="45" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#a4ff00">$100</text>
+  </g>
+  
+  <!-- Prepaid -->
+  <g transform="translate(50, 120)">
+    <rect x="0" y="0" width="300" height="50" rx="5" fill="#0d3547" />
+    <text x="20" y="35" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="white">Prepaid</text>
+  </g>
+  
+  <!-- Mastercard -->
+  <g transform="translate(50, 180)">
+    <rect x="0" y="0" width="300" height="50" rx="5" fill="#0d3547" />
+    <text x="20" y="35" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="white">Mastercard</text>
+  </g>
+</svg> 
