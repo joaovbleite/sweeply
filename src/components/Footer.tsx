@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSelector from "./LanguageSelector";
 
 export default function Footer() {
   const { t } = useLanguage();
@@ -99,8 +100,11 @@ export default function Footer() {
           </div>
         </div>
         
-        <div className="border-t border-border pt-8 mt-8 text-center text-muted-foreground">
+        <div className="border-t border-border pt-8 mt-8 flex flex-col md:flex-row justify-between items-center text-muted-foreground">
           <p>&copy; {currentYear} MareSereno. {t.footer.allRights}</p>
+          <div className="mt-4 md:mt-0">
+            <LanguageSelector />
+          </div>
         </div>
       </div>
     </footer>

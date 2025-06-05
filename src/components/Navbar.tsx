@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ThemeToggle from "./ThemeToggle";
-import LanguageSelector from "./LanguageSelector";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -35,7 +34,14 @@ export default function Navbar() {
   return <header className={cn("fixed top-0 left-0 right-0 z-50 transition-all duration-300", scrolled ? "bg-white/80 dark:bg-card/80 backdrop-blur-lg py-3 shadow-md" : "bg-transparent py-5")}>
       <nav className="container flex justify-between items-center">
         <div className="flex items-center space-x-2">
-          <LanguageSelector />
+          <Link to="/" className="flex items-center space-x-3">
+            <img 
+              src="/lovable-uploads/090449b1-1511-4afe-8c40-17c807a6971b.png" 
+              alt="Sweeply Logo" 
+              className="h-8 w-8"
+            />
+            <span className="text-xl font-bold text-primary">Sweeply</span>
+          </Link>
         </div>
 
         {/* Desktop Navigation */}
@@ -69,7 +75,14 @@ export default function Navbar() {
           <div className="flex flex-col h-full justify-between">
             <div>
               <div className="flex justify-between mb-8">
-                <LanguageSelector />
+                <Link to="/" className="flex items-center space-x-2">
+                  <img 
+                    src="/lovable-uploads/090449b1-1511-4afe-8c40-17c807a6971b.png" 
+                    alt="Sweeply Logo" 
+                    className="h-6 w-6"
+                  />
+                  <span className="text-lg font-bold text-primary">Sweeply</span>
+                </Link>
                 <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)} className="rounded-full">
                   <X className="h-6 w-6" />
                 </Button>
