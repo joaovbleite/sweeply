@@ -16,7 +16,8 @@ import {
   Calculator,
   Home,
   Clock,
-  Quote
+  Quote,
+  Globe
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
@@ -168,6 +169,16 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               </div>
               <span className="font-medium text-sm truncate">Profile</span>
             </Link>
+            
+            <a
+              href="https://sweeplypro.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center gap-2 px-2 py-2 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors mt-1"
+            >
+              <Globe className="w-4 h-4 flex-shrink-0" />
+              <span className="font-medium text-sm truncate">Visit Website</span>
+            </a>
           </div>
         )}
 
