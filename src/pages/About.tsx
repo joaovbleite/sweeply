@@ -93,7 +93,7 @@ const About: React.FC = () => {
           <div className="mb-8">
             {/* Privacy Policy */}
             <button 
-              onClick={() => openExternalLink('https://sweeply.com/privacy')}
+              onClick={() => openExternalLink('https://sweeply-landing.vercel.app/privacy')}
               className="w-full flex items-center justify-between py-5 border-b border-gray-200"
             >
               <div className="text-xl font-bold text-[#0d3547]">Privacy policy</div>
@@ -104,7 +104,7 @@ const About: React.FC = () => {
             
             {/* Terms of Service */}
             <button 
-              onClick={() => openExternalLink('https://sweeply.com/terms')}
+              onClick={() => openExternalLink('https://sweeply-landing.vercel.app/terms')}
               className="w-full flex items-center justify-between py-5 border-b border-gray-200"
             >
               <div className="text-xl font-bold text-[#0d3547]">Terms of service</div>
