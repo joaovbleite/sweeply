@@ -36,6 +36,7 @@ import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import MobileSettings from "./pages/MobileSettings";
 import More from "./pages/More";
+import Support from "./pages/Support";
 import PricingAssistant from "./pages/PricingAssistant";
 import Notifications from "./pages/Notifications";
 import InstallPrompt from "@/components/ui/InstallPrompt";
@@ -311,6 +312,16 @@ const AppRoutes = () => {
           <ProtectedRoute>
             <PageTransition>
               <More />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/support" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <Support />
             </PageTransition>
           </ProtectedRoute>
         } 
