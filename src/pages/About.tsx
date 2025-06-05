@@ -1,59 +1,121 @@
+import React from "react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { useAuth } from "@/contexts/AuthContext";
+import AppLayout from "@/components/AppLayout";
 
-import React, { useEffect } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import AboutHero from "@/components/about/AboutHero";
-import OurMission from "@/components/about/OurMission";
-import OurStory from "@/components/about/OurStory";
-import OurTeam from "@/components/about/OurTeam";
-import OurValues from "@/components/about/OurValues";
-import CTA from "@/components/CTA"; // Reusing the CTA component
+const About: React.FC = () => {
+  const { t } = useTranslation(['settings', 'common']);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  // Get user's email safely
+  const userEmail = user?.email || '';
+  
+  // Get current date and time
+  const now = new Date();
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const formattedDate = now.toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: '2-digit', 
+    year: 'numeric'
+  });
+  const formattedTime = now.toLocaleTimeString('en-US', { 
+    hour: 'numeric', 
+    minute: '2-digit', 
+    hour12: true 
+  });
+  
+  // Get device info
+  const deviceInfo = `${navigator.platform} (${navigator.userAgent.includes('iPhone') ? 'iOS' : 
+    navigator.userAgent.includes('Android') ? 'Android' : 'Web'} ${
+    navigator.appVersion.match(/(?:Version|Chrome|Firefox|Safari|Edge)\/(\d+\.\d+)/)?.[1] || ''
+  })`;
 
-const AboutPage = () => {
-  useEffect(() => {
-    window.scrollTo(0, 0); // Scroll to top on page load
-    
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("animate-fade-in");
-            // For directional animations, ensure they are also triggered
-            if (entry.target.classList.contains('animate-fade-in-left') || entry.target.classList.contains('animate-fade-in-right')) {
-              // Already handled by the class itself if CSS is set up for it with IntersectionObserver
-            } else {
-               entry.target.classList.add("opacity-100"); // Fallback for simple fade-in
-            }
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    // Query for all elements that need animation, including directional ones
-    const elements = document.querySelectorAll(".animate-fade-in, .animate-fade-in-left, .animate-fade-in-right, .animate-on-scroll");
-    elements.forEach((el) => observer.observe(el));
-
-    return () => {
-      elements.forEach((el) => observer.unobserve(el));
-    };
-  }, []);
+  // App version (simulated)
+  const appVersion = "v1.0.0 (2000000123)";
 
   return (
-    <div className="min-h-screen bg-white">
-      <Navbar />
-      <main>
-        <AboutHero />
-        <OurMission />
-        <OurStory />
-        <OurTeam />
-        <OurValues />
-        <CTA /> {/* Re-using the existing CTA component */}
-      </main>
-      <Footer />
-    </div>
+    <AppLayout>
+      <div className="min-h-screen bg-white">
+        {/* Fixed header with shadow to cover content when scrolling */}
+        <div className="sticky top-0 left-0 right-0 z-30 bg-white shadow-sm">
+          <div className="flex items-center px-4 pt-12 pb-3 border-b border-gray-200">
+            <button 
+              onClick={() => navigate(-1)} 
+              className="mr-2 text-gray-600"
+              aria-label="Back"
+            >
+              <ArrowLeft className="w-6 h-6" />
+            </button>
+            <h1 className="text-2xl font-bold text-[#1a2e35]">
+              About
+            </h1>
+          </div>
+        </div>
+
+        <div className="px-4 pb-20 pt-5">
+          {/* Sweeply Information */}
+          <div className="mb-8">
+            <h2 className="text-xl font-bold text-[#0d3547] mb-4">Sweeply Information</h2>
+            
+            <div className="space-y-5">
+              <div>
+                <p className="text-gray-600">App version</p>
+                <p className="text-[#0d3547] text-lg">{appVersion}</p>
+              </div>
+              
+              <div>
+                <p className="text-gray-600">Email address</p>
+                <p className="text-[#0d3547] text-lg">{userEmail}</p>
+              </div>
+              
+              <div>
+                <p className="text-gray-600">Account time</p>
+                <p className="text-[#0d3547] text-lg">{timeZone.replace('_', ' ')}</p>
+                <p className="text-[#0d3547] text-lg">{formattedDate} at {formattedTime}</p>
+              </div>
+              
+              <div>
+                <p className="text-gray-600">Device</p>
+                <p className="text-[#0d3547] text-lg">{deviceInfo}</p>
+              </div>
+            </div>
+          </div>
+          
+          {/* Legal Links */}
+          <div className="mb-8">
+            {/* Privacy Policy */}
+            <a 
+              href="https://sweeply.com/privacy" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center justify-between py-5 border-b border-gray-200"
+            >
+              <div className="text-xl font-bold text-[#0d3547]">Privacy policy</div>
+              <div className="text-pulse-500">
+                <ExternalLink className="w-6 h-6" />
+              </div>
+            </a>
+            
+            {/* Terms of Service */}
+            <a 
+              href="https://sweeply.com/terms" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center justify-between py-5 border-b border-gray-200"
+            >
+              <div className="text-xl font-bold text-[#0d3547]">Terms of service</div>
+              <div className="text-pulse-500">
+                <ExternalLink className="w-6 h-6" />
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </AppLayout>
   );
 };
 
-export default AboutPage;
+export default About;

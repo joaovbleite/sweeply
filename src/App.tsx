@@ -7,7 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import PageTransition from "@/components/ui/PageTransition";
 import Index from "./pages/Index";
-import AboutPage from "./pages/About";
+import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -57,7 +57,7 @@ const AppRoutes = () => {
   return (
     <Routes location={location}>
       <Route path="/" element={<Index />} />
-      <Route path="/about" element={<AboutPage />} /> {/* Add route for About page */}
+      <Route path="/about" element={<About />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route 
