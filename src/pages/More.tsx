@@ -40,7 +40,7 @@ const More: React.FC = () => {
 
   return (
     <AppLayout>
-      <div className="min-h-screen bg-[#F7F8F5]">
+      <div className="bg-[#F7F8F5] flex flex-col">
         {/* Fixed header with shadow to cover content when scrolling */}
         <div className="sticky top-0 left-0 right-0 z-30 bg-white shadow-sm">
           <div className="p-6 pt-12 pb-3">
@@ -51,7 +51,7 @@ const More: React.FC = () => {
           </div>
         </div>
 
-        <div className="px-4 pb-20 pt-3">
+        <div className="px-4 pb-20 pt-3 flex-1 overflow-y-auto">
           {/* Feature Boxes */}
           <div className="grid grid-cols-2 gap-4 mb-6">
             <Link 
