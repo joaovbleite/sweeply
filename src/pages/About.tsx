@@ -36,6 +36,11 @@ const About: React.FC = () => {
   // App version (simulated)
   const appVersion = "v1.0.0 (2000000123)";
 
+  // Open links in system browser
+  const openExternalLink = (url: string) => {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <AppLayout>
       <div className="min-h-screen bg-white">
@@ -87,30 +92,26 @@ const About: React.FC = () => {
           {/* Legal Links */}
           <div className="mb-8">
             {/* Privacy Policy */}
-            <a 
-              href="https://sweeply.com/privacy" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center justify-between py-5 border-b border-gray-200"
+            <button 
+              onClick={() => openExternalLink('https://sweeply.com/privacy')}
+              className="w-full flex items-center justify-between py-5 border-b border-gray-200"
             >
               <div className="text-xl font-bold text-[#0d3547]">Privacy policy</div>
               <div className="text-pulse-500">
                 <ExternalLink className="w-6 h-6" />
               </div>
-            </a>
+            </button>
             
             {/* Terms of Service */}
-            <a 
-              href="https://sweeply.com/terms" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center justify-between py-5 border-b border-gray-200"
+            <button 
+              onClick={() => openExternalLink('https://sweeply.com/terms')}
+              className="w-full flex items-center justify-between py-5 border-b border-gray-200"
             >
               <div className="text-xl font-bold text-[#0d3547]">Terms of service</div>
               <div className="text-pulse-500">
                 <ExternalLink className="w-6 h-6" />
               </div>
-            </a>
+            </button>
           </div>
         </div>
       </div>
