@@ -77,7 +77,7 @@ const Company: React.FC = () => {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-4 pb-28">
+        <form onSubmit={handleSubmit} className="px-4 pb-36">
           {/* Company Information */}
           <div className="mt-4 space-y-4">
             <div>
@@ -233,7 +233,7 @@ const Company: React.FC = () => {
           {/* Save Button */}
           <button
             type="submit"
-            className="fixed bottom-6 left-4 right-4 py-4 bg-green-600 hover:bg-green-700 text-white text-lg font-medium rounded-lg transition-colors shadow-md"
+            className="fixed bottom-24 left-4 right-4 py-4 bg-pulse-500 hover:bg-pulse-600 text-white text-lg font-medium rounded-lg transition-colors shadow-md"
           >
             Save
           </button>

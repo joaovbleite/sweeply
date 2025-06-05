@@ -39,6 +39,7 @@ import More from "./pages/More";
 import Support from "./pages/Support";
 import Company from "./pages/Company";
 import Preferences from "./pages/Preferences";
+import Team from "./pages/Team";
 import PricingAssistant from "./pages/PricingAssistant";
 import Notifications from "./pages/Notifications";
 import InstallPrompt from "@/components/ui/InstallPrompt";
@@ -344,6 +345,16 @@ const AppRoutes = () => {
           <ProtectedRoute>
             <PageTransition>
               <Preferences />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/team" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <Team />
             </PageTransition>
           </ProtectedRoute>
         } 
