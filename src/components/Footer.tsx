@@ -19,8 +19,8 @@ const Footer = () => {
           </div>
           
           <div className="mt-6 pt-6 border-t border-gray-100">
-            <p className="text-center text-gray-500 text-sm">
-              © 2024 Sweeply. All rights reserved. Empowering cleaning professionals worldwide.
+            <p className="text-center text-gray-500 text-sm font-bold">
+              © 2024 Sweeply. All rights reserved. TEST - Empowering cleaning professionals worldwide.
             </p>
           </div>
         </div>
