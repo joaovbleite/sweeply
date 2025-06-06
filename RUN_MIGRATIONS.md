@@ -55,7 +55,7 @@ $$ language 'plpgsql';
    - `employees`, `teams`, `schedules` tables (if you ran migration 4)
 
 ### Step 4: Test Your Dashboard
-1. Refresh your Sweeply dashboard at `sweeplypro.com/dashboard`
+1. Refresh your Sweeply dashboard at `sweeplypro.app/dashboard`
 2. The errors should be gone!
 
 ## Alternative: Run All at Once

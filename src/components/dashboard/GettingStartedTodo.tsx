@@ -32,7 +32,7 @@ const GettingStartedTodo = () => {
       icon: Monitor,
       title: t('dashboard:tryDesktop'),
       description: t('dashboard:timeSavingFeatures'),
-      link: 'https://app.sweeplypro.com',
+      link: 'https://sweeplypro.app',
       color: 'bg-blue-100 text-blue-600'
     },
   ];

@@ -78,7 +78,7 @@ const More: React.FC = () => {
             </Link>
             
             <a 
-              href="https://barberops.vercel.app" 
+              href="https://sweeplypro.com" 
               target="_blank" 
               rel="noopener noreferrer"
               className="flex flex-col items-start justify-between p-5 bg-[#F2F3EE] rounded-lg"

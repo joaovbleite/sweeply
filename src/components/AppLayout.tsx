@@ -171,13 +171,27 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             </Link>
             
             <a
-              href="https://sweeply-joaovbleites-projects.vercel.app"
+              href="https://sweeplypro.com"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full flex items-center gap-2 px-2 py-2 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors mt-1"
               onClick={(e) => {
                 e.preventDefault();
-                window.open('https://sweeply-joaovbleites-projects.vercel.app', '_blank');
+                window.open('https://sweeplypro.com', '_blank');
+              }}
+            >
+              <Globe className="w-4 h-4 flex-shrink-0" />
+              <span className="font-medium text-sm truncate">Visit Website</span>
+            </a>
+
+            <a
+              href="https://sweeplypro.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center gap-2 px-2 py-2 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors mt-1"
+              onClick={(e) => {
+                e.preventDefault();
+                window.open('https://sweeplypro.com', '_blank');
               }}
             >
               <Globe className="w-4 h-4 flex-shrink-0" />
