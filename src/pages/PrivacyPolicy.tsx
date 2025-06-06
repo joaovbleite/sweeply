@@ -3,6 +3,16 @@ import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 const PrivacyPolicy = () => {
+  // Format the current date as Month Day, Year
+  const formatDate = () => {
+    const date = new Date();
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -19,7 +29,7 @@ const PrivacyPolicy = () => {
           <div className="bg-white shadow-sm rounded-xl p-6 sm:p-8 md:p-10">
             <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Privacy Policy</h1>
             
-            <p className="text-gray-700 mb-8 text-lg">Last Updated: June 8, 2024</p>
+            <p className="text-gray-700 mb-8 text-lg">Last Updated: {formatDate()}</p>
             
             <div className="prose prose-lg max-w-none text-gray-800">
               <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">1. Introduction</h2>
