@@ -6,6 +6,8 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  // Use base URL from environment variables for production
+  base: mode === 'production' ? process.env.VITE_APP_URL || '/' : '/',
   server: {
     host: "::",
     port: 4000,
