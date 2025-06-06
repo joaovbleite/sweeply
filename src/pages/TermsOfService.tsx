@@ -17,26 +17,26 @@ const TermsOfService = () => {
           </Link>
 
           <div className="bg-white shadow-sm rounded-xl p-6 sm:p-8 md:p-10">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">Terms of Service</h1>
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Terms of Service</h1>
             
-            <div className="prose prose-blue max-w-none">
-              <p className="text-gray-600 mb-6">Last Updated: June 8, 2024</p>
-              
-              <h2>1. Acceptance of Terms</h2>
+            <p className="text-gray-700 mb-8 text-lg">Last Updated: June 8, 2024</p>
+            
+            <div className="prose prose-lg max-w-none text-gray-800">
+              <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">1. Acceptance of Terms</h2>
               <p>
                 By accessing or using Sweeply's services, website, or applications (collectively, the "Services"), 
                 you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not 
                 use our Services.
               </p>
               
-              <h2>2. Description of Services</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">2. Description of Services</h2>
               <p>
                 Sweeply provides a platform designed for cleaning professionals to manage their business operations, 
                 including client management, scheduling, team coordination, and payment processing. The specific 
                 features and functionalities may change over time as we improve and expand our Services.
               </p>
               
-              <h2>3. User Accounts</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">3. User Accounts</h2>
               <p>
                 To access most features of our Services, you must create an account. You are responsible for 
                 maintaining the confidentiality of your account credentials and for all activities that occur 
@@ -44,22 +44,22 @@ const TermsOfService = () => {
                 account and to update your information as necessary.
               </p>
               
-              <h2>4. User Responsibilities</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">4. User Responsibilities</h2>
               <p>
                 You agree to use our Services only for lawful purposes and in accordance with these Terms. 
                 You are responsible for all content and data you upload, post, or otherwise transmit through 
                 our Services. You may not use our Services to:
               </p>
-              <ul>
-                <li>Violate any applicable laws or regulations</li>
-                <li>Infringe upon the rights of others</li>
-                <li>Distribute malicious software or harmful content</li>
-                <li>Interfere with or disrupt our Services or servers</li>
-                <li>Impersonate another person or entity</li>
-                <li>Engage in any activity that could damage, disable, or impair our Services</li>
+              <ul className="list-disc pl-6 my-4 text-gray-800">
+                <li className="mb-2">Violate any applicable laws or regulations</li>
+                <li className="mb-2">Infringe upon the rights of others</li>
+                <li className="mb-2">Distribute malicious software or harmful content</li>
+                <li className="mb-2">Interfere with or disrupt our Services or servers</li>
+                <li className="mb-2">Impersonate another person or entity</li>
+                <li className="mb-2">Engage in any activity that could damage, disable, or impair our Services</li>
               </ul>
               
-              <h2>5. Intellectual Property</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">5. Intellectual Property</h2>
               <p>
                 All content, features, and functionality of our Services, including but not limited to text, 
                 graphics, logos, icons, and software, are the exclusive property of Sweeply or its licensors 
@@ -68,7 +68,7 @@ const TermsOfService = () => {
                 our intellectual property without our explicit written permission.
               </p>
               
-              <h2>6. Subscription and Payments</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">6. Subscription and Payments</h2>
               <p>
                 Some of our Services may require a subscription. By subscribing to our paid Services, you agree 
                 to pay all fees associated with your subscription plan. We reserve the right to change our 
@@ -76,7 +76,7 @@ const TermsOfService = () => {
                 stated in these Terms or as required by applicable law.
               </p>
               
-              <h2>7. Termination</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">7. Termination</h2>
               <p>
                 We may terminate or suspend your account and access to our Services at our sole discretion, 
                 without notice, for any reason, including but not limited to a breach of these Terms. You may 
@@ -84,7 +84,7 @@ const TermsOfService = () => {
                 our support team.
               </p>
               
-              <h2>8. Disclaimers and Limitations of Liability</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">8. Disclaimers and Limitations of Liability</h2>
               <p>
                 Our Services are provided "as is" and "as available" without warranties of any kind, either 
                 express or implied. To the fullest extent permitted by law, we disclaim all warranties, including 
@@ -98,7 +98,7 @@ const TermsOfService = () => {
                 informed of the possibility of such damage.
               </p>
               
-              <h2>9. Indemnification</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">9. Indemnification</h2>
               <p>
                 You agree to indemnify, defend, and hold harmless Sweeply, its affiliates, officers, directors, 
                 employees, agents, and licensors from and against any claims, liabilities, damages, judgments, 
@@ -106,7 +106,7 @@ const TermsOfService = () => {
                 or relating to your violation of these Terms or your use of our Services.
               </p>
               
-              <h2>10. Governing Law</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">10. Governing Law</h2>
               <p>
                 These Terms shall be governed by and construed in accordance with the laws of the jurisdiction 
                 in which Sweeply is established, without regard to its conflict of law provisions. Any legal 
@@ -114,18 +114,18 @@ const TermsOfService = () => {
                 exclusively in the courts of that jurisdiction.
               </p>
               
-              <h2>11. Changes to Terms</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">11. Changes to Terms</h2>
               <p>
                 We reserve the right to modify these Terms at any time. We will provide notice of any material 
                 changes by posting the updated Terms on our website or through other communication channels. 
                 Your continued use of our Services after such changes constitutes your acceptance of the new Terms.
               </p>
               
-              <h2>12. Contact Information</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">12. Contact Information</h2>
               <p>
                 If you have any questions or concerns about these Terms, please contact us at:
                 <br />
-                <a href="mailto:support@sweeplypro.com" className="text-pulse-600 hover:text-pulse-800">
+                <a href="mailto:support@sweeplypro.com" className="text-pulse-600 hover:text-pulse-800 font-medium">
                   support@sweeplypro.com
                 </a>
               </p>
