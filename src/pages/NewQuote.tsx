@@ -83,13 +83,14 @@ const NewQuote = () => {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 min-h-screen pb-36">
       {/* Header */}
       <div className="bg-white p-4 flex items-center justify-between shadow-sm">
         <div className="flex items-center">
           <button 
             onClick={handleBack}
             className="mr-4 text-gray-600"
+            aria-label="Back"
           >
             <X className="w-6 h-6" />
           </button>
@@ -98,7 +99,7 @@ const NewQuote = () => {
       </div>
 
       {/* Main content */}
-      <div className="pb-28">
+      <div>
         {/* Client section */}
         <div className="p-4">
           <h2 className="text-xl text-gray-600 mb-4">Service for</h2>
@@ -297,7 +298,7 @@ const NewQuote = () => {
       </div>
 
       {/* Bottom buttons */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white pb-8 pt-4 px-4 border-t border-gray-200 flex flex-col space-y-4">
+      <div className="fixed bottom-0 left-0 right-0 bg-white pb-8 pt-4 px-4 border-t border-gray-200 flex flex-col space-y-4 z-10">
         <button
           className="w-full bg-[#307842] text-white py-4 rounded-lg font-medium"
           onClick={handleSubmit}
