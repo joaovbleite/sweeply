@@ -357,7 +357,7 @@ const Dashboard = () => {
             {/* Need Help? button - positioned higher above the bottom toolbar */}
             <div className="px-1 mt-6 mb-16">
               <Link 
-                to="/help" 
+                to="/support" 
                 className="flex justify-center items-center py-3.5 bg-white rounded-lg shadow-md border border-gray-100 text-blue-600 font-medium"
               >
                 <HelpCircle className="w-5 h-5 mr-2" />
