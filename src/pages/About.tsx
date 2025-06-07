@@ -26,7 +26,7 @@ const About: React.FC = () => {
     minute: '2-digit', 
     hour12: true 
   });
-  
+
   // Get device info
   const deviceInfo = `${navigator.platform} (${navigator.userAgent.includes('iPhone') ? 'iOS' : 
     navigator.userAgent.includes('Android') ? 'Android' : 'Web'} ${
@@ -84,7 +84,7 @@ const About: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+    </div>
     </AppLayout>
   );
 };

@@ -98,7 +98,7 @@ const NewQuote = () => {
               value={quoteData.jobTitle}
               onChange={(e) => handleQuoteDataChange('jobTitle', e.target.value)}
               placeholder="Job title"
-              className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#307842] focus:border-transparent"
             />
             
             {/* Salesperson */}
@@ -106,7 +106,7 @@ const NewQuote = () => {
               <select
                 value={quoteData.salesperson}
                 onChange={(e) => handleQuoteDataChange('salesperson', e.target.value)}
-                className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-gray-600"
+                className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#307842] focus:border-transparent appearance-none text-gray-600"
               >
                 <option value="victor leite">victor leite</option>
               </select>
@@ -127,13 +127,13 @@ const NewQuote = () => {
             className="w-full flex items-center justify-between"
           >
             <h2 className="text-2xl font-medium text-gray-800">Introduction</h2>
-            <Plus className="w-6 h-6 text-blue-600" />
+            <Plus className="w-6 h-6 text-[#307842]" />
           </button>
           {showIntroduction && (
             <div className="mt-4">
               <textarea
                 placeholder="Add introduction text"
-                className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#307842] focus:border-transparent"
                 rows={4}
               ></textarea>
             </div>
@@ -152,7 +152,7 @@ const NewQuote = () => {
             className="w-full flex items-center justify-between"
           >
             <h2 className="text-2xl font-medium text-gray-800">Line items</h2>
-            <Plus className="w-6 h-6 text-blue-600" />
+            <Plus className="w-6 h-6 text-[#307842]" />
           </button>
           {showLineItems && (
             <div className="mt-4">
@@ -173,12 +173,12 @@ const NewQuote = () => {
             
             <div className="flex justify-between items-center">
               <h3 className="text-2xl font-medium text-gray-800">Discount</h3>
-              <span className="text-2xl text-green-600">{formatCurrency(quoteData.discount)}</span>
+              <span className="text-2xl text-[#307842]">{formatCurrency(quoteData.discount)}</span>
             </div>
             
             <div className="flex justify-between items-center">
               <h3 className="text-2xl font-medium text-gray-800">Tax</h3>
-              <span className="text-2xl text-green-600">{formatCurrency(quoteData.tax)}</span>
+              <span className="text-2xl text-[#307842]">{formatCurrency(quoteData.tax)}</span>
             </div>
           </div>
         </div>
@@ -195,7 +195,7 @@ const NewQuote = () => {
         <div className="px-4 py-5">
           <div className="flex justify-between items-center">
             <h3 className="text-2xl font-medium text-gray-800">Required deposit</h3>
-            <span className="text-2xl text-green-600">{formatCurrency(quoteData.requiredDeposit)}</span>
+            <span className="text-2xl text-[#307842]">{formatCurrency(quoteData.requiredDeposit)}</span>
           </div>
         </div>
         
@@ -206,13 +206,13 @@ const NewQuote = () => {
             className="w-full flex items-center justify-between"
           >
             <h2 className="text-2xl font-medium text-gray-800">Client message</h2>
-            <Plus className="w-6 h-6 text-blue-600" />
+            <Plus className="w-6 h-6 text-[#307842]" />
           </button>
           {showClientMessage && (
             <div className="mt-4">
               <textarea
                 placeholder="Add a message to your client"
-                className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#307842] focus:border-transparent"
                 rows={4}
               ></textarea>
             </div>
