@@ -91,23 +91,25 @@ const NewQuote = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen pb-36">
-      {/* Header */}
-      <div className="bg-white sticky top-0 left-0 right-0 z-20 shadow-sm">
-        <div className="flex items-center px-4 py-4 border-b border-gray-200">
-          <button 
-            onClick={handleBack}
-            className="mr-4 text-gray-600 p-2"
-            aria-label="Back"
-            type="button"
-          >
-            <ArrowLeft className="w-6 h-6" />
-          </button>
-          <h1 className="text-xl font-bold text-gray-900">New quote</h1>
+      {/* Header - using safe area inset to prevent notch issues */}
+      <div className="bg-white fixed top-0 left-0 right-0 z-20 shadow-sm pt-safe">
+        <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 mt-2">
+          <div className="flex items-center">
+            <button 
+              onClick={handleBack}
+              className="mr-4 text-gray-600 p-2"
+              aria-label="Back"
+              type="button"
+            >
+              <ArrowLeft className="w-6 h-6" />
+            </button>
+            <h1 className="text-xl font-bold text-gray-900">New quote</h1>
+          </div>
         </div>
       </div>
 
-      {/* Main content */}
-      <div>
+      {/* Main content - with top padding to account for fixed header */}
+      <div className="pt-20">
         {/* Client section */}
         <div className="p-4">
           <h2 className="text-lg text-gray-600 mb-4">Service for</h2>
