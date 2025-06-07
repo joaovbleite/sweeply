@@ -1,14 +1,18 @@
-import React, { useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { ArrowLeft, Check, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLocale } from "@/hooks/useLocale";
+import { profileApi } from "@/lib/api/profile";
 import AppLayout from "@/components/AppLayout";
+import { toast } from "sonner";
 
 const Preferences: React.FC = () => {
   const { t } = useTranslation(['settings', 'common']);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { preferences, refreshPreferences } = useLocale();
   
   // Notification preferences state
   const [notifications, setNotifications] = useState({
@@ -20,12 +24,42 @@ const Preferences: React.FC = () => {
     clientApprovedQuote: false
   });
 
+  // Currency options
+  const currencies = [
+    { code: "USD", label: "US Dollar ($)" },
+    { code: "EUR", label: "Euro (€)" },
+    { code: "GBP", label: "British Pound (£)" },
+    { code: "CAD", label: "Canadian Dollar (CA$)" },
+    { code: "AUD", label: "Australian Dollar (A$)" },
+    { code: "JPY", label: "Japanese Yen (¥)" },
+  ];
+
+  // State for currency selection
+  const [selectedCurrency, setSelectedCurrency] = useState(preferences.currency);
+  const [showCurrencyOptions, setShowCurrencyOptions] = useState(false);
+
   // Toggle notification setting
   const toggleNotification = (key: keyof typeof notifications) => {
     setNotifications(prev => ({
       ...prev,
       [key]: !prev[key]
     }));
+  };
+
+  // Handle currency selection
+  const handleCurrencyChange = async (currencyCode: string) => {
+    try {
+      await profileApi.upsertProfile({
+        currency: currencyCode
+      });
+      setSelectedCurrency(currencyCode);
+      setShowCurrencyOptions(false);
+      refreshPreferences();
+      toast.success("Currency updated successfully");
+    } catch (error) {
+      console.error("Error updating currency:", error);
+      toast.error("Failed to update currency");
+    }
   };
 
   return (
@@ -48,6 +82,39 @@ const Preferences: React.FC = () => {
         </div>
 
         <div className="px-4 pb-20 pt-5">
+          {/* Currency Section */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-[#0d3547] mb-2">Currency</h2>
+            <p className="text-gray-500 mb-6">Select your preferred currency for the app</p>
+            
+            <div className="relative">
+              <button 
+                onClick={() => setShowCurrencyOptions(!showCurrencyOptions)} 
+                className="w-full p-4 text-left text-lg bg-white border border-gray-200 rounded-lg shadow-sm flex justify-between items-center"
+              >
+                <span>{currencies.find(c => c.code === selectedCurrency)?.label || selectedCurrency}</span>
+                <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${showCurrencyOptions ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {showCurrencyOptions && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  {currencies.map(currency => (
+                    <button
+                      key={currency.code}
+                      onClick={() => handleCurrencyChange(currency.code)}
+                      className="w-full p-4 text-left hover:bg-gray-50 flex justify-between items-center"
+                    >
+                      <span>{currency.label}</span>
+                      {selectedCurrency === currency.code && (
+                        <Check className="w-5 h-5 text-[#307842]" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Push Notifications Section */}
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-[#0d3547] mb-2">Push notifications</h2>

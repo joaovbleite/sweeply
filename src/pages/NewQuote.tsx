@@ -179,18 +179,18 @@ const NewQuote = () => {
             
             {/* Salesperson */}
             <div className="relative">
+              <div className="absolute left-4 top-2 transform pointer-events-none text-gray-400 text-sm font-medium">
+                Salesperson
+              </div>
               <select
                 value={quoteData.salesperson}
                 onChange={(e) => handleQuoteDataChange('salesperson', e.target.value)}
-                className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#307842] focus:border-transparent appearance-none text-gray-600"
+                className="w-full pt-7 pb-3 px-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#307842] focus:border-transparent appearance-none text-gray-800 bg-gray-100"
               >
                 <option value="victor leite">victor leite</option>
               </select>
               <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
                 <ChevronDown className="w-5 h-5 text-gray-500" />
-              </div>
-              <div className="absolute left-4 top-4 transform pointer-events-none text-gray-400 font-medium">
-                Salesperson
               </div>
             </div>
           </div>
