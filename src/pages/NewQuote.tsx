@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X, Search, User, MapPin, Phone, Mail, Plus, ChevronDown, ChevronRight } from "lucide-react";
+import { X, Search, User, MapPin, Phone, Mail, Plus, ChevronDown, ChevronRight, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -92,16 +92,17 @@ const NewQuote = () => {
   return (
     <div className="bg-gray-50 min-h-screen pb-36">
       {/* Header */}
-      <div className="bg-white p-4 flex items-center justify-between shadow-sm">
-        <div className="flex items-center">
+      <div className="bg-white sticky top-0 left-0 right-0 z-20 shadow-sm">
+        <div className="flex items-center px-4 py-4 border-b border-gray-200">
           <button 
             onClick={handleBack}
-            className="mr-4 text-gray-600"
+            className="mr-4 text-gray-600 p-2"
             aria-label="Back"
+            type="button"
           >
-            <X className="w-6 h-6" />
+            <ArrowLeft className="w-6 h-6" />
           </button>
-          <h1 className="text-2xl font-bold text-gray-900">New quote</h1>
+          <h1 className="text-xl font-bold text-gray-900">New quote</h1>
         </div>
       </div>
 
