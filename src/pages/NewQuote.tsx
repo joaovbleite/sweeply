@@ -117,8 +117,8 @@ const NewQuote = () => {
           {/* Client selector */}
           <div className="mb-4">
             <button className="w-full flex items-center p-4 rounded-lg border border-gray-200 bg-white">
-              <Search className="w-6 h-6 text-[#307842] mr-3" />
-              <span className="text-[#307842] text-lg">Select Existing Client</span>
+              <Search className="w-6 h-6 text-blue-500 mr-3" />
+              <span className="text-blue-500 text-lg">Select Existing Client</span>
             </button>
           </div>
           
@@ -132,14 +132,14 @@ const NewQuote = () => {
                   value={clientData.firstName}
                   onChange={(e) => handleClientDataChange('firstName', e.target.value)}
                   placeholder="First name"
-                  className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#307842] focus:border-transparent"
+                  className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <input
                   type="text"
                   value={clientData.lastName}
                   onChange={(e) => handleClientDataChange('lastName', e.target.value)}
                   placeholder="Last name"
-                  className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#307842] focus:border-transparent"
+                  className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
@@ -151,20 +151,20 @@ const NewQuote = () => {
                 value={clientData.address}
                 onChange={(e) => handleClientDataChange('address', e.target.value)}
                 placeholder="Property address"
-                className="flex-1 p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#307842] focus:border-transparent"
+                className="flex-1 p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             
             <div className="flex items-center">
               <Phone className="w-6 h-6 text-gray-400 mr-3" />
-              <button className="flex-1 text-left p-4 text-[#307842] text-lg">
+              <button className="flex-1 text-left p-4 text-blue-500 text-lg">
                 Add Phone Number
               </button>
             </div>
             
             <div className="flex items-center">
               <Mail className="w-6 h-6 text-gray-400 mr-3" />
-              <button className="flex-1 text-left p-4 text-[#307842] text-lg">
+              <button className="flex-1 text-left p-4 text-blue-500 text-lg">
                 Add Email
               </button>
             </div>
@@ -185,7 +185,7 @@ const NewQuote = () => {
               value={quoteData.jobTitle}
               onChange={(e) => handleQuoteDataChange('jobTitle', e.target.value)}
               placeholder="Job title"
-              className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#307842] focus:border-transparent"
+              className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             
             {/* Salesperson */}
@@ -196,7 +196,7 @@ const NewQuote = () => {
               <select
                 value={quoteData.salesperson}
                 onChange={(e) => handleQuoteDataChange('salesperson', e.target.value)}
-                className="w-full pt-7 pb-3 px-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#307842] focus:border-transparent appearance-none text-gray-800 bg-gray-100"
+                className="w-full pt-7 pb-3 px-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-gray-800 bg-gray-100"
               >
                 <option value="victor leite">victor leite</option>
               </select>
@@ -214,13 +214,13 @@ const NewQuote = () => {
             className="w-full flex items-center justify-between"
           >
             <h2 className="text-xl font-medium text-gray-800">Introduction</h2>
-            <Plus className="w-6 h-6 text-[#307842]" />
+            <Plus className="w-6 h-6 text-blue-500" />
           </button>
           {showIntroduction && (
             <div className="mt-4">
               <textarea
                 placeholder="Add introduction text"
-                className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#307842] focus:border-transparent"
+                className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 rows={4}
               ></textarea>
             </div>
@@ -239,7 +239,7 @@ const NewQuote = () => {
             className="w-full flex items-center justify-between"
           >
             <h2 className="text-xl font-medium text-gray-800">Line items</h2>
-            <Plus className="w-6 h-6 text-[#307842]" />
+            <Plus className="w-6 h-6 text-blue-500" />
           </button>
           {showLineItems && (
             <div className="mt-4">
@@ -260,12 +260,12 @@ const NewQuote = () => {
             
             <div className="flex justify-between items-center">
               <h3 className="text-xl font-medium text-gray-800">Discount</h3>
-              <span className="text-xl text-[#307842]">{formatCurrency(quoteData.discount)}</span>
+              <span className="text-xl text-blue-500">{formatCurrency(quoteData.discount)}</span>
             </div>
             
             <div className="flex justify-between items-center">
               <h3 className="text-xl font-medium text-gray-800">Tax</h3>
-              <span className="text-xl text-[#307842]">{formatCurrency(quoteData.tax)}</span>
+              <span className="text-xl text-blue-500">{formatCurrency(quoteData.tax)}</span>
             </div>
           </div>
         </div>
@@ -282,7 +282,7 @@ const NewQuote = () => {
         <div className="px-4 py-5">
           <div className="flex justify-between items-center">
             <h3 className="text-xl font-medium text-gray-800">Required deposit</h3>
-            <span className="text-xl text-[#307842]">{formatCurrency(quoteData.requiredDeposit)}</span>
+            <span className="text-xl text-blue-500">{formatCurrency(quoteData.requiredDeposit)}</span>
           </div>
         </div>
         
@@ -293,13 +293,13 @@ const NewQuote = () => {
             className="w-full flex items-center justify-between"
           >
             <h2 className="text-xl font-medium text-gray-800">Client message</h2>
-            <Plus className="w-6 h-6 text-[#307842]" />
+            <Plus className="w-6 h-6 text-blue-500" />
           </button>
           {showClientMessage && (
             <div className="mt-4">
               <textarea
                 placeholder="Add a message to your client"
-                className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#307842] focus:border-transparent"
+                className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 rows={4}
               ></textarea>
             </div>
@@ -313,7 +313,7 @@ const NewQuote = () => {
             className="w-full flex items-center justify-between"
           >
             <h2 className="text-xl font-medium text-gray-800">Contract / Disclaimer</h2>
-            <ChevronRight className="w-6 h-6 text-[#307842]" />
+            <ChevronRight className="w-6 h-6 text-blue-500" />
           </button>
           <div className="mt-2">
             <p className="text-gray-600">{quoteData.disclaimerText}</p>
@@ -324,7 +324,7 @@ const NewQuote = () => {
                 value={quoteData.disclaimerText}
                 onChange={(e) => handleQuoteDataChange('disclaimerText', e.target.value)}
                 placeholder="Add disclaimer text"
-                className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#307842] focus:border-transparent"
+                className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 rows={4}
               ></textarea>
             </div>
@@ -335,13 +335,13 @@ const NewQuote = () => {
       {/* Bottom buttons */}
       <div className="fixed bottom-0 left-0 right-0 bg-white pb-8 pt-4 px-4 border-t border-gray-200 flex flex-col space-y-4 z-10">
         <button
-          className="w-full bg-[#307842] text-white py-4 rounded-lg font-medium"
+          className="w-full bg-blue-500 text-white py-4 rounded-lg font-medium"
           onClick={handleSubmit}
         >
           Review and Send
         </button>
         <button
-          className="w-full text-[#307842] py-4 font-medium"
+          className="w-full text-blue-500 py-4 font-medium"
           onClick={handleSave}
         >
           Save

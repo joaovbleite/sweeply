@@ -354,8 +354,8 @@ const Dashboard = () => {
             {/* Business Health section */}
             <BusinessHealth />
             
-            {/* Need Help? button - positioned above the bottom toolbar with reduced spacing */}
-            <div className="px-1 mt-3 mb-2">
+            {/* Need Help? button - positioned higher above the bottom toolbar */}
+            <div className="px-1 mt-6 mb-16">
               <Link 
                 to="/help" 
                 className="flex justify-center items-center py-3.5 bg-white rounded-lg shadow-md border border-gray-100 text-blue-600 font-medium"
