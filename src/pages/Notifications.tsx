@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { 
   Bell, 
@@ -22,7 +22,8 @@ import {
   UserPlus,
   Mail,
   Package,
-  ArrowLeft
+  ArrowLeft,
+  SlidersHorizontal
 } from "lucide-react";
 import { toast } from "sonner";
 import { format, formatDistanceToNow } from "date-fns";
@@ -37,6 +38,14 @@ const Notifications = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'unread' | Notification['type']>('all');
   const [selectedNotifications, setSelectedNotifications] = useState<Set<string>>(new Set());
+  const [showFilterSidebar, setShowFilterSidebar] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  // Main tabs to display (the 4 most important ones)
+  const mainTabs = ['all', 'unread', 'job', 'client'] as const;
+  
+  // All available filters for the sidebar
+  const allFilters = ['all', 'unread', 'job', 'payment', 'client', 'reminder', 'system', 'team'] as const;
 
   // Load notifications
   const loadNotifications = async () => {
@@ -86,6 +95,20 @@ const Notifications = () => {
       subscription.unsubscribe();
     };
   }, [user]);
+
+  // Handle click outside sidebar to close it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
+        setShowFilterSidebar(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // Mark as read
   const markAsRead = async (id: string) => {
@@ -211,17 +234,25 @@ const Notifications = () => {
       <div className="bg-white flex flex-col">
         {/* Fixed header with shadow to cover content when scrolling */}
         <div className="sticky top-0 left-0 right-0 z-30 bg-white shadow-sm">
-          <div className="flex items-center px-4 pt-12 pb-3 border-b border-gray-200">
+          <div className="flex items-center justify-between px-4 pt-12 pb-3 border-b border-gray-200">
+            <div className="flex items-center">
+              <button 
+                onClick={() => navigate(-1)} 
+                className="mr-2 text-gray-600"
+                aria-label="Back"
+              >
+                <ArrowLeft className="w-6 h-6" />
+              </button>
+              <h1 className="text-2xl font-bold text-[#1a2e35]">
+                Notifications
+              </h1>
+            </div>
             <button 
-              onClick={() => navigate(-1)} 
-              className="mr-2 text-gray-600"
-              aria-label="Back"
+              onClick={() => setShowFilterSidebar(true)}
+              className="p-2 text-gray-600 hover:bg-gray-100 rounded-full"
             >
-              <ArrowLeft className="w-6 h-6" />
+              <SlidersHorizontal className="w-5 h-5" />
             </button>
-            <h1 className="text-2xl font-bold text-[#1a2e35]">
-              Notifications
-            </h1>
           </div>
         </div>
 
@@ -230,57 +261,34 @@ const Notifications = () => {
             {unreadCount > 0 ? `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}` : 'All caught up!'}
           </p>
 
-        {/* Actions Bar */}
-        <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            {/* Filters */}
-            <div className="flex flex-wrap gap-2">
-              {(['all', 'unread', 'job', 'payment', 'client', 'reminder', 'system', 'team'] as const).map((filterType) => (
-                <button
-                  key={filterType}
-                  onClick={() => setFilter(filterType)}
-                  className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                    filter === filterType
-                      ? 'bg-pulse-500 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {filterType.charAt(0).toUpperCase() + filterType.slice(1)}
-                  {filterType === 'unread' && unreadCount > 0 && (
-                    <span className="ml-1">({unreadCount})</span>
-                  )}
-                </button>
-              ))}
-            </div>
+        {/* Main tabs - limited to 4 */}
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-1 hide-scrollbar">
+          {mainTabs.map((tabType) => (
+            <button
+              key={tabType}
+              onClick={() => setFilter(tabType)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+                filter === tabType
+                  ? 'bg-[#307842] text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              {tabType === 'all' ? 'All' : 
+                tabType === 'unread' ? `Unread${unreadCount > 0 ? ` (${unreadCount})` : ''}` : 
+                tabType.charAt(0).toUpperCase() + tabType.slice(1)}
+            </button>
+          ))}
+        </div>
 
-            {/* Bulk Actions */}
-            <div className="flex gap-2">
-              {selectedNotifications.size > 0 ? (
-                <>
-                  <button
-                    onClick={deleteSelected}
-                    className="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 text-sm font-medium transition-colors"
-                  >
-                    Delete Selected ({selectedNotifications.size})
-                  </button>
-                  <button
-                    onClick={() => setSelectedNotifications(new Set())}
-                    className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium transition-colors"
-                  >
-                    Clear Selection
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={markAllAsRead}
-                  disabled={unreadCount === 0}
-                  className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Mark All as Read
-                </button>
-              )}
-            </div>
-          </div>
+        {/* Mark All as Read Button */}
+        <div className="mb-6">
+          <button
+            onClick={markAllAsRead}
+            disabled={unreadCount === 0}
+            className="w-full py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Mark All as Read
+          </button>
         </div>
 
         {/* Notifications List */}
@@ -300,7 +308,7 @@ const Notifications = () => {
               <div
                 key={notification.id}
                 className={`bg-white rounded-xl shadow-sm p-4 transition-all hover:shadow-md ${
-                  !notification.read ? 'border-l-4 border-pulse-500' : ''
+                  !notification.read ? 'border-l-4 border-[#307842]' : ''
                 }`}
               >
                 <div className="flex items-start gap-4">
@@ -309,7 +317,7 @@ const Notifications = () => {
                     type="checkbox"
                     checked={selectedNotifications.has(notification.id)}
                     onChange={() => toggleSelection(notification.id)}
-                    className="mt-1 rounded border-gray-300 text-pulse-500 focus:ring-pulse-500"
+                    className="mt-1 rounded border-gray-300 text-[#307842] focus:ring-[#307842]"
                   />
 
                   {/* Icon */}
@@ -331,7 +339,7 @@ const Notifications = () => {
                           <Link
                             to={notification.action_url}
                             onClick={() => markAsRead(notification.id)}
-                            className="inline-flex items-center gap-1 mt-2 text-sm text-pulse-600 hover:text-pulse-700 font-medium"
+                            className="inline-flex items-center gap-1 mt-2 text-sm text-[#307842] hover:text-[#245e34] font-medium"
                           >
                             {notification.action_label || 'View'}
                             <ChevronRight className="w-4 h-4" />
@@ -378,6 +386,26 @@ const Notifications = () => {
           )}
         </div>
 
+        {/* Delete Selected Button (when selections exist) */}
+        {selectedNotifications.size > 0 && (
+          <div className="mt-6">
+            <div className="flex gap-2">
+              <button
+                onClick={deleteSelected}
+                className="flex-1 py-3 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 text-sm font-medium transition-colors"
+              >
+                Delete Selected ({selectedNotifications.size})
+              </button>
+              <button
+                onClick={() => setSelectedNotifications(new Set())}
+                className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium transition-colors"
+              >
+                Clear Selection
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Notification Settings Reminder */}
         <div className="mt-8 bg-gray-50 rounded-xl p-6 text-center">
           <Mail className="w-8 h-8 text-gray-400 mx-auto mb-3" />
@@ -387,7 +415,7 @@ const Notifications = () => {
           </p>
           <Link
             to="/settings"
-            className="inline-flex items-center gap-2 text-sm text-pulse-600 hover:text-pulse-700 font-medium"
+            className="inline-flex items-center gap-2 text-sm text-[#307842] hover:text-[#245e34] font-medium"
           >
             Go to Settings
             <ChevronRight className="w-4 h-4" />
@@ -395,6 +423,58 @@ const Notifications = () => {
           </div>
         </div>
       </div>
+
+      {/* Filter Sidebar */}
+      {showFilterSidebar && (
+        <div className="fixed inset-0 bg-black bg-opacity-25 z-50 flex justify-end">
+          <div 
+            ref={sidebarRef}
+            className="bg-white w-80 h-full shadow-xl animate-slide-in-right"
+          >
+            <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Notification Filters</h2>
+              <button 
+                onClick={() => setShowFilterSidebar(false)}
+                className="p-1 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-4">
+              <div className="space-y-2">
+                {allFilters.map((filterType) => (
+                  <button
+                    key={filterType}
+                    onClick={() => {
+                      setFilter(filterType);
+                      setShowFilterSidebar(false);
+                    }}
+                    className={`w-full py-3 px-4 rounded-lg text-left text-sm font-medium transition-colors flex items-center justify-between ${
+                      filter === filterType
+                        ? 'bg-[#307842] text-white'
+                        : 'bg-white text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      {filterType === 'all' && <Bell className="w-4 h-4" />}
+                      {filterType === 'unread' && <Mail className="w-4 h-4" />}
+                      {filterType === 'job' && <Briefcase className="w-4 h-4" />}
+                      {filterType === 'payment' && <DollarSign className="w-4 h-4" />}
+                      {filterType === 'client' && <UserPlus className="w-4 h-4" />}
+                      {filterType === 'reminder' && <Clock className="w-4 h-4" />}
+                      {filterType === 'system' && <Info className="w-4 h-4" />}
+                      {filterType === 'team' && <Users className="w-4 h-4" />}
+                      {filterType.charAt(0).toUpperCase() + filterType.slice(1)}
+                    </span>
+                    {filter === filterType && <Check className="w-4 h-4" />}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </AppLayout>
   );
 };
