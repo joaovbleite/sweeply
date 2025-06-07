@@ -204,7 +204,7 @@ const AddClient = () => {
               <MapPin className="w-5 h-5 text-gray-500" />
               <div className="flex-1">
                 <div 
-                  className="w-full"
+                  className="w-full cursor-pointer"
                   onClick={toggleAddressDetails}
                 >
                   <input
@@ -213,84 +213,87 @@ const AddClient = () => {
                     value={formData.address || ""}
                     onChange={(e) => handleInputChange("address", e.target.value)}
                     className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowAddressDetails(true);
+                    }}
                   />
                 </div>
-                
-                {showAddressDetails && (
-                  <div className="mt-4 space-y-4">
-                    <input
-                      type="text"
-                      placeholder="Address line 2"
-                      value={addressLine2}
-                      onChange={(e) => handleInputChange("addressLine2", e.target.value)}
-                      className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                    <input
-                      type="text"
-                      placeholder="City"
-                      value={formData.city || ""}
-                      onChange={(e) => handleInputChange("city", e.target.value)}
-                      className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                    <div className="relative">
-                      <select
-                        value={formData.state || ""}
-                        onChange={(e) => handleInputChange("state", e.target.value)}
-                        className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none"
-                      >
-                        <option value="">State</option>
-                        <option value="AL">Alabama</option>
-                        <option value="AK">Alaska</option>
-                        <option value="AZ">Arizona</option>
-                        {/* Add more states as needed */}
-                        <option value="CA">California</option>
-                        <option value="CO">Colorado</option>
-                        <option value="FL">Florida</option>
-                        <option value="NY">New York</option>
-                        <option value="TX">Texas</option>
-                      </select>
-                      <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Zip code"
-                      value={formData.zip || ""}
-                      onChange={(e) => handleInputChange("zip", e.target.value)}
-                      className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                    <div className="relative">
-                      <select
-                        value={country}
-                        onChange={(e) => handleInputChange("country", e.target.value)}
-                        className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none"
-                      >
-                        <option value="United States">United States</option>
-                        <option value="Canada">Canada</option>
-                        <option value="Mexico">Mexico</option>
-                        {/* Add more countries as needed */}
-                      </select>
-                      <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
-                    </div>
-                    
-                    <div className="flex items-center justify-between pt-4 pb-2">
-                      <span className="text-gray-800">Billing address matches property</span>
-                      <label className="inline-flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={billingMatchesProperty}
-                          onChange={() => setBillingMatchesProperty(!billingMatchesProperty)}
-                          className="sr-only"
-                        />
-                        <span className={`relative inline-block h-6 w-11 rounded-full transition-colors ${billingMatchesProperty ? 'bg-green-600' : 'bg-gray-300'}`}>
-                          <span className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition-transform ${billingMatchesProperty ? 'translate-x-5' : ''}`}></span>
-                        </span>
-                      </label>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
+
+            {showAddressDetails && (
+              <div className="ml-8 mt-4 space-y-4">
+                <input
+                  type="text"
+                  placeholder="Address line 2"
+                  value={addressLine2}
+                  onChange={(e) => handleInputChange("addressLine2", e.target.value)}
+                  className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+                <input
+                  type="text"
+                  placeholder="City"
+                  value={formData.city || ""}
+                  onChange={(e) => handleInputChange("city", e.target.value)}
+                  className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+                <div className="relative">
+                  <select
+                    value={formData.state || ""}
+                    onChange={(e) => handleInputChange("state", e.target.value)}
+                    className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none"
+                  >
+                    <option value="">State</option>
+                    <option value="AL">Alabama</option>
+                    <option value="AK">Alaska</option>
+                    <option value="AZ">Arizona</option>
+                    {/* Add more states as needed */}
+                    <option value="CA">California</option>
+                    <option value="CO">Colorado</option>
+                    <option value="FL">Florida</option>
+                    <option value="NY">New York</option>
+                    <option value="TX">Texas</option>
+                  </select>
+                  <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Zip code"
+                  value={formData.zip || ""}
+                  onChange={(e) => handleInputChange("zip", e.target.value)}
+                  className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+                <div className="relative">
+                  <select
+                    value={country}
+                    onChange={(e) => handleInputChange("country", e.target.value)}
+                    className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none"
+                  >
+                    <option value="United States">United States</option>
+                    <option value="Canada">Canada</option>
+                    <option value="Mexico">Mexico</option>
+                    {/* Add more countries as needed */}
+                  </select>
+                  <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+                </div>
+                
+                <div className="flex items-center justify-between pt-4 pb-2">
+                  <span className="text-gray-800">Billing address matches property</span>
+                  <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={billingMatchesProperty}
+                      onChange={() => setBillingMatchesProperty(!billingMatchesProperty)}
+                      className="sr-only"
+                    />
+                    <span className={`relative inline-block h-6 w-11 rounded-full transition-colors ${billingMatchesProperty ? 'bg-green-600' : 'bg-gray-300'}`}>
+                      <span className={`absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition-transform ${billingMatchesProperty ? 'translate-x-5' : ''}`}></span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -299,7 +302,7 @@ const AddClient = () => {
           <button
             onClick={handleSubmit}
             disabled={loading || !formData.name.trim()}
-            className="w-full py-4 bg-blue-600 text-white font-medium rounded-xl disabled:opacity-70 flex items-center justify-center"
+            className="w-full py-4 bg-green-600 text-white font-medium rounded-xl disabled:opacity-70 flex items-center justify-center"
           >
             {loading ? (
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
