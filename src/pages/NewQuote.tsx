@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X, Search, User, MapPin, Phone, Mail, Plus, ChevronDown } from "lucide-react";
+import { X, Search, User, MapPin, Phone, Mail, Plus, ChevronDown, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -20,7 +20,8 @@ const NewQuote = () => {
     discount: 0,
     tax: 0,
     total: 0,
-    requiredDeposit: 0
+    requiredDeposit: 0,
+    disclaimerText: 'This quote is valid for the next 30 days, after which values may be subject to change.'
   });
   const [clientData, setClientData] = useState({
     firstName: '',
@@ -33,6 +34,7 @@ const NewQuote = () => {
   const [showIntroduction, setShowIntroduction] = useState(false);
   const [showLineItems, setShowLineItems] = useState(false);
   const [showClientMessage, setShowClientMessage] = useState(false);
+  const [showDisclaimerEdit, setShowDisclaimerEdit] = useState(false);
 
   // Handle quote data changes
   const handleQuoteDataChange = (field: string, value: string | number) => {
@@ -70,6 +72,11 @@ const NewQuote = () => {
     setShowClientMessage(!showClientMessage);
   };
 
+  // Toggle disclaimer edit
+  const handleToggleDisclaimerEdit = () => {
+    setShowDisclaimerEdit(!showDisclaimerEdit);
+  };
+
   // Handle form submission
   const handleSubmit = () => {
     // This would be implemented with the actual form submission logic
@@ -102,7 +109,7 @@ const NewQuote = () => {
       <div>
         {/* Client section */}
         <div className="p-4">
-          <h2 className="text-xl text-gray-600 mb-4">Service for</h2>
+          <h2 className="text-lg text-gray-600 mb-4">Service for</h2>
           
           {/* Client selector */}
           <div className="mb-4">
@@ -166,7 +173,7 @@ const NewQuote = () => {
         
         {/* Overview section */}
         <div className="p-4">
-          <h2 className="text-xl text-gray-600 mb-4">Overview</h2>
+          <h2 className="text-lg text-gray-600 mb-4">Overview</h2>
           
           <div className="space-y-4">
             {/* Job Title */}
@@ -203,7 +210,7 @@ const NewQuote = () => {
             onClick={handleToggleIntroduction}
             className="w-full flex items-center justify-between"
           >
-            <h2 className="text-2xl font-medium text-gray-800">Introduction</h2>
+            <h2 className="text-xl font-medium text-gray-800">Introduction</h2>
             <Plus className="w-6 h-6 text-[#307842]" />
           </button>
           {showIntroduction && (
@@ -219,7 +226,7 @@ const NewQuote = () => {
         
         {/* Product / Service Section */}
         <div className="px-4 py-5">
-          <h2 className="text-2xl font-medium text-gray-600">Product / Service</h2>
+          <h2 className="text-xl font-medium text-gray-600">Product / Service</h2>
         </div>
         
         {/* Line Items Section */}
@@ -228,7 +235,7 @@ const NewQuote = () => {
             onClick={handleToggleLineItems}
             className="w-full flex items-center justify-between"
           >
-            <h2 className="text-2xl font-medium text-gray-800">Line items</h2>
+            <h2 className="text-xl font-medium text-gray-800">Line items</h2>
             <Plus className="w-6 h-6 text-[#307842]" />
           </button>
           {showLineItems && (
@@ -244,18 +251,18 @@ const NewQuote = () => {
         <div className="px-4 py-5">
           <div className="space-y-5">
             <div className="flex justify-between items-center">
-              <h3 className="text-2xl font-medium text-gray-800">Subtotal</h3>
-              <span className="text-2xl text-gray-800">{formatCurrency(quoteData.subtotal)}</span>
+              <h3 className="text-xl font-medium text-gray-800">Subtotal</h3>
+              <span className="text-xl text-gray-800">{formatCurrency(quoteData.subtotal)}</span>
             </div>
             
             <div className="flex justify-between items-center">
-              <h3 className="text-2xl font-medium text-gray-800">Discount</h3>
-              <span className="text-2xl text-[#307842]">{formatCurrency(quoteData.discount)}</span>
+              <h3 className="text-xl font-medium text-gray-800">Discount</h3>
+              <span className="text-xl text-[#307842]">{formatCurrency(quoteData.discount)}</span>
             </div>
             
             <div className="flex justify-between items-center">
-              <h3 className="text-2xl font-medium text-gray-800">Tax</h3>
-              <span className="text-2xl text-[#307842]">{formatCurrency(quoteData.tax)}</span>
+              <h3 className="text-xl font-medium text-gray-800">Tax</h3>
+              <span className="text-xl text-[#307842]">{formatCurrency(quoteData.tax)}</span>
             </div>
           </div>
         </div>
@@ -263,16 +270,16 @@ const NewQuote = () => {
         {/* Total Section */}
         <div className="bg-gray-100 px-4 py-5">
           <div className="flex justify-between items-center">
-            <h3 className="text-2xl font-medium text-gray-800">Total</h3>
-            <span className="text-2xl text-gray-800">{formatCurrency(quoteData.total)}</span>
+            <h3 className="text-xl font-medium text-gray-800">Total</h3>
+            <span className="text-xl text-gray-800">{formatCurrency(quoteData.total)}</span>
           </div>
         </div>
         
         {/* Required Deposit Section */}
         <div className="px-4 py-5">
           <div className="flex justify-between items-center">
-            <h3 className="text-2xl font-medium text-gray-800">Required deposit</h3>
-            <span className="text-2xl text-[#307842]">{formatCurrency(quoteData.requiredDeposit)}</span>
+            <h3 className="text-xl font-medium text-gray-800">Required deposit</h3>
+            <span className="text-xl text-[#307842]">{formatCurrency(quoteData.requiredDeposit)}</span>
           </div>
         </div>
         
@@ -282,13 +289,38 @@ const NewQuote = () => {
             onClick={handleToggleClientMessage}
             className="w-full flex items-center justify-between"
           >
-            <h2 className="text-2xl font-medium text-gray-800">Client message</h2>
+            <h2 className="text-xl font-medium text-gray-800">Client message</h2>
             <Plus className="w-6 h-6 text-[#307842]" />
           </button>
           {showClientMessage && (
             <div className="mt-4">
               <textarea
                 placeholder="Add a message to your client"
+                className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#307842] focus:border-transparent"
+                rows={4}
+              ></textarea>
+            </div>
+          )}
+        </div>
+        
+        {/* Contract / Disclaimer Section */}
+        <div className="border-b border-gray-200 px-4 py-5">
+          <button 
+            onClick={handleToggleDisclaimerEdit}
+            className="w-full flex items-center justify-between"
+          >
+            <h2 className="text-xl font-medium text-gray-800">Contract / Disclaimer</h2>
+            <ChevronRight className="w-6 h-6 text-[#307842]" />
+          </button>
+          <div className="mt-2">
+            <p className="text-gray-600">{quoteData.disclaimerText}</p>
+          </div>
+          {showDisclaimerEdit && (
+            <div className="mt-4">
+              <textarea
+                value={quoteData.disclaimerText}
+                onChange={(e) => handleQuoteDataChange('disclaimerText', e.target.value)}
+                placeholder="Add disclaimer text"
                 className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#307842] focus:border-transparent"
                 rows={4}
               ></textarea>
