@@ -22,6 +22,13 @@ const NewQuote = () => {
     total: 0,
     requiredDeposit: 0
   });
+  const [clientData, setClientData] = useState({
+    firstName: '',
+    lastName: '',
+    address: '',
+    phone: '',
+    email: ''
+  });
   const [showClientSelector, setShowClientSelector] = useState(false);
   const [showIntroduction, setShowIntroduction] = useState(false);
   const [showLineItems, setShowLineItems] = useState(false);
@@ -30,6 +37,14 @@ const NewQuote = () => {
   // Handle quote data changes
   const handleQuoteDataChange = (field: string, value: string | number) => {
     setQuoteData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Handle client data changes
+  const handleClientDataChange = (field: string, value: string) => {
+    setClientData(prev => ({
       ...prev,
       [field]: value
     }));
@@ -84,6 +99,67 @@ const NewQuote = () => {
 
       {/* Main content */}
       <div className="pb-28">
+        {/* Client section */}
+        <div className="p-4">
+          <h2 className="text-xl text-gray-600 mb-4">Service for</h2>
+          
+          {/* Client selector */}
+          <div className="mb-4">
+            <button className="w-full flex items-center p-4 rounded-lg border border-gray-200 bg-white">
+              <Search className="w-6 h-6 text-[#307842] mr-3" />
+              <span className="text-[#307842] text-lg">Select Existing Client</span>
+            </button>
+          </div>
+          
+          {/* New client form */}
+          <div className="space-y-4">
+            <div className="flex items-center">
+              <User className="w-6 h-6 text-gray-400 mr-3" />
+              <div className="flex-1 space-y-3">
+                <input
+                  type="text"
+                  value={clientData.firstName}
+                  onChange={(e) => handleClientDataChange('firstName', e.target.value)}
+                  placeholder="First name"
+                  className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#307842] focus:border-transparent"
+                />
+                <input
+                  type="text"
+                  value={clientData.lastName}
+                  onChange={(e) => handleClientDataChange('lastName', e.target.value)}
+                  placeholder="Last name"
+                  className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#307842] focus:border-transparent"
+                />
+              </div>
+            </div>
+            
+            <div className="flex items-center">
+              <MapPin className="w-6 h-6 text-gray-400 mr-3" />
+              <input
+                type="text"
+                value={clientData.address}
+                onChange={(e) => handleClientDataChange('address', e.target.value)}
+                placeholder="Property address"
+                className="flex-1 p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#307842] focus:border-transparent"
+              />
+            </div>
+            
+            <div className="flex items-center">
+              <Phone className="w-6 h-6 text-gray-400 mr-3" />
+              <button className="flex-1 text-left p-4 text-[#307842] text-lg">
+                Add Phone Number
+              </button>
+            </div>
+            
+            <div className="flex items-center">
+              <Mail className="w-6 h-6 text-gray-400 mr-3" />
+              <button className="flex-1 text-left p-4 text-[#307842] text-lg">
+                Add Email
+              </button>
+            </div>
+          </div>
+        </div>
+        
         {/* Separator bar */}
         <div className="w-full h-12 bg-gray-100 border-t border-b border-gray-200"></div>
         
