@@ -24,6 +24,8 @@ const NewQuote = () => {
   const [showClientSelector, setShowClientSelector] = useState(false);
   const [clientSearchQuery, setClientSearchQuery] = useState('');
   const [filteredClients, setFilteredClients] = useState<Client[]>([]);
+  const [showPhoneInput, setShowPhoneInput] = useState(false);
+  const [showEmailInput, setShowEmailInput] = useState(false);
 
   // Load clients on mount
   useEffect(() => {
@@ -90,14 +92,12 @@ const NewQuote = () => {
 
   // Handle showing the phone input
   const handleAddPhone = () => {
-    // This would open the phone input or enable editing
-    toast.info("Add phone number functionality here");
+    setShowPhoneInput(true);
   };
 
   // Handle showing the email input
   const handleAddEmail = () => {
-    // This would open the email input or enable editing
-    toast.info("Add email functionality here");
+    setShowEmailInput(true);
   };
 
   // Handle form submission
@@ -105,6 +105,11 @@ const NewQuote = () => {
     // This would be implemented with the actual form submission logic
     toast.success("Quote created successfully!");
     navigate("/quotes"); // Navigate to quotes list
+  };
+
+  // Handle save quote
+  const handleSave = () => {
+    toast.success("Quote saved as draft");
   };
 
   return (
@@ -123,7 +128,7 @@ const NewQuote = () => {
       </div>
 
       {/* Main content */}
-      <div className="p-4 pb-20">
+      <div className="p-4 pb-28">
         {/* Service for section */}
         <div className="mb-6">
           <h2 className="text-xl text-gray-600 mb-4">Service for</h2>
@@ -132,9 +137,9 @@ const NewQuote = () => {
           {!selectedClient && !showClientSelector && (
             <button 
               onClick={handleShowClientSelector}
-              className="w-full flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200 text-left"
+              className="w-full flex items-center justify-center p-4 bg-white rounded-lg border border-gray-200 text-left"
             >
-              <div className="flex items-center text-green-600 font-medium">
+              <div className="flex items-center text-blue-600 font-medium">
                 <Search className="w-5 h-5 mr-3" />
                 <span>Select Existing Client</span>
               </div>
@@ -151,7 +156,7 @@ const NewQuote = () => {
                   placeholder="Search clients..."
                   value={clientSearchQuery}
                   onChange={handleSearchChange}
-                  className="pl-10 pr-4 py-3 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="pl-10 pr-4 py-3 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               
@@ -207,29 +212,30 @@ const NewQuote = () => {
           {/* New client form */}
           {!selectedClient && (
             <div className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <div className="flex-1">
+              <div className="flex items-center">
+                <div className="mr-3 text-slate-400">
+                  <User className="w-5 h-5" />
+                </div>
+                <div className="flex-1 space-y-3">
                   <input
                     type="text"
                     value={newClientData.firstName}
                     onChange={(e) => handleNewClientChange('firstName', e.target.value)}
                     placeholder="First name"
-                    className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
-                </div>
-                <div className="flex-1">
                   <input
                     type="text"
                     value={newClientData.lastName}
                     onChange={(e) => handleNewClientChange('lastName', e.target.value)}
                     placeholder="Last name"
-                    className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </div>
               
               <div className="flex items-center">
-                <div className="mr-3 text-gray-400">
+                <div className="mr-3 text-slate-400">
                   <MapPin className="w-5 h-5" />
                 </div>
                 <div className="flex-1">
@@ -238,26 +244,58 @@ const NewQuote = () => {
                     value={newClientData.address}
                     onChange={(e) => handleNewClientChange('address', e.target.value)}
                     placeholder="Property address"
-                    className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </div>
               
-              <button
-                onClick={handleAddPhone}
-                className="flex items-center text-green-600 font-medium p-2"
-              >
-                <Phone className="w-5 h-5 mr-3 text-gray-500" />
-                <span>Add Phone Number</span>
-              </button>
+              <div className="flex items-start">
+                <div className="mr-3 text-slate-400 pt-4">
+                  <Phone className="w-5 h-5" />
+                </div>
+                <div className="flex-1">
+                  {showPhoneInput ? (
+                    <input
+                      type="tel"
+                      value={newClientData.phone}
+                      onChange={(e) => handleNewClientChange('phone', e.target.value)}
+                      placeholder="Phone number"
+                      className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  ) : (
+                    <button
+                      onClick={handleAddPhone}
+                      className="flex items-center text-blue-600 font-medium py-4"
+                    >
+                      <span>Add Phone Number</span>
+                    </button>
+                  )}
+                </div>
+              </div>
               
-              <button
-                onClick={handleAddEmail}
-                className="flex items-center text-green-600 font-medium p-2"
-              >
-                <Mail className="w-5 h-5 mr-3 text-gray-500" />
-                <span>Add Email</span>
-              </button>
+              <div className="flex items-start">
+                <div className="mr-3 text-slate-400 pt-4">
+                  <Mail className="w-5 h-5" />
+                </div>
+                <div className="flex-1">
+                  {showEmailInput ? (
+                    <input
+                      type="email"
+                      value={newClientData.email}
+                      onChange={(e) => handleNewClientChange('email', e.target.value)}
+                      placeholder="Email address"
+                      className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  ) : (
+                    <button
+                      onClick={handleAddEmail}
+                      className="flex items-center text-blue-600 font-medium py-4"
+                    >
+                      <span>Add Email</span>
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -270,22 +308,22 @@ const NewQuote = () => {
             Quote details will be added here
           </div>
         </div>
+      </div>
 
-        {/* Bottom buttons - for reference, but not implemented yet */}
-        <div className="fixed bottom-8 left-0 right-0 px-4 flex flex-col space-y-4">
-          <button
-            className="w-full bg-green-600 text-white py-4 rounded-lg font-medium"
-            onClick={handleSubmit}
-          >
-            Review and Send
-          </button>
-          <button
-            className="w-full text-green-600 py-4 font-medium"
-            onClick={() => toast.info("Save functionality will be implemented")}
-          >
-            Save
-          </button>
-        </div>
+      {/* Bottom buttons */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white pb-8 pt-4 px-4 border-t border-gray-200 flex flex-col space-y-4">
+        <button
+          className="w-full bg-[#307842] text-white py-4 rounded-lg font-medium"
+          onClick={handleSubmit}
+        >
+          Review and Send
+        </button>
+        <button
+          className="w-full text-[#307842] py-4 font-medium"
+          onClick={handleSave}
+        >
+          Save
+        </button>
       </div>
     </div>
   );
