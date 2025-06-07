@@ -90,7 +90,7 @@ const NewQuote = () => {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-36">
+    <div className="bg-gray-50 min-h-screen pb-20">
       {/* Header - using safe area inset to prevent notch issues */}
       <div className="bg-white fixed top-0 left-0 right-0 z-20 shadow-sm pt-safe">
         <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 mt-2">
@@ -105,6 +105,12 @@ const NewQuote = () => {
             </button>
             <h1 className="text-xl font-bold text-gray-900">New quote</h1>
           </div>
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg font-medium text-sm"
+            onClick={handleSubmit}
+          >
+            Review and Send
+          </button>
         </div>
       </div>
 
@@ -330,22 +336,16 @@ const NewQuote = () => {
             </div>
           )}
         </div>
-      </div>
-
-      {/* Bottom buttons */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white pb-8 pt-4 px-4 border-t border-gray-200 flex flex-col space-y-4 z-10">
-        <button
-          className="w-full bg-blue-500 text-white py-4 rounded-lg font-medium"
-          onClick={handleSubmit}
-        >
-          Review and Send
-        </button>
-        <button
-          className="w-full text-blue-500 py-4 font-medium"
-          onClick={handleSave}
-        >
-          Save
-        </button>
+        
+        {/* Draft Button */}
+        <div className="px-4 py-5 flex justify-center">
+          <button
+            className="w-full text-blue-500 py-4 rounded-lg font-medium border border-blue-500"
+            onClick={handleSave}
+          >
+            Draft
+          </button>
+        </div>
       </div>
     </div>
   );
