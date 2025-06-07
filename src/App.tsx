@@ -42,6 +42,7 @@ import Preferences from "./pages/Preferences";
 import Team from "./pages/Team";
 import Profile from "./pages/Profile";
 import PricingAssistant from "./pages/PricingAssistant";
+import NewQuote from "./pages/NewQuote";
 import Notifications from "./pages/Notifications";
 import InstallPrompt from "@/components/ui/InstallPrompt";
 import TermsOfService from "./pages/TermsOfService";
@@ -301,6 +302,14 @@ const AppRoutes = () => {
             <PageTransition>
               <PricingAssistant />
             </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/quotes/new" 
+        element={
+          <ProtectedRoute>
+            <NewQuote />
           </ProtectedRoute>
         } 
       />

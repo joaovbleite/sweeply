@@ -89,7 +89,7 @@ const FloatingActionMenu: React.FC = () => {
       id: "quote", 
       label: "Quote", 
       icon: FileEdit, 
-      action: () => navigate("/pricing/new"),
+      action: () => navigate("/quotes/new"),
       color: "bg-purple-50",
       iconColor: "text-purple-600"
     },
