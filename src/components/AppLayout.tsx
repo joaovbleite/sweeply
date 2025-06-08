@@ -208,11 +208,16 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
           {children}
         </main>
 
-        {/* Bottom Navigation Bar - Mobile Only */}
-        <BottomNavBar hidden={hideBottomNav} />
-        
-        {/* Floating Action Menu - Mobile Only */}
-        <FloatingActionMenu hidden={hideBottomNav} />
+        {/* Only show navigation elements if hideBottomNav is false */}
+        {!hideBottomNav && (
+          <>
+            {/* Bottom Navigation Bar - Mobile Only */}
+            <BottomNavBar />
+            
+            {/* Floating Action Menu - Mobile Only */}
+            <FloatingActionMenu />
+          </>
+        )}
       </div>
 
       {/* Mobile sidebar overlay */}

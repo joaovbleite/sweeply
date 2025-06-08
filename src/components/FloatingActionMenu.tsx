@@ -13,11 +13,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useLocation, useNavigate } from "react-router-dom";
 
-interface FloatingActionMenuProps {
-  hidden?: boolean;
-}
-
-const FloatingActionMenu: React.FC<FloatingActionMenuProps> = ({ hidden = false }) => {
+const FloatingActionMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const isMobile = useIsMobile();
   const location = useLocation();
@@ -115,8 +111,8 @@ const FloatingActionMenu: React.FC<FloatingActionMenuProps> = ({ hidden = false 
     }
   ];
 
-  // Don't render on desktop or if hidden
-  if (!isMobile || hidden) {
+  // Don't render on desktop
+  if (!isMobile) {
     return null;
   }
 

@@ -33,43 +33,61 @@ const AddClient = () => {
   // Add listeners for keyboard visibility
   useEffect(() => {
     const handleVisibilityChange = () => {
-      // Check if the viewport height has significantly changed
-      // which can indicate keyboard visibility on mobile
+      // Check if any input is focused - this is more reliable on mobile
+      const isInputFocused = document.activeElement instanceof HTMLInputElement || 
+                             document.activeElement instanceof HTMLTextAreaElement ||
+                             document.activeElement instanceof HTMLSelectElement;
+      
       if (window.visualViewport) {
         const viewportHeight = window.visualViewport.height;
         const windowHeight = window.innerHeight;
         const heightDifference = windowHeight - viewportHeight;
         
-        // If the difference is significant, keyboard is likely visible
-        setIsKeyboardVisible(heightDifference > 150);
+        // If an input is focused and there's a height difference, keyboard is likely visible
+        // Use a lower threshold to catch more cases
+        setIsKeyboardVisible(isInputFocused && heightDifference > 100);
+      } else {
+        // Fallback for browsers without visualViewport API
+        setIsKeyboardVisible(isInputFocused);
       }
     };
 
-    // Listen for viewport changes
+    // Listen for viewport changes and focus changes
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', handleVisibilityChange);
       window.visualViewport.addEventListener('scroll', handleVisibilityChange);
     }
+    
+    // Also check on focus/blur events throughout the document
+    document.addEventListener('focusin', handleVisibilityChange);
+    document.addEventListener('focusout', handleVisibilityChange);
+
+    // Initial check
+    handleVisibilityChange();
 
     return () => {
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', handleVisibilityChange);
         window.visualViewport.removeEventListener('scroll', handleVisibilityChange);
       }
+      document.removeEventListener('focusin', handleVisibilityChange);
+      document.removeEventListener('focusout', handleVisibilityChange);
     };
   }, []);
 
   // Handle blur events
   const handleBlur = () => {
     setFocusedField(null);
-    setTimeout(() => {
-      setIsKeyboardVisible(false);
-    }, 100);
+    // Don't set keyboard visibility here, let the event handlers do it
   };
 
   // Handle focus events
   const handleFocus = (fieldName: string) => {
     setFocusedField(fieldName);
+    // If focusing an address field, force the keyboard visible state
+    if (['address', 'addressLine2', 'city', 'state', 'zip', 'country'].includes(fieldName)) {
+      setIsKeyboardVisible(true);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -156,8 +174,9 @@ const AddClient = () => {
   const isAddressFieldFocused = focusedField && 
     ['address', 'addressLine2', 'city', 'state', 'zip', 'country'].includes(focusedField);
 
-  // Determine if toolbar should be hidden
-  const hideToolbar = isKeyboardVisible && isAddressFieldFocused;
+  // Determine if toolbar should be hidden - any time keyboard is visible is enough
+  // for a better mobile experience, especially with address fields
+  const hideToolbar = isKeyboardVisible;
 
   return (
     <AppLayout hideBottomNav={hideToolbar}>
