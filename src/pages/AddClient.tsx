@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, User, Mail, Phone, MapPin, Building, ChevronDown, List } from "lucide-react";
 import { toast } from "sonner";
@@ -29,6 +29,7 @@ const AddClient = () => {
   const [billingMatchesProperty, setBillingMatchesProperty] = useState(true);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // Add listeners for keyboard visibility
   useEffect(() => {
@@ -74,6 +75,22 @@ const AddClient = () => {
       document.removeEventListener('focusout', handleVisibilityChange);
     };
   }, []);
+
+  // Scroll to the bottom when address details are shown
+  useEffect(() => {
+    if (showAddressDetails && contentRef.current) {
+      // Add a short delay to ensure DOM is updated
+      setTimeout(() => {
+        if (contentRef.current) {
+          const element = contentRef.current;
+          window.scrollTo({
+            top: element.scrollHeight,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+    }
+  }, [showAddressDetails]);
 
   // Handle blur events
   const handleBlur = () => {
@@ -193,7 +210,10 @@ const AddClient = () => {
       </div>
 
       {/* Content with padding to account for fixed header */}
-      <div className="px-4 pb-20 pt-5 flex-1 overflow-y-auto min-h-screen bg-white">
+      <div 
+        ref={contentRef}
+        className={`px-4 ${showAddressDetails ? 'pb-40' : 'pb-28'} pt-5 flex-1 overflow-y-auto min-h-screen bg-white`}
+      >
         {/* Add from contacts button */}
         <button 
           className="w-full flex items-center justify-center gap-2 p-4 border border-gray-300 rounded-xl mb-6 text-green-600 font-medium"
@@ -393,6 +413,9 @@ const AddClient = () => {
                     </span>
                   </label>
                 </div>
+                
+                {/* Extra padding at the bottom to push content above keyboard */}
+                <div className="h-28"></div>
               </div>
             )}
           </div>
@@ -400,7 +423,7 @@ const AddClient = () => {
       </div>
       
       {/* Fixed Save Button at bottom */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white p-4 border-t border-gray-200 z-20">
+      <div className="fixed bottom-0 left-0 right-0 bg-white p-4 border-t border-gray-200 z-50">
         <button
           onClick={handleSubmit}
           disabled={loading || !formData.name.trim()}
