@@ -1,10 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, User, Mail, Phone, MapPin, Building, ChevronDown, List } from "lucide-react";
 import { toast } from "sonner";
 import { clientsApi } from "@/lib/api/clients";
 import { CreateClientInput } from "@/types/client";
 import AppLayout from "@/components/AppLayout";
+
+// Style for white background overlay
+const whiteOverlayStyle = `
+  body.address-open {
+    background-color: white !important;
+  }
+  body.address-open:after {
+    content: '';
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 300px;
+    background-color: white;
+    z-index: 40;
+  }
+`;
 
 const AddClient = () => {
   const navigate = useNavigate();
@@ -27,6 +44,30 @@ const AddClient = () => {
   const [addressLine2, setAddressLine2] = useState("");
   const [country, setCountry] = useState("United States");
   const [billingMatchesProperty, setBillingMatchesProperty] = useState(true);
+
+  // Add an effect to add a class to body when showing address details
+  useEffect(() => {
+    if (showAddressDetails) {
+      document.body.classList.add('address-open');
+    } else {
+      document.body.classList.remove('address-open');
+    }
+
+    return () => {
+      document.body.classList.remove('address-open');
+    };
+  }, [showAddressDetails]);
+
+  // Inject CSS styles for white overlay
+  useEffect(() => {
+    const styleElement = document.createElement('style');
+    styleElement.innerHTML = whiteOverlayStyle;
+    document.head.appendChild(styleElement);
+
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
 
   const handleInputChange = (field: string, value: string) => {
     if (field === "firstName") {
@@ -109,9 +150,9 @@ const AddClient = () => {
   };
 
   return (
-    <div className="bg-white min-h-screen flex flex-col">
+    <div className="bg-white min-h-screen flex flex-col relative">
       <AppLayout>
-        <div className="px-4 py-6 pb-40 bg-white flex-1">
+        <div className="px-4 py-6 pb-56 bg-white flex-1">
           {/* Header */}
           <div className="flex items-center mb-4">
             <Link to="/clients" className="mr-4">
@@ -317,9 +358,12 @@ const AddClient = () => {
         </div>
       </AppLayout>
       
-      {/* Add a white background overlay that covers the entire page when address details are shown */}
+      {/* White overlay with ultra-high z-index */}
       {showAddressDetails && (
-        <div className="fixed bottom-0 left-0 right-0 h-24 bg-white z-10" />
+        <div 
+          className="fixed bottom-0 left-0 right-0 bg-white" 
+          style={{ zIndex: 9999, height: '300px' }} 
+        />
       )}
     </div>
   );
