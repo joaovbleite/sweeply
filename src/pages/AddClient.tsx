@@ -179,7 +179,7 @@ const AddClient = () => {
   const hideToolbar = isKeyboardVisible;
 
   return (
-    <AppLayout hideBottomNav={hideToolbar}>
+    <AppLayout hideBottomNav={true}>
       {/* Fixed header */}
       <div className="fixed top-0 left-0 right-0 bg-white z-20 px-4 py-4 border-b border-gray-200">
         <div className="flex items-center">
@@ -191,7 +191,7 @@ const AddClient = () => {
       </div>
 
       {/* Content with padding to account for fixed header */}
-      <div className={`px-4 py-6 pt-20 ${showAddressDetails ? "pb-56" : "pb-28"} bg-white min-h-screen`}>
+      <div className={`px-4 py-6 pt-20 pb-28 bg-white min-h-screen`}>
         {/* Add from contacts button */}
         <button 
           className="w-full flex items-center justify-center gap-2 p-4 border border-gray-300 rounded-xl mb-6 text-green-600 font-medium"
@@ -395,21 +395,21 @@ const AddClient = () => {
             )}
           </div>
         </div>
-
-        {/* Save button */}
-        <div className="mt-8">
-          <button
-            onClick={handleSubmit}
-            disabled={loading || !formData.name.trim()}
-            className="w-full py-4 bg-blue-600 text-white font-medium rounded-xl disabled:opacity-70 flex items-center justify-center"
-          >
-            {loading ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-            ) : (
-              "Save"
-            )}
-          </button>
-        </div>
+      </div>
+      
+      {/* Fixed Save Button at bottom */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white p-4 border-t border-gray-200 z-20">
+        <button
+          onClick={handleSubmit}
+          disabled={loading || !formData.name.trim()}
+          className="w-full py-4 bg-blue-600 text-white font-medium rounded-xl disabled:opacity-70 flex items-center justify-center"
+        >
+          {loading ? (
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+          ) : (
+            "Save"
+          )}
+        </button>
       </div>
     </AppLayout>
   );
