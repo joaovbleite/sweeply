@@ -28,9 +28,10 @@ import FloatingActionMenu from "./FloatingActionMenu";
 
 interface AppLayoutProps {
   children: React.ReactNode;
+  hideBottomNav?: boolean;
 }
 
-const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
+const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }) => {
   const { user, signOut } = useAuth();
   const { t } = useTranslation(['navigation', 'common']);
   const location = useLocation();
@@ -208,10 +209,10 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </main>
 
         {/* Bottom Navigation Bar - Mobile Only */}
-        <BottomNavBar />
+        <BottomNavBar hidden={hideBottomNav} />
         
         {/* Floating Action Menu - Mobile Only */}
-        <FloatingActionMenu />
+        <FloatingActionMenu hidden={hideBottomNav} />
       </div>
 
       {/* Mobile sidebar overlay */}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, User, Mail, Phone, MapPin, Building, ChevronDown, List } from "lucide-react";
 import { toast } from "sonner";
@@ -27,6 +27,50 @@ const AddClient = () => {
   const [addressLine2, setAddressLine2] = useState("");
   const [country, setCountry] = useState("United States");
   const [billingMatchesProperty, setBillingMatchesProperty] = useState(true);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
+
+  // Add listeners for keyboard visibility
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      // Check if the viewport height has significantly changed
+      // which can indicate keyboard visibility on mobile
+      if (window.visualViewport) {
+        const viewportHeight = window.visualViewport.height;
+        const windowHeight = window.innerHeight;
+        const heightDifference = windowHeight - viewportHeight;
+        
+        // If the difference is significant, keyboard is likely visible
+        setIsKeyboardVisible(heightDifference > 150);
+      }
+    };
+
+    // Listen for viewport changes
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleVisibilityChange);
+      window.visualViewport.addEventListener('scroll', handleVisibilityChange);
+    }
+
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleVisibilityChange);
+        window.visualViewport.removeEventListener('scroll', handleVisibilityChange);
+      }
+    };
+  }, []);
+
+  // Handle blur events
+  const handleBlur = () => {
+    setFocusedField(null);
+    setTimeout(() => {
+      setIsKeyboardVisible(false);
+    }, 100);
+  };
+
+  // Handle focus events
+  const handleFocus = (fieldName: string) => {
+    setFocusedField(fieldName);
+  };
 
   const handleInputChange = (field: string, value: string) => {
     if (field === "firstName") {
@@ -108,8 +152,15 @@ const AddClient = () => {
     setShowAddressDetails(!showAddressDetails);
   };
 
+  // Check if currently focused on an address field
+  const isAddressFieldFocused = focusedField && 
+    ['address', 'addressLine2', 'city', 'state', 'zip', 'country'].includes(focusedField);
+
+  // Determine if toolbar should be hidden
+  const hideToolbar = isKeyboardVisible && isAddressFieldFocused;
+
   return (
-    <AppLayout>
+    <AppLayout hideBottomNav={hideToolbar}>
       {/* Fixed header */}
       <div className="fixed top-0 left-0 right-0 bg-white z-20 px-4 py-4 border-b border-gray-200">
         <div className="flex items-center">
@@ -143,6 +194,8 @@ const AddClient = () => {
                 value={firstName}
                 onChange={(e) => handleInputChange("firstName", e.target.value)}
                 className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                onFocus={() => handleFocus("firstName")}
+                onBlur={handleBlur}
               />
               <input
                 type="text"
@@ -150,6 +203,8 @@ const AddClient = () => {
                 value={lastName}
                 onChange={(e) => handleInputChange("lastName", e.target.value)}
                 className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                onFocus={() => handleFocus("lastName")}
+                onBlur={handleBlur}
               />
             </div>
           </div>
@@ -163,6 +218,8 @@ const AddClient = () => {
               value={companyName}
               onChange={(e) => handleInputChange("companyName", e.target.value)}
               className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-green-600 font-medium"
+              onFocus={() => handleFocus("companyName")}
+              onBlur={handleBlur}
             />
           </div>
 
@@ -175,6 +232,8 @@ const AddClient = () => {
               value={formData.phone || ""}
               onChange={(e) => handleInputChange("phone", e.target.value)}
               className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-green-600 font-medium"
+              onFocus={() => handleFocus("phone")}
+              onBlur={handleBlur}
             />
           </div>
 
@@ -187,6 +246,8 @@ const AddClient = () => {
               value={formData.email || ""}
               onChange={(e) => handleInputChange("email", e.target.value)}
               className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-green-600 font-medium"
+              onFocus={() => handleFocus("email")}
+              onBlur={handleBlur}
             />
           </div>
 
@@ -199,6 +260,8 @@ const AddClient = () => {
               value={leadSource}
               onChange={(e) => handleInputChange("leadSource", e.target.value)}
               className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-green-600 font-medium"
+              onFocus={() => handleFocus("leadSource")}
+              onBlur={handleBlur}
             />
           </div>
 
@@ -221,6 +284,8 @@ const AddClient = () => {
                       e.stopPropagation();
                       setShowAddressDetails(true);
                     }}
+                    onFocus={() => handleFocus("address")}
+                    onBlur={handleBlur}
                   />
                 </div>
               </div>
@@ -235,6 +300,8 @@ const AddClient = () => {
                   value={addressLine2}
                   onChange={(e) => handleInputChange("addressLine2", e.target.value)}
                   className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                  onFocus={() => handleFocus("addressLine2")}
+                  onBlur={handleBlur}
                 />
                 <input
                   type="text"
@@ -242,12 +309,16 @@ const AddClient = () => {
                   value={formData.city || ""}
                   onChange={(e) => handleInputChange("city", e.target.value)}
                   className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                  onFocus={() => handleFocus("city")}
+                  onBlur={handleBlur}
                 />
                 <div className="relative">
                   <select
                     value={formData.state || ""}
                     onChange={(e) => handleInputChange("state", e.target.value)}
                     className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-gray-100"
+                    onFocus={() => handleFocus("state")}
+                    onBlur={handleBlur}
                   >
                     <option value="">State</option>
                     <option value="AL">Alabama</option>
@@ -268,12 +339,16 @@ const AddClient = () => {
                   value={formData.zip || ""}
                   onChange={(e) => handleInputChange("zip", e.target.value)}
                   className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                  onFocus={() => handleFocus("zip")}
+                  onBlur={handleBlur}
                 />
                 <div className="relative">
                   <select
                     value={country}
                     onChange={(e) => handleInputChange("country", e.target.value)}
                     className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none bg-gray-100"
+                    onFocus={() => handleFocus("country")}
+                    onBlur={handleBlur}
                   >
                     <option value="United States">United States</option>
                     <option value="Canada">Canada</option>

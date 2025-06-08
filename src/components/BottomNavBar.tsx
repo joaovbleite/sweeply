@@ -11,7 +11,11 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-const BottomNavBar: React.FC = () => {
+interface BottomNavBarProps {
+  hidden?: boolean;
+}
+
+const BottomNavBar: React.FC<BottomNavBarProps> = ({ hidden = false }) => {
   const { t } = useTranslation(['navigation', 'common']);
   const location = useLocation();
 
@@ -23,6 +27,10 @@ const BottomNavBar: React.FC = () => {
     { id: "finance", icon: DollarSign, path: "/finance" },
     { id: "more", icon: MoreHorizontal, path: "/more" }
   ];
+
+  if (hidden) {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-0 left-0 right-0 mx-auto px-4 z-50 lg:hidden pb-safe">
