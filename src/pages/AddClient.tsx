@@ -110,15 +110,18 @@ const AddClient = () => {
 
   return (
     <AppLayout>
-      <div className="px-4 py-6 pb-28 bg-white">
-        {/* Header */}
-        <div className="flex items-center mb-4">
+      {/* Fixed header */}
+      <div className="fixed top-0 left-0 right-0 bg-white z-20 px-4 py-4 border-b border-gray-200">
+        <div className="flex items-center">
           <Link to="/clients" className="mr-4">
             <ArrowLeft className="w-6 h-6 text-gray-800" />
           </Link>
           <h1 className="text-2xl font-semibold text-gray-900">New client</h1>
         </div>
+      </div>
 
+      {/* Content with padding to account for fixed header */}
+      <div className="px-4 py-6 pt-20 pb-28 bg-white">
         {/* Add from contacts button */}
         <button 
           className="w-full flex items-center justify-center gap-2 p-4 border border-gray-300 rounded-xl mb-6 text-green-600 font-medium"
