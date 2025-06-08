@@ -110,7 +110,7 @@ const AddClient = () => {
 
   return (
     <AppLayout>
-      <div className="px-4 py-6 pb-24">
+      <div className="px-4 py-6 pb-36 bg-white min-h-screen">
         {/* Header */}
         <div className="flex items-center mb-4">
           <Link to="/clients" className="mr-4">
@@ -129,7 +129,7 @@ const AddClient = () => {
         </button>
 
         {/* Form fields */}
-        <div className="space-y-4">
+        <div className="space-y-4 mb-20">
           {/* Name fields */}
           <div className="flex items-center gap-3">
             <User className="w-5 h-5 text-gray-500" />
@@ -300,7 +300,7 @@ const AddClient = () => {
         </div>
 
         {/* Save button */}
-        <div className="mt-8">
+        <div className="mt-8 pb-20">
           <button
             onClick={handleSubmit}
             disabled={loading || !formData.name.trim()}
