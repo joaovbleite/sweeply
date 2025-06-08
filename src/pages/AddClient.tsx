@@ -121,7 +121,7 @@ const AddClient = () => {
       </div>
 
       {/* Content with padding to account for fixed header */}
-      <div className="px-4 py-6 pt-20 pb-28 bg-white">
+      <div className={`px-4 py-6 pt-20 ${showAddressDetails ? "pb-56" : "pb-28"} bg-white min-h-screen`}>
         {/* Add from contacts button */}
         <button 
           className="w-full flex items-center justify-center gap-2 p-4 border border-gray-300 rounded-xl mb-6 text-green-600 font-medium"
