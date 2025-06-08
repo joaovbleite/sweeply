@@ -415,12 +415,15 @@ const AddClient = () => {
                 </div>
                 
                 {/* Extra padding at the bottom to push content above keyboard */}
-                <div className="h-28"></div>
+                <div className="h-40"></div>
               </div>
             )}
           </div>
         </div>
       </div>
+      
+      {/* White overlay to cover any potential black box */}
+      <div className="fixed bottom-0 left-0 right-0 h-16 bg-white z-40" />
       
       {/* Fixed Save Button at bottom */}
       <div className="fixed bottom-0 left-0 right-0 bg-white p-4 border-t border-gray-200 z-50">

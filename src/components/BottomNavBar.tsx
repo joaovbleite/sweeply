@@ -26,7 +26,7 @@ const BottomNavBar: React.FC = () => {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 mx-auto px-4 z-50 lg:hidden pb-safe">
-      <nav className="bg-[#121212] text-white rounded-full flex items-center justify-between px-6 py-3.5 max-w-md mx-auto shadow-lg">
+      <nav className="bg-white text-[#121212] rounded-full flex items-center justify-between px-6 py-3.5 max-w-md mx-auto shadow-lg border border-gray-200">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
@@ -37,8 +37,8 @@ const BottomNavBar: React.FC = () => {
               to={item.path}
               className={`flex items-center justify-center w-9 h-9 transition-all duration-200 ease-in-out ${
                 isActive 
-                  ? "text-white scale-110" 
-                  : "text-gray-400 hover:text-white hover:scale-105"
+                  ? "text-blue-600 scale-110" 
+                  : "text-gray-600 hover:text-blue-600 hover:scale-105"
               }`}
               aria-label={item.id}
             >
@@ -50,14 +50,14 @@ const BottomNavBar: React.FC = () => {
         {/* Profile button - special styling to match the image */}
         <Link
           to="/profile"
-          className={`flex items-center justify-center w-11 h-11 bg-white rounded-full shadow-sm transition-all duration-200 ease-in-out hover:scale-105 ${
+          className={`flex items-center justify-center w-11 h-11 bg-blue-600 text-white rounded-full shadow-sm transition-all duration-200 ease-in-out hover:scale-105 ${
             location.pathname === "/profile" 
-              ? "ring-2 ring-white" 
+              ? "ring-2 ring-blue-300" 
               : ""
           }`}
           aria-label="profile"
         >
-          <User className="w-5 h-5 text-black" strokeWidth={2} />
+          <User className="w-5 h-5" strokeWidth={2} />
         </Link>
       </nav>
     </div>
