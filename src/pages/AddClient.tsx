@@ -212,7 +212,7 @@ const AddClient = () => {
       {/* Content with padding to account for fixed header */}
       <div 
         ref={contentRef}
-        className={`px-4 ${showAddressDetails ? 'pb-40' : 'pb-28'} pt-5 flex-1 overflow-y-auto min-h-screen bg-white`}
+        className="px-4 pt-5 pb-20 flex-1 overflow-y-auto min-h-screen bg-white"
       >
         {/* Add from contacts button */}
         <button 
@@ -224,7 +224,7 @@ const AddClient = () => {
         </button>
 
         {/* Form fields */}
-        <div className="space-y-4 mb-10">
+        <div className="space-y-4 mb-16">
           {/* Name fields */}
           <div className="flex items-center gap-3">
             <User className="w-5 h-5 text-gray-500" />
@@ -414,18 +414,15 @@ const AddClient = () => {
                   </label>
                 </div>
                 
-                {/* Extra padding at the bottom to push content above keyboard */}
-                <div className="h-40"></div>
+                {/* Simple padding - no excessive height */}
+                <div className="h-24"></div>
               </div>
             )}
           </div>
         </div>
       </div>
       
-      {/* White overlay to cover any potential black box */}
-      <div className="fixed bottom-0 left-0 right-0 h-16 bg-white z-40" />
-      
-      {/* Fixed Save Button at bottom */}
+      {/* Fixed Save Button at bottom - use pure white background */}
       <div className="fixed bottom-0 left-0 right-0 bg-white p-4 border-t border-gray-200 z-50">
         <button
           onClick={handleSubmit}
