@@ -181,17 +181,19 @@ const AddClient = () => {
   return (
     <AppLayout hideBottomNav={true}>
       {/* Fixed header */}
-      <div className="fixed top-0 left-0 right-0 bg-white z-20 px-4 py-4 border-b border-gray-200">
-        <div className="flex items-center">
-          <Link to="/clients" className="mr-4">
-            <ArrowLeft className="w-6 h-6 text-gray-800" />
+      <div className="sticky top-0 left-0 right-0 z-30 bg-white shadow-sm">
+        <div className="flex items-center px-4 pt-12 pb-3 border-b border-gray-200">
+          <Link to="/clients" className="mr-2 text-gray-600">
+            <ArrowLeft className="w-6 h-6" />
           </Link>
-          <h1 className="text-2xl font-semibold text-gray-900">New client</h1>
+          <h1 className="text-2xl font-bold text-[#1a2e35]">
+            New client
+          </h1>
         </div>
       </div>
 
       {/* Content with padding to account for fixed header */}
-      <div className={`px-4 py-6 pt-20 pb-28 bg-white min-h-screen`}>
+      <div className="px-4 pb-20 pt-5 flex-1 overflow-y-auto min-h-screen bg-white">
         {/* Add from contacts button */}
         <button 
           className="w-full flex items-center justify-center gap-2 p-4 border border-gray-300 rounded-xl mb-6 text-green-600 font-medium"
