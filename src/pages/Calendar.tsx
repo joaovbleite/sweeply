@@ -670,59 +670,80 @@ const Calendar = () => {
 
             {/* List View */}
             {viewMode === 'list' && (
-              <div className="p-6">
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-                  <div className="p-4 border-b border-gray-200">
-                    <h3 className="font-medium text-lg">
-                      Jobs for {format(selectedDate, 'MMMM d, yyyy')}
-                    </h3>
+              <div className="h-full flex flex-col">
+                {/* User info bar */}
+                <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="font-medium text-lg text-gray-900">
+                      {user?.user_metadata?.name || user?.email}
+                    </div>
                   </div>
-                  
-                  <div className="divide-y divide-gray-100">
-                    {weekJobs.filter(job => isSameDay(parseISO(job.scheduled_date), selectedDate))
-                      .sort((a, b) => {
-                        if (!a.scheduled_time) return -1;
-                        if (!b.scheduled_time) return 1;
-                        return a.scheduled_time.localeCompare(b.scheduled_time);
-                      })
-                      .map(job => (
-                        <div 
-                          key={job.id}
-                          className="p-4 hover:bg-gray-50 cursor-pointer"
-                          onClick={() => handleJobClick(job)}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className={`w-3 h-3 rounded-full ${
-                                job.status === 'completed' ? 'bg-green-500' :
-                                job.status === 'in_progress' ? 'bg-blue-500' :
-                                job.status === 'cancelled' ? 'bg-red-500' : 'bg-gray-500'
-                              }`}></div>
-                              <div>
-                                <div className="font-medium">{job.client?.name || 'Unknown Client'}</div>
-                                <div className="text-sm text-gray-600">{job.title || job.service_type}</div>
-                              </div>
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {job.scheduled_time ? format(new Date(`2000-01-01T${job.scheduled_time}`), 'h:mm a') : 'No time set'}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                      
-                    {weekJobs.filter(job => isSameDay(parseISO(job.scheduled_date), selectedDate)).length === 0 && (
-                      <div className="p-8 text-center text-gray-500">
-                        <p>No jobs scheduled for this day</p>
-                        <button
-                          onClick={() => setShowQuickJobModal(true)}
-                          className="mt-4 px-4 py-2 bg-[#307842] text-white rounded-lg text-sm hover:bg-[#276835] transition-colors"
-                        >
-                          Add Job
-                        </button>
-                      </div>
-                    )}
+                  <div className="bg-gray-100 px-3 py-1 rounded-full text-sm font-medium">
+                    {weekJobs.filter(job => isSameDay(parseISO(job.scheduled_date), selectedDate)).length} jobs
                   </div>
                 </div>
+                
+                {/* Search bar */}
+                <div className="px-6 py-3 bg-white border-b border-gray-200">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search clients..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+                
+                {/* Jobs or empty state */}
+                {weekJobs.filter(job => isSameDay(parseISO(job.scheduled_date), selectedDate)).length > 0 ? (
+                  <div className="flex-1 overflow-y-auto">
+                    <div className="divide-y divide-gray-100">
+                      {weekJobs.filter(job => isSameDay(parseISO(job.scheduled_date), selectedDate))
+                        .sort((a, b) => {
+                          if (!a.scheduled_time) return -1;
+                          if (!b.scheduled_time) return 1;
+                          return a.scheduled_time.localeCompare(b.scheduled_time);
+                        })
+                        .map(job => (
+                          <div 
+                            key={job.id}
+                            className="p-4 px-6 hover:bg-gray-50 cursor-pointer flex items-center gap-3"
+                            onClick={() => handleJobClick(job)}
+                          >
+                            <div className={`w-3 h-3 rounded-full ${
+                              job.status === 'completed' ? 'bg-green-500' :
+                              job.status === 'in_progress' ? 'bg-blue-500' :
+                              job.status === 'cancelled' ? 'bg-red-500' : 'bg-gray-500'
+                            }`}></div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-gray-900">{job.client?.name || 'Unknown Client'}</div>
+                              <div className="text-sm text-gray-600 truncate">{job.title || job.service_type}</div>
+                            </div>
+                            <div className="text-sm text-gray-500 whitespace-nowrap">
+                              {job.scheduled_time ? format(new Date(`2000-01-01T${job.scheduled_time}`), 'h:mm a') : 'No time'}
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex-1 flex flex-col items-center justify-center p-6">
+                    <div className="w-24 h-24 mb-6">
+                      <CalendarIcon className="w-full h-full text-gray-300" />
+                    </div>
+                    <h3 className="text-xl font-medium text-gray-700 mb-4">No scheduled appointments</h3>
+                    <button
+                      onClick={() => setShowQuickJobModal(true)}
+                      className="text-[#4285F4] font-medium flex items-center gap-1"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Schedule a job
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
