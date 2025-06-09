@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
 import AppLayout from "@/components/AppLayout";
 import { toast } from "sonner";
+import PageHeader from "@/components/ui/PageHeader";
 
 const Refer: React.FC = () => {
   const { t } = useTranslation(['settings', 'common']);
@@ -52,68 +53,43 @@ const Refer: React.FC = () => {
 
   return (
     <AppLayout>
-      <div className="bg-white flex flex-col">
-        {/* Fixed header with shadow to cover content when scrolling */}
-        <div className="sticky top-0 left-0 right-0 z-30 bg-white shadow-sm">
-          <div className="flex items-center px-4 pt-12 pb-3 border-b border-gray-200">
-            <button 
-              onClick={() => navigate(-1)} 
-              className="mr-2 text-gray-600"
-              aria-label="Back"
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </button>
-            <h1 className="text-2xl font-bold text-[#0d3547]">
-              Refer a friend
-            </h1>
-          </div>
-        </div>
+      <div className="bg-white flex flex-col min-h-screen">
+        {/* Use the PageHeader component */}
+        <PageHeader
+          title="Refer a friend"
+          onBackClick={() => navigate(-1)}
+        />
 
         <div className="flex-1 overflow-y-auto pb-20">
           {/* Hero Section with dark blue background */}
-          <div className="bg-[#0d3547] text-white px-4 py-8">
+          <div className="bg-[#0a2434] text-white px-6 py-8">
             <h2 className="text-4xl font-bold leading-tight mb-6">
               When your community is strong, you're strong
             </h2>
             
             {/* $100 Gift Card Image */}
-            <div className="bg-[#f5f5f0] rounded-lg p-6 mb-4 mx-auto">
-              <img 
-                src="/images/100-prepaid-mastercard.svg" 
-                alt="$100 Prepaid Mastercard" 
-                className="w-full"
-                onError={(e) => {
-                  // Fallback if image doesn't load
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  const parent = target.parentElement;
-                  if (parent) {
-                    const fallback = document.createElement('div');
-                    fallback.innerHTML = `
-                      <div class="bg-[#0d3547] text-[#a4ff00] p-4 inline-block font-bold text-4xl rounded">$100</div>
-                      <div class="bg-[#0d3547] text-white p-3 text-2xl font-bold mt-2 rounded">Prepaid</div>
-                      <div class="bg-[#0d3547] text-white p-3 text-2xl font-bold mt-2 rounded">Mastercard</div>
-                    `;
-                    parent.appendChild(fallback);
-                  }
-                }}
-              />
+            <div className="bg-[#f5f5f0] rounded-lg p-6 mb-4">
+              <div className="w-full">
+                <div className="bg-[#0a2434] text-[#9dfc00] p-3 inline-block font-bold text-7xl rounded">$100</div>
+                <div className="bg-[#0a2434] text-white p-2 text-3xl font-bold mt-2 rounded">Prepaid</div>
+                <div className="bg-[#0a2434] text-white p-2 text-4xl font-bold mt-2 rounded">Mastercard</div>
+              </div>
             </div>
           </div>
           
           {/* Share Code Section */}
-          <div className="px-4 pt-6">
+          <div className="px-6 pt-6">
             <h3 className="text-3xl font-bold text-[#0d3547] mb-3">Share your code</h3>
             <p className="text-gray-700 text-lg mb-4">
-              Refer friends to Sweeply with your unique code! If they become a customer, you'll get a <span className="font-bold">$100 prepaid gift card</span> and they'll get rewarded too!
+              Refer friends to Jobber with your unique code! If they become a customer, you'll get a <span className="font-bold">$100 prepaid gift card</span> and they'll get rewarded too!
             </p>
             
             {/* Referral Code Display */}
             <div className="flex justify-between items-center mb-4">
-              <div className="text-4xl font-bold text-[#4d9c41]">{referralCode}</div>
+              <div className="text-4xl font-bold text-[#307842]">{referralCode}</div>
               <button 
                 onClick={handleCopy}
-                className="text-[#4d9c41] font-bold text-2xl"
+                className="text-[#307842] font-bold text-xl"
               >
                 COPY
               </button>
@@ -122,39 +98,24 @@ const Refer: React.FC = () => {
             {/* Share Button */}
             <button
               onClick={handleShare}
-              className="w-full bg-[#4d9c41] text-white font-bold text-xl py-4 rounded-lg mb-8"
+              className="w-full bg-[#307842] text-white font-bold text-xl py-4 rounded-lg mb-8"
             >
               Share Code
             </button>
             
             {/* Redeem Section */}
             <h3 className="text-3xl font-bold text-[#0d3547] mb-3">Redeem a code</h3>
-            <p className="text-gray-700 text-lg mb-4">
-              Did your friend refer you to Sweeply? Enter their referral code and we will send you both a reward!
-            </p>
             
             {/* Redeem Input */}
-            <div className="mb-4">
+            <div className="mb-6">
               <input
                 type="text"
                 value={redeemCode}
                 onChange={(e) => setRedeemCode(e.target.value.toUpperCase())}
                 placeholder="Enter referral code"
-                className="w-full px-4 py-4 border border-gray-300 rounded-lg text-gray-800 text-lg focus:ring-[#4d9c41] focus:border-[#4d9c41] mb-4"
+                className="w-full px-4 py-4 border border-gray-300 rounded-lg text-gray-800 text-lg focus:ring-[#307842] focus:border-[#307842] mb-4"
               />
-              
-              <button
-                onClick={handleRedeem}
-                className="w-full bg-white border border-[#4d9c41] text-[#4d9c41] font-bold text-xl py-4 rounded-lg mb-4"
-              >
-                Redeem a Code
-              </button>
             </div>
-            
-            {/* Terms Note */}
-            <p className="text-gray-600 text-base mb-8">
-              By sharing or redeeming a referral code, you agree to the <a href="#" className="text-[#4d9c41]">program terms of use</a>.
-            </p>
           </div>
         </div>
       </div>
