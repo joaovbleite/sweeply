@@ -114,7 +114,7 @@ const Signup = () => {
                 required
                 value={formData.fullName}
                 onChange={handleChange}
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent text-gray-900"
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
                 placeholder="John Doe"
               />
             </div>
@@ -131,7 +131,7 @@ const Signup = () => {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent text-gray-900"
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
                 placeholder="your@email.com"
               />
             </div>
@@ -149,7 +149,7 @@ const Signup = () => {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent text-gray-900"
+                  className="w-full px-4 py-3 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
                   placeholder="••••••••"
                   minLength={6}
                 />
@@ -179,7 +179,7 @@ const Signup = () => {
                 autoComplete="organization"
                 value={formData.company}
                 onChange={handleChange}
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent text-gray-900"
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
                 placeholder="Your Cleaning Co."
               />
             </div>
