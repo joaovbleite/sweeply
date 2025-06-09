@@ -125,63 +125,69 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
         </div>
       </button>
 
-      {/* Inline calendar dropdown */}
+      {/* Inline calendar dropdown - fixed positioning */}
       {isExpanded && (
-        <div className="absolute left-0 md:left-0 right-0 md:right-auto top-full mt-2 bg-white rounded-xl shadow-lg border border-gray-200 z-50 md:w-[290px] max-h-[70vh] overflow-y-auto">
-          {/* Title with month/year */}
-          <div className="text-center p-3 border-b border-gray-100 sticky top-0 bg-white z-10">
-            <div className="flex items-center justify-between">
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  changeMonth('prev');
-                }}
-                className="p-1.5 hover:bg-blue-50 rounded-full"
-                aria-label="Previous month"
-              >
-                <ChevronLeft className="h-5 w-5 text-blue-500" />
-              </button>
-              <div className="text-lg font-bold text-gray-900">
-                {format(selectedMonth, 'MMMM yyyy')}
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-20" onClick={() => setIsExpanded(false)}>
+          <div 
+            className="absolute left-4 right-4 top-[130px] md:left-auto md:right-auto md:w-[320px] bg-white rounded-xl shadow-xl border border-gray-200 max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+            style={{ transform: 'translateX(0)', maxWidth: '100%' }}
+          >
+            {/* Title with month/year */}
+            <div className="text-center p-3 border-b border-gray-100 sticky top-0 bg-white z-10">
+              <div className="flex items-center justify-between">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    changeMonth('prev');
+                  }}
+                  className="p-1.5 hover:bg-blue-50 rounded-full"
+                  aria-label="Previous month"
+                >
+                  <ChevronLeft className="h-5 w-5 text-blue-500" />
+                </button>
+                <div className="text-lg font-bold text-gray-900">
+                  {format(selectedMonth, 'MMMM yyyy')}
+                </div>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    changeMonth('next');
+                  }}
+                  className="p-1.5 hover:bg-blue-50 rounded-full"
+                  aria-label="Next month"
+                >
+                  <ChevronRight className="h-5 w-5 text-blue-500" />
+                </button>
               </div>
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  changeMonth('next');
-                }}
-                className="p-1.5 hover:bg-blue-50 rounded-full"
-                aria-label="Next month"
-              >
-                <ChevronRight className="h-5 w-5 text-blue-500" />
-              </button>
             </div>
-          </div>
 
-          {/* Week day labels */}
-          <div className="grid grid-cols-7 gap-1 px-3 py-2 text-center">
-            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
-              <div key={index} className="text-sm font-medium text-blue-400">
-                {day}
-              </div>
-            ))}
-          </div>
-          
-          {/* Calendar grid */}
-          <div className="grid grid-cols-7 gap-1 px-3 pb-3">
-            {generateCalendarDays()}
-          </div>
-          
-          {/* User info and job count */}
-          {userName && (
-            <div className="p-3 border-t border-gray-200 flex items-center justify-between">
-              <div className="text-sm font-medium text-[#1a2e35] truncate max-w-[160px]">
-                {userName}
-              </div>
-              <div className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
-                {jobCount} jobs
-              </div>
+            {/* Week day labels */}
+            <div className="grid grid-cols-7 gap-1 px-3 py-2 text-center">
+              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
+                <div key={index} className="text-sm font-medium text-blue-400">
+                  {day}
+                </div>
+              ))}
             </div>
-          )}
+            
+            {/* Calendar grid */}
+            <div className="grid grid-cols-7 gap-1 px-3 pb-3">
+              {generateCalendarDays()}
+            </div>
+            
+            {/* User info and job count */}
+            {userName && (
+              <div className="p-3 border-t border-gray-200 flex items-center justify-between">
+                <div className="text-sm font-medium text-[#1a2e35] truncate max-w-[160px]">
+                  {userName}
+                </div>
+                <div className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
+                  {jobCount} jobs
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

@@ -67,13 +67,13 @@ const Refer: React.FC = () => {
               When your community is strong, you're strong
             </h2>
             
-            {/* $100 Gift Card Image */}
-            <div className="bg-[#f5f5f0] rounded-lg p-5 mb-3">
-              <div className="w-full">
-                <div className="bg-[#0a2434] text-[#9dfc00] p-2 inline-block font-bold text-5xl rounded">$100</div>
-                <div className="bg-[#0a2434] text-white p-1.5 text-2xl font-bold mt-2 rounded">Prepaid</div>
-                <div className="bg-[#0a2434] text-white p-1.5 text-3xl font-bold mt-2 rounded">Mastercard</div>
-              </div>
+            {/* Gift Card Image */}
+            <div className="relative w-full bg-[#f5f5f0] rounded-lg p-5 mb-3 overflow-hidden">
+              <img 
+                src="https://i.postimg.cc/SRTXyMKm/image.png" 
+                alt="$100 Gift Card" 
+                className="w-full h-auto rounded"
+              />
             </div>
           </div>
           
