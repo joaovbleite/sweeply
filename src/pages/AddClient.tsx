@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, User, Mail, Phone, MapPin, Building, ChevronDown, List } from "lucide-react";
+import { User, Mail, Phone, MapPin, Building, List } from "lucide-react";
 import { toast } from "sonner";
 import { clientsApi } from "@/lib/api/clients";
 import { CreateClientInput } from "@/types/client";
 import AppLayout from "@/components/AppLayout";
+import PageHeader from "@/components/ui/PageHeader";
 
 const AddClient = () => {
   const navigate = useNavigate();
@@ -85,17 +86,11 @@ const AddClient = () => {
 
   return (
     <AppLayout>
-      {/* Fixed header */}
-      <div className="sticky top-0 left-0 right-0 z-30 bg-white shadow-sm">
-        <div className="flex items-center px-4 pt-16 pb-4 border-b border-gray-200">
-          <Link to="/clients" className="mr-2 text-gray-600">
-            <ArrowLeft className="w-6 h-6" />
-          </Link>
-          <h1 className="text-2xl font-bold text-[#1a2e35]">
-            New client
-          </h1>
-        </div>
-      </div>
+      {/* Use the new PageHeader component */}
+      <PageHeader
+        title="New client"
+        backUrl="/clients"
+      />
 
       {/* Content with padding to account for fixed header */}
       <div className="px-4 pt-7 pb-24 flex-1 overflow-y-auto min-h-screen bg-white">

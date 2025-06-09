@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { clientsApi } from "@/lib/api/clients";
 import { Client } from "@/types/client";
 import { useLocale } from "@/hooks/useLocale";
+import PageHeader from "@/components/ui/PageHeader";
 
 const NewQuote = () => {
   const { t } = useTranslation(['common', 'quotes']);
@@ -89,30 +90,24 @@ const NewQuote = () => {
     toast.success("Quote saved as draft");
   };
 
+  // Create the review button for the header
+  const ReviewButton = (
+    <button
+      className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium text-sm"
+      onClick={handleSubmit}
+    >
+      Review and Send
+    </button>
+  );
+
   return (
     <div className="bg-gray-50 min-h-screen pb-20">
-      {/* Header - using safe area inset to prevent notch issues */}
-      <div className="bg-white fixed top-0 left-0 right-0 z-20 shadow-sm pt-safe">
-        <div className="flex items-center justify-between px-4 pt-16 pb-4 border-b border-gray-200">
-          <div className="flex items-center">
-            <button 
-              onClick={handleBack}
-              className="mr-2 text-gray-600"
-              aria-label="Back"
-              type="button"
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </button>
-            <h1 className="text-2xl font-bold text-[#1a2e35]">New quote</h1>
-          </div>
-          <button
-            className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium text-sm"
-            onClick={handleSubmit}
-          >
-            Review and Send
-          </button>
-        </div>
-      </div>
+      {/* Use the new PageHeader component with right element */}
+      <PageHeader
+        title="New quote"
+        onBackClick={handleBack}
+        rightElement={ReviewButton}
+      />
 
       {/* Main content - with top padding to account for fixed header */}
       <div className="pt-28">

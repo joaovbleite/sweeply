@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowUpRight, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import AppLayout from "@/components/AppLayout";
+import PageHeader from "@/components/ui/PageHeader";
 
 const Support: React.FC = () => {
   const { t } = useTranslation(['settings', 'common']);
@@ -11,21 +12,11 @@ const Support: React.FC = () => {
   return (
     <AppLayout>
       <div className="bg-white flex flex-col">
-        {/* Fixed header with shadow to cover content when scrolling */}
-        <div className="sticky top-0 left-0 right-0 z-30 bg-white shadow-sm">
-          <div className="flex items-center px-4 pt-16 pb-4 border-b border-gray-200">
-            <button 
-              onClick={() => navigate(-1)} 
-              className="mr-2 text-gray-600"
-              aria-label="Back"
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </button>
-            <h1 className="text-2xl font-bold text-[#1a2e35]">
-              Support
-            </h1>
-          </div>
-        </div>
+        {/* Use the new PageHeader component */}
+        <PageHeader
+          title="Support"
+          onBackClick={() => navigate(-1)}
+        />
 
         <div className="px-4 pb-20 pt-7 flex-1 overflow-y-auto">
           <div className="mb-8">
