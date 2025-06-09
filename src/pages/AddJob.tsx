@@ -154,7 +154,7 @@ const AddJob = () => {
   const SaveButton = (
     <button
       onClick={handleSubmit}
-      className="bg-green-600 text-white px-5 py-2.5 rounded-xl font-medium"
+      className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-medium"
     >
       Save
     </button>
@@ -171,7 +171,7 @@ const AddJob = () => {
 
       <div className="px-4 pt-7 pb-24 flex-1 overflow-y-auto min-h-screen bg-white">
         {/* Overview Section */}
-        <h2 className="text-xl text-gray-500 font-medium mb-4">Overview</h2>
+        <h2 className="text-xl text-gray-700 font-medium mb-4">Overview</h2>
         
         <div className="space-y-4 mb-8">
           <input
@@ -179,14 +179,14 @@ const AddJob = () => {
             value={formData.jobTitle}
             onChange={(e) => handleInputChange('jobTitle', e.target.value)}
             placeholder="Job title"
-            className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
           
           <textarea
             value={formData.instructions}
             onChange={(e) => handleInputChange('instructions', e.target.value)}
             placeholder="Instructions"
-            className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             rows={4}
           />
         </div>
@@ -194,12 +194,12 @@ const AddJob = () => {
         {/* Salesperson Section */}
         <div className="mb-8">
           <div className="relative mb-4">
-            <label className="text-sm text-gray-500 font-medium mb-1 block">Salesperson</label>
+            <label className="text-sm text-gray-700 font-medium mb-1 block">Salesperson</label>
             <div className="relative">
               <select
                 value={formData.salesperson}
                 onChange={(e) => handleInputChange('salesperson', e.target.value)}
-                className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none"
+                className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-gray-100"
               >
                 <option value="">Please select</option>
                 <option value="victor leite">victor leite</option>
@@ -207,7 +207,7 @@ const AddJob = () => {
                 <option value="jane smith">Jane Smith</option>
               </select>
               <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                <ChevronDown className="w-5 h-5 text-gray-500" />
+                <ChevronDown className="w-5 h-5 text-gray-700" />
               </div>
             </div>
           </div>
@@ -217,30 +217,30 @@ const AddJob = () => {
         <div className="w-full h-3 bg-gray-100 -mx-4 px-4 mb-8"></div>
         
         {/* Product / Service Section */}
-        <h2 className="text-xl text-gray-500 font-medium mb-4">Product / Service</h2>
+        <h2 className="text-xl text-gray-700 font-medium mb-4">Product / Service</h2>
         
         {/* Line items Section */}
         <div className="flex items-center justify-between border-t border-b py-4 mb-4">
-          <h3 className="text-xl font-medium">Line items</h3>
-          <button className="text-green-600">
+          <h3 className="text-xl font-medium text-gray-800">Line items</h3>
+          <button className="text-blue-600">
             <Plus className="w-6 h-6" />
           </button>
         </div>
 
         {/* Subtotal Section */}
         <div className="flex items-center justify-between mb-8">
-          <h3 className="text-xl font-medium">Subtotal</h3>
-          <span className="text-xl">{formatCurrency(formData.subtotal)}</span>
+          <h3 className="text-xl font-medium text-gray-800">Subtotal</h3>
+          <span className="text-xl text-gray-800">{formatCurrency(formData.subtotal)}</span>
         </div>
 
         {/* Separator */}
         <div className="w-full h-3 bg-gray-100 -mx-4 px-4 mb-8"></div>
         
         {/* Schedule Section */}
-        <h2 className="text-xl text-gray-500 font-medium mb-4">Schedule</h2>
+        <h2 className="text-xl text-gray-700 font-medium mb-4">Schedule</h2>
         
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-medium">Schedule later</h3>
+          <h3 className="text-xl font-medium text-gray-800">Schedule later</h3>
           <div 
             className={`w-14 h-8 rounded-full p-1 transition-colors duration-200 ease-in-out ${scheduleForLater ? 'bg-gray-400' : 'bg-gray-300'}`}
             onClick={() => setScheduleForLater(!scheduleForLater)}
@@ -257,10 +257,10 @@ const AddJob = () => {
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-2xl font-bold text-[#1a2e35]">{formatMonthYear(currentMonth)}</h3>
             <div className="flex space-x-4">
-              <button onClick={goToPrevMonth} className="text-green-600">
+              <button onClick={goToPrevMonth} className="text-blue-600">
                 <ChevronLeft className="w-6 h-6" />
               </button>
-              <button onClick={goToNextMonth} className="text-green-600">
+              <button onClick={goToNextMonth} className="text-blue-600">
                 <ChevronRight className="w-6 h-6" />
               </button>
             </div>
@@ -269,7 +269,7 @@ const AddJob = () => {
           {/* Day headers */}
           <div className="grid grid-cols-7 text-center mb-2">
             {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
-              <div key={index} className="text-lg font-medium text-gray-500">
+              <div key={index} className="text-lg font-medium text-gray-700">
                 {day}
               </div>
             ))}
@@ -284,9 +284,9 @@ const AddJob = () => {
                   className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto ${
                     day.currentMonth 
                       ? selectedDate === day.day
-                        ? 'bg-green-600 text-white'
+                        ? 'bg-blue-600 text-white'
                         : 'hover:bg-gray-100 text-gray-900'
-                      : 'text-gray-400 bg-gray-100'
+                      : 'text-gray-500 bg-gray-100'
                   } ${!day.currentMonth && !day.prevMonth ? 'bg-gray-100' : ''}`}
                   disabled={!day.currentMonth}
                 >
@@ -301,21 +301,21 @@ const AddJob = () => {
         <div className="border-t border-b py-5 mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <Users className="w-6 h-6 text-gray-500 mr-3" />
-              <h3 className="text-xl font-medium">Team</h3>
+              <Users className="w-6 h-6 text-gray-700 mr-3" />
+              <h3 className="text-xl font-medium text-gray-800">Team</h3>
             </div>
-            <ChevronRight className="w-6 h-6 text-gray-400" />
+            <ChevronRight className="w-6 h-6 text-gray-700" />
           </div>
-          <p className="text-lg text-gray-700 ml-9">victor leite</p>
+          <p className="text-lg text-gray-800 ml-9">victor leite</p>
         </div>
 
         {/* Invoicing Section */}
-        <h2 className="text-xl text-gray-500 font-medium mb-4">Invoicing</h2>
+        <h2 className="text-xl text-gray-700 font-medium mb-4">Invoicing</h2>
         
         <div className="flex items-center justify-between mb-8">
-          <h3 className="text-xl font-medium">Remind me to invoice when I close the job</h3>
+          <h3 className="text-xl font-medium text-gray-800">Remind me to invoice when I close the job</h3>
           <div 
-            className={`w-14 h-8 rounded-full p-1 transition-colors duration-200 ease-in-out ${remindToInvoice ? 'bg-green-600' : 'bg-gray-300'}`}
+            className={`w-14 h-8 rounded-full p-1 transition-colors duration-200 ease-in-out ${remindToInvoice ? 'bg-blue-600' : 'bg-gray-300'}`}
             onClick={() => setRemindToInvoice(!remindToInvoice)}
           >
             <div 
