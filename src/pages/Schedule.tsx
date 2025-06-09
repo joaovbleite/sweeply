@@ -8,6 +8,7 @@ import { Job } from '@/types/job';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import ViewOptionsModal, { ViewOptionsState } from '@/components/schedule/ViewOptionsModal';
+import MonthSelector from '@/components/Calendar/MonthSelector';
 
 const Schedule = () => {
   const { t } = useTranslation(['calendar', 'common']);
@@ -185,10 +186,23 @@ const Schedule = () => {
             <button onClick={() => navigateWeek('prev')} className="p-2 hover:bg-gray-100 rounded-full mr-2">
               <ChevronLeft className="w-5 h-5 text-gray-600" />
             </button>
-            <button className="flex items-center text-2xl font-bold text-gray-800">
-              {format(currentDate, 'MMMM')}
-              <ChevronDown className="ml-2 w-6 h-6" />
-            </button>
+            
+            <MonthSelector 
+              currentDate={currentDate} 
+              onDateChange={(date) => {
+                setCurrentDate(date);
+                // Scroll to the middle (current) week
+                if (weekDaysRef.current) {
+                  weekDaysRef.current.scrollTo({
+                    left: weekDaysRef.current.offsetWidth,
+                    behavior: 'auto'
+                  });
+                }
+              }}
+              userName={user?.user_metadata?.name || user?.email}
+              jobCount={dayJobs.length}
+            />
+            
             <button onClick={() => navigateWeek('next')} className="p-2 hover:bg-gray-100 rounded-full ml-2">
               <ChevronRight className="w-5 h-5 text-gray-600" />
             </button>
