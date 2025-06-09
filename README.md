@@ -1,4 +1,27 @@
-# Welcome to your Lovable project
+# Sweeply App
+
+This is the main repository for the Sweeply mobile app, a powerful cleaning business management solution.
+
+## Latest Updates
+- Updated calendar and schedule functionality with improved scrollable days
+- Standardized color scheme from pulse to blue throughout the app
+- Fixed week view navigation and date selection
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+```
+
+## Deployment
+The app is automatically deployed to Vercel when changes are pushed to the main branch.
 
 ## Project info
 
