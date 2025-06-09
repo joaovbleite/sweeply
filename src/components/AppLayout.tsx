@@ -17,7 +17,8 @@ import {
   Home,
   Clock,
   Quote,
-  Globe
+  Globe,
+  Clipboard
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
@@ -78,6 +79,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
     { id: "schedule", label: t('navigation:calendar'), icon: Calendar, path: "/calendar" },
     { id: "clients", label: t('navigation:clients'), icon: Users, path: "/clients" },
     { id: "jobs", label: t('navigation:jobs'), icon: Briefcase, path: "/jobs" },
+    { id: "tasks", label: "Tasks", icon: Clipboard, path: "/tasks" },
     { id: "invoices", label: t('navigation:invoices'), icon: FileText, path: "/invoices" },
     { id: "quotes", label: t('navigation:quotes'), icon: Quote, path: "/pricing" },
     { id: "requests", label: t('navigation:requests'), icon: Clock, path: "/reports" },

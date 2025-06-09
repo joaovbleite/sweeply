@@ -47,6 +47,8 @@ import Notifications from "./pages/Notifications";
 import InstallPrompt from "@/components/ui/InstallPrompt";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Tasks from "./pages/Tasks";
+import AddTask from "./pages/AddTask";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -380,6 +382,24 @@ const AppRoutes = () => {
             <PageTransition>
               <Profile />
             </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/tasks" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <Tasks />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/add-task" 
+        element={
+          <ProtectedRoute>
+            <AddTask />
           </ProtectedRoute>
         } 
       />
