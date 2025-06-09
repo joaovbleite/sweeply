@@ -7,6 +7,7 @@ import { jobsApi } from '@/lib/api/jobs';
 import { Job } from '@/types/job';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
+import ViewOptionsModal, { ViewOptionsState } from '@/components/schedule/ViewOptionsModal';
 
 const Schedule = () => {
   const { t } = useTranslation(['calendar', 'common']);
@@ -14,8 +15,16 @@ const Schedule = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [activeView, setActiveView] = useState<'day' | 'list' | 'map'>('day');
   const [searchTerm, setSearchTerm] = useState('');
+  const [isViewOptionsModalOpen, setIsViewOptionsModalOpen] = useState(false);
+  
+  // View options state
+  const [viewOptions, setViewOptions] = useState<ViewOptionsState>({
+    view: 'Day',
+    showUnscheduledAppointments: false,
+    showWeekends: false,
+    selectedTeamMembers: ['1'] // Default to victor leite selected
+  });
   
   // Load jobs data
   useEffect(() => {
@@ -54,6 +63,21 @@ const Schedule = () => {
   const handleDateSelect = (date: Date) => {
     setCurrentDate(date);
   };
+
+  // Open view options modal
+  const openViewOptionsModal = () => {
+    setIsViewOptionsModalOpen(true);
+  };
+
+  // Close view options modal
+  const closeViewOptionsModal = () => {
+    setIsViewOptionsModalOpen(false);
+  };
+
+  // Apply view options
+  const applyViewOptions = (options: ViewOptionsState) => {
+    setViewOptions(options);
+  };
   
   return (
     <AppLayout>
@@ -68,7 +92,7 @@ const Schedule = () => {
             <button className="p-2">
               <CalendarIcon className="w-6 h-6 text-gray-800" />
             </button>
-            <button className="p-2">
+            <button className="p-2" onClick={openViewOptionsModal}>
               <Settings className="w-6 h-6 text-gray-800" />
             </button>
           </div>
@@ -77,20 +101,20 @@ const Schedule = () => {
         {/* View selector tabs */}
         <div className="bg-gray-100 rounded-lg mx-4 p-1.5 flex">
           <button 
-            className={`flex-1 py-3 rounded-md text-center font-medium ${activeView === 'day' ? 'bg-white shadow text-gray-800' : 'text-gray-600'}`}
-            onClick={() => setActiveView('day')}
+            className={`flex-1 py-3 rounded-md text-center font-medium ${viewOptions.view === 'Day' ? 'bg-white shadow text-gray-800' : 'text-gray-600'}`}
+            onClick={() => setViewOptions(prev => ({ ...prev, view: 'Day' }))}
           >
             Day
           </button>
           <button 
-            className={`flex-1 py-3 rounded-md text-center font-medium ${activeView === 'list' ? 'bg-white shadow text-gray-800' : 'text-gray-600'}`}
-            onClick={() => setActiveView('list')}
+            className={`flex-1 py-3 rounded-md text-center font-medium ${viewOptions.view === 'List' ? 'bg-white shadow text-gray-800' : 'text-gray-600'}`}
+            onClick={() => setViewOptions(prev => ({ ...prev, view: 'List' }))}
           >
             List
           </button>
           <button 
-            className={`flex-1 py-3 rounded-md text-center font-medium ${activeView === 'map' ? 'bg-white shadow text-gray-800' : 'text-gray-600'}`}
-            onClick={() => setActiveView('map')}
+            className={`flex-1 py-3 rounded-md text-center font-medium ${viewOptions.view === 'Map' ? 'bg-white shadow text-gray-800' : 'text-gray-600'}`}
+            onClick={() => setViewOptions(prev => ({ ...prev, view: 'Map' }))}
           >
             Map
           </button>
@@ -101,6 +125,12 @@ const Schedule = () => {
           {weekDays.map((day, index) => {
             const isToday = isSameDay(day, new Date());
             const isSelected = isSameDay(day, currentDate);
+            const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+            
+            // Skip weekends if not showing them and view is Week
+            if (isWeekend && !viewOptions.showWeekends && viewOptions.view === 'Week') {
+              return null;
+            }
             
             return (
               <button
@@ -113,7 +143,7 @@ const Schedule = () => {
                 </div>
                 <div 
                   className={`w-10 h-10 flex items-center justify-center rounded-full mt-1 text-lg
-                    ${isSelected ? 'bg-pulse-500 text-white' : isToday ? 'text-pulse-500' : 'text-gray-800'}`}
+                    ${isSelected ? 'bg-blue-600 text-white' : isToday ? 'text-blue-600' : 'text-gray-800'}`}
                 >
                   {format(day, 'd')}
                 </div>
@@ -142,7 +172,7 @@ const Schedule = () => {
               placeholder="Search clients..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 bg-white"
+              className="w-full pl-9 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
             />
           </div>
         </div>
@@ -151,7 +181,7 @@ const Schedule = () => {
         <div className="flex-1 overflow-y-auto pb-20 mt-4">
           {loading ? (
             <div className="flex justify-center items-center h-40">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pulse-500"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
             </div>
           ) : dayJobs.length > 0 ? (
             <div className="px-4">
@@ -161,7 +191,7 @@ const Schedule = () => {
                   to={`/jobs/${job.id}`}
                   className="block bg-white rounded-lg shadow mb-3 overflow-hidden"
                 >
-                  <div className="border-l-4 border-pulse-500 p-4">
+                  <div className="border-l-4 border-blue-500 p-4">
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-bold text-gray-900">{job.client?.name || 'Unknown Client'}</h3>
@@ -171,7 +201,7 @@ const Schedule = () => {
                         <div className="text-sm font-medium">
                           {job.scheduled_time ? format(new Date(`2000-01-01T${job.scheduled_time}`), 'h:mm a') : 'No time'}
                         </div>
-                        <div className="text-sm text-pulse-500 font-medium mt-1">
+                        <div className="text-sm text-blue-500 font-medium mt-1">
                           ${job.estimated_price || 0}
                         </div>
                       </div>
@@ -188,7 +218,7 @@ const Schedule = () => {
               <p className="text-gray-700 text-lg mb-2 font-medium">No scheduled appointments</p>
               <Link
                 to="/jobs/new"
-                className="text-pulse-500 font-medium flex items-center"
+                className="text-blue-500 font-medium flex items-center"
               >
                 <Plus className="w-4 h-4 mr-1" />
                 Schedule a job
@@ -197,6 +227,14 @@ const Schedule = () => {
           )}
         </div>
       </div>
+
+      {/* View Options Modal */}
+      <ViewOptionsModal
+        isOpen={isViewOptionsModalOpen}
+        onClose={closeViewOptionsModal}
+        onApply={applyViewOptions}
+        initialOptions={viewOptions}
+      />
     </AppLayout>
   );
 };
