@@ -46,6 +46,11 @@ const timeSlots = [
   '7:00pm', '8:00pm', '9:00pm', '10:00pm', '11:00pm'
 ];
 
+// Add an interface for the HTMLDivElement with scrollTimeout
+interface DivWithScrollTimeout extends HTMLDivElement {
+  scrollTimeout?: number;
+}
+
 const Calendar = () => {
   const { user } = useAuth();
   const { t } = useTranslation(['calendar', 'common']);
@@ -241,7 +246,7 @@ const Calendar = () => {
     
     switch (status) {
       case 'completed':
-        return `bg-green-500 border-green-600 text-white ${baseClasses}`;
+        return `bg-blue-500 border-blue-600 text-white ${baseClasses}`;
       case 'in_progress':
         return `bg-blue-500 border-blue-600 text-white ${baseClasses}`;
       case 'cancelled':
@@ -320,7 +325,7 @@ const Calendar = () => {
     }
   };
 
-  // Add wheel event handler for desktop scrolling
+  // Handle wheel event handler for desktop scrolling
   const handleWheel = (e: React.WheelEvent) => {
     // Prevent default browser scroll behavior
     e.preventDefault();
@@ -334,6 +339,49 @@ const Calendar = () => {
       navigateWeek('prev');
     }
   };
+
+  // Handle scroll end for pagination
+  const handleScrollEnd = () => {
+    if (weekDaysRef.current) {
+      const { scrollLeft, scrollWidth } = weekDaysRef.current;
+      const viewportWidth = weekDaysRef.current.clientWidth;
+      
+      // If we've scrolled near the end, load the next week
+      if (scrollLeft + viewportWidth >= scrollWidth - 20) {
+        const newWeek = addWeeks(currentWeek, 1);
+        setCurrentWeek(newWeek);
+      }
+      // If we've scrolled near the start, load the previous week
+      else if (scrollLeft <= 20) {
+        const newWeek = subWeeks(currentWeek, 1);
+        setCurrentWeek(newWeek);
+      }
+    }
+  };
+
+  // Attach scroll event listener
+  useEffect(() => {
+    const scrollContainer = weekDaysRef.current as DivWithScrollTimeout;
+    if (scrollContainer) {
+      const handleScroll = () => {
+        // Use a debounce technique for the scroll end detection
+        if (scrollContainer.scrollTimeout) {
+          clearTimeout(scrollContainer.scrollTimeout);
+        }
+        
+        // Store timeout ID for cleanup
+        scrollContainer.scrollTimeout = window.setTimeout(handleScrollEnd, 150);
+      };
+      
+      scrollContainer.addEventListener('scroll', handleScroll);
+      return () => {
+        scrollContainer.removeEventListener('scroll', handleScroll);
+        if (scrollContainer.scrollTimeout) {
+          clearTimeout(scrollContainer.scrollTimeout);
+        }
+      };
+    }
+  }, [currentWeek]);
 
   // Scroll to current week on initial load or when current week changes
   useEffect(() => {

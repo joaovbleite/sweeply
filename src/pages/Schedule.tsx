@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronDown, Calendar as CalendarIcon, Search, Settings, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
-import { format, addDays, startOfWeek, isSameDay, addWeeks, subWeeks } from 'date-fns';
+import { format, addDays, startOfWeek, isSameDay, addWeeks, subWeeks, addMonths, subMonths } from 'date-fns';
 import { Link } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
 import { jobsApi } from '@/lib/api/jobs';
@@ -9,6 +9,11 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import ViewOptionsModal, { ViewOptionsState } from '@/components/schedule/ViewOptionsModal';
 import MonthSelector from '@/components/Calendar/MonthSelector';
+
+// Add an interface for the HTMLDivElement with scrollTimeout
+interface DivWithScrollTimeout extends HTMLDivElement {
+  scrollTimeout?: number;
+}
 
 const Schedule = () => {
   const { t } = useTranslation(['calendar', 'common']);
@@ -161,7 +166,7 @@ const Schedule = () => {
     }
   };
 
-  // Add wheel event handler for desktop scrolling
+  // Handle wheel event handler for desktop scrolling
   const handleWheel = (e: React.WheelEvent) => {
     // Prevent default browser scroll behavior
     e.preventDefault();
@@ -175,6 +180,49 @@ const Schedule = () => {
       navigateWeek('prev');
     }
   };
+
+  // Handle scroll end for pagination
+  const handleScrollEnd = () => {
+    if (weekDaysRef.current) {
+      const { scrollLeft, scrollWidth } = weekDaysRef.current;
+      const viewportWidth = weekDaysRef.current.clientWidth;
+      
+      // If we've scrolled near the end, load the next week
+      if (scrollLeft + viewportWidth >= scrollWidth - 20) {
+        const newDate = addWeeks(currentDate, 1);
+        setCurrentDate(newDate);
+      }
+      // If we've scrolled near the start, load the previous week
+      else if (scrollLeft <= 20) {
+        const newDate = subWeeks(currentDate, 1);
+        setCurrentDate(newDate);
+      }
+    }
+  };
+
+  // Attach scroll event listener
+  useEffect(() => {
+    const scrollContainer = weekDaysRef.current as DivWithScrollTimeout;
+    if (scrollContainer) {
+      const handleScroll = () => {
+        // Use a debounce technique for the scroll end detection
+        if (scrollContainer.scrollTimeout) {
+          clearTimeout(scrollContainer.scrollTimeout);
+        }
+        
+        // Store timeout ID for cleanup
+        scrollContainer.scrollTimeout = window.setTimeout(handleScrollEnd, 150);
+      };
+      
+      scrollContainer.addEventListener('scroll', handleScroll);
+      return () => {
+        scrollContainer.removeEventListener('scroll', handleScroll);
+        if (scrollContainer.scrollTimeout) {
+          clearTimeout(scrollContainer.scrollTimeout);
+        }
+      };
+    }
+  }, [currentDate]);
 
   // Scroll to current week on initial load or when current date changes
   useEffect(() => {
@@ -291,7 +339,7 @@ const Schedule = () => {
                     </div>
                     <div 
                       className={`w-10 h-10 flex items-center justify-center rounded-full mt-1 text-lg
-                        ${isSelected ? 'bg-[#307842] text-white' : isToday ? 'text-[#307842] border-2 border-[#307842]' : 'text-gray-800'}`}
+                        ${isSelected ? 'bg-blue-500 text-white' : isToday ? 'text-blue-500 border-2 border-blue-500' : 'text-gray-800'}`}
                     >
                       {format(day, 'd')}
                     </div>
