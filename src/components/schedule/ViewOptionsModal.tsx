@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Check, Search, ChevronLeft } from 'lucide-react';
+import { X, Check, Search, ArrowLeft } from 'lucide-react';
 
 interface ViewOptionsModalProps {
   isOpen: boolean;
@@ -79,16 +79,26 @@ const ViewOptionsModal: React.FC<ViewOptionsModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col h-full">
-      {/* Header */}
-      <div className="flex items-center p-4 border-b">
-        <button onClick={onClose} className="p-1 mr-2">
-          <ChevronLeft className="w-5 h-5 text-gray-800" />
-        </button>
-        <h1 className="text-lg font-bold text-gray-800">View Options</h1>
+      {/* Header - using same style as PageHeader */}
+      <div className="sticky top-0 left-0 right-0 z-30 bg-white shadow-sm">
+        <div className="flex items-center justify-between px-4 pt-16 pb-4 border-b border-gray-200">
+          <div className="flex items-center">
+            <button 
+              onClick={onClose} 
+              className="mr-2 text-gray-600"
+              aria-label="Back"
+            >
+              <ArrowLeft className="w-6 h-6" />
+            </button>
+            <h1 className="text-2xl font-bold text-[#1a2e35]">
+              View Options
+            </h1>
+          </div>
+        </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-4 pb-6">
+      <div className="flex-1 overflow-y-auto px-4 pb-6 pt-4">
         {/* View Section */}
         <div className="mt-4">
           <h2 className="text-lg font-bold text-gray-800 mb-3">View</h2>
