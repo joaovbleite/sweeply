@@ -7,6 +7,7 @@ import { useLocale } from "@/hooks/useLocale";
 import { profileApi } from "@/lib/api/profile";
 import AppLayout from "@/components/AppLayout";
 import { toast } from "sonner";
+import PageHeader from "@/components/ui/PageHeader";
 
 const Preferences: React.FC = () => {
   const { t } = useTranslation(['settings', 'common']);
@@ -64,22 +65,12 @@ const Preferences: React.FC = () => {
 
   return (
     <AppLayout>
-      <div className="min-h-screen bg-white">
-        {/* Fixed header with shadow to cover content when scrolling */}
-        <div className="sticky top-0 left-0 right-0 z-30 bg-white shadow-sm">
-          <div className="flex items-center px-4 pt-12 pb-3 border-b border-gray-200">
-            <button 
-              onClick={() => navigate(-1)} 
-              className="mr-2 text-gray-600"
-              aria-label="Back"
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </button>
-            <h1 className="text-2xl font-bold text-[#1a2e35]">
-              Preferences
-            </h1>
-          </div>
-        </div>
+      <div className="min-h-screen bg-white flex flex-col">
+        {/* Use the PageHeader component */}
+        <PageHeader
+          title="Preferences"
+          onBackClick={() => navigate(-1)}
+        />
 
         <div className="px-4 pb-20 pt-5">
           {/* Currency Section */}

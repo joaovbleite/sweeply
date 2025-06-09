@@ -20,6 +20,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import AppLayout from "@/components/AppLayout";
 import { toast } from "sonner";
+import PageHeader from "@/components/ui/PageHeader";
 
 const More: React.FC = () => {
   const { t } = useTranslation(['settings', 'common']);
@@ -38,18 +39,19 @@ const More: React.FC = () => {
   // Get user's email safely
   const userEmail = user?.email || '';
 
+  // Custom right element for PageHeader
+  const headerRightElement = userEmail ? (
+    <p className="text-gray-600 text-sm">{userEmail}'s Company</p>
+  ) : null;
+
   return (
     <AppLayout>
       <div className="bg-[#F7F8F5] flex flex-col">
-        {/* Fixed header with shadow to cover content when scrolling */}
-        <div className="sticky top-0 left-0 right-0 z-30 bg-white shadow-sm">
-          <div className="p-6 pt-12 pb-3">
-            <h1 className="text-2xl font-bold text-[#0d3547] mt-0.5">More</h1>
-            {userEmail && (
-              <p className="text-gray-600 text-sm mt-1">{userEmail}'s Company</p>
-            )}
-          </div>
-        </div>
+        {/* Use PageHeader with custom right element */}
+        <PageHeader
+          title="More"
+          rightElement={headerRightElement}
+        />
 
         <div className="px-4 pb-20 pt-3 flex-1 overflow-y-auto">
           {/* Feature Boxes */}
