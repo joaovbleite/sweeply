@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, User, MapPin, Phone, Mail, ChevronDown, Plus, ChevronRight, Home, Calendar, DollarSign, MoreHorizontal } from "lucide-react";
+import { Search, User, MapPin, Phone, Mail, ChevronDown, Plus, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { invoicesApi } from "@/lib/api/invoices";
 import { clientsApi } from "@/lib/api/clients";
@@ -10,6 +10,7 @@ import AppLayout from "@/components/AppLayout";
 import PageHeader from "@/components/ui/PageHeader";
 import { format, addDays } from "date-fns";
 import { useLocale } from "@/hooks/useLocale";
+import BottomNavBar from "@/components/BottomNavBar";
 
 const CreateInvoice = () => {
   const navigate = useNavigate();
@@ -143,12 +144,6 @@ const CreateInvoice = () => {
       Review and Send
     </button>
   );
-
-  // Navigation functions
-  const navigateToHome = () => navigate('/');
-  const navigateToCalendar = () => navigate('/calendar');
-  const navigateToFinance = () => navigate('/finance');
-  const navigateToProfile = () => navigate('/profile');
 
   return (
     <AppLayout>
@@ -379,51 +374,10 @@ const CreateInvoice = () => {
             Save
           </button>
         </div>
-
-        {/* Bottom Navigation Bar */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 rounded-t-3xl shadow-lg">
-          <div className="flex justify-around items-center px-6 py-4">
-            <button 
-              onClick={navigateToHome}
-              className="flex flex-col items-center justify-center text-gray-500 hover:text-blue-600"
-            >
-              <Home className="w-6 h-6" />
-              <span className="text-xs mt-1">Home</span>
-            </button>
-            
-            <button 
-              onClick={navigateToCalendar}
-              className="flex flex-col items-center justify-center text-gray-500 hover:text-blue-600"
-            >
-              <Calendar className="w-6 h-6" />
-              <span className="text-xs mt-1">Calendar</span>
-            </button>
-            
-            <button 
-              onClick={navigateToFinance}
-              className="flex flex-col items-center justify-center text-blue-600"
-            >
-              <DollarSign className="w-6 h-6" />
-              <span className="text-xs mt-1">Finance</span>
-            </button>
-            
-            <button 
-              onClick={navigateToProfile}
-              className="flex flex-col items-center justify-center text-gray-500 hover:text-blue-600"
-            >
-              <User className="w-6 h-6" />
-              <span className="text-xs mt-1">Profile</span>
-            </button>
-            
-            <button 
-              className="flex flex-col items-center justify-center text-gray-500 hover:text-blue-600"
-            >
-              <MoreHorizontal className="w-6 h-6" />
-              <span className="text-xs mt-1">More</span>
-            </button>
-          </div>
-        </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNavBar />
     </AppLayout>
   );
 };
