@@ -65,6 +65,13 @@ const Calendar = () => {
   // Ref for scrolling to current time
   const timelineRef = useRef<HTMLDivElement>(null);
   
+  // Ref for week day scroll container
+  const weekDaysRef = useRef<HTMLDivElement>(null);
+  
+  // Touch handling for swipe detection
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  
   // Modal states
   const [showQuickJobModal, setShowQuickJobModal] = useState(false);
   const [showJobDetailsModal, setShowJobDetailsModal] = useState(false);
@@ -177,8 +184,19 @@ const Calendar = () => {
     };
   }, [user?.id]);
 
-  // Get week dates
+  // Get week dates for display - show 3 weeks for scrolling (prev, current, next)
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 0 });
+  const prevWeekStart = subWeeks(weekStart, 1);
+  const nextWeekStart = addWeeks(weekStart, 1);
+  
+  // Create an array with 21 days (3 weeks)
+  const allWeekDays = [
+    ...Array.from({ length: 7 }, (_, i) => addDays(prevWeekStart, i)),
+    ...Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)),
+    ...Array.from({ length: 7 }, (_, i) => addDays(nextWeekStart, i))
+  ];
+  
+  // Current week days (for other parts of the app that use this)
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
   // Filter jobs for current week and property type
@@ -234,16 +252,74 @@ const Calendar = () => {
     }
   };
 
-  // Handle week navigation
+  // Handle week navigation with animation
   const navigateWeek = (direction: 'prev' | 'next') => {
-    setCurrentWeek(direction === 'next' ? addWeeks(currentWeek, 1) : subWeeks(currentWeek, 1));
+    const newWeek = direction === 'next' ? addWeeks(currentWeek, 1) : subWeeks(currentWeek, 1);
+    setCurrentWeek(newWeek);
+    
+    // Scroll to the appropriate week
+    if (weekDaysRef.current) {
+      const scrollAmount = direction === 'next' ? weekDaysRef.current.offsetWidth : -weekDaysRef.current.offsetWidth;
+      
+      weekDaysRef.current.scrollBy({
+        left: scrollAmount,
+        behavior: 'smooth'
+      });
+    }
   };
 
   // Go to today
   const goToToday = () => {
     setCurrentWeek(new Date());
     setSelectedDate(new Date());
+    
+    // Scroll to the middle (current) week
+    if (weekDaysRef.current) {
+      weekDaysRef.current.scrollTo({
+        left: weekDaysRef.current.offsetWidth,
+        behavior: 'smooth'
+      });
+    }
   };
+
+  // Handling touch events for swipe detection
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+    
+    if (isLeftSwipe) {
+      navigateWeek('next');
+    }
+    
+    if (isRightSwipe) {
+      navigateWeek('prev');
+    }
+  };
+
+  // Scroll to middle (current) week on initial load
+  useEffect(() => {
+    if (weekDaysRef.current) {
+      // Wait for the component to be fully rendered
+      setTimeout(() => {
+        weekDaysRef.current?.scrollTo({
+          left: weekDaysRef.current.offsetWidth,
+          behavior: 'auto' // Use 'auto' for initial positioning
+        });
+      }, 100);
+    }
+  }, []);
 
   // Calculate stats
   const todayJobs = weekJobs.filter(job => 
@@ -377,6 +453,14 @@ const Calendar = () => {
   const handleDateChange = (date: Date) => {
     setCurrentWeek(date);
     setSelectedDate(date);
+    
+    // Reset the scroll position for the week view
+    if (weekDaysRef.current) {
+      weekDaysRef.current.scrollTo({
+        left: weekDaysRef.current.offsetWidth,
+        behavior: 'auto'
+      });
+    }
   };
 
   // Scroll to current time on initial load
@@ -447,7 +531,10 @@ const Calendar = () => {
 
               {/* Icons on the right */}
               <div className="flex items-center gap-4">
-                <button className="p-2 hover:bg-gray-100 rounded-full">
+                <button 
+                  onClick={goToToday}
+                  className="p-2 hover:bg-gray-100 rounded-full"
+                >
                   <CalendarIcon className="w-5 h-5 text-gray-600" />
                 </button>
                 <button className="p-2 hover:bg-gray-100 rounded-full">
@@ -495,40 +582,78 @@ const Calendar = () => {
             </div>
           </div>
 
-          {/* Week days selector */}
-          <div className="bg-white border-b border-gray-200">
-            <div className="flex">
-              {weekDays.map((day, index) => {
-                const isSelectedDay = isSameDay(day, selectedDate);
-                const isDayToday = isSameDay(day, new Date());
-                
-                return (
-                  <div 
-                    key={index}
-                    onClick={() => setSelectedDate(day)}
-                    className={`flex-1 flex flex-col items-center py-3 cursor-pointer border-b-2 transition-colors
-                      ${isSelectedDay 
-                        ? 'border-[#307842] bg-gray-50' 
-                        : 'border-transparent hover:bg-gray-50'
-                      }
-                    `}
-                  >
-                    <div className="text-sm text-gray-500 font-medium">
-                      {format(day, 'EEE')}
+          {/* Week days selector - now scrollable */}
+          <div className="bg-white border-b border-gray-200 relative">
+            {/* Navigation buttons for touch users */}
+            <button 
+              onClick={() => navigateWeek('prev')}
+              className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 rounded-r-full p-1 shadow-md"
+              aria-label="Previous week"
+            >
+              <ChevronLeft className="w-5 h-5 text-gray-600" />
+            </button>
+            
+            <button 
+              onClick={() => navigateWeek('next')}
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 rounded-l-full p-1 shadow-md"
+              aria-label="Next week"
+            >
+              <ChevronRight className="w-5 h-5 text-gray-600" />
+            </button>
+            
+            {/* Scrollable container */}
+            <div 
+              ref={weekDaysRef}
+              className="overflow-x-auto scrollbar-hide snap-x scroll-smooth"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              <div className="flex min-w-max snap-mandatory">
+                {/* Map all days (3 weeks worth) */}
+                {allWeekDays.map((day, index) => {
+                  const isSelectedDay = isSameDay(day, selectedDate);
+                  const isDayToday = isSameDay(day, new Date());
+                  const isCurrentWeek = index >= 7 && index < 14;
+                  
+                  return (
+                    <div 
+                      key={index}
+                      onClick={() => {
+                        setSelectedDate(day);
+                        
+                        // If selected day is in prev/next week, update current week
+                        if (index < 7) {
+                          setCurrentWeek(subWeeks(currentWeek, 1));
+                        } else if (index >= 14) {
+                          setCurrentWeek(addWeeks(currentWeek, 1));
+                        }
+                      }}
+                      className={`w-[calc(100%/7)] flex-shrink-0 flex flex-col items-center py-3 cursor-pointer border-b-2 transition-colors snap-center
+                        ${isSelectedDay 
+                          ? 'border-[#307842] bg-gray-50' 
+                          : 'border-transparent hover:bg-gray-50'
+                        }
+                        ${isCurrentWeek ? 'opacity-100' : 'opacity-85'}
+                      `}
+                    >
+                      <div className="text-sm text-gray-500 font-medium">
+                        {format(day, 'EEE')}
+                      </div>
+                      <div className={`w-8 h-8 flex items-center justify-center rounded-full mt-1
+                        ${isSelectedDay 
+                          ? 'bg-[#307842] text-white' 
+                          : isDayToday 
+                            ? 'border-2 border-[#307842] text-[#307842]' 
+                            : 'text-gray-800'
+                        }
+                      `}>
+                        {format(day, 'd')}
+                      </div>
                     </div>
-                    <div className={`w-8 h-8 flex items-center justify-center rounded-full mt-1
-                      ${isSelectedDay 
-                        ? 'bg-[#307842] text-white' 
-                        : isDayToday 
-                          ? 'border-2 border-[#307842] text-[#307842]' 
-                          : 'text-gray-800'
-                      }
-                    `}>
-                      {format(day, 'd')}
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </div>
 

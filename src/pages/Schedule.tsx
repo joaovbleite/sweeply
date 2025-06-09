@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronDown, Calendar as CalendarIcon, Search, Settings, Plus } from 'lucide-react';
-import { format, addDays, startOfWeek, isSameDay } from 'date-fns';
+import React, { useState, useEffect, useRef } from 'react';
+import { ChevronDown, Calendar as CalendarIcon, Search, Settings, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { format, addDays, startOfWeek, isSameDay, addWeeks, subWeeks } from 'date-fns';
 import { Link } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
 import { jobsApi } from '@/lib/api/jobs';
@@ -17,6 +17,13 @@ const Schedule = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [searchTerm, setSearchTerm] = useState('');
   const [isViewOptionsModalOpen, setIsViewOptionsModalOpen] = useState(false);
+  
+  // Ref for week day scroll container
+  const weekDaysRef = useRef<HTMLDivElement>(null);
+  
+  // Touch handling for swipe detection
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
   
   // View options state
   const [viewOptions, setViewOptions] = useState<ViewOptionsState>({
@@ -43,8 +50,19 @@ const Schedule = () => {
     loadJobs();
   }, []);
   
-  // Get week dates
+  // Get week dates for display - show 3 weeks for scrolling (prev, current, next)
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
+  const prevWeekStart = subWeeks(weekStart, 1);
+  const nextWeekStart = addWeeks(weekStart, 1);
+  
+  // Create an array with 21 days (3 weeks)
+  const allWeekDays = [
+    ...Array.from({ length: 7 }, (_, i) => addDays(prevWeekStart, i)),
+    ...Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)),
+    ...Array.from({ length: 7 }, (_, i) => addDays(nextWeekStart, i))
+  ];
+  
+  // Current week days (for other parts of the app that use this)
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   
   // Get jobs for the selected day
@@ -60,9 +78,88 @@ const Schedule = () => {
   });
   
   // Handle date selection
-  const handleDateSelect = (date: Date) => {
+  const handleDateSelect = (date: Date, index?: number) => {
     setCurrentDate(date);
+    
+    // If selected day is in prev/next week, update current date for proper week display
+    if (index !== undefined) {
+      if (index < 7) {
+        // Previous week selection
+        setCurrentDate(subWeeks(date, 1));
+      } else if (index >= 14) {
+        // Next week selection
+        setCurrentDate(addWeeks(date, 1));
+      }
+    }
   };
+
+  // Handle week navigation with animation
+  const navigateWeek = (direction: 'prev' | 'next') => {
+    const newDate = direction === 'next' ? addWeeks(currentDate, 1) : subWeeks(currentDate, 1);
+    setCurrentDate(newDate);
+    
+    // Scroll to the appropriate week
+    if (weekDaysRef.current) {
+      const scrollAmount = direction === 'next' ? weekDaysRef.current.offsetWidth : -weekDaysRef.current.offsetWidth;
+      
+      weekDaysRef.current.scrollBy({
+        left: scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  // Go to today
+  const goToToday = () => {
+    setCurrentDate(new Date());
+    
+    // Scroll to the middle (current) week
+    if (weekDaysRef.current) {
+      weekDaysRef.current.scrollTo({
+        left: weekDaysRef.current.offsetWidth,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  // Handling touch events for swipe detection
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+    
+    if (isLeftSwipe) {
+      navigateWeek('next');
+    }
+    
+    if (isRightSwipe) {
+      navigateWeek('prev');
+    }
+  };
+
+  // Scroll to middle (current) week on initial load
+  useEffect(() => {
+    if (weekDaysRef.current) {
+      // Wait for the component to be fully rendered
+      setTimeout(() => {
+        weekDaysRef.current?.scrollTo({
+          left: weekDaysRef.current.offsetWidth,
+          behavior: 'auto' // Use 'auto' for initial positioning
+        });
+      }, 100);
+    }
+  }, []);
 
   // Open view options modal
   const openViewOptionsModal = () => {
@@ -84,12 +181,20 @@ const Schedule = () => {
       <div className="flex flex-col h-full bg-gray-50 pt-12">
         {/* Header with month selector */}
         <div className="flex justify-between items-center px-4 py-3">
-          <button className="flex items-center text-2xl font-bold text-gray-800">
-            {format(currentDate, 'MMMM')}
-            <ChevronDown className="ml-2 w-6 h-6" />
-          </button>
+          <div className="flex items-center">
+            <button onClick={() => navigateWeek('prev')} className="p-2 hover:bg-gray-100 rounded-full mr-2">
+              <ChevronLeft className="w-5 h-5 text-gray-600" />
+            </button>
+            <button className="flex items-center text-2xl font-bold text-gray-800">
+              {format(currentDate, 'MMMM')}
+              <ChevronDown className="ml-2 w-6 h-6" />
+            </button>
+            <button onClick={() => navigateWeek('next')} className="p-2 hover:bg-gray-100 rounded-full ml-2">
+              <ChevronRight className="w-5 h-5 text-gray-600" />
+            </button>
+          </div>
           <div className="flex items-center gap-5">
-            <button className="p-2">
+            <button className="p-2" onClick={goToToday}>
               <CalendarIcon className="w-6 h-6 text-gray-800" />
             </button>
             <button className="p-2" onClick={openViewOptionsModal}>
@@ -120,36 +225,66 @@ const Schedule = () => {
           </button>
         </div>
         
-        {/* Week day selector */}
-        <div className="flex justify-between px-4 mt-4 text-center">
-          {weekDays.map((day, index) => {
-            const isToday = isSameDay(day, new Date());
-            const isSelected = isSameDay(day, currentDate);
-            const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-            
-            // Skip weekends if not showing them and view is Week
-            if (isWeekend && !viewOptions.showWeekends && viewOptions.view === 'Week') {
-              return null;
-            }
-            
-            return (
-              <button
-                key={index}
-                className="flex flex-col items-center"
-                onClick={() => handleDateSelect(day)}
-              >
-                <div className="text-sm text-gray-500 uppercase font-medium">
-                  {format(day, 'EEE').charAt(0)}
-                </div>
-                <div 
-                  className={`w-10 h-10 flex items-center justify-center rounded-full mt-1 text-lg
-                    ${isSelected ? 'bg-blue-600 text-white' : isToday ? 'text-blue-600' : 'text-gray-800'}`}
-                >
-                  {format(day, 'd')}
-                </div>
-              </button>
-            );
-          })}
+        {/* Week day selector - now scrollable */}
+        <div className="relative bg-white rounded-lg mx-4 mt-4 shadow-sm">
+          {/* Navigation buttons for touch users */}
+          <button 
+            onClick={() => navigateWeek('prev')}
+            className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 rounded-r-full p-1 shadow-md"
+            aria-label="Previous week"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-600" />
+          </button>
+          
+          <button 
+            onClick={() => navigateWeek('next')}
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 rounded-l-full p-1 shadow-md"
+            aria-label="Next week"
+          >
+            <ChevronRight className="w-5 h-5 text-gray-600" />
+          </button>
+          
+          {/* Scrollable container */}
+          <div 
+            ref={weekDaysRef}
+            className="overflow-x-auto scrollbar-hide snap-x scroll-smooth"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
+            <div className="flex min-w-max snap-mandatory py-2">
+              {/* Map all days (3 weeks worth) */}
+              {allWeekDays.map((day, index) => {
+                const isToday = isSameDay(day, new Date());
+                const isSelected = isSameDay(day, currentDate);
+                const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+                const isCurrentWeek = index >= 7 && index < 14;
+                
+                // Skip weekends if not showing them and view is Week
+                if (isWeekend && !viewOptions.showWeekends && viewOptions.view === 'Week') {
+                  return null;
+                }
+                
+                return (
+                  <button
+                    key={index}
+                    className={`w-[calc(100%/7)] flex-shrink-0 flex flex-col items-center py-2 snap-center ${isCurrentWeek ? 'opacity-100' : 'opacity-85'}`}
+                    onClick={() => handleDateSelect(day, index)}
+                  >
+                    <div className="text-sm text-gray-500 uppercase font-medium">
+                      {format(day, 'EEE').charAt(0)}
+                    </div>
+                    <div 
+                      className={`w-10 h-10 flex items-center justify-center rounded-full mt-1 text-lg
+                        ${isSelected ? 'bg-blue-600 text-white' : isToday ? 'text-blue-600' : 'text-gray-800'}`}
+                    >
+                      {format(day, 'd')}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
         
         {/* Client filter/search */}
