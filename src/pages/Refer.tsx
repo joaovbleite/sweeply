@@ -106,6 +106,10 @@ const Refer: React.FC = () => {
             {/* Redeem Section */}
             <h3 className="text-3xl font-bold text-[#0d3547] mb-3">Redeem a code</h3>
             
+            <p className="text-gray-700 text-lg mb-4">
+              Did your friend refer you to Jobber? Enter their referral code and we will send you both a reward!
+            </p>
+            
             {/* Redeem Input */}
             <div className="mb-6">
               <input
@@ -115,7 +119,19 @@ const Refer: React.FC = () => {
                 placeholder="Enter referral code"
                 className="w-full px-4 py-4 border border-gray-300 rounded-lg text-gray-800 text-lg focus:ring-[#307842] focus:border-[#307842] mb-4"
               />
+              
+              <button
+                onClick={handleRedeem}
+                className="w-full bg-white border border-[#307842] text-[#307842] font-bold text-xl py-4 rounded-lg mb-4"
+              >
+                Redeem a Code
+              </button>
             </div>
+            
+            {/* Terms Note */}
+            <p className="text-gray-600 text-base mb-8">
+              By sharing or redeeming a referral code, you agree to the <a href="#" className="text-[#307842]">program terms of use</a>.
+            </p>
           </div>
         </div>
       </div>
