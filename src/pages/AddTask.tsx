@@ -144,7 +144,7 @@ const AddTask = () => {
             <span className="text-2xl mr-3">👤</span>
             <h3 className="text-xl font-medium text-gray-800">Client</h3>
           </div>
-          <button className="text-blue-600">
+          <button className="text-green-600">
             <Plus className="w-6 h-6" />
           </button>
         </div>
@@ -173,14 +173,14 @@ const AddTask = () => {
               <p className="text-lg text-gray-800">{selectedTeam}</p>
             </div>
           </div>
-          <ChevronRight className="w-6 h-6 text-gray-700" />
+          <ChevronRight className="w-6 h-6 text-green-600" />
         </div>
 
         {/* Save Button (Fixed at bottom) */}
         <div className="fixed bottom-5 left-0 right-0 px-4 pb-5">
           <button
             onClick={handleSubmit}
-            className="w-full bg-blue-600 text-white py-4 rounded-xl font-medium"
+            className="w-full bg-[#307842] text-white py-4 rounded-xl font-medium"
           >
             Save
           </button>

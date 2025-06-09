@@ -27,7 +27,7 @@ const Tasks = () => {
           <h1 className="text-2xl font-bold text-gray-800">Tasks</h1>
           <button
             onClick={() => navigate("/add-task")}
-            className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2"
+            className="bg-[#307842] hover:bg-green-700 text-white rounded-full p-2"
           >
             <Plus className="h-6 w-6" />
           </button>
@@ -41,7 +41,7 @@ const Tasks = () => {
             placeholder="Search tasks..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
           />
         </div>
 
@@ -60,7 +60,7 @@ const Tasks = () => {
                 </div>
                 <p className="text-gray-600">{task.client}</p>
                 <div className="mt-2 flex justify-between items-center">
-                  <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                  <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">
                     {task.status.charAt(0).toUpperCase() + task.status.slice(1)}
                   </span>
                 </div>

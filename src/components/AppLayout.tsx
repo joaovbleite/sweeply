@@ -135,11 +135,15 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
                     className={`w-full flex items-center gap-2 px-2 py-2 rounded-lg transition-colors ${
                       isMobile 
                         ? isActive
-                          ? 'bg-pulse-50 text-pulse-600'
-                          : 'text-gray-700 hover:bg-gray-100'
+                          ? item.id === "tasks" 
+                            ? "bg-green-50 text-green-600" 
+                            : "bg-pulse-50 text-pulse-600"
+                          : "text-gray-700 hover:bg-gray-100"
                         : isActive
-                          ? 'bg-blue-600 text-white'
-                          : 'text-gray-300 hover:bg-gray-800'
+                          ? item.id === "tasks" 
+                            ? "bg-[#307842] text-white" 
+                            : "bg-blue-600 text-white"
+                          : "text-gray-300 hover:bg-gray-800"
                     }`}
                   >
                     <Icon className={`${isMobile ? 'w-4 h-4 sm:w-5 sm:h-5' : 'w-4 h-4'} flex-shrink-0`} />

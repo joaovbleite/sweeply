@@ -66,8 +66,8 @@ const FloatingActionMenu: React.FC = () => {
       label: "Task", 
       icon: Clipboard, 
       action: () => navigate("/add-task"),
-      color: "bg-blue-50",
-      iconColor: "text-blue-600"
+      color: "bg-green-50",
+      iconColor: "text-green-600"
     },
     { 
       id: "expense", 
