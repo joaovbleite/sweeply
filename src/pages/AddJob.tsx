@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, User, MapPin, Phone, Mail, Plus, ChevronDown } from "lucide-react";
+import { Search, User, MapPin, Phone, Mail, Plus, ChevronDown, ChevronLeft, ChevronRight, Users } from "lucide-react";
 import { toast } from "sonner";
 import { clientsApi } from "@/lib/api/clients";
 import { Client } from "@/types/client";
@@ -15,6 +15,9 @@ const AddJob = () => {
   const [loadingClients, setLoadingClients] = useState(true);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [scheduleForLater, setScheduleForLater] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<number | null>(null);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [remindToInvoice, setRemindToInvoice] = useState(false);
 
   const [formData, setFormData] = useState({
     clientId: "",
@@ -25,7 +28,7 @@ const AddJob = () => {
     email: "",
     jobTitle: "",
     instructions: "",
-    salesperson: "",
+    salesperson: "victor leite",
     subtotal: 0
   });
 
@@ -77,12 +80,93 @@ const AddJob = () => {
     navigate("/jobs");
   };
 
+  // Generate calendar days for the current month
+  const generateCalendarDays = () => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    
+    // Get days in month
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    // Get the day of the week for the first day of the month (0 = Sunday, 1 = Monday, etc.)
+    const firstDayOfMonth = new Date(year, month, 1).getDay();
+    
+    // Get days from previous month to fill the calendar
+    const daysFromPrevMonth = firstDayOfMonth === 0 ? 0 : firstDayOfMonth;
+    
+    // Get days from next month to fill the calendar
+    const totalSlots = Math.ceil((daysInMonth + daysFromPrevMonth) / 7) * 7;
+    const daysFromNextMonth = totalSlots - daysInMonth - daysFromPrevMonth;
+    
+    // Create array for all days to display
+    const calendarDays = [];
+    
+    // Add days from previous month
+    const prevMonth = new Date(year, month, 0);
+    const prevMonthDays = prevMonth.getDate();
+    
+    for (let i = prevMonthDays - daysFromPrevMonth + 1; i <= prevMonthDays; i++) {
+      calendarDays.push({ day: i, currentMonth: false, prevMonth: true });
+    }
+    
+    // Add days from current month
+    for (let i = 1; i <= daysInMonth; i++) {
+      calendarDays.push({ day: i, currentMonth: true, prevMonth: false });
+    }
+    
+    // Add days from next month
+    for (let i = 1; i <= daysFromNextMonth; i++) {
+      calendarDays.push({ day: i, currentMonth: false, prevMonth: false });
+    }
+    
+    return calendarDays;
+  };
+
+  // Navigate to previous month
+  const goToPrevMonth = () => {
+    setCurrentMonth(prevMonth => {
+      const newMonth = new Date(prevMonth);
+      newMonth.setMonth(prevMonth.getMonth() - 1);
+      return newMonth;
+    });
+  };
+
+  // Navigate to next month
+  const goToNextMonth = () => {
+    setCurrentMonth(prevMonth => {
+      const newMonth = new Date(prevMonth);
+      newMonth.setMonth(prevMonth.getMonth() + 1);
+      return newMonth;
+    });
+  };
+
+  // Format month and year for display
+  const formatMonthYear = (date: Date) => {
+    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  };
+
+  // Handle day selection
+  const handleDaySelect = (day: number) => {
+    setSelectedDate(day);
+  };
+
+  // Save button component for the header
+  const SaveButton = (
+    <button
+      onClick={handleSubmit}
+      className="bg-green-600 text-white px-5 py-2.5 rounded-xl font-medium"
+    >
+      Save
+    </button>
+  );
+
   return (
     <AppLayout>
-      {/* Page Header */}
+      {/* Page Header with Save button on the right */}
       <PageHeader 
         title="New job" 
         onBackClick={() => navigate(-1)}
+        rightElement={SaveButton}
       />
 
       <div className="px-4 pt-7 pb-24 flex-1 overflow-y-auto min-h-screen bg-white">
@@ -118,6 +202,7 @@ const AddJob = () => {
                 className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none"
               >
                 <option value="">Please select</option>
+                <option value="victor leite">victor leite</option>
                 <option value="john doe">John Doe</option>
                 <option value="jane smith">Jane Smith</option>
               </select>
@@ -154,7 +239,7 @@ const AddJob = () => {
         {/* Schedule Section */}
         <h2 className="text-xl text-gray-500 font-medium mb-4">Schedule</h2>
         
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-medium">Schedule later</h3>
           <div 
             className={`w-14 h-8 rounded-full p-1 transition-colors duration-200 ease-in-out ${scheduleForLater ? 'bg-gray-400' : 'bg-gray-300'}`}
@@ -165,15 +250,78 @@ const AddJob = () => {
             />
           </div>
         </div>
+
+        {/* Calendar */}
+        <div className="mb-8">
+          {/* Month and Year with navigation */}
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-2xl font-bold text-[#1a2e35]">{formatMonthYear(currentMonth)}</h3>
+            <div className="flex space-x-4">
+              <button onClick={goToPrevMonth} className="text-green-600">
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <button onClick={goToNextMonth} className="text-green-600">
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+
+          {/* Day headers */}
+          <div className="grid grid-cols-7 text-center mb-2">
+            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
+              <div key={index} className="text-lg font-medium text-gray-500">
+                {day}
+              </div>
+            ))}
+          </div>
+
+          {/* Calendar grid */}
+          <div className="grid grid-cols-7 gap-y-4 text-center">
+            {generateCalendarDays().map((day, index) => (
+              <div key={index} className="relative">
+                <button
+                  onClick={() => day.currentMonth && handleDaySelect(day.day)}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto ${
+                    day.currentMonth 
+                      ? selectedDate === day.day
+                        ? 'bg-green-600 text-white'
+                        : 'hover:bg-gray-100 text-gray-900'
+                      : 'text-gray-400 bg-gray-100'
+                  } ${!day.currentMonth && !day.prevMonth ? 'bg-gray-100' : ''}`}
+                  disabled={!day.currentMonth}
+                >
+                  {day.day}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Team Section */}
+        <div className="border-t border-b py-5 mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Users className="w-6 h-6 text-gray-500 mr-3" />
+              <h3 className="text-xl font-medium">Team</h3>
+            </div>
+            <ChevronRight className="w-6 h-6 text-gray-400" />
+          </div>
+          <p className="text-lg text-gray-700 ml-9">victor leite</p>
+        </div>
+
+        {/* Invoicing Section */}
+        <h2 className="text-xl text-gray-500 font-medium mb-4">Invoicing</h2>
         
-        {/* Save Button */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200">
-          <button
-            onClick={handleSubmit}
-            className="w-full py-4 bg-green-600 text-white font-medium rounded-xl flex items-center justify-center"
+        <div className="flex items-center justify-between mb-8">
+          <h3 className="text-xl font-medium">Remind me to invoice when I close the job</h3>
+          <div 
+            className={`w-14 h-8 rounded-full p-1 transition-colors duration-200 ease-in-out ${remindToInvoice ? 'bg-green-600' : 'bg-gray-300'}`}
+            onClick={() => setRemindToInvoice(!remindToInvoice)}
           >
-            Save
-          </button>
+            <div 
+              className={`bg-white w-6 h-6 rounded-full shadow-md transform transition-transform duration-200 ease-in-out ${remindToInvoice ? 'translate-x-6' : 'translate-x-0'}`}
+            />
+          </div>
         </div>
       </div>
     </AppLayout>
