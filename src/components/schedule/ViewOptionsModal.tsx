@@ -123,7 +123,7 @@ const ViewOptionsModal: React.FC<ViewOptionsModalProps> = ({
             <button
               onClick={toggleUnscheduledAppointments}
               className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out ${
-                options.showUnscheduledAppointments ? 'bg-[#307842]' : 'bg-gray-300'
+                options.showUnscheduledAppointments ? 'bg-blue-500' : 'bg-gray-300'
               }`}
             >
               <div
@@ -141,7 +141,7 @@ const ViewOptionsModal: React.FC<ViewOptionsModalProps> = ({
             <button
               onClick={toggleWeekends}
               className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out ${
-                options.showWeekends ? 'bg-[#307842]' : 'bg-gray-300'
+                options.showWeekends ? 'bg-blue-500' : 'bg-gray-300'
               }`}
             >
               <div
@@ -169,7 +169,7 @@ const ViewOptionsModal: React.FC<ViewOptionsModalProps> = ({
                   onClick={() => toggleTeamMember(member.id)}
                   className={`w-9 h-9 rounded-lg flex items-center justify-center ${
                     options.selectedTeamMembers.includes(member.id) 
-                      ? 'bg-[#307842] text-white' 
+                      ? 'bg-blue-500 text-white' 
                       : 'border border-gray-300'
                   }`}
                 >
