@@ -9,7 +9,7 @@ interface ViewOptionsModalProps {
 }
 
 export interface ViewOptionsState {
-  view: 'Day' | 'List' | '3 Day' | 'Week' | 'Map';
+  view: 'Day' | 'List' | 'Map';
   showUnscheduledAppointments: boolean;
   showWeekends: boolean;
   selectedTeamMembers: string[];
@@ -97,11 +97,11 @@ const ViewOptionsModal: React.FC<ViewOptionsModalProps> = ({
         {/* View Section */}
         <div className="mt-4">
           <h2 className="text-lg font-bold text-gray-800 mb-3">View</h2>
-          <div className="bg-gray-100 rounded-full p-1 flex">
-            {['Day', 'List', '3 Day', 'Week', 'Map'].map((view) => (
+          <div className="bg-gray-100 rounded-lg p-1 flex">
+            {['Day', 'List', 'Map'].map((view) => (
               <button
                 key={view}
-                className={`flex-1 py-2 rounded-full text-center text-sm ${
+                className={`flex-1 py-2 rounded-lg text-center text-sm ${
                   options.view === view 
                     ? 'bg-white shadow-sm font-medium text-gray-800' 
                     : 'text-gray-600'
@@ -123,7 +123,7 @@ const ViewOptionsModal: React.FC<ViewOptionsModalProps> = ({
             <button
               onClick={toggleUnscheduledAppointments}
               className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out ${
-                options.showUnscheduledAppointments ? 'bg-blue-600' : 'bg-gray-300'
+                options.showUnscheduledAppointments ? 'bg-[#307842]' : 'bg-gray-300'
               }`}
             >
               <div
@@ -136,12 +136,12 @@ const ViewOptionsModal: React.FC<ViewOptionsModalProps> = ({
 
           <div className="flex items-center justify-between py-3 border-t">
             <p className="text-base text-gray-800">
-              Show weekends on week view
+              Show weekends on calendar
             </p>
             <button
               onClick={toggleWeekends}
               className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out ${
-                options.showWeekends ? 'bg-blue-600' : 'bg-gray-300'
+                options.showWeekends ? 'bg-[#307842]' : 'bg-gray-300'
               }`}
             >
               <div
@@ -169,7 +169,7 @@ const ViewOptionsModal: React.FC<ViewOptionsModalProps> = ({
                   onClick={() => toggleTeamMember(member.id)}
                   className={`w-9 h-9 rounded-lg flex items-center justify-center ${
                     options.selectedTeamMembers.includes(member.id) 
-                      ? 'bg-blue-600 text-white' 
+                      ? 'bg-[#307842] text-white' 
                       : 'border border-gray-300'
                   }`}
                 >

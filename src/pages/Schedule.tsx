@@ -234,8 +234,8 @@ const Schedule = () => {
                 const isWeekend = day.getDay() === 0 || day.getDay() === 6;
                 const isCurrentWeek = index >= 7 && index < 14;
                 
-                // Skip weekends if not showing them and view is Week
-                if (isWeekend && !viewOptions.showWeekends && viewOptions.view === 'Week') {
+                // Skip weekends if not showing them
+                if (isWeekend && !viewOptions.showWeekends) {
                   return null;
                 }
                 
