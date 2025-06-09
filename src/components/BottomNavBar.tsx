@@ -37,8 +37,8 @@ const BottomNavBar: React.FC = () => {
               to={item.path}
               className={`flex items-center justify-center w-9 h-9 transition-all duration-200 ease-in-out ${
                 isActive 
-                  ? "text-green-600 scale-110" 
-                  : "text-gray-600 hover:text-green-600 hover:scale-105"
+                  ? "text-[#307842] scale-110" 
+                  : "text-gray-600 hover:text-[#307842] hover:scale-105"
               }`}
               aria-label={item.id}
             >
@@ -47,7 +47,7 @@ const BottomNavBar: React.FC = () => {
           );
         })}
         
-        {/* Clients button - replacing the Profile button */}
+        {/* Clients button - special styling to match the pages */}
         <Link
           to="/clients"
           className={`flex items-center justify-center w-11 h-11 bg-[#307842] text-white rounded-full shadow-sm transition-all duration-200 ease-in-out hover:scale-105 ${
