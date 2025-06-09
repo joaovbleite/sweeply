@@ -579,7 +579,7 @@ const Calendar = () => {
           <div className="bg-white border-b border-gray-200 px-6 py-4">
             <div className="flex items-center justify-between">
               {/* Month selector with expandable view */}
-              <div className="flex items-center">
+              <div className="flex items-center relative z-20">
                 <MonthSelector 
                   currentDate={currentWeek} 
                   onDateChange={handleDateChange}
@@ -588,14 +588,16 @@ const Calendar = () => {
                 />
               </div>
 
-              {/* Icons on the right */}
-              <div className="flex items-center gap-4">
+              {/* Action buttons */}
+              <div className="flex items-center space-x-3">
                 <button 
-                  onClick={goToToday}
-                  className="p-2 hover:bg-gray-100 rounded-full"
+                  onClick={() => goToToday()} 
+                  className="p-2 rounded-lg hover:bg-gray-100"
+                  aria-label="Go to today"
                 >
                   <CalendarIcon className="w-5 h-5 text-gray-600" />
                 </button>
+
                 <button className="p-2 hover:bg-gray-100 rounded-full">
                   <Settings className="w-5 h-5 text-gray-600" />
                 </button>

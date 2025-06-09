@@ -260,7 +260,7 @@ const Schedule = () => {
     <AppLayout>
       <div className="flex flex-col h-full bg-gray-50 pt-12">
         {/* Header with month selector */}
-        <div className="flex justify-between items-center px-4 py-3">
+        <div className="flex justify-between items-center px-4 py-3 relative z-20">
           <div className="flex items-center">
             <MonthSelector 
               currentDate={currentDate} 
@@ -283,7 +283,7 @@ const Schedule = () => {
         </div>
         
         {/* View selector tabs */}
-        <div className="bg-gray-100 rounded-lg mx-4 p-1.5 flex">
+        <div className="bg-gray-100 rounded-lg mx-4 p-1.5 flex relative z-10">
           <button 
             className={`flex-1 py-3 rounded-md text-center font-medium ${viewOptions.view === 'Day' ? 'bg-white shadow text-gray-800' : 'text-gray-600'}`}
             onClick={() => setViewOptions(prev => ({ ...prev, view: 'Day' }))}

@@ -127,7 +127,7 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
 
       {/* Inline calendar dropdown */}
       {isExpanded && (
-        <div className="absolute left-0 md:left-0 right-0 md:right-auto top-full mt-2 bg-white rounded-xl shadow-lg border border-gray-200 z-30 md:w-[290px] max-h-[80vh] overflow-y-auto">
+        <div className="absolute left-0 md:left-0 right-0 md:right-auto top-full mt-2 bg-white rounded-xl shadow-lg border border-gray-200 z-50 md:w-[290px] max-h-[70vh] overflow-y-auto">
           {/* Title with month/year */}
           <div className="text-center p-3 border-b border-gray-100 sticky top-0 bg-white z-10">
             <div className="flex items-center justify-between">
