@@ -26,7 +26,7 @@ const BottomNavBar: React.FC = () => {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 mx-auto px-4 z-50 lg:hidden pb-safe">
-      <nav className="bg-white text-[#121212] rounded-full flex items-center justify-between px-6 py-3.5 max-w-md mx-auto shadow-lg border border-gray-200">
+      <nav className="bg-black text-white rounded-full flex items-center justify-between px-6 py-3.5 max-w-md mx-auto shadow-lg">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
@@ -35,10 +35,10 @@ const BottomNavBar: React.FC = () => {
             <Link
               key={item.id}
               to={item.path}
-              className={`flex items-center justify-center w-9 h-9 transition-all duration-200 ease-in-out ${
+              className={`flex items-center justify-center transition-all duration-200 ease-in-out ${
                 isActive 
-                  ? "text-[#307842] scale-110" 
-                  : "text-gray-600 hover:text-[#307842] hover:scale-105"
+                  ? "bg-white text-black rounded-full w-9 h-9" 
+                  : "text-white hover:text-gray-300 w-9 h-9"
               }`}
               aria-label={item.id}
             >
@@ -47,14 +47,14 @@ const BottomNavBar: React.FC = () => {
           );
         })}
         
-        {/* Clients button - special styling to match the pages */}
+        {/* Clients button - replacing the Profile button */}
         <Link
           to="/clients"
-          className={`flex items-center justify-center w-11 h-11 bg-[#307842] text-white rounded-full shadow-sm transition-all duration-200 ease-in-out hover:scale-105 ${
+          className={`flex items-center justify-center w-11 h-11 ${
             location.pathname === "/clients" || location.pathname.includes("/client") 
-              ? "ring-2 ring-green-300" 
-              : ""
-          }`}
+              ? "bg-white text-[#307842]" 
+              : "bg-[#307842] text-white"
+          } rounded-full shadow-sm transition-all duration-200 ease-in-out hover:scale-105`}
           aria-label="clients"
         >
           <Users className="w-5 h-5" strokeWidth={2} />
