@@ -18,7 +18,11 @@ const CreateInvoice = () => {
 
   const [formData, setFormData] = useState<CreateInvoiceInput>({
     client_id: "",
+    invoice_title: "For Services Rendered",
     due_date: format(addDays(new Date(), 30), 'yyyy-MM-dd'), // 30 days from now
+    issue_date: format(new Date(), 'yyyy-MM-dd'),
+    salesperson: "",
+    payment_terms: "Net 30",
     items: [{
       description: "",
       quantity: 1,
@@ -57,6 +61,13 @@ const CreateInvoice = () => {
   const handleClientDataChange = (field: string, value: string) => {
     // This would update client data for new clients
     console.log(`Updating client ${field} to ${value}`);
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   const handleSaveAsDraft = async () => {
@@ -191,14 +202,80 @@ const CreateInvoice = () => {
         {/* Separator */}
         <div className="w-full h-3 bg-gray-100 -mx-4 px-4 mb-8"></div>
         
-        {/* Overview Section - Placeholder for now */}
+        {/* Overview Section */}
         <h2 className="text-xl text-gray-700 font-medium mb-4">Overview</h2>
         
-        <div className="space-y-4 mb-20">
-          {/* This section would be expanded based on requirements */}
-          <p className="text-gray-500">Invoice details will be added here.</p>
+        <div className="space-y-4 mb-8">
+          {/* Invoice Title */}
+          <div className="relative">
+            <label className="text-sm text-gray-500 absolute top-2 left-4">Invoice title</label>
+            <input
+              type="text"
+              value={formData.invoice_title}
+              onChange={(e) => handleInputChange('invoice_title', e.target.value)}
+              className="w-full pt-7 pb-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          
+          {/* Issue Date */}
+          <div className="relative">
+            <label className="text-sm text-gray-500 absolute top-2 left-4">Issued</label>
+            <div className="flex items-center w-full">
+              <input
+                type="text"
+                value="Date sent"
+                readOnly
+                className="w-full pt-7 pb-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <div className="absolute right-4 pointer-events-none">
+                <ChevronDown className="w-5 h-5 text-gray-500" />
+              </div>
+            </div>
+          </div>
+          
+          {/* Payment Terms */}
+          <div className="relative">
+            <label className="text-sm text-gray-500 absolute top-2 left-4">Payment due</label>
+            <div className="flex items-center w-full">
+              <input
+                type="text"
+                value={formData.payment_terms}
+                readOnly
+                className="w-full pt-7 pb-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <div className="absolute right-4 pointer-events-none">
+                <ChevronDown className="w-5 h-5 text-gray-500" />
+              </div>
+            </div>
+          </div>
+          
+          {/* Salesperson */}
+          <div className="relative">
+            <label className="text-sm text-gray-500 absolute top-2 left-4">Salesperson</label>
+            <div className="flex items-center w-full">
+              <select
+                value={formData.salesperson}
+                onChange={(e) => handleInputChange('salesperson', e.target.value)}
+                className="w-full appearance-none pt-7 pb-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              >
+                <option value="">Please select</option>
+                <option value="victor leite">victor leite</option>
+                <option value="john doe">John Doe</option>
+                <option value="jane smith">Jane Smith</option>
+              </select>
+              <div className="absolute right-4 pointer-events-none">
+                <ChevronDown className="w-5 h-5 text-gray-500" />
+              </div>
+            </div>
+          </div>
         </div>
 
+        {/* Separator */}
+        <div className="w-full h-3 bg-gray-100 -mx-4 px-4 mb-8"></div>
+        
+        {/* Product / Service Section */}
+        <h2 className="text-xl text-gray-700 font-medium mb-20">Product / Service</h2>
+        
         {/* Action Buttons */}
         <div className="fixed bottom-20 left-0 right-0 p-4 space-y-4 bg-white border-t border-gray-200">
           <button
@@ -212,7 +289,7 @@ const CreateInvoice = () => {
           <button
             onClick={handleSaveAsDraft}
             disabled={loading}
-            className="w-full text-blue-600 font-medium"
+            className="w-full text-green-600 font-medium"
           >
             Save
           </button>

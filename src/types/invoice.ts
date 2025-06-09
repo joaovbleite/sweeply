@@ -30,6 +30,9 @@ export interface Invoice {
   status: InvoiceStatus;
   issue_date: string;
   due_date: string;
+  invoice_title?: string;
+  salesperson?: string;
+  payment_terms?: string;
   
   // Items and Pricing
   items: InvoiceItem[];
@@ -64,6 +67,10 @@ export interface Invoice {
 export interface CreateInvoiceInput {
   client_id: string;
   due_date: string;
+  issue_date?: string;
+  invoice_title?: string;
+  salesperson?: string;
+  payment_terms?: string;
   items: Omit<InvoiceItem, 'id'>[];
   tax_rate?: number;
   discount_amount?: number;
@@ -76,6 +83,10 @@ export interface CreateInvoiceInput {
 export interface UpdateInvoiceInput {
   status?: InvoiceStatus;
   due_date?: string;
+  issue_date?: string;
+  invoice_title?: string;
+  salesperson?: string;
+  payment_terms?: string;
   items?: Omit<InvoiceItem, 'id'>[];
   subtotal?: number;
   tax_rate?: number;
