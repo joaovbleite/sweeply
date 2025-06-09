@@ -132,7 +132,7 @@ const Dashboard = () => {
         label: t('dashboard:jobsToday'), 
         value: todaysJobs.length.toString(), 
         icon: Calendar, 
-        color: "from-pulse-500 to-blue-600",
+        color: "from-blue-500 to-blue-600",
         trend: todaysJobs.length > (lastWeekJobs.length / 7) ? 'up' : 'down',
         trendValue: `${((todaysJobs.length - (lastWeekJobs.length / 7)) * 100).toFixed(0)}%`,
         subLabel: `${lastWeekJobs.length} last week`
@@ -202,7 +202,7 @@ const Dashboard = () => {
       <AppLayout>
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pulse-500 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
             <p className="text-gray-600">{t('dashboard:loadingDashboard')}</p>
           </div>
         </div>
@@ -220,7 +220,7 @@ const Dashboard = () => {
             <p className="text-gray-600 mb-4">{error}</p>
             <button
               onClick={() => loadDashboardData()}
-              className="px-4 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 flex items-center gap-2 mx-auto"
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-2 mx-auto"
             >
               <Activity className="w-4 h-4" />
               {t('dashboard:tryAgain')}
@@ -359,19 +359,19 @@ const Dashboard = () => {
               <h3 className="text-lg font-bold text-gray-900 mb-3 px-1">Discover</h3>
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
-                  <Calendar className="w-6 h-6 text-pulse-500 mb-2" />
+                  <Calendar className="w-6 h-6 text-blue-500 mb-2" />
                   <p className="text-sm font-medium text-gray-800">Smart Scheduling</p>
                 </div>
                 <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
-                  <FileCheck className="w-6 h-6 text-pulse-500 mb-2" />
+                  <FileCheck className="w-6 h-6 text-blue-500 mb-2" />
                   <p className="text-sm font-medium text-gray-800">Invoice Generator</p>
                 </div>
                 <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
-                  <BarChart3 className="w-6 h-6 text-pulse-500 mb-2" />
+                  <BarChart3 className="w-6 h-6 text-blue-500 mb-2" />
                   <p className="text-sm font-medium text-gray-800">Business Analytics</p>
                 </div>
                 <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
-                  <UserCheck className="w-6 h-6 text-pulse-500 mb-2" />
+                  <UserCheck className="w-6 h-6 text-blue-500 mb-2" />
                   <p className="text-sm font-medium text-gray-800">Client Management</p>
                 </div>
               </div>

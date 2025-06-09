@@ -112,7 +112,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             transition={{ type: "spring", stiffness: 300 }}
             className="hidden sm:block"
           >
-            <div className="p-3 bg-gradient-to-br from-pulse-500 to-purple-600 rounded-2xl shadow-lg">
+            <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-lg">
               <Calendar className="w-8 h-8 text-white" />
             </div>
           </motion.div>
@@ -197,8 +197,8 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
                     layoutId="activeView"
                     className={`absolute inset-0 rounded-lg ${
                       darkMode 
-                        ? 'bg-gradient-to-r from-pulse-600 to-purple-600' 
-                        : 'bg-gradient-to-r from-pulse-500 to-purple-500'
+                        ? 'bg-gradient-to-r from-blue-600 to-purple-600' 
+                        : 'bg-gradient-to-r from-blue-500 to-purple-500'
                     }`}
                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
                   />
@@ -237,7 +237,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
               onClick={onToggleAnalytics}
               className={`p-2 rounded-lg transition-all ${
                 showAnalytics 
-                  ? 'bg-pulse-100 text-pulse-600 dark:bg-pulse-900 dark:text-pulse-300' 
+                  ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300' 
                   : darkMode
                     ? 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-200'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -285,8 +285,8 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
             onClick={onQuickAdd}
             className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 shadow-lg ${
               darkMode
-                ? 'bg-gradient-to-r from-pulse-600 to-purple-600 text-white hover:from-pulse-700 hover:to-purple-700'
-                : 'bg-gradient-to-r from-pulse-500 to-purple-500 text-white hover:from-pulse-600 hover:to-purple-600'
+                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
+                : 'bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600'
             }`}
           >
             <Plus className="w-4 h-4" />
@@ -354,7 +354,7 @@ const CalendarHeader: React.FC<CalendarHeaderProps> = ({
               className={`w-full pl-10 pr-4 py-2 rounded-lg transition-all ${
                 darkMode
                   ? 'bg-gray-800 text-white placeholder-gray-400 focus:bg-gray-700'
-                  : 'bg-gray-100 text-gray-900 placeholder-gray-500 focus:bg-white focus:ring-2 focus:ring-pulse-500'
+                  : 'bg-gray-100 text-gray-900 placeholder-gray-500 focus:bg-white focus:ring-2 focus:ring-blue-500'
               }`}
             />
           </div>
