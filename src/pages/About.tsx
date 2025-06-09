@@ -41,7 +41,7 @@ const About: React.FC = () => {
       <div className="bg-white flex flex-col">
         {/* Fixed header with shadow to cover content when scrolling */}
         <div className="sticky top-0 left-0 right-0 z-30 bg-white shadow-sm">
-          <div className="flex items-center px-4 pt-12 pb-3 border-b border-gray-200">
+          <div className="flex items-center px-4 pt-16 pb-4 border-b border-gray-200">
             <button 
               onClick={() => navigate(-1)} 
               className="mr-2 text-gray-600"
@@ -55,7 +55,7 @@ const About: React.FC = () => {
           </div>
         </div>
 
-        <div className="px-4 pb-20 pt-5 flex-1 overflow-y-auto">
+        <div className="px-4 pb-20 pt-7 flex-1 overflow-y-auto">
           {/* Sweeply Information */}
           <div className="mb-8">
             <h2 className="text-xl font-bold text-[#0d3547] mb-4">Sweeply Information</h2>
