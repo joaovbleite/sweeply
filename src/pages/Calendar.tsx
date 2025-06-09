@@ -36,6 +36,7 @@ import { useLocale } from "@/hooks/useLocale";
 import AppLayout from "@/components/AppLayout";
 import QuickJobModal from "@/components/Calendar/QuickJobModal";
 import JobDetailsModal from "@/components/Calendar/JobDetailsModal";
+import MonthSelector from "@/components/Calendar/MonthSelector";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 
@@ -367,6 +368,12 @@ const Calendar = () => {
     setDraggedJob(null);
   };
 
+  // Handle date change from MonthSelector
+  const handleDateChange = (date: Date) => {
+    setCurrentWeek(date);
+    setSelectedDate(date);
+  };
+
   return (
     <AppLayout>
       <div className="h-full flex bg-gray-50">
@@ -375,7 +382,7 @@ const Calendar = () => {
           {/* Calendar Header */}
           <div className="bg-white border-b border-gray-200 px-6 py-4">
             <div className="flex items-center justify-between">
-              {/* Week navigation */}
+              {/* Month selector with expandable view */}
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => navigateWeek('prev')}
@@ -384,17 +391,12 @@ const Calendar = () => {
                   <ChevronLeft className="w-5 h-5 text-gray-600" />
                 </button>
                 
-          <div className="flex items-center gap-2">
-                  <span className="text-xl font-semibold text-gray-900">
-                    {format(weekStart, 'MMM d')} - {format(addDays(weekStart, 6), 'MMM d, yyyy')}
-                </span>
-                  <button
-                    onClick={goToToday}
-                    className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors"
-                  >
-                    Today
-                  </button>
-          </div>
+                <MonthSelector 
+                  currentDate={currentWeek} 
+                  onDateChange={handleDateChange}
+                  userName={user?.user_metadata?.name || user?.email}
+                  jobCount={weekJobs.length}
+                />
 
                 <button
                   onClick={() => navigateWeek('next')}
@@ -402,7 +404,7 @@ const Calendar = () => {
                 >
                   <ChevronRight className="w-5 h-5 text-gray-600" />
                 </button>
-        </div>
+              </div>
 
               {/* Search and actions */}
               <div className="flex items-center gap-4">
@@ -441,6 +443,29 @@ const Calendar = () => {
                   className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 >
                   <RefreshCw className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Tab Navigation */}
+          <div className="bg-gray-50 px-6 pt-4">
+            <div className="bg-gray-100 rounded-xl p-1 flex items-center justify-between">
+              <div className="flex-1 grid grid-cols-3">
+                <button 
+                  className="py-3 px-4 rounded-lg bg-white shadow-sm text-center font-medium text-gray-800"
+                >
+                  Day
+                </button>
+                <button 
+                  className="py-3 px-4 rounded-lg text-center font-medium text-gray-600 hover:bg-white/50"
+                >
+                  List
+                </button>
+                <button 
+                  className="py-3 px-4 rounded-lg text-center font-medium text-gray-600 hover:bg-white/50"
+                >
+                  Map
                 </button>
               </div>
             </div>
@@ -630,7 +655,7 @@ const Calendar = () => {
           {/* Header */}
           <div className="p-6 border-b border-gray-200">
             <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3 mb-4">
-              <CalendarIcon className="w-7 h-7 text-blue-600" />
+              <CalendarIcon className="w-7 h-7 text-[#307842]" />
               Calendar
             </h1>
             
@@ -638,7 +663,7 @@ const Calendar = () => {
             <div className="space-y-2">
               <button 
                 onClick={() => setShowQuickJobModal(true)}
-                className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium"
+                className="w-full px-4 py-3 bg-[#307842] text-white rounded-lg hover:bg-[#276835] transition-colors flex items-center gap-2 font-medium"
               >
                 <Plus className="w-4 h-4" />
                 New Job
@@ -657,12 +682,12 @@ const Calendar = () => {
           <div className="p-6 border-b border-gray-200">
             <h3 className="font-semibold text-gray-900 mb-4">Today's Overview</h3>
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-[#eaf5ec] rounded-lg">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-blue-900">Total Jobs</span>
+                  <div className="w-2 h-2 bg-[#307842] rounded-full"></div>
+                  <span className="text-sm font-medium text-[#1a2e35]">Total Jobs</span>
                 </div>
-                <span className="text-lg font-bold text-blue-600">{todayJobs.length}</span>
+                <span className="text-lg font-bold text-[#307842]">{todayJobs.length}</span>
               </div>
               
               <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
@@ -693,7 +718,7 @@ const Calendar = () => {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Revenue</span>
-                <span className="font-semibold text-green-600">{formatCurrency(weekRevenue)}</span>
+                <span className="font-semibold text-[#307842]">{formatCurrency(weekRevenue)}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Completion Rate</span>

@@ -308,3 +308,63 @@
     transform: translateX(0);
   }
 }
+
+/* Animations for Calendar Month Selector */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { 
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.3s ease-in-out;
+}
+
+/* Calendar specific styles */
+.calendar-month-selector {
+  position: relative;
+  z-index: 50;
+}
+
+.calendar-month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-day {
+  aspect-ratio: 1/1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.calendar-day:hover {
+  background-color: rgba(48, 120, 66, 0.1);
+}
+
+.calendar-day.selected {
+  background-color: #307842;
+  color: white;
+}
+
+.calendar-day.today:not(.selected) {
+  border: 2px solid #307842;
+}
