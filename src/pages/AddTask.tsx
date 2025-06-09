@@ -112,7 +112,7 @@ const AddTask = () => {
   const SaveButton = (
     <button
       onClick={handleSubmit}
-      className="bg-[#307842] text-white px-5 py-2.5 rounded-xl font-medium"
+      className="bg-[#307842] text-white px-4 py-1.5 rounded-lg text-sm font-medium"
     >
       Save
     </button>
@@ -126,65 +126,75 @@ const AddTask = () => {
         rightElement={SaveButton}
       />
 
-      <div className="px-4 pt-7 pb-32 flex-1 overflow-y-auto min-h-screen bg-white">
+      <div className="px-4 pt-3 pb-24 flex-1 overflow-y-auto bg-white">
         {/* Title and Description Fields */}
-        <div className="space-y-4 mb-8">
+        <div className="space-y-3 mb-4">
           <input
             type="text"
             value={formData.title}
             onChange={(e) => handleInputChange('title', e.target.value)}
             placeholder="Title"
-            className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-transparent text-base"
           />
           
           <textarea
             value={formData.description}
             onChange={(e) => handleInputChange('description', e.target.value)}
             placeholder="Description"
-            className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            rows={4}
+            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-transparent text-base"
+            rows={3}
           />
         </div>
 
         {/* Separator */}
-        <div className="w-full h-3 bg-gray-100 -mx-4 px-4 mb-4"></div>
+        <div className="w-full h-2 bg-gray-100 -mx-4 px-4 mb-3"></div>
         
         {/* Client Section */}
-        <div className="flex items-center justify-between py-5 mb-4">
+        <div className="flex items-center justify-between py-3 mb-2">
           <div className="flex items-center">
-            <User className="w-6 h-6 text-gray-700 mr-3" />
-            <h3 className="text-xl font-medium text-gray-800">Client</h3>
+            <User className="w-5 h-5 text-gray-700 mr-2" />
+            <h3 className="text-base font-medium text-gray-800">Client</h3>
           </div>
           <button className="text-green-600">
-            <Plus className="w-6 h-6" />
+            <Plus className="w-5 h-5" />
           </button>
         </div>
 
         {/* Separator */}
-        <div className="w-full h-3 bg-gray-100 -mx-4 px-4 mb-4"></div>
+        <div className="w-full h-2 bg-gray-100 -mx-4 px-4 mb-3"></div>
 
         {/* Schedule Section */}
-        <h2 className="text-xl text-gray-700 font-medium mb-4">Schedule</h2>
+        <h2 className="text-base text-gray-700 font-medium mb-3">Schedule</h2>
         
         {/* Date Selection */}
-        <div className="mb-8 border border-gray-300 rounded-xl p-4 flex items-center">
-          <Calendar className="w-6 h-6 text-gray-700 mr-3" />
+        <div className="mb-4 border border-gray-300 rounded-lg p-3 flex items-center">
+          <Calendar className="w-5 h-5 text-gray-700 mr-2" />
           <div>
-            <h3 className="text-lg font-medium text-gray-800">Date</h3>
-            <p className="text-lg text-gray-800">Unscheduled</p>
+            <h3 className="text-sm font-medium text-gray-800">Date</h3>
+            <p className="text-base text-gray-800">Unscheduled</p>
           </div>
         </div>
 
         {/* Team Section */}
-        <div className="flex items-center justify-between py-5 mb-8">
+        <div className="flex items-center justify-between py-3 mb-4">
           <div className="flex items-center">
-            <Users className="w-6 h-6 text-gray-700 mr-3" />
+            <Users className="w-5 h-5 text-gray-700 mr-2" />
             <div>
-              <h3 className="text-xl font-medium text-gray-800">Team</h3>
-              <p className="text-lg text-gray-800">{selectedTeam}</p>
+              <h3 className="text-base font-medium text-gray-800">Team</h3>
+              <p className="text-base text-gray-800">{selectedTeam}</p>
             </div>
           </div>
-          <ChevronRight className="w-6 h-6 text-green-600" />
+          <ChevronRight className="w-5 h-5 text-green-600" />
+        </div>
+        
+        {/* Save Button (Fixed at bottom) */}
+        <div className="fixed bottom-4 left-0 right-0 px-4">
+          <button
+            onClick={handleSubmit}
+            className="w-full bg-[#307842] text-white py-3 rounded-lg font-medium"
+          >
+            Save
+          </button>
         </div>
       </div>
     </AppLayout>
