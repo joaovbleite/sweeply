@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 30 75% 95%; /* Beige: #FDFBF7 */
+    --foreground: 240 10% 4%; /* Dark text for contrast */
+
+    --card: 210 17% 98%; /* Off-White: #F8F9FA */
+    --card-foreground: 240 10% 4%;
+
+    --popover: 210 17% 98%; /* Off-White */
+    --popover-foreground: 240 10% 4%;
+
+    --primary: 221 71% 53%; /* Brand Blue: #2563EB */
+    --primary-foreground: 0 0% 100%; /* White text on primary */
+
+    --secondary: 210 17% 98%; /* Off-White */
+    --secondary-foreground: 221 20% 30%; /* Darker blue/gray text on off-white */
+
+    --muted: 210 25% 94%; /* Lighter gray/off-white for muted backgrounds */
+    --muted-foreground: 240 5% 45%; /* Softer dark gray for muted text */
+
+    --accent: 217 91% 85%; /* Light Blue detail: #BFDBFE */
+    --accent-foreground: 221 50% 35%; /* Mid-dark blue text on light blue accent */
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 210 20% 90%; /* Light gray border, contrasts with beige */
+    --input: 210 20% 90%; /* Light gray input */
+    --ring: 221 71% 53%; /* Brand Blue for focus rings */
+
+    --radius: 0.5rem;
+
+    /* ... keep existing sidebar variables, they might be themed later ... */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans; /* Uses new --background and --foreground */
+  }
+
+  section {
+    @apply py-12 md:py-20;
+  }
+}

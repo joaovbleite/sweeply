@@ -1,0 +1,43 @@
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+
+// This is a simple redirect page that will take users to the Sweeply app login
+const Auth = () => {
+  const location = useLocation();
+  const isSignup = location.pathname === '/signup';
+
+  useEffect(() => {
+    // Redirect to the Sweeply app with the appropriate page
+    const redirectUrl = isSignup 
+      ? 'https://app.sweeply.com/signup' 
+      : 'https://app.sweeply.com/login';
+      
+    // Redirect immediately
+    window.location.href = redirectUrl;
+  }, [isSignup]);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold mb-4">Redirecting you to {isSignup ? 'sign up' : 'login'}...</h1>
+        <p className="text-gray-600">Please wait while we redirect you to the Sweeply app.</p>
+        <div className="mt-6">
+          <div className="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+        </div>
+        <div className="mt-4">
+          <p className="text-sm text-gray-500">
+            If you are not redirected automatically, please{' '}
+            <a 
+              href={isSignup ? 'https://app.sweeply.com/signup' : 'https://app.sweeply.com/login'} 
+              className="text-purple-600 hover:underline"
+            >
+              click here
+            </a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Auth; 

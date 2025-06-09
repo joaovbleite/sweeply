@@ -1,0 +1,12 @@
+{
+  "extends": "./Sweeply-App/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./Sweeply-App/src/*"],
+      "@src/*": ["./Sweeply-App/src/*"],
+      "@public/*": ["./Sweeply-App/public/*"]
+    }
+  },
+  "include": ["src", "Sweeply-App/src"]
+} 
