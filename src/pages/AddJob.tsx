@@ -179,21 +179,21 @@ const AddJob = () => {
         <h2 className="text-xl text-gray-700 font-medium mb-4">Overview</h2>
         
         <div className="space-y-4 mb-8">
-          <input
-            type="text"
+              <input
+                type="text"
             value={formData.jobTitle}
             onChange={(e) => handleInputChange('jobTitle', e.target.value)}
             placeholder="Job title"
-            className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
+                className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
           
           <textarea
             value={formData.instructions}
             onChange={(e) => handleInputChange('instructions', e.target.value)}
             placeholder="Instructions"
-            className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             rows={4}
-          />
+              />
         </div>
 
         {/* Worker Section (formerly Salesperson) */}
@@ -284,7 +284,7 @@ const AddJob = () => {
           <div className="grid grid-cols-7 gap-y-4 text-center">
             {generateCalendarDays().map((day, index) => (
               <div key={index} className="relative">
-                <button
+            <button 
                   onClick={() => day.currentMonth && handleDaySelect(day.day)}
                   className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto ${
                     day.currentMonth 
@@ -294,9 +294,9 @@ const AddJob = () => {
                       : 'text-gray-500 bg-gray-100'
                   } ${!day.currentMonth && !day.prevMonth ? 'bg-gray-100' : ''}`}
                   disabled={!day.currentMonth}
-                >
+            >
                   {day.day}
-                </button>
+            </button>
               </div>
             ))}
           </div>
@@ -304,7 +304,7 @@ const AddJob = () => {
 
         {/* Separator with full width */}
         <div className="border-t w-full -mx-4 px-4 mb-4"></div>
-
+          
         {/* Team Section */}
         <div className="flex items-center justify-between py-5 mb-8">
           <div className="flex items-center">
@@ -319,10 +319,10 @@ const AddJob = () => {
 
         {/* Separator with full width */}
         <div className="border-t w-full -mx-4 px-4 mb-4"></div>
-
+        
         {/* Invoicing Section */}
         <h2 className="text-xl text-gray-700 font-medium mb-4">Invoicing</h2>
-        
+          
         <div className="flex items-center justify-between mb-8">
           <div className="w-3/4 pr-4">
             <h3 className="text-xl font-medium text-gray-800">Remind me to invoice when I close the job</h3>
@@ -338,12 +338,12 @@ const AddJob = () => {
         </div>
         
         {/* Draft Button */}
-        <button 
+          <button
           onClick={handleSaveAsDraft}
           className="w-full border border-blue-600 text-blue-600 py-4 rounded-xl font-medium mb-20"
-        >
+          >
           Draft
-        </button>
+          </button>
       </div>
     </AppLayout>
   );

@@ -1251,7 +1251,7 @@ const Clients = () => {
                 {/* Pagination or load more (just showing count for now) */}
                 <div className="text-sm text-center text-gray-600">
                   Showing {filteredInvoices.length} of {invoices.length} invoices
-                </div>
+            </div>
           </div>
             )}
           </>

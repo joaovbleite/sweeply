@@ -51,21 +51,37 @@ const FloatingActionMenu: React.FC = () => {
     };
   }, [isOpen]);
 
-  // Menu items with custom colors
+  // Menu items with custom colors (reversed order)
   const menuItems = [
     { 
-      id: "request", 
-      label: "Request", 
-      icon: Download, 
-      action: () => navigate("/requests/new"),
-      color: "bg-amber-50",
-      iconColor: "text-amber-600"
+      id: "client", 
+      label: "Client", 
+      icon: User, 
+      action: () => navigate("/clients/new"),
+      color: "bg-slate-50",
+      iconColor: "text-slate-600"
     },
     { 
-      id: "task", 
-      label: "Task", 
-      icon: Clipboard, 
-      action: () => navigate("/add-task"),
+      id: "job", 
+      label: "Job", 
+      icon: Briefcase, 
+      action: () => navigate("/jobs/new"),
+      color: "bg-green-50",
+      iconColor: "text-green-600"
+    },
+    { 
+      id: "quote", 
+      label: "Quote", 
+      icon: FileEdit, 
+      action: () => navigate("/quotes/new"),
+      color: "bg-purple-50",
+      iconColor: "text-purple-600"
+    },
+    { 
+      id: "invoice", 
+      label: "Invoice", 
+      icon: FileText, 
+      action: () => navigate("/invoices/new"),
       color: "bg-blue-50",
       iconColor: "text-blue-600"
     },
@@ -78,36 +94,20 @@ const FloatingActionMenu: React.FC = () => {
       iconColor: "text-green-600"
     },
     { 
-      id: "invoice", 
-      label: "Invoice", 
-      icon: FileText, 
-      action: () => navigate("/invoices/new"),
+      id: "task", 
+      label: "Task", 
+      icon: Clipboard, 
+      action: () => navigate("/add-task"),
       color: "bg-blue-50",
       iconColor: "text-blue-600"
     },
     { 
-      id: "quote", 
-      label: "Quote", 
-      icon: FileEdit, 
-      action: () => navigate("/quotes/new"),
-      color: "bg-purple-50",
-      iconColor: "text-purple-600"
-    },
-    { 
-      id: "job", 
-      label: "Job", 
-      icon: Briefcase, 
-      action: () => navigate("/jobs/new"),
-      color: "bg-green-50",
-      iconColor: "text-green-600"
-    },
-    { 
-      id: "client", 
-      label: "Client", 
-      icon: User, 
-      action: () => navigate("/clients/new"),
-      color: "bg-slate-50",
-      iconColor: "text-slate-600"
+      id: "request", 
+      label: "Request", 
+      icon: Download, 
+      action: () => navigate("/requests/new"),
+      color: "bg-amber-50",
+      iconColor: "text-amber-600"
     }
   ];
 

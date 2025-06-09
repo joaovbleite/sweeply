@@ -19,7 +19,7 @@ const CreateInvoice = () => {
   const [loading, setLoading] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [showClientMessage, setShowClientMessage] = useState(false);
-
+  
   const [formData, setFormData] = useState<CreateInvoiceInput>({
     client_id: "",
     invoice_title: "For Services Rendered",
@@ -49,7 +49,7 @@ const CreateInvoice = () => {
       } catch (error) {
         console.error('Error loading clients:', error);
         toast.error("Failed to load clients");
-      }
+          }
     };
     loadClients();
   }, []);
@@ -92,7 +92,7 @@ const CreateInvoice = () => {
 
   const handleReviewAndSend = async () => {
     if (!validateForm()) return;
-    
+
     setLoading(true);
     try {
       const invoice = await invoicesApi.create(formData);
@@ -168,7 +168,7 @@ const CreateInvoice = () => {
             <span className="text-blue-600 text-lg font-medium">Select Existing Client</span>
           </button>
         </div>
-        
+
         {/* Client Form */}
         <div className="space-y-4 mb-8">
           <div className="flex items-center">
@@ -188,36 +188,36 @@ const CreateInvoice = () => {
               />
             </div>
           </div>
-          
+
           <div className="flex items-center">
             <MapPin className="w-6 h-6 text-gray-500 mr-3" />
-            <input
+                            <input
               type="text"
               onChange={(e) => handleClientDataChange('address', e.target.value)}
               placeholder="Property address"
               className="flex-1 p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
-          </div>
-          
+                </div>
+                
           <div className="flex items-center">
             <Phone className="w-6 h-6 text-gray-500 mr-3" />
-            <button 
+                  <button
               className="flex-1 text-left p-4 text-blue-600 text-lg font-medium"
               onClick={() => toast.info("Phone input coming soon")}
             >
               Add Phone Number
-            </button>
-          </div>
+                  </button>
+                </div>
           
           <div className="flex items-center">
             <Mail className="w-6 h-6 text-gray-500 mr-3" />
-            <button 
+              <button
               className="flex-1 text-left p-4 text-blue-600 text-lg font-medium"
               onClick={() => toast.info("Email input coming soon")}
-            >
+              >
               Add Email
-            </button>
-          </div>
+              </button>
+            </div>
         </div>
 
         {/* Separator */}
@@ -230,19 +230,19 @@ const CreateInvoice = () => {
           {/* Invoice Title */}
           <div className="relative">
             <label className="text-sm text-gray-500 absolute top-2 left-4">Invoice title</label>
-            <input
-              type="text"
+                        <input
+                          type="text"
               value={formData.invoice_title}
               onChange={(e) => handleInputChange('invoice_title', e.target.value)}
               className="w-full pt-7 pb-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
+                      />
+                    </div>
           
           {/* Issue Date */}
-          <div className="relative">
+                      <div className="relative">
             <label className="text-sm text-gray-500 absolute top-2 left-4">Issued</label>
             <div className="flex items-center w-full">
-              <input
+                        <input
                 type="text"
                 value="Date sent"
                 readOnly
@@ -250,15 +250,15 @@ const CreateInvoice = () => {
               />
               <div className="absolute right-4 pointer-events-none">
                 <ChevronDown className="w-5 h-5 text-gray-500" />
-              </div>
+                </div>
             </div>
           </div>
-          
+
           {/* Payment Terms */}
-          <div className="relative">
+                  <div className="relative">
             <label className="text-sm text-gray-500 absolute top-2 left-4">Payment due</label>
             <div className="flex items-center w-full">
-              <input
+                    <input
                 type="text"
                 value={formData.payment_terms}
                 readOnly
@@ -266,10 +266,10 @@ const CreateInvoice = () => {
               />
               <div className="absolute right-4 pointer-events-none">
                 <ChevronDown className="w-5 h-5 text-gray-500" />
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-          
+
           {/* Salesperson */}
           <div className="relative">
             <label className="text-sm text-gray-500 absolute top-2 left-4">Salesperson</label>
@@ -323,15 +323,15 @@ const CreateInvoice = () => {
           <div className="flex items-center justify-between py-4">
             <h3 className="text-xl font-medium text-gray-800">Tax</h3>
             <span className="text-xl text-blue-600">{formatCurrency(calculateTax())}</span>
+            </div>
           </div>
-        </div>
-        
+
         {/* Total Section */}
         <div className="flex items-center justify-between py-4 bg-gray-100 -mx-4 px-4 mb-8">
           <h3 className="text-xl font-bold text-gray-800">Total</h3>
           <span className="text-xl font-bold text-gray-800">{formatCurrency(calculateTotal())}</span>
-        </div>
-        
+              </div>
+              
         {/* Client Message Section */}
         <div className="border-t border-b py-4 mb-8">
           <div 
@@ -340,11 +340,11 @@ const CreateInvoice = () => {
           >
             <h3 className="text-xl font-bold text-gray-800">Client message</h3>
             <Plus className="w-6 h-6 text-blue-600" />
-          </div>
-          
+              </div>
+              
           {showClientMessage && (
             <div className="mt-4">
-              <textarea
+                <textarea
                 placeholder="Add a message to your client"
                 className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 rows={4}
@@ -362,18 +362,18 @@ const CreateInvoice = () => {
             <ChevronRight className="w-6 h-6 text-blue-600" />
           </div>
           <p className="mt-2 text-gray-700">{formData.footer_text}</p>
-        </div>
-        
+          </div>
+
         {/* Save Button */}
         <div className="pb-20 text-center">
-          <button
+            <button
             onClick={handleSaveAsDraft}
-            disabled={loading}
+              disabled={loading}
             className="text-blue-600 font-medium text-lg"
           >
             Save
-          </button>
-        </div>
+            </button>
+          </div>
       </div>
 
       {/* Bottom Navigation */}
