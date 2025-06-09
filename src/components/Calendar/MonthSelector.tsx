@@ -19,6 +19,11 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
   const [selectedMonth, setSelectedMonth] = useState(currentDate);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Update selectedMonth when currentDate changes
+  useEffect(() => {
+    setSelectedMonth(currentDate);
+  }, [currentDate]);
+
   // Handle clicks outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -80,7 +85,10 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
         <div 
           key={day} 
           onClick={() => selectDay(day)}
-          className={`calendar-day ${isSelected ? 'selected' : ''} ${isCurrentDay ? 'today' : ''}`}
+          className={`calendar-day cursor-pointer h-9 w-9 flex items-center justify-center rounded-full hover:bg-green-100 transition-colors ${
+            isSelected ? 'bg-green-600 text-white' : 
+            isCurrentDay ? 'border-2 border-green-600' : ''
+          }`}
         >
           {day}
         </div>
@@ -90,12 +98,20 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
     return days;
   };
 
+  // Toggle dropdown
+  const toggleDropdown = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsExpanded(!isExpanded);
+  };
+
   return (
     <div className="calendar-month-selector relative" ref={containerRef}>
       {/* Month header with toggle */}
-      <div 
-        className="flex items-center cursor-pointer" 
-        onClick={() => setIsExpanded(!isExpanded)}
+      <button 
+        className="flex items-center px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" 
+        onClick={toggleDropdown}
+        aria-expanded={isExpanded}
+        aria-haspopup="true"
       >
         <div className="text-2xl font-bold text-[#1a2e35]">
           {format(currentDate, 'MMMM')}
@@ -107,12 +123,16 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
             <ChevronDown className="h-5 w-5 text-[#1a2e35]" />
           )}
         </div>
-      </div>
+      </button>
 
       {/* Expandable calendar */}
       {isExpanded && (
         <>
-          <div className="fixed inset-0 bg-black/20 z-40" onClick={() => setIsExpanded(false)}></div>
+          <div 
+            className="fixed inset-0 bg-black/20 z-40" 
+            onClick={() => setIsExpanded(false)}
+            aria-hidden="true"
+          ></div>
           <div className="absolute left-0 top-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 w-full max-w-md animate-slide-down">
             {/* Month navigation */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
@@ -122,6 +142,7 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
                   changeMonth('prev');
                 }}
                 className="p-1 hover:bg-gray-100 rounded-full"
+                aria-label="Previous month"
               >
                 <ChevronDown className="h-5 w-5 text-gray-600 rotate-90" />
               </button>
@@ -136,13 +157,14 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
                   changeMonth('next');
                 }}
                 className="p-1 hover:bg-gray-100 rounded-full"
+                aria-label="Next month"
               >
                 <ChevronDown className="h-5 w-5 text-gray-600 -rotate-90" />
               </button>
             </div>
             
             {/* Weekday headers */}
-            <div className="calendar-month-grid p-4 pb-2">
+            <div className="grid grid-cols-7 gap-1 p-4 pb-2">
               {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
                 <div key={index} className="h-8 flex items-center justify-center text-sm font-medium text-gray-500">
                   {day}
@@ -151,7 +173,7 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
             </div>
             
             {/* Calendar grid */}
-            <div className="calendar-month-grid p-4 pt-0">
+            <div className="grid grid-cols-7 gap-1 p-4 pt-0">
               {generateCalendarDays()}
             </div>
             

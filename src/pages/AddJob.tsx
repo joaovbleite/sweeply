@@ -7,6 +7,13 @@ import { Client } from "@/types/client";
 import AppLayout from "@/components/AppLayout";
 import PageHeader from "@/components/ui/PageHeader";
 import { useLocale } from "@/hooks/useLocale";
+import LineItemModal from "@/components/jobs/LineItemModal";
+
+interface LineItem {
+  description: string;
+  price: number;
+  quantity?: number;
+}
 
 const AddJob = () => {
   const navigate = useNavigate();
@@ -18,6 +25,8 @@ const AddJob = () => {
   const [selectedDate, setSelectedDate] = useState<number | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [remindToInvoice, setRemindToInvoice] = useState(false);
+  const [showLineItemModal, setShowLineItemModal] = useState(false);
+  const [lineItems, setLineItems] = useState<LineItem[]>([]);
 
   const [formData, setFormData] = useState({
     clientId: "",
@@ -83,6 +92,18 @@ const AddJob = () => {
   const handleSaveAsDraft = () => {
     toast.success("Job saved as draft");
     navigate("/jobs");
+  };
+
+  const handleAddLineItem = (item: { description: string; price: number }) => {
+    const newLineItems = [...lineItems, { ...item, quantity: 1 }];
+    setLineItems(newLineItems);
+    
+    // Update subtotal
+    const newSubtotal = newLineItems.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+    setFormData(prev => ({
+      ...prev,
+      subtotal: newSubtotal
+    }));
   };
 
   // Generate calendar days for the current month
@@ -184,14 +205,14 @@ const AddJob = () => {
             value={formData.jobTitle}
             onChange={(e) => handleInputChange('jobTitle', e.target.value)}
             placeholder="Job title"
-                className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               />
           
           <textarea
             value={formData.instructions}
             onChange={(e) => handleInputChange('instructions', e.target.value)}
             placeholder="Instructions"
-                className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             rows={4}
               />
         </div>
@@ -204,7 +225,7 @@ const AddJob = () => {
               <select
                 value={formData.salesperson}
                 onChange={(e) => handleInputChange('salesperson', e.target.value)}
-                className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-800"
+                className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
               >
                 <option value="">Please select</option>
                 <option value="victor leite">victor leite</option>
@@ -221,16 +242,36 @@ const AddJob = () => {
         {/* Separator */}
         <div className="w-full h-3 bg-gray-100 -mx-4 px-4 mb-8"></div>
         
-        {/* Product / Service Section */}
-        <h2 className="text-xl text-gray-700 font-medium mb-4">Product / Service</h2>
+        {/* Service Section (renamed from Product / Service) */}
+        <h2 className="text-xl text-gray-700 font-medium mb-4">Service</h2>
         
         {/* Line items Section */}
         <div className="flex items-center justify-between border-t border-b py-4 mb-4">
           <h3 className="text-xl font-medium text-gray-800">Line items</h3>
-          <button className="text-blue-600">
+          <button 
+            className="text-blue-600"
+            onClick={() => setShowLineItemModal(true)}
+          >
             <Plus className="w-6 h-6" />
           </button>
         </div>
+
+        {/* Display Line Items */}
+        {lineItems.length > 0 && (
+          <div className="mb-4 space-y-3">
+            {lineItems.map((item, index) => (
+              <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <h4 className="font-medium text-gray-900">{item.description}</h4>
+                  <p className="text-sm text-gray-500">Qty: {item.quantity || 1}</p>
+                </div>
+                <span className="font-medium text-gray-900">
+                  {formatCurrency(item.price)}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Subtotal Section */}
         <div className="flex items-center justify-between mb-8">
@@ -345,6 +386,13 @@ const AddJob = () => {
           Draft
           </button>
       </div>
+
+      {/* Line Item Modal */}
+      <LineItemModal 
+        isOpen={showLineItemModal}
+        onClose={() => setShowLineItemModal(false)}
+        onAddItem={handleAddLineItem}
+      />
     </AppLayout>
   );
 };

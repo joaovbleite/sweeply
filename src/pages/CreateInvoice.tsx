@@ -134,24 +134,24 @@ const CreateInvoice = () => {
     setShowClientMessage(!showClientMessage);
   };
 
-  // Review and Send button for the header
-  const ReviewSendButton = (
+  // Send button for the header (Changed from "Review and Send" to "Send")
+  const SendButton = (
     <button
       onClick={handleReviewAndSend}
       disabled={loading}
       className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-medium"
     >
-      Review and Send
+      Send
     </button>
   );
 
   return (
     <AppLayout>
-      {/* Page Header with Review and Send button on the right */}
+      {/* Page Header with Send button on the right */}
       <PageHeader 
         title="New Invoice" 
         onBackClick={() => navigate(-1)}
-        rightElement={ReviewSendButton}
+        rightElement={SendButton}
       />
 
       <div className="px-4 pt-7 pb-32 flex-1 overflow-y-auto min-h-screen bg-white">
@@ -231,44 +231,44 @@ const CreateInvoice = () => {
           <div className="relative">
             <label className="text-sm text-gray-500 absolute top-2 left-4">Invoice title</label>
                         <input
-                          type="text"
+              type="text"
               value={formData.invoice_title}
               onChange={(e) => handleInputChange('invoice_title', e.target.value)}
-              className="w-full pt-7 pb-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                    </div>
+              className="w-full pt-7 pb-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+            />
+          </div>
           
           {/* Issue Date */}
-                      <div className="relative">
+          <div className="relative">
             <label className="text-sm text-gray-500 absolute top-2 left-4">Issued</label>
             <div className="flex items-center w-full">
-                        <input
+              <input
                 type="text"
                 value="Date sent"
                 readOnly
-                className="w-full pt-7 pb-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pt-7 pb-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               />
               <div className="absolute right-4 pointer-events-none">
                 <ChevronDown className="w-5 h-5 text-gray-500" />
-                </div>
+              </div>
             </div>
           </div>
 
           {/* Payment Terms */}
-                  <div className="relative">
+          <div className="relative">
             <label className="text-sm text-gray-500 absolute top-2 left-4">Payment due</label>
             <div className="flex items-center w-full">
-                    <input
+              <input
                 type="text"
                 value={formData.payment_terms}
                 readOnly
-                className="w-full pt-7 pb-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pt-7 pb-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               />
               <div className="absolute right-4 pointer-events-none">
                 <ChevronDown className="w-5 h-5 text-gray-500" />
-                  </div>
-                </div>
               </div>
+            </div>
+          </div>
 
           {/* Salesperson */}
           <div className="relative">
@@ -277,7 +277,7 @@ const CreateInvoice = () => {
               <select
                 value={formData.salesperson}
                 onChange={(e) => handleInputChange('salesperson', e.target.value)}
-                className="w-full appearance-none pt-7 pb-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                className="w-full appearance-none pt-7 pb-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
               >
                 <option value="">Please select</option>
                 <option value="victor leite">victor leite</option>
@@ -346,7 +346,7 @@ const CreateInvoice = () => {
             <div className="mt-4">
                 <textarea
                 placeholder="Add a message to your client"
-                className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                 rows={4}
                 value={formData.notes || ''}
                 onChange={(e) => handleInputChange('notes', e.target.value)}

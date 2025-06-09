@@ -3,6 +3,7 @@ import { ChevronRight, ChevronLeft, X, ArrowUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocale } from '@/hooks/useLocale';
 import { Link } from 'react-router-dom';
+import PageHeader from '@/components/ui/PageHeader';
 
 const BusinessHealthPage = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
   const { t } = useTranslation(['dashboard', 'common']);
@@ -12,18 +13,10 @@ const BusinessHealthPage = ({ isOpen, onClose }: { isOpen: boolean, onClose: () 
 
   return (
     <div className="fixed inset-0 bg-white z-[60]">
-      <div className="flex items-center px-4 pt-12 pb-3 border-b border-gray-200">
-        <button 
-          onClick={onClose}
-          className="mr-2 text-gray-600"
-          aria-label="Back"
-        >
-          <ChevronLeft className="w-6 h-6" />
-        </button>
-        <h1 className="text-2xl font-bold text-[#1a2e35]">
-          Business health
-        </h1>
-      </div>
+      <PageHeader 
+        title="Business health"
+        onBackClick={onClose}
+      />
 
       <div className="overflow-y-auto h-[calc(100vh-77px)] pb-20">
         {/* Clients Section */}

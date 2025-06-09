@@ -133,14 +133,14 @@ const NewQuote = () => {
                   value={clientData.firstName}
                   onChange={(e) => handleClientDataChange('firstName', e.target.value)}
                   placeholder="First name"
-                  className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                 />
                 <input
                   type="text"
                   value={clientData.lastName}
                   onChange={(e) => handleClientDataChange('lastName', e.target.value)}
                   placeholder="Last name"
-                  className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                 />
               </div>
             </div>
@@ -152,7 +152,7 @@ const NewQuote = () => {
                 value={clientData.address}
                 onChange={(e) => handleClientDataChange('address', e.target.value)}
                 placeholder="Property address"
-                className="flex-1 p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               />
             </div>
             
@@ -186,7 +186,7 @@ const NewQuote = () => {
               value={quoteData.jobTitle}
               onChange={(e) => handleQuoteDataChange('jobTitle', e.target.value)}
               placeholder="Job title"
-              className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             />
             
             {/* Worker (previously Salesperson) */}
@@ -197,7 +197,7 @@ const NewQuote = () => {
               <select
                 value={quoteData.worker}
                 onChange={(e) => handleQuoteDataChange('worker', e.target.value)}
-                className="w-full pt-7 pb-3 px-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-gray-800 bg-gray-100"
+                className="w-full pt-7 pb-3 px-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-gray-900 bg-gray-100"
               >
                 <option value="victor leite">victor leite</option>
               </select>
@@ -221,7 +221,7 @@ const NewQuote = () => {
             <div className="mt-4">
               <textarea
                 placeholder="Add introduction text"
-                className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                 rows={4}
               ></textarea>
             </div>
@@ -300,7 +300,7 @@ const NewQuote = () => {
             <div className="mt-4">
               <textarea
                 placeholder="Add a message to your client"
-                className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                 rows={4}
               ></textarea>
             </div>
@@ -325,7 +325,7 @@ const NewQuote = () => {
                 value={quoteData.disclaimerText}
                 onChange={(e) => handleQuoteDataChange('disclaimerText', e.target.value)}
                 placeholder="Add disclaimer text"
-                className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                 rows={4}
               ></textarea>
             </div>

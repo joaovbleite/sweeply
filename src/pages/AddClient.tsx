@@ -114,14 +114,14 @@ const AddClient = () => {
                 placeholder="First name"
                 value={firstName}
                 onChange={(e) => handleInputChange("firstName", e.target.value)}
-                className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900"
               />
               <input
                 type="text"
                 placeholder="Last name"
                 value={lastName}
                 onChange={(e) => handleInputChange("lastName", e.target.value)}
-                className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900"
               />
             </div>
           </div>
@@ -182,7 +182,7 @@ const AddClient = () => {
               placeholder="Property address"
               value={formData.address || ""}
               onChange={(e) => handleInputChange("address", e.target.value)}
-              className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="w-full p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-900"
             />
           </div>
         </div>
