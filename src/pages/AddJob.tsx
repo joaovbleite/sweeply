@@ -80,6 +80,11 @@ const AddJob = () => {
     navigate("/jobs");
   };
 
+  const handleSaveAsDraft = () => {
+    toast.success("Job saved as draft");
+    navigate("/jobs");
+  };
+
   // Generate calendar days for the current month
   const generateCalendarDays = () => {
     const year = currentMonth.getFullYear();
@@ -169,7 +174,7 @@ const AddJob = () => {
         rightElement={SaveButton}
       />
 
-      <div className="px-4 pt-7 pb-24 flex-1 overflow-y-auto min-h-screen bg-white">
+      <div className="px-4 pt-7 pb-32 flex-1 overflow-y-auto min-h-screen bg-white">
         {/* Overview Section */}
         <h2 className="text-xl text-gray-700 font-medium mb-4">Overview</h2>
         
@@ -297,23 +302,31 @@ const AddJob = () => {
           </div>
         </div>
 
+        {/* Separator with full width */}
+        <div className="border-t w-full -mx-4 px-4 mb-4"></div>
+
         {/* Team Section */}
-        <div className="border-t border-b py-5 mb-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Users className="w-6 h-6 text-gray-700 mr-3" />
+        <div className="flex items-center justify-between py-5 mb-8">
+          <div className="flex items-center">
+            <Users className="w-6 h-6 text-gray-700 mr-3" />
+            <div>
               <h3 className="text-xl font-medium text-gray-800">Team</h3>
+              <p className="text-lg text-gray-800">victor leite</p>
             </div>
-            <ChevronRight className="w-6 h-6 text-gray-700" />
           </div>
-          <p className="text-lg text-gray-800 ml-9">victor leite</p>
+          <ChevronRight className="w-6 h-6 text-gray-700" />
         </div>
+
+        {/* Separator with full width */}
+        <div className="border-t w-full -mx-4 px-4 mb-4"></div>
 
         {/* Invoicing Section */}
         <h2 className="text-xl text-gray-700 font-medium mb-4">Invoicing</h2>
         
         <div className="flex items-center justify-between mb-8">
-          <h3 className="text-xl font-medium text-gray-800">Remind me to invoice when I close the job</h3>
+          <div className="w-3/4 pr-4">
+            <h3 className="text-xl font-medium text-gray-800">Remind me to invoice when I close the job</h3>
+          </div>
           <div 
             className={`w-14 h-8 rounded-full p-1 transition-colors duration-200 ease-in-out ${remindToInvoice ? 'bg-blue-600' : 'bg-gray-300'}`}
             onClick={() => setRemindToInvoice(!remindToInvoice)}
@@ -323,6 +336,14 @@ const AddJob = () => {
             />
           </div>
         </div>
+        
+        {/* Draft Button */}
+        <button 
+          onClick={handleSaveAsDraft}
+          className="w-full border border-blue-600 text-blue-600 py-4 rounded-xl font-medium mb-20"
+        >
+          Draft
+        </button>
       </div>
     </AppLayout>
   );
