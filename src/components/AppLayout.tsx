@@ -100,7 +100,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
           <Link to="/" className="flex items-center gap-1.5 sm:gap-2">
             <img src="/sweeply-favicon.png" alt="Sweeply" className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-6 lg:h-6" />
             <span className={`text-base sm:text-lg font-bold 
-              ${isMobile ? 'bg-gradient-to-r from-pulse-500 to-pulse-600 bg-clip-text text-transparent' : 'text-white'}`}>
+              ${isMobile ? 'bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent' : 'text-white'}`}>
               {isMobile ? 'Sweeply' : 'Accessible Health Care'}
             </span>
           </Link>
@@ -135,14 +135,10 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
                     className={`w-full flex items-center gap-2 px-2 py-2 rounded-lg transition-colors ${
                       isMobile 
                         ? isActive
-                          ? item.id === "tasks" 
-                            ? "bg-blue-50 text-blue-600" 
-                            : "bg-pulse-50 text-pulse-600"
+                          ? "bg-blue-50 text-blue-600"
                           : "text-gray-700 hover:bg-gray-100"
                         : isActive
-                          ? item.id === "tasks" 
-                            ? "bg-blue-600 text-white" 
-                            : "bg-blue-600 text-white"
+                          ? "bg-blue-600 text-white"
                           : "text-gray-300 hover:bg-gray-800"
                     }`}
                   >

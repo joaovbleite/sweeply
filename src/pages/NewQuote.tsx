@@ -16,7 +16,7 @@ const NewQuote = () => {
   // Form state
   const [quoteData, setQuoteData] = useState({
     jobTitle: '',
-    salesperson: 'victor leite',
+    worker: 'victor leite',
     subtotal: 0,
     discount: 0,
     tax: 0,
@@ -189,14 +189,14 @@ const NewQuote = () => {
               className="w-full p-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             
-            {/* Salesperson */}
+            {/* Worker (previously Salesperson) */}
             <div className="relative">
               <div className="absolute left-4 top-2 transform pointer-events-none text-gray-400 text-sm font-medium">
-                Salesperson
+                Worker
               </div>
               <select
-                value={quoteData.salesperson}
-                onChange={(e) => handleQuoteDataChange('salesperson', e.target.value)}
+                value={quoteData.worker}
+                onChange={(e) => handleQuoteDataChange('worker', e.target.value)}
                 className="w-full pt-7 pb-3 px-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-gray-800 bg-gray-100"
               >
                 <option value="victor leite">victor leite</option>
