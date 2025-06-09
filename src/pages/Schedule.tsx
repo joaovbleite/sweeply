@@ -99,28 +99,14 @@ const Schedule = () => {
     const newDate = direction === 'next' ? addWeeks(currentDate, 1) : subWeeks(currentDate, 1);
     setCurrentDate(newDate);
     
-    // Scroll to the appropriate week
-    if (weekDaysRef.current) {
-      const scrollAmount = direction === 'next' ? weekDaysRef.current.offsetWidth : -weekDaysRef.current.offsetWidth;
-      
-      weekDaysRef.current.scrollBy({
-        left: scrollAmount,
-        behavior: 'smooth'
-      });
-    }
+    // The scroll adjustment will happen automatically via the useEffect
   };
 
   // Go to today
   const goToToday = () => {
     setCurrentDate(new Date());
     
-    // Scroll to the middle (current) week
-    if (weekDaysRef.current) {
-      weekDaysRef.current.scrollTo({
-        left: weekDaysRef.current.offsetWidth,
-        behavior: 'smooth'
-      });
-    }
+    // The scroll adjustment will happen automatically via the useEffect
   };
 
   // Handling touch events for swipe detection
@@ -152,15 +138,20 @@ const Schedule = () => {
   // Scroll to middle (current) week on initial load
   useEffect(() => {
     if (weekDaysRef.current) {
-      // Wait for the component to be fully rendered
+      // Reset scroll position to show current week
       setTimeout(() => {
-        weekDaysRef.current?.scrollTo({
-          left: weekDaysRef.current.offsetWidth,
-          behavior: 'auto' // Use 'auto' for initial positioning
-        });
+        if (weekDaysRef.current) {
+          // For the initial positioning, we want to show the current week (middle 7 days)
+          // By default we scroll to show the days at indexes 7-13
+          weekDaysRef.current.scrollLeft = 0; // Reset first
+          weekDaysRef.current.scrollTo({
+            left: weekDaysRef.current.scrollWidth / 3,
+            behavior: 'auto'
+          });
+        }
       }, 100);
     }
-  }, []);
+  }, [currentDate]);
 
   // Open view options modal
   const openViewOptionsModal = () => {
@@ -187,13 +178,7 @@ const Schedule = () => {
               currentDate={currentDate} 
               onDateChange={(date) => {
                 setCurrentDate(date);
-                // Scroll to the middle (current) week
-                if (weekDaysRef.current) {
-                  weekDaysRef.current.scrollTo({
-                    left: weekDaysRef.current.offsetWidth,
-                    behavior: 'auto'
-                  });
-                }
+                // Scroll will be adjusted automatically via the useEffect
               }}
               userName={user?.user_metadata?.name || user?.email}
               jobCount={dayJobs.length}
@@ -232,7 +217,7 @@ const Schedule = () => {
         </div>
         
         {/* Week day selector - now scrollable */}
-        <div className="relative bg-white rounded-lg mx-4 mt-4 shadow-sm">
+        <div className="relative mx-4 mt-4">
           {/* Scrollable container */}
           <div 
             ref={weekDaysRef}
@@ -265,7 +250,7 @@ const Schedule = () => {
                     </div>
                     <div 
                       className={`w-10 h-10 flex items-center justify-center rounded-full mt-1 text-lg
-                        ${isSelected ? 'bg-blue-600 text-white' : isToday ? 'text-blue-600' : 'text-gray-800'}`}
+                        ${isSelected ? 'bg-[#307842] text-white' : isToday ? 'text-[#307842] border-2 border-[#307842]' : 'text-gray-800'}`}
                     >
                       {format(day, 'd')}
                     </div>
