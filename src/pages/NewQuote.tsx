@@ -93,7 +93,7 @@ const NewQuote = () => {
   // Create the review button for the header
   const ReviewButton = (
     <button
-      className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium text-sm"
+      className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium text-sm"
       onClick={handleSubmit}
     >
       Review and Send

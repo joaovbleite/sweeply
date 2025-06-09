@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, User, MapPin, Phone, Mail, ChevronDown, Plus, ChevronRight } from "lucide-react";
+import { Search, User, MapPin, Phone, Mail, ChevronDown, Plus, ChevronRight, Home, Calendar, DollarSign, MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import { invoicesApi } from "@/lib/api/invoices";
 import { clientsApi } from "@/lib/api/clients";
@@ -138,11 +138,17 @@ const CreateInvoice = () => {
     <button
       onClick={handleReviewAndSend}
       disabled={loading}
-      className="bg-green-600 text-white px-5 py-2.5 rounded-xl font-medium"
+      className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-medium"
     >
       Review and Send
     </button>
   );
+
+  // Navigation functions
+  const navigateToHome = () => navigate('/');
+  const navigateToCalendar = () => navigate('/calendar');
+  const navigateToFinance = () => navigate('/finance');
+  const navigateToProfile = () => navigate('/profile');
 
   return (
     <AppLayout>
@@ -153,7 +159,7 @@ const CreateInvoice = () => {
         rightElement={ReviewSendButton}
       />
 
-      <div className="px-4 pt-7 pb-24 flex-1 overflow-y-auto min-h-screen bg-white">
+      <div className="px-4 pt-7 pb-32 flex-1 overflow-y-auto min-h-screen bg-white">
         {/* Billed To Section */}
         <h2 className="text-xl text-gray-700 font-medium mb-4">Billed to</h2>
         
@@ -163,8 +169,8 @@ const CreateInvoice = () => {
             className="w-full flex items-center justify-center p-4 rounded-xl border border-gray-300 bg-white"
             onClick={() => toast.info("Client selection coming soon")}
           >
-            <Search className="w-6 h-6 text-green-600 mr-3" />
-            <span className="text-green-600 text-lg font-medium">Select Existing Client</span>
+            <Search className="w-6 h-6 text-blue-600 mr-3" />
+            <span className="text-blue-600 text-lg font-medium">Select Existing Client</span>
           </button>
         </div>
         
@@ -201,7 +207,7 @@ const CreateInvoice = () => {
           <div className="flex items-center">
             <Phone className="w-6 h-6 text-gray-500 mr-3" />
             <button 
-              className="flex-1 text-left p-4 text-green-600 text-lg font-medium"
+              className="flex-1 text-left p-4 text-blue-600 text-lg font-medium"
               onClick={() => toast.info("Phone input coming soon")}
             >
               Add Phone Number
@@ -211,7 +217,7 @@ const CreateInvoice = () => {
           <div className="flex items-center">
             <Mail className="w-6 h-6 text-gray-500 mr-3" />
             <button 
-              className="flex-1 text-left p-4 text-green-600 text-lg font-medium"
+              className="flex-1 text-left p-4 text-blue-600 text-lg font-medium"
               onClick={() => toast.info("Email input coming soon")}
             >
               Add Email
@@ -299,7 +305,7 @@ const CreateInvoice = () => {
         {/* Line items Section */}
         <div className="flex items-center justify-between py-4 border-t border-b mb-4">
           <h3 className="text-xl font-bold text-gray-800">Line items</h3>
-          <button className="text-green-600">
+          <button className="text-blue-600">
             <Plus className="w-6 h-6" />
           </button>
         </div>
@@ -315,13 +321,13 @@ const CreateInvoice = () => {
           {/* Discount */}
           <div className="flex items-center justify-between py-4">
             <h3 className="text-xl font-medium text-gray-800">Discount</h3>
-            <span className="text-xl text-green-600">{formatCurrency(formData.discount_amount || 0)}</span>
+            <span className="text-xl text-blue-600">{formatCurrency(formData.discount_amount || 0)}</span>
           </div>
           
           {/* Tax */}
           <div className="flex items-center justify-between py-4">
             <h3 className="text-xl font-medium text-gray-800">Tax</h3>
-            <span className="text-xl text-green-600">{formatCurrency(calculateTax())}</span>
+            <span className="text-xl text-blue-600">{formatCurrency(calculateTax())}</span>
           </div>
         </div>
         
@@ -338,7 +344,7 @@ const CreateInvoice = () => {
             onClick={handleToggleClientMessage}
           >
             <h3 className="text-xl font-bold text-gray-800">Client message</h3>
-            <Plus className="w-6 h-6 text-green-600" />
+            <Plus className="w-6 h-6 text-blue-600" />
           </div>
           
           {showClientMessage && (
@@ -358,20 +364,64 @@ const CreateInvoice = () => {
         <div className="border-b py-4 mb-8">
           <div className="flex justify-between items-center cursor-pointer">
             <h3 className="text-xl font-bold text-gray-800">Contract / Disclaimer</h3>
-            <ChevronRight className="w-6 h-6 text-green-600" />
+            <ChevronRight className="w-6 h-6 text-blue-600" />
           </div>
           <p className="mt-2 text-gray-700">{formData.footer_text}</p>
         </div>
         
         {/* Save Button */}
-        <div className="pb-12 text-center">
+        <div className="pb-20 text-center">
           <button
             onClick={handleSaveAsDraft}
             disabled={loading}
-            className="text-green-600 font-medium text-lg"
+            className="text-blue-600 font-medium text-lg"
           >
             Save
           </button>
+        </div>
+
+        {/* Bottom Navigation Bar */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 rounded-t-3xl shadow-lg">
+          <div className="flex justify-around items-center px-6 py-4">
+            <button 
+              onClick={navigateToHome}
+              className="flex flex-col items-center justify-center text-gray-500 hover:text-blue-600"
+            >
+              <Home className="w-6 h-6" />
+              <span className="text-xs mt-1">Home</span>
+            </button>
+            
+            <button 
+              onClick={navigateToCalendar}
+              className="flex flex-col items-center justify-center text-gray-500 hover:text-blue-600"
+            >
+              <Calendar className="w-6 h-6" />
+              <span className="text-xs mt-1">Calendar</span>
+            </button>
+            
+            <button 
+              onClick={navigateToFinance}
+              className="flex flex-col items-center justify-center text-blue-600"
+            >
+              <DollarSign className="w-6 h-6" />
+              <span className="text-xs mt-1">Finance</span>
+            </button>
+            
+            <button 
+              onClick={navigateToProfile}
+              className="flex flex-col items-center justify-center text-gray-500 hover:text-blue-600"
+            >
+              <User className="w-6 h-6" />
+              <span className="text-xs mt-1">Profile</span>
+            </button>
+            
+            <button 
+              className="flex flex-col items-center justify-center text-gray-500 hover:text-blue-600"
+            >
+              <MoreHorizontal className="w-6 h-6" />
+              <span className="text-xs mt-1">More</span>
+            </button>
+          </div>
         </div>
       </div>
     </AppLayout>
