@@ -196,15 +196,15 @@ const AddJob = () => {
           />
         </div>
 
-        {/* Salesperson Section */}
+        {/* Worker Section (formerly Salesperson) */}
         <div className="mb-8">
           <div className="relative mb-4">
-            <label className="text-sm text-gray-700 font-medium mb-1 block">Salesperson</label>
+            <label className="text-sm text-gray-700 font-medium mb-1 block">Worker</label>
             <div className="relative">
               <select
                 value={formData.salesperson}
                 onChange={(e) => handleInputChange('salesperson', e.target.value)}
-                className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-gray-100"
+                className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-800"
               >
                 <option value="">Please select</option>
                 <option value="victor leite">victor leite</option>
