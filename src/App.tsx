@@ -49,6 +49,7 @@ import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Tasks from "./pages/Tasks";
 import AddTask from "./pages/AddTask";
+import Refer from "./pages/Refer";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -400,6 +401,16 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <AddTask />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/refer" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <Refer />
+            </PageTransition>
           </ProtectedRoute>
         } 
       />
