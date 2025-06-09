@@ -186,16 +186,6 @@ const AddTask = () => {
           </div>
           <ChevronRight className="w-5 h-5 text-green-600" />
         </div>
-        
-        {/* Save Button (Fixed at bottom) */}
-        <div className="fixed bottom-4 left-0 right-0 px-4">
-          <button
-            onClick={handleSubmit}
-            className="w-full bg-[#307842] text-white py-3 rounded-lg font-medium"
-          >
-            Save
-          </button>
-        </div>
       </div>
     </AppLayout>
   );
