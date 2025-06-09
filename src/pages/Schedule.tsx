@@ -99,14 +99,40 @@ const Schedule = () => {
     const newDate = direction === 'next' ? addWeeks(currentDate, 1) : subWeeks(currentDate, 1);
     setCurrentDate(newDate);
     
-    // The scroll adjustment will happen automatically via the useEffect
+    // Animate the scroll to the appropriate week
+    if (weekDaysRef.current) {
+      const targetPosition = direction === 'next' 
+        ? weekDaysRef.current.scrollWidth * 2/3  // Move to next week (last third)
+        : 0;                                    // Move to previous week (first third)
+      
+      weekDaysRef.current.scrollTo({
+        left: targetPosition,
+        behavior: 'smooth'
+      });
+      
+      // After animation completes, reset to middle week
+      setTimeout(() => {
+        if (weekDaysRef.current) {
+          weekDaysRef.current.scrollTo({
+            left: weekDaysRef.current.scrollWidth / 3,
+            behavior: 'auto'
+          });
+        }
+      }, 300); // Wait for scroll animation to complete
+    }
   };
 
   // Go to today
   const goToToday = () => {
     setCurrentDate(new Date());
     
-    // The scroll adjustment will happen automatically via the useEffect
+    // Reset to middle position immediately
+    if (weekDaysRef.current) {
+      weekDaysRef.current.scrollTo({
+        left: weekDaysRef.current.scrollWidth / 3,
+        behavior: 'smooth'
+      });
+    }
   };
 
   // Handling touch events for swipe detection
@@ -135,14 +161,28 @@ const Schedule = () => {
     }
   };
 
-  // Scroll to middle (current) week on initial load
+  // Add wheel event handler for desktop scrolling
+  const handleWheel = (e: React.WheelEvent) => {
+    // Prevent default browser scroll behavior
+    e.preventDefault();
+    
+    // Check scroll direction
+    if (e.deltaX > 50) {
+      // Scrolling right (next week)
+      navigateWeek('next');
+    } else if (e.deltaX < -50) {
+      // Scrolling left (previous week)
+      navigateWeek('prev');
+    }
+  };
+
+  // Scroll to current week on initial load or when current date changes
   useEffect(() => {
     if (weekDaysRef.current) {
       // Reset scroll position to show current week
       setTimeout(() => {
         if (weekDaysRef.current) {
           // For the initial positioning, we want to show the current week (middle 7 days)
-          // By default we scroll to show the days at indexes 7-13
           weekDaysRef.current.scrollLeft = 0; // Reset first
           weekDaysRef.current.scrollTo({
             left: weekDaysRef.current.scrollWidth / 3,
@@ -216,7 +256,7 @@ const Schedule = () => {
           </button>
         </div>
         
-        {/* Week day selector - now scrollable */}
+        {/* Week day selector - now scrollable with controlled pagination */}
         <div className="relative mx-4 mt-4">
           {/* Scrollable container */}
           <div 
@@ -225,6 +265,7 @@ const Schedule = () => {
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
+            onWheel={handleWheel}
           >
             <div className="flex w-full snap-mandatory py-2">
               {/* Map all days (3 weeks worth) */}
