@@ -370,7 +370,7 @@ const Dashboard = () => {
             {/* Desktop Today's Schedule */}
             <div className="bg-white p-3 sm:p-4 md:p-5 rounded-xl shadow-sm border border-gray-100 mt-6 sm:mt-8 md:mt-10">
               <div className="flex justify-between items-center mb-3 sm:mb-4">
-                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">Today's Schedule</h3>
+                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 pt-1.5">Today's Schedule</h3>
                 <Link to="/calendar" className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium flex items-center gap-1">
                   View all <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
                 </Link>
