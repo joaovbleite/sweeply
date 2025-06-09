@@ -425,20 +425,20 @@ const Clients = () => {
   const getAddButton = () => {
     switch (activeTab) {
       case 'clients':
-        return (
-          <Link
-            to="/clients/new"
-            className="bg-[#307842] text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2"
-          >
+  return (
+            <Link
+              to="/clients/new"
+            className="bg-[#3b82f6] text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2"
+            >
             <Plus className="w-4 h-4" />
             <span>{t('clients:addClient')}</span>
-          </Link>
+            </Link>
         );
       case 'jobs':
         return (
           <Link
             to="/jobs/new"
-            className="bg-[#307842] text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2"
+            className="bg-[#3b82f6] text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             <span>Add Job</span>
@@ -448,7 +448,7 @@ const Clients = () => {
         return (
           <Link
             to="/quotes/new"
-            className="bg-[#307842] text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2"
+            className="bg-[#3b82f6] text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             <span>New Quote</span>
@@ -458,7 +458,7 @@ const Clients = () => {
         return (
           <Link
             to="/invoices/new"
-            className="bg-[#307842] text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2"
+            className="bg-[#3b82f6] text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             <span>Create Invoice</span>
@@ -496,7 +496,7 @@ const Clients = () => {
             onClick={() => setActiveTab('clients')}
             className={`px-4 py-2 font-medium text-sm whitespace-nowrap flex items-center gap-2 ${
               activeTab === 'clients' 
-                ? 'text-[#307842] border-b-2 border-[#307842]' 
+                ? 'text-[#3b82f6] border-b-2 border-[#3b82f6]' 
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -507,7 +507,7 @@ const Clients = () => {
             onClick={() => setActiveTab('jobs')}
             className={`px-4 py-2 font-medium text-sm whitespace-nowrap flex items-center gap-2 ${
               activeTab === 'jobs' 
-                ? 'text-[#307842] border-b-2 border-[#307842]' 
+                ? 'text-[#3b82f6] border-b-2 border-[#3b82f6]' 
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -518,7 +518,7 @@ const Clients = () => {
             onClick={() => setActiveTab('quotes')}
             className={`px-4 py-2 font-medium text-sm whitespace-nowrap flex items-center gap-2 ${
               activeTab === 'quotes' 
-                ? 'text-[#307842] border-b-2 border-[#307842]' 
+                ? 'text-[#3b82f6] border-b-2 border-[#3b82f6]' 
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -529,74 +529,74 @@ const Clients = () => {
             onClick={() => setActiveTab('invoices')}
             className={`px-4 py-2 font-medium text-sm whitespace-nowrap flex items-center gap-2 ${
               activeTab === 'invoices' 
-                ? 'text-[#307842] border-b-2 border-[#307842]' 
+                ? 'text-[#3b82f6] border-b-2 border-[#3b82f6]' 
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
             <Receipt className="w-4 h-4" />
             Invoices
           </button>
-        </div>
+          </div>
 
         {/* Search Bar */}
         <div className="mb-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
+              <input
+                type="text"
               placeholder={`Search ${getTitle().toLowerCase()}...`}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] focus:border-transparent"
-            />
-            {searchQuery && (
-              <button 
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b82f6] focus:border-transparent"
+              />
+              {searchQuery && (
+                <button 
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
           </div>
-        </div>
+            </div>
 
         {/* Quick Filters - Only show relevant filters based on active tab */}
         {activeTab === 'clients' && (
           <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
-            <select
-              value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value as 'all' | 'residential' | 'commercial')}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-sm"
-            >
+              <select
+                value={selectedType}
+                onChange={(e) => setSelectedType(e.target.value as 'all' | 'residential' | 'commercial')}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b82f6] text-sm"
+              >
               <option value="all">{t('common:allTypes')}</option>
-              <option value="residential">{t('clients:residential')}</option>
-              <option value="commercial">{t('clients:commercial')}</option>
-            </select>
+                <option value="residential">{t('clients:residential')}</option>
+                <option value="commercial">{t('clients:commercial')}</option>
+              </select>
 
-            <select
-              value={`${sortBy}-${sortOrder}`}
-              onChange={(e) => {
-                const [field, order] = e.target.value.split('-');
-                setSortBy(field as 'name' | 'created_at' | 'updated_at');
-                setSortOrder(order as 'asc' | 'desc');
-              }}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-sm whitespace-nowrap"
-            >
-              <option value="name-asc">{t('common:name')} A-Z</option>
-              <option value="name-desc">{t('common:name')} Z-A</option>
-              <option value="created_at-desc">{t('common:newest')}</option>
-              <option value="created_at-asc">{t('common:oldest')}</option>
-            </select>
+              <select
+                value={`${sortBy}-${sortOrder}`}
+                onChange={(e) => {
+                  const [field, order] = e.target.value.split('-');
+                  setSortBy(field as 'name' | 'created_at' | 'updated_at');
+                  setSortOrder(order as 'asc' | 'desc');
+                }}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b82f6] text-sm whitespace-nowrap"
+              >
+                <option value="name-asc">{t('common:name')} A-Z</option>
+                <option value="name-desc">{t('common:name')} Z-A</option>
+                <option value="created_at-desc">{t('common:newest')}</option>
+                <option value="created_at-asc">{t('common:oldest')}</option>
+              </select>
 
             <label className="flex items-center gap-2 cursor-pointer px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm whitespace-nowrap">
-              <input
-                type="checkbox"
-                checked={showInactive}
-                onChange={(e) => setShowInactive(e.target.checked)}
-                className="rounded border-gray-300 text-[#307842] focus:ring-[#307842]"
-              />
-              <span className="text-gray-700">{t('common:showInactive')}</span>
-            </label>
+                <input
+                  type="checkbox"
+                  checked={showInactive}
+                  onChange={(e) => setShowInactive(e.target.checked)}
+                className="rounded border-gray-300 text-[#3b82f6] focus:ring-[#3b82f6]"
+                />
+                <span className="text-gray-700">{t('common:showInactive')}</span>
+              </label>
 
             <button
               onClick={exportClients}
@@ -605,61 +605,61 @@ const Clients = () => {
               <Download className="w-4 h-4" />
               <span>{t('common:export')}</span>
             </button>
-          </div>
+            </div>
         )}
 
         {/* Bulk Actions - Only show for clients tab */}
         {activeTab === 'clients' && selectedClients.size > 0 && (
           <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-            <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-blue-900">
-                {selectedClients.size} {t('clients:clientsSelected')}
-              </span>
-              <div className="flex gap-2">
-                <button
-                  onClick={handleBulkDelete}
+                  {selectedClients.size} {t('clients:clientsSelected')}
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleBulkDelete}
                   className="px-3 py-1.5 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-                >
-                  {t('common:deleteSelected')}
-                </button>
-                <button
-                  onClick={() => setSelectedClients(new Set())}
+                  >
+                    {t('common:deleteSelected')}
+                  </button>
+                  <button
+                    onClick={() => setSelectedClients(new Set())}
                   className="px-3 py-1.5 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
-                >
-                  {t('common:clearSelection')}
-                </button>
+                  >
+                    {t('common:clearSelection')}
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* Content based on active tab */}
         {activeTab === 'clients' ? (
           // Clients List Content
           <>
-            {loading ? (
+        {loading ? (
               <div className="flex justify-center items-center h-64 bg-white rounded-xl shadow-sm">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#307842]"></div>
-              </div>
-            ) : filteredAndSortedClients.length === 0 ? (
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#3b82f6]"></div>
+          </div>
+        ) : filteredAndSortedClients.length === 0 ? (
               <div className="bg-white rounded-xl shadow-sm p-8 text-center">
                 <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No clients found</h3>
                 <p className="text-sm text-gray-600 mb-4">
-                  {searchQuery ? 'Try adjusting your search or filters' : 'Get started by adding your first client'}
-                </p>
-                {!searchQuery && (
-                  <Link
-                    to="/clients/new"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#307842] text-white rounded-lg hover:bg-[#276938] transition-colors text-sm"
-                  >
+              {searchQuery ? 'Try adjusting your search or filters' : 'Get started by adding your first client'}
+            </p>
+            {!searchQuery && (
+              <Link
+                to="/clients/new"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#3b82f6] text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
+              >
                     <Plus className="w-4 h-4" />
-                    Add Your First Client
-                  </Link>
-                )}
-              </div>
-            ) : (
-              <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+                Add Your First Client
+              </Link>
+            )}
+          </div>
+        ) : (
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                 {/* Clients List */}
                 <div className="divide-y divide-gray-100">
                   {filteredAndSortedClients.map((client) => (
@@ -673,7 +673,7 @@ const Clients = () => {
                           className="mt-0.5 flex-shrink-0"
                         >
                           {selectedClients.has(client.id) ? (
-                            <CheckSquare className="w-4 h-4 text-[#307842]" />
+                            <CheckSquare className="w-4 h-4 text-[#3b82f6]" />
                           ) : (
                             <Square className="w-4 h-4 text-gray-400" />
                           )}
@@ -700,42 +700,42 @@ const Clients = () => {
                           
                           {/* Contact Info */}
                           <div className="mt-2 space-y-2">
-                            {client.address && (
+                          {client.address && (
                               <div className="text-sm text-gray-600 flex items-center gap-2">
                                 <MapPin className="w-4 h-4 text-gray-400" />
                                 <span className="truncate">{client.city && `${client.city}, `}{client.state}</span>
-                              </div>
-                            )}
-                            {client.email && (
+                            </div>
+                          )}
+                          {client.email && (
                               <div className="text-sm text-gray-600 flex items-center gap-2">
                                 <Mail className="w-4 h-4 text-gray-400" />
-                                <a href={`mailto:${client.email}`} className="truncate hover:text-[#307842]">
-                                  {client.email}
-                                </a>
-                              </div>
-                            )}
-                            {client.phone && (
+                                <a href={`mailto:${client.email}`} className="truncate hover:text-[#3b82f6]">
+                                {client.email}
+                              </a>
+                            </div>
+                          )}
+                          {client.phone && (
                               <div className="text-sm text-gray-600 flex items-center gap-2">
                                 <Phone className="w-4 h-4 text-gray-400" />
-                                <a href={`tel:${client.phone}`} className="hover:text-[#307842]">
-                                  {client.phone}
-                                </a>
-                              </div>
-                            )}
-                          </div>
+                                <a href={`tel:${client.phone}`} className="hover:text-[#3b82f6]">
+                                {client.phone}
+                              </a>
+                            </div>
+                          )}
+                        </div>
                           
                           {/* Client Summary Row */}
                           <div className="mt-3 pt-2 border-t border-gray-100 grid grid-cols-3 gap-2">
                             <div className="flex items-center gap-2 text-gray-600">
-                              <LayoutList className="w-4 h-4 text-[#307842]" />
+                              <LayoutList className="w-4 h-4 text-[#3b82f6]" />
                               <span className="text-xs">{clientJobs[client.id] || 0} Jobs</span>
                             </div>
                             <div className="flex items-center gap-2 text-gray-600">
-                              <FileText className="w-4 h-4 text-[#307842]" />
+                              <FileText className="w-4 h-4 text-[#3b82f6]" />
                               <span className="text-xs">{clientQuotes[client.id] || 0} Quotes</span>
                             </div>
                             <div className="flex items-center gap-2 text-gray-600">
-                              <Receipt className="w-4 h-4 text-[#307842]" />
+                              <Receipt className="w-4 h-4 text-[#3b82f6]" />
                               <span className="text-xs">{clientInvoices[client.id] || 0} Invoices</span>
                             </div>
                           </div>
@@ -743,25 +743,25 @@ const Clients = () => {
                           {/* Actions */}
                           <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
                             <div className="flex gap-4">
-                              <Link
-                                to={`/clients/${client.id}/edit`}
-                                className="text-[#307842]"
-                                title="Edit client"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Link>
-                              <button
-                                onClick={() => handleDelete(client.id, client.name)}
+                          <Link
+                            to={`/clients/${client.id}/edit`}
+                                className="text-[#3b82f6]"
+                            title="Edit client"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Link>
+                          <button
+                            onClick={() => handleDelete(client.id, client.name)}
                                 className="text-red-500"
-                                title="Delete client"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
+                            title="Delete client"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                             
                             <Link
                               to={`/clients/${client.id}`}
-                              className="flex items-center text-sm text-[#307842]"
+                              className="flex items-center text-sm text-[#3b82f6]"
                             >
                               View Details
                               <ChevronRight className="w-4 h-4 ml-1" />
@@ -780,7 +780,7 @@ const Clients = () => {
           <>
             {jobsLoading ? (
               <div className="flex justify-center items-center h-64 bg-white rounded-xl shadow-sm">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#307842]"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#3b82f6]"></div>
               </div>
             ) : jobs.length === 0 ? (
               <div className="bg-white rounded-xl shadow-sm p-8 text-center">
@@ -791,7 +791,7 @@ const Clients = () => {
                 </p>
                 <Link
                   to="/jobs/new"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#307842] text-white rounded-lg hover:bg-[#276938] transition-colors text-sm"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#3b82f6] text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
                 >
                   <Plus className="w-4 h-4" />
                   Create New Job
@@ -803,7 +803,7 @@ const Clients = () => {
                 <div className="flex flex-wrap gap-2 bg-white p-4 rounded-lg shadow-sm">
                   <button 
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                      !selectedStatus ? 'bg-[#307842] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      !selectedStatus ? 'bg-[#3b82f6] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                     onClick={() => setSelectedStatus(null)}
                   >
@@ -811,7 +811,7 @@ const Clients = () => {
                   </button>
                   <button 
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                      selectedStatus === 'scheduled' ? 'bg-[#307842] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      selectedStatus === 'scheduled' ? 'bg-[#3b82f6] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                     onClick={() => setSelectedStatus('scheduled')}
                   >
@@ -819,7 +819,7 @@ const Clients = () => {
                   </button>
                   <button 
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                      selectedStatus === 'in_progress' ? 'bg-[#307842] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      selectedStatus === 'in_progress' ? 'bg-[#3b82f6] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                     onClick={() => setSelectedStatus('in_progress')}
                   >
@@ -827,7 +827,7 @@ const Clients = () => {
                   </button>
                   <button 
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                      selectedStatus === 'completed' ? 'bg-[#307842] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      selectedStatus === 'completed' ? 'bg-[#3b82f6] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                     onClick={() => setSelectedStatus('completed')}
                   >
@@ -835,30 +835,30 @@ const Clients = () => {
                   </button>
                   <button 
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                      selectedStatus === 'cancelled' ? 'bg-[#307842] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      selectedStatus === 'cancelled' ? 'bg-[#3b82f6] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                     onClick={() => setSelectedStatus('cancelled')}
                   >
                     Cancelled
                   </button>
-                </div>
-                
+            </div>
+
                 {/* Jobs list */}
                 <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                  <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-gray-100">
                     {filteredJobs.map((job) => (
-                      <div 
+                  <div 
                         key={job.id} 
                         className="p-4 hover:bg-gray-50 transition-colors"
-                      >
+                  >
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
-                          <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-3">
                             <div className="flex-1">
                               <h3 className="text-base font-semibold text-gray-900">{job.title}</h3>
                               {job.client && (
                                 <div className="text-sm text-gray-600 mt-1">
                                   <span>Client: </span>
-                                  <Link to={`/clients/${job.client.id}`} className="text-[#307842] hover:underline">
+                                  <Link to={`/clients/${job.client.id}`} className="text-[#3b82f6] hover:underline">
                                     {job.client.name}
                                   </Link>
                                 </div>
@@ -888,7 +888,7 @@ const Clients = () => {
                         
                         <div className="grid grid-cols-2 gap-4 mt-3">
                           <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Calendar className="w-4 h-4 text-[#307842]" />
+                            <Calendar className="w-4 h-4 text-[#3b82f6]" />
                             <span>{new Date(job.scheduled_date).toLocaleDateString()}</span>
                             {job.scheduled_time && (
                               <span className="text-gray-500">
@@ -898,17 +898,17 @@ const Clients = () => {
                           </div>
                           
                           <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <MapPin className="w-4 h-4 text-[#307842]" />
+                            <MapPin className="w-4 h-4 text-[#3b82f6]" />
                             <span className="truncate">{job.address || 'No address'}</span>
                           </div>
                           
                           <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <LayoutList className="w-4 h-4 text-[#307842]" />
+                            <LayoutList className="w-4 h-4 text-[#3b82f6]" />
                             <span>{job.service_type.replace('_', ' ')}</span>
                           </div>
                           
                           <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <DollarSign className="w-4 h-4 text-[#307842]" />
+                            <DollarSign className="w-4 h-4 text-[#3b82f6]" />
                             <span>${job.estimated_price || job.actual_price || 0}</span>
                           </div>
                         </div>
@@ -916,14 +916,14 @@ const Clients = () => {
                         <div className="flex items-center justify-end mt-4 pt-3 border-t border-gray-100 gap-3">
                           <Link
                             to={`/jobs/${job.id}/edit`}
-                            className="px-3 py-1.5 text-sm text-[#307842] border border-[#307842] rounded-lg hover:bg-[#307842] hover:text-white transition-colors"
+                            className="px-3 py-1.5 text-sm text-[#3b82f6] border border-[#3b82f6] rounded-lg hover:bg-[#3b82f6] hover:text-white transition-colors"
                           >
                             Edit
                           </Link>
                           
                           <Link
                             to={`/jobs/${job.id}`}
-                            className="px-3 py-1.5 text-sm bg-[#307842] text-white rounded-lg hover:bg-[#276938] transition-colors"
+                            className="px-3 py-1.5 text-sm bg-[#3b82f6] text-white rounded-lg hover:bg-blue-600 transition-colors"
                           >
                             View Details
                           </Link>
@@ -945,7 +945,7 @@ const Clients = () => {
           <>
             {quotesLoading ? (
               <div className="flex justify-center items-center h-64 bg-white rounded-xl shadow-sm">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#307842]"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#3b82f6]"></div>
               </div>
             ) : quotes.length === 0 ? (
               <div className="bg-white rounded-xl shadow-sm p-8 text-center">
@@ -956,7 +956,7 @@ const Clients = () => {
                 </p>
                 <Link
                   to="/quotes/new"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#307842] text-white rounded-lg hover:bg-[#276938] transition-colors text-sm"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#3b82f6] text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
                 >
                   <Plus className="w-4 h-4" />
                   Create New Quote
@@ -968,15 +968,15 @@ const Clients = () => {
                 <div className="flex flex-wrap gap-2 bg-white p-4 rounded-lg shadow-sm">
                   <button 
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                      !selectedQuoteStatus ? 'bg-[#307842] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      !selectedQuoteStatus ? 'bg-[#3b82f6] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                     onClick={() => setSelectedQuoteStatus(null)}
                   >
                     All
-                  </button>
+                      </button>
                   <button 
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                      selectedQuoteStatus === 'draft' ? 'bg-[#307842] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      selectedQuoteStatus === 'draft' ? 'bg-[#3b82f6] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                     onClick={() => setSelectedQuoteStatus('draft')}
                   >
@@ -984,7 +984,7 @@ const Clients = () => {
                   </button>
                   <button 
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                      selectedQuoteStatus === 'sent' ? 'bg-[#307842] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      selectedQuoteStatus === 'sent' ? 'bg-[#3b82f6] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                     onClick={() => setSelectedQuoteStatus('sent')}
                   >
@@ -992,7 +992,7 @@ const Clients = () => {
                   </button>
                   <button 
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                      selectedQuoteStatus === 'accepted' ? 'bg-[#307842] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      selectedQuoteStatus === 'accepted' ? 'bg-[#3b82f6] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                     onClick={() => setSelectedQuoteStatus('accepted')}
                   >
@@ -1000,7 +1000,7 @@ const Clients = () => {
                   </button>
                   <button 
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                      selectedQuoteStatus === 'rejected' ? 'bg-[#307842] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      selectedQuoteStatus === 'rejected' ? 'bg-[#3b82f6] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                     onClick={() => setSelectedQuoteStatus('rejected')}
                   >
@@ -1023,9 +1023,9 @@ const Clients = () => {
                               {quote.client && (
                                 <div className="text-sm text-gray-600 mt-1">
                                   <span>Client: </span>
-                                  <Link to={`/clients/${quote.client.id}`} className="text-[#307842] hover:underline">
+                                  <Link to={`/clients/${quote.client.id}`} className="text-[#3b82f6] hover:underline">
                                     {quote.client.name}
-                                  </Link>
+                          </Link>
                                 </div>
                               )}
                             </div>
@@ -1046,12 +1046,12 @@ const Clients = () => {
                         
                         <div className="grid grid-cols-2 gap-4 mt-3">
                           <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Calendar className="w-4 h-4 text-[#307842]" />
+                            <Calendar className="w-4 h-4 text-[#3b82f6]" />
                             <span>Created: {new Date(quote.created_at).toLocaleDateString()}</span>
                           </div>
                           
                           <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Clock className="w-4 h-4 text-[#307842]" />
+                            <Clock className="w-4 h-4 text-[#3b82f6]" />
                             <span>
                               {quote.valid_until ? 
                                 `Valid until: ${new Date(quote.valid_until).toLocaleDateString()}` : 
@@ -1060,36 +1060,36 @@ const Clients = () => {
                           </div>
                           
                           <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <DollarSign className="w-4 h-4 text-[#307842]" />
+                            <DollarSign className="w-4 h-4 text-[#3b82f6]" />
                             <span>Total: ${quote.total_amount.toFixed(2)}</span>
-                          </div>
-                          
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <User className="w-4 h-4 text-[#307842]" />
-                            <span>Worker: {quote.worker || 'Not specified'}</span>
-                          </div>
                         </div>
+                        
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <User className="w-4 h-4 text-[#3b82f6]" />
+                            <span>Worker: {quote.worker || 'Not specified'}</span>
+                            </div>
+                            </div>
                         
                         <div className="flex items-center justify-end mt-4 pt-3 border-t border-gray-100 gap-3">
                           <Link
                             to={`/quotes/${quote.id}/edit`}
-                            className="px-3 py-1.5 text-sm text-[#307842] border border-[#307842] rounded-lg hover:bg-[#307842] hover:text-white transition-colors"
+                            className="px-3 py-1.5 text-sm text-[#3b82f6] border border-[#3b82f6] rounded-lg hover:bg-[#3b82f6] hover:text-white transition-colors"
                           >
                             Edit
                           </Link>
                           
                           <Link
                             to={`/quotes/${quote.id}`}
-                            className="px-3 py-1.5 text-sm bg-[#307842] text-white rounded-lg hover:bg-[#276938] transition-colors"
+                            className="px-3 py-1.5 text-sm bg-[#3b82f6] text-white rounded-lg hover:bg-blue-600 transition-colors"
                           >
                             View Details
                           </Link>
-                        </div>
+                            </div>
                       </div>
                     ))}
                   </div>
-                </div>
-                
+                        </div>
+                        
                 {/* Pagination or load more (just showing count for now) */}
                 <div className="text-sm text-center text-gray-600">
                   Showing {filteredQuotes.length} of {quotes.length} quotes
@@ -1102,7 +1102,7 @@ const Clients = () => {
           <>
             {invoicesLoading ? (
               <div className="flex justify-center items-center h-64 bg-white rounded-xl shadow-sm">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#307842]"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#3b82f6]"></div>
               </div>
             ) : invoices.length === 0 ? (
               <div className="bg-white rounded-xl shadow-sm p-8 text-center">
@@ -1111,21 +1111,21 @@ const Clients = () => {
                 <p className="text-sm text-gray-600 mb-4">
                   {searchQuery ? 'Try adjusting your search' : 'Get started by creating your first invoice'}
                 </p>
-                <Link
+                            <Link
                   to="/invoices/new"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#307842] text-white rounded-lg hover:bg-[#276938] transition-colors text-sm"
-                >
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#3b82f6] text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
+                            >
                   <Plus className="w-4 h-4" />
                   Create New Invoice
-                </Link>
+                            </Link>
               </div>
             ) : (
               <div className="space-y-4">
                 {/* Invoice status filters */}
                 <div className="flex flex-wrap gap-2 bg-white p-4 rounded-lg shadow-sm">
-                  <button 
+                            <button
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                      !selectedInvoiceStatus ? 'bg-[#307842] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      !selectedInvoiceStatus ? 'bg-[#3b82f6] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                     onClick={() => setSelectedInvoiceStatus(null)}
                   >
@@ -1133,7 +1133,7 @@ const Clients = () => {
                   </button>
                   <button 
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                      selectedInvoiceStatus === 'draft' ? 'bg-[#307842] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      selectedInvoiceStatus === 'draft' ? 'bg-[#3b82f6] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                     onClick={() => setSelectedInvoiceStatus('draft')}
                   >
@@ -1141,7 +1141,7 @@ const Clients = () => {
                   </button>
                   <button 
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                      selectedInvoiceStatus === 'sent' ? 'bg-[#307842] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      selectedInvoiceStatus === 'sent' ? 'bg-[#3b82f6] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                     onClick={() => setSelectedInvoiceStatus('sent')}
                   >
@@ -1149,7 +1149,7 @@ const Clients = () => {
                   </button>
                   <button 
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                      selectedInvoiceStatus === 'paid' ? 'bg-[#307842] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      selectedInvoiceStatus === 'paid' ? 'bg-[#3b82f6] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                     onClick={() => setSelectedInvoiceStatus('paid')}
                   >
@@ -1157,14 +1157,14 @@ const Clients = () => {
                   </button>
                   <button 
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
-                      selectedInvoiceStatus === 'overdue' ? 'bg-[#307842] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      selectedInvoiceStatus === 'overdue' ? 'bg-[#3b82f6] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                     onClick={() => setSelectedInvoiceStatus('overdue')}
                   >
                     Overdue
-                  </button>
-                </div>
-                
+                            </button>
+                          </div>
+                          
                 {/* Invoices list */}
                 <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                   <div className="divide-y divide-gray-100">
@@ -1183,12 +1183,12 @@ const Clients = () => {
                               {invoice.client && (
                                 <div className="text-sm text-gray-600 mt-1">
                                   <span>Client: </span>
-                                  <Link to={`/clients/${invoice.client.id}`} className="text-[#307842] hover:underline">
+                                  <Link to={`/clients/${invoice.client.id}`} className="text-[#3b82f6] hover:underline">
                                     {invoice.client.name}
-                                  </Link>
-                                </div>
+                          </Link>
+                        </div>
                               )}
-                            </div>
+                      </div>
                           </div>
                           
                           <div className="mt-2 sm:mt-0 flex items-center gap-2">
@@ -1206,24 +1206,24 @@ const Clients = () => {
                         
                         <div className="grid grid-cols-2 gap-4 mt-3">
                           <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Calendar className="w-4 h-4 text-[#307842]" />
+                            <Calendar className="w-4 h-4 text-[#3b82f6]" />
                             <span>Issued: {new Date(invoice.issue_date).toLocaleDateString()}</span>
                           </div>
                           
                           <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Clock className="w-4 h-4 text-[#307842]" />
+                            <Clock className="w-4 h-4 text-[#3b82f6]" />
                             <span>
                               Due: {new Date(invoice.due_date).toLocaleDateString()}
                             </span>
                           </div>
                           
                           <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <DollarSign className="w-4 h-4 text-[#307842]" />
+                            <DollarSign className="w-4 h-4 text-[#3b82f6]" />
                             <span>Total: ${invoice.total_amount.toFixed(2)}</span>
                           </div>
                           
                           <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Receipt className="w-4 h-4 text-[#307842]" />
+                            <Receipt className="w-4 h-4 text-[#3b82f6]" />
                             <span>Balance Due: ${invoice.balance_due.toFixed(2)}</span>
                           </div>
                         </div>
@@ -1231,28 +1231,28 @@ const Clients = () => {
                         <div className="flex items-center justify-end mt-4 pt-3 border-t border-gray-100 gap-3">
                           <Link
                             to={`/invoices/${invoice.id}/edit`}
-                            className="px-3 py-1.5 text-sm text-[#307842] border border-[#307842] rounded-lg hover:bg-[#307842] hover:text-white transition-colors"
+                            className="px-3 py-1.5 text-sm text-[#3b82f6] border border-[#3b82f6] rounded-lg hover:bg-[#3b82f6] hover:text-white transition-colors"
                           >
                             Edit
                           </Link>
                           
                           <Link
                             to={`/invoices/${invoice.id}`}
-                            className="px-3 py-1.5 text-sm bg-[#307842] text-white rounded-lg hover:bg-[#276938] transition-colors"
+                            className="px-3 py-1.5 text-sm bg-[#3b82f6] text-white rounded-lg hover:bg-blue-600 transition-colors"
                           >
                             View Details
                           </Link>
-                        </div>
-                      </div>
-                    ))}
+                    </div>
                   </div>
-                </div>
+                ))}
+              </div>
+            </div>
                 
                 {/* Pagination or load more (just showing count for now) */}
                 <div className="text-sm text-center text-gray-600">
                   Showing {filteredInvoices.length} of {invoices.length} invoices
                 </div>
-              </div>
+          </div>
             )}
           </>
         )}

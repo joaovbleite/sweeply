@@ -52,8 +52,8 @@ const BottomNavBar: React.FC = () => {
           to="/clients"
           className={`flex items-center justify-center w-11 h-11 ${
             location.pathname === "/clients" || location.pathname.includes("/client") 
-              ? "bg-white text-[#307842]" 
-              : "bg-[#307842] text-white"
+              ? "bg-white text-[#3b82f6]" 
+              : "bg-[#3b82f6] text-white"
           } rounded-full shadow-sm transition-all duration-200 ease-in-out hover:scale-105`}
           aria-label="clients"
         >
