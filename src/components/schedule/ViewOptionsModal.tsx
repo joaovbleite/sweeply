@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Check, Search, ArrowLeft } from 'lucide-react';
+import { Check, Search, ArrowLeft } from 'lucide-react';
 
 interface ViewOptionsModalProps {
   isOpen: boolean;
@@ -24,55 +24,50 @@ const ViewOptionsModal: React.FC<ViewOptionsModalProps> = ({
   const [options, setOptions] = useState<ViewOptionsState>(initialOptions);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Mock team members data - replace with actual data from your app
+  // Only the current user as a team member
   const teamMembers = [
-    { id: '1', name: 'victor leite' },
-    { id: '2', name: 'John Doe' },
-    { id: '3', name: 'Jane Smith' }
+    { id: '1', name: 'victor leite' }
   ];
-
-  const filteredTeamMembers = teamMembers.filter(member => 
-    member.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   const handleViewSelect = (view: ViewOptionsState['view']) => {
     setOptions(prev => ({ ...prev, view }));
+    // Auto-apply changes when selecting a view
+    onApply({...options, view});
   };
 
   const toggleUnscheduledAppointments = () => {
+    const newValue = !options.showUnscheduledAppointments;
     setOptions(prev => ({ 
       ...prev, 
-      showUnscheduledAppointments: !prev.showUnscheduledAppointments 
+      showUnscheduledAppointments: newValue
     }));
+    // Auto-apply changes when toggling
+    onApply({...options, showUnscheduledAppointments: newValue});
   };
 
   const toggleWeekends = () => {
+    const newValue = !options.showWeekends;
     setOptions(prev => ({ 
       ...prev, 
-      showWeekends: !prev.showWeekends 
+      showWeekends: newValue
     }));
+    // Auto-apply changes when toggling
+    onApply({...options, showWeekends: newValue});
   };
 
   const toggleTeamMember = (memberId: string) => {
-    setOptions(prev => {
-      const isSelected = prev.selectedTeamMembers.includes(memberId);
-      
-      return {
-        ...prev,
-        selectedTeamMembers: isSelected
-          ? prev.selectedTeamMembers.filter(id => id !== memberId)
-          : [...prev.selectedTeamMembers, memberId]
-      };
-    });
-  };
-
-  const handleDeselectAll = () => {
-    setOptions(prev => ({ ...prev, selectedTeamMembers: [] }));
-  };
-
-  const handleApply = () => {
-    onApply(options);
-    onClose();
+    const isSelected = options.selectedTeamMembers.includes(memberId);
+    const newSelectedMembers = isSelected
+      ? options.selectedTeamMembers.filter(id => id !== memberId)
+      : [...options.selectedTeamMembers, memberId];
+    
+    setOptions(prev => ({
+      ...prev,
+      selectedTeamMembers: newSelectedMembers
+    }));
+    
+    // Auto-apply changes when toggling team member
+    onApply({...options, selectedTeamMembers: newSelectedMembers});
   };
 
   if (!isOpen) return null;
@@ -128,7 +123,7 @@ const ViewOptionsModal: React.FC<ViewOptionsModalProps> = ({
             <button
               onClick={toggleUnscheduledAppointments}
               className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out ${
-                options.showUnscheduledAppointments ? 'bg-green-600' : 'bg-gray-300'
+                options.showUnscheduledAppointments ? 'bg-blue-600' : 'bg-gray-300'
               }`}
             >
               <div
@@ -146,7 +141,7 @@ const ViewOptionsModal: React.FC<ViewOptionsModalProps> = ({
             <button
               onClick={toggleWeekends}
               className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out ${
-                options.showWeekends ? 'bg-green-600' : 'bg-gray-300'
+                options.showWeekends ? 'bg-blue-600' : 'bg-gray-300'
               }`}
             >
               <div
@@ -161,45 +156,20 @@ const ViewOptionsModal: React.FC<ViewOptionsModalProps> = ({
         {/* Team Members Section */}
         <div className="mt-6 border-t pt-6">
           <h2 className="text-lg font-bold text-gray-800 mb-3">Team Members</h2>
-          
-          {/* Search */}
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-            />
-          </div>
 
-          {/* Selected count and Deselect */}
-          <div className="flex justify-between items-center mb-3">
-            <p className="text-base font-bold text-gray-800">
-              {options.selectedTeamMembers.length} selected
-            </p>
-            <button
-              onClick={handleDeselectAll}
-              className="text-base font-medium text-green-600"
-            >
-              Deselect all
-            </button>
-          </div>
-
-          {/* Team Members List */}
-          <div className="space-y-1">
-            {filteredTeamMembers.map(member => (
+          {/* Team Members List - Only showing current user */}
+          <div>
+            {teamMembers.map(member => (
               <div
                 key={member.id}
-                className="flex items-center justify-between py-3 border-t"
+                className="flex items-center justify-between py-3"
               >
                 <p className="text-base text-gray-800">{member.name}</p>
                 <button
                   onClick={() => toggleTeamMember(member.id)}
                   className={`w-9 h-9 rounded-lg flex items-center justify-center ${
                     options.selectedTeamMembers.includes(member.id) 
-                      ? 'bg-green-600 text-white' 
+                      ? 'bg-blue-600 text-white' 
                       : 'border border-gray-300'
                   }`}
                 >
@@ -213,15 +183,7 @@ const ViewOptionsModal: React.FC<ViewOptionsModalProps> = ({
         </div>
       </div>
 
-      {/* Apply Button */}
-      <div className="border-t p-4">
-        <button
-          onClick={handleApply}
-          className="w-full py-3 bg-green-600 text-white text-base font-medium rounded-lg"
-        >
-          Apply
-        </button>
-      </div>
+      {/* No Apply Button - Options apply automatically */}
     </div>
   );
 };
