@@ -32,7 +32,10 @@ const Support: React.FC = () => {
             </div>
             
             {/* Help Center */}
-            <div className="flex items-center justify-between py-5 border-b border-gray-200">
+            <div 
+              className="flex items-center justify-between py-5 border-b border-gray-200"
+              onClick={() => window.open('https://easyquote-nine.vercel.app/faq', '_blank')}
+            >
               <div>
                 <div className="text-xl font-bold text-[#0d3547]">Help Center</div>
                 <div className="text-gray-600 mt-1">Read articles about every feature in Sweeply</div>
