@@ -112,7 +112,7 @@ const AddTask = () => {
   const SaveButton = (
     <button
       onClick={handleSubmit}
-      className="bg-[#307842] text-white px-4 py-1.5 rounded-lg text-sm font-medium"
+      className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium"
     >
       Save
     </button>
@@ -134,14 +134,14 @@ const AddTask = () => {
             value={formData.title}
             onChange={(e) => handleInputChange('title', e.target.value)}
             placeholder="Title"
-            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-transparent text-base"
+            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent text-base"
           />
           
           <textarea
             value={formData.description}
             onChange={(e) => handleInputChange('description', e.target.value)}
             placeholder="Description"
-            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-transparent text-base"
+            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent text-base"
             rows={3}
           />
         </div>
@@ -155,7 +155,7 @@ const AddTask = () => {
             <User className="w-5 h-5 text-gray-700 mr-2" />
             <h3 className="text-base font-medium text-gray-800">Client</h3>
           </div>
-          <button className="text-green-600">
+          <button className="text-blue-600">
             <Plus className="w-5 h-5" />
           </button>
         </div>
@@ -184,7 +184,7 @@ const AddTask = () => {
               <p className="text-base text-gray-800">{selectedTeam}</p>
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-green-600" />
+          <ChevronRight className="w-5 h-5 text-blue-600" />
         </div>
       </div>
     </AppLayout>

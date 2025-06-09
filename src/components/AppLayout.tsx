@@ -136,12 +136,12 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
                       isMobile 
                         ? isActive
                           ? item.id === "tasks" 
-                            ? "bg-green-50 text-green-600" 
+                            ? "bg-blue-50 text-blue-600" 
                             : "bg-pulse-50 text-pulse-600"
                           : "text-gray-700 hover:bg-gray-100"
                         : isActive
                           ? item.id === "tasks" 
-                            ? "bg-[#307842] text-white" 
+                            ? "bg-blue-600 text-white" 
                             : "bg-blue-600 text-white"
                           : "text-gray-300 hover:bg-gray-800"
                     }`}
