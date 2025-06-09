@@ -11,11 +11,13 @@ const Refer: React.FC = () => {
   const { t } = useTranslation(['settings', 'common']);
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [referralCode, setReferralCode] = useState("VICTORLEITE"); // Would normally come from user data
-  const [redeemCode, setRedeemCode] = useState("");
   
-  // Get user's name for generating referral code
-  const userName = user?.email?.split('@')[0]?.toUpperCase() || "VICTORLEITE";
+  // Get user's name for generating referral code - first 3 letters + 25
+  const userName = user?.email?.split('@')[0] || "victor";
+  const firstName = userName.split('.')[0] || userName; // Get first name part before any dot
+  const referralCode = `${firstName.substring(0, 3).toUpperCase()}25`;
+  
+  const [redeemCode, setRedeemCode] = useState("");
 
   // Handle copy to clipboard
   const handleCopy = () => {
