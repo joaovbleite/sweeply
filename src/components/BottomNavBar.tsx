@@ -4,7 +4,7 @@ import {
   Home,
   LayoutGrid,
   BarChart3,
-  User,
+  Users,
   MoreHorizontal,
   Calendar,
   DollarSign
@@ -16,7 +16,7 @@ const BottomNavBar: React.FC = () => {
   const location = useLocation();
 
   // Define the navigation items based on the image
-  // Home, Schedule, Finance, Jobs, More, Profile
+  // Home, Schedule, Finance, More
   const navItems = [
     { id: "home", icon: Home, path: "/dashboard" },
     { id: "schedule", icon: Calendar, path: "/schedule" },
@@ -37,8 +37,8 @@ const BottomNavBar: React.FC = () => {
               to={item.path}
               className={`flex items-center justify-center w-9 h-9 transition-all duration-200 ease-in-out ${
                 isActive 
-                  ? "text-blue-600 scale-110" 
-                  : "text-gray-600 hover:text-blue-600 hover:scale-105"
+                  ? "text-green-600 scale-110" 
+                  : "text-gray-600 hover:text-green-600 hover:scale-105"
               }`}
               aria-label={item.id}
             >
@@ -47,17 +47,17 @@ const BottomNavBar: React.FC = () => {
           );
         })}
         
-        {/* Profile button - special styling to match the image */}
+        {/* Clients button - replacing the Profile button */}
         <Link
-          to="/profile"
-          className={`flex items-center justify-center w-11 h-11 bg-blue-600 text-white rounded-full shadow-sm transition-all duration-200 ease-in-out hover:scale-105 ${
-            location.pathname === "/profile" 
-              ? "ring-2 ring-blue-300" 
+          to="/clients"
+          className={`flex items-center justify-center w-11 h-11 bg-[#307842] text-white rounded-full shadow-sm transition-all duration-200 ease-in-out hover:scale-105 ${
+            location.pathname === "/clients" || location.pathname.includes("/client") 
+              ? "ring-2 ring-green-300" 
               : ""
           }`}
-          aria-label="profile"
+          aria-label="clients"
         >
-          <User className="w-5 h-5" strokeWidth={2} />
+          <Users className="w-5 h-5" strokeWidth={2} />
         </Link>
       </nav>
     </div>
