@@ -354,8 +354,31 @@ const Dashboard = () => {
             {/* Business Health section */}
             <BusinessHealth />
             
+            {/* Discover Section */}
+            <div className="mt-6 mb-4">
+              <h3 className="text-lg font-bold text-gray-900 mb-3 px-1">Discover</h3>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
+                  <Calendar className="w-6 h-6 text-pulse-500 mb-2" />
+                  <p className="text-sm font-medium text-gray-800">Smart Scheduling</p>
+                </div>
+                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
+                  <FileCheck className="w-6 h-6 text-pulse-500 mb-2" />
+                  <p className="text-sm font-medium text-gray-800">Invoice Generator</p>
+                </div>
+                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
+                  <BarChart3 className="w-6 h-6 text-pulse-500 mb-2" />
+                  <p className="text-sm font-medium text-gray-800">Business Analytics</p>
+                </div>
+                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
+                  <UserCheck className="w-6 h-6 text-pulse-500 mb-2" />
+                  <p className="text-sm font-medium text-gray-800">Client Management</p>
+                </div>
+              </div>
+            </div>
+            
             {/* Need Help? button - positioned higher above the bottom toolbar */}
-            <div className="px-1 mt-6 mb-16">
+            <div className="px-1 mt-4 mb-16">
               <Link 
                 to="/support" 
                 className="flex justify-center items-center py-3.5 bg-white rounded-lg shadow-md border border-gray-100 text-blue-600 font-medium"
