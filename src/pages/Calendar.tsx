@@ -506,27 +506,13 @@ const Calendar = () => {
           <div className="bg-white border-b border-gray-200 px-6 py-4">
             <div className="flex items-center justify-between">
               {/* Month selector with expandable view */}
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => navigateWeek('prev')}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <ChevronLeft className="w-5 h-5 text-gray-600" />
-                </button>
-                
+              <div className="flex items-center">
                 <MonthSelector 
                   currentDate={currentWeek} 
                   onDateChange={handleDateChange}
                   userName={user?.user_metadata?.name || user?.email}
                   jobCount={weekJobs.length}
                 />
-
-                <button
-                  onClick={() => navigateWeek('next')}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <ChevronRight className="w-5 h-5 text-gray-600" />
-                </button>
               </div>
 
               {/* Icons on the right */}
@@ -584,23 +570,6 @@ const Calendar = () => {
 
           {/* Week days selector - now scrollable */}
           <div className="bg-white border-b border-gray-200 relative">
-            {/* Navigation buttons for touch users */}
-            <button 
-              onClick={() => navigateWeek('prev')}
-              className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 rounded-r-full p-1 shadow-md"
-              aria-label="Previous week"
-            >
-              <ChevronLeft className="w-5 h-5 text-gray-600" />
-            </button>
-            
-            <button 
-              onClick={() => navigateWeek('next')}
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 rounded-l-full p-1 shadow-md"
-              aria-label="Next week"
-            >
-              <ChevronRight className="w-5 h-5 text-gray-600" />
-            </button>
-            
             {/* Scrollable container */}
             <div 
               ref={weekDaysRef}
@@ -609,7 +578,7 @@ const Calendar = () => {
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
             >
-              <div className="flex min-w-max snap-mandatory">
+              <div className="flex w-full snap-mandatory">
                 {/* Map all days (3 weeks worth) */}
                 {allWeekDays.map((day, index) => {
                   const isSelectedDay = isSameDay(day, selectedDate);
@@ -634,7 +603,7 @@ const Calendar = () => {
                           ? 'border-[#307842] bg-gray-50' 
                           : 'border-transparent hover:bg-gray-50'
                         }
-                        ${isCurrentWeek ? 'opacity-100' : 'opacity-85'}
+                        ${isCurrentWeek ? 'opacity-100' : 'opacity-80'}
                       `}
                     >
                       <div className="text-sm text-gray-500 font-medium">

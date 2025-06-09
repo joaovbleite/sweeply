@@ -183,10 +183,6 @@ const Schedule = () => {
         {/* Header with month selector */}
         <div className="flex justify-between items-center px-4 py-3">
           <div className="flex items-center">
-            <button onClick={() => navigateWeek('prev')} className="p-2 hover:bg-gray-100 rounded-full mr-2">
-              <ChevronLeft className="w-5 h-5 text-gray-600" />
-            </button>
-            
             <MonthSelector 
               currentDate={currentDate} 
               onDateChange={(date) => {
@@ -202,10 +198,6 @@ const Schedule = () => {
               userName={user?.user_metadata?.name || user?.email}
               jobCount={dayJobs.length}
             />
-            
-            <button onClick={() => navigateWeek('next')} className="p-2 hover:bg-gray-100 rounded-full ml-2">
-              <ChevronRight className="w-5 h-5 text-gray-600" />
-            </button>
           </div>
           <div className="flex items-center gap-5">
             <button className="p-2" onClick={goToToday}>
@@ -241,23 +233,6 @@ const Schedule = () => {
         
         {/* Week day selector - now scrollable */}
         <div className="relative bg-white rounded-lg mx-4 mt-4 shadow-sm">
-          {/* Navigation buttons for touch users */}
-          <button 
-            onClick={() => navigateWeek('prev')}
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 rounded-r-full p-1 shadow-md"
-            aria-label="Previous week"
-          >
-            <ChevronLeft className="w-5 h-5 text-gray-600" />
-          </button>
-          
-          <button 
-            onClick={() => navigateWeek('next')}
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 rounded-l-full p-1 shadow-md"
-            aria-label="Next week"
-          >
-            <ChevronRight className="w-5 h-5 text-gray-600" />
-          </button>
-          
           {/* Scrollable container */}
           <div 
             ref={weekDaysRef}
@@ -266,7 +241,7 @@ const Schedule = () => {
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
-            <div className="flex min-w-max snap-mandatory py-2">
+            <div className="flex w-full snap-mandatory py-2">
               {/* Map all days (3 weeks worth) */}
               {allWeekDays.map((day, index) => {
                 const isToday = isSameDay(day, new Date());
@@ -282,7 +257,7 @@ const Schedule = () => {
                 return (
                   <button
                     key={index}
-                    className={`w-[calc(100%/7)] flex-shrink-0 flex flex-col items-center py-2 snap-center ${isCurrentWeek ? 'opacity-100' : 'opacity-85'}`}
+                    className={`w-[calc(100%/7)] flex-shrink-0 flex flex-col items-center py-2 snap-center ${isCurrentWeek ? 'opacity-100' : 'opacity-80'}`}
                     onClick={() => handleDateSelect(day, index)}
                   >
                     <div className="text-sm text-gray-500 uppercase font-medium">
