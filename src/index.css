@@ -368,3 +368,37 @@
 .calendar-day.today:not(.selected) {
   border: 2px solid #307842;
 }
+
+/* Calendar time indicator */
+.current-time-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 2px solid #307842;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.current-time-indicator::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: -4px;
+  width: 8px;
+  height: 8px;
+  background-color: #307842;
+  border-radius: 50%;
+}
+
+.timeline-container {
+  position: relative;
+  height: 100%;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.timeline-hour {
+  height: 60px;
+  border-bottom: 1px solid #f0f0f0;
+  position: relative;
+}

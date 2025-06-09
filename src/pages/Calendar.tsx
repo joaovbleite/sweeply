@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { 
   Calendar as CalendarIcon, 
   Plus, 
@@ -26,7 +26,7 @@ import {
   Map
 } from "lucide-react";
 import { toast } from "sonner";
-import { format, addDays, startOfWeek, endOfWeek, isSameDay, parseISO, addWeeks, subWeeks } from "date-fns";
+import { format, addDays, startOfWeek, endOfWeek, isSameDay, parseISO, addWeeks, subWeeks, getHours, getMinutes } from "date-fns";
 import { jobsApi } from "@/lib/api/jobs";
 import { clientsApi } from "@/lib/api/clients";
 import { Job, JobStatus } from "@/types/job";
@@ -41,8 +41,9 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 
 const timeSlots = [
-  '8:00am', '9:00am', '10:00am', '11:00am', '12:00pm',
-  '1:00pm', '2:00pm', '3:00pm', '4:00pm', '5:00pm', '6:00pm'
+  '7:00am', '8:00am', '9:00am', '10:00am', '11:00am', '12:00pm',
+  '1:00pm', '2:00pm', '3:00pm', '4:00pm', '5:00pm', '6:00pm',
+  '7:00pm', '8:00pm', '9:00pm', '10:00pm', '11:00pm'
 ];
 
 const Calendar = () => {
@@ -59,6 +60,10 @@ const Calendar = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [propertyTypeFilter, setPropertyTypeFilter] = useState<'all' | 'residential' | 'commercial'>('all');
+  const [viewMode, setViewMode] = useState<'day' | 'list' | 'map'>('day');
+  
+  // Ref for scrolling to current time
+  const timelineRef = useRef<HTMLDivElement>(null);
   
   // Modal states
   const [showQuickJobModal, setShowQuickJobModal] = useState(false);
@@ -374,6 +379,40 @@ const Calendar = () => {
     setSelectedDate(date);
   };
 
+  // Scroll to current time on initial load
+  useEffect(() => {
+    if (timelineRef.current && viewMode === 'day') {
+      const now = new Date();
+      const currentHour = getHours(now);
+      const currentMinute = getMinutes(now);
+      
+      // Calculate scroll position based on current time
+      // Each hour is 60px height, so we multiply the hour by 60
+      // and add the proportional minutes
+      const scrollPosition = (currentHour * 60) + (currentMinute * 60 / 60) - 120; // Subtract some offset to position in the middle of the view
+      
+      // Smooth scroll to the current time
+      timelineRef.current.scrollTo({
+        top: Math.max(0, scrollPosition),
+        behavior: 'smooth'
+      });
+    }
+  }, [viewMode, selectedDate]);
+
+  // Get current time position for the time indicator line
+  const getCurrentTimePosition = () => {
+    const now = new Date();
+    const currentHour = getHours(now);
+    const currentMinute = getMinutes(now);
+    
+    // Calculate position as percentage of the day
+    // Each hour is 60px in height
+    return (currentHour * 60) + (currentMinute * 60 / 60);
+  };
+
+  // Check if the current date is today
+  const isToday = isSameDay(selectedDate, new Date());
+
   return (
     <AppLayout>
       <div className="h-full flex bg-gray-50">
@@ -453,17 +492,32 @@ const Calendar = () => {
             <div className="bg-gray-100 rounded-xl p-1 flex items-center justify-between">
               <div className="flex-1 grid grid-cols-3">
                 <button 
-                  className="py-3 px-4 rounded-lg bg-white shadow-sm text-center font-medium text-gray-800"
+                  onClick={() => setViewMode('day')}
+                  className={`py-3 px-4 rounded-lg text-center font-medium transition-colors ${
+                    viewMode === 'day' 
+                      ? 'bg-white shadow-sm text-gray-800' 
+                      : 'text-gray-600 hover:bg-white/50'
+                  }`}
                 >
                   Day
                 </button>
                 <button 
-                  className="py-3 px-4 rounded-lg text-center font-medium text-gray-600 hover:bg-white/50"
+                  onClick={() => setViewMode('list')}
+                  className={`py-3 px-4 rounded-lg text-center font-medium transition-colors ${
+                    viewMode === 'list' 
+                      ? 'bg-white shadow-sm text-gray-800' 
+                      : 'text-gray-600 hover:bg-white/50'
+                  }`}
                 >
                   List
                 </button>
                 <button 
-                  className="py-3 px-4 rounded-lg text-center font-medium text-gray-600 hover:bg-white/50"
+                  onClick={() => setViewMode('map')}
+                  className={`py-3 px-4 rounded-lg text-center font-medium transition-colors ${
+                    viewMode === 'map' 
+                      ? 'bg-white shadow-sm text-gray-800' 
+                      : 'text-gray-600 hover:bg-white/50'
+                  }`}
                 >
                   Map
                 </button>
@@ -471,182 +525,224 @@ const Calendar = () => {
             </div>
           </div>
 
-          {/* Compact Calendar Grid */}
-          <div className="flex-1 overflow-hidden p-6">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 h-full">
-              <div className="h-full flex">
-                {/* Time slots column */}
-                <div className="w-16 border-r border-gray-200 flex flex-col">
-                  {/* Header spacer */}
-                  <div className="h-12 border-b border-gray-200"></div>
-                  
-                  {/* Time slots */}
-                  {timeSlots.map((time, index) => (
-                    <div key={time} className="h-16 border-b border-gray-100 flex items-start justify-end pr-2 pt-1">
-                      <span className="text-xs text-gray-500 font-medium">{time}</span>
+          {/* Week days selector */}
+          <div className="bg-white border-b border-gray-200">
+            <div className="flex">
+              {weekDays.map((day, index) => {
+                const isSelectedDay = isSameDay(day, selectedDate);
+                const isDayToday = isSameDay(day, new Date());
+                
+                return (
+                  <div 
+                    key={index}
+                    onClick={() => setSelectedDate(day)}
+                    className={`flex-1 flex flex-col items-center py-3 cursor-pointer border-b-2 transition-colors
+                      ${isSelectedDay 
+                        ? 'border-[#307842] bg-gray-50' 
+                        : 'border-transparent hover:bg-gray-50'
+                      }
+                    `}
+                  >
+                    <div className="text-sm text-gray-500 font-medium">
+                      {format(day, 'EEE')}
                     </div>
-                  ))}
-                </div>
-
-                {/* Days columns */}
-                <div className="flex-1 flex overflow-x-auto">
-                  {weekDays.map((day, dayIndex) => {
-                    const isToday = isSameDay(day, new Date());
-                    const isSelected = isSameDay(day, selectedDate);
-                    
-                    return (
-                      <div key={dayIndex} className="flex-1 min-w-0 border-r border-gray-200 last:border-r-0">
-                        {/* Day header */}
-                        <div className={`h-12 border-b border-gray-200 flex flex-col items-center justify-center cursor-pointer transition-colors ${
-                          isSelected ? 'bg-blue-50' : isToday ? 'bg-blue-25' : 'bg-white hover:bg-gray-50'
-                        }`}
-                        onClick={() => setSelectedDate(day)}
-                        >
-                          <div className="text-xs font-medium text-gray-500 uppercase">
-                            {format(day, 'EEE')}
-                          </div>
-                          <div className={`text-sm font-bold ${
-                            isToday ? 'text-blue-600' : 'text-gray-900'
-                          }`}>
-                            {format(day, 'd')}
-                          </div>
-                          {isToday && (
-                            <div className="w-1 h-1 bg-blue-600 rounded-full mt-0.5"></div>
-                          )}
-                        </div>
-
-                        {/* Time slots for this day */}
-                        <div className="relative">
-                          {timeSlots.map((timeSlot, timeIndex) => {
-                            const slotsJobs = getJobsForSlot(day, timeSlot);
-                            
-                            return (
-                              <div
-                                key={timeIndex}
-                                className={`h-16 border-b border-gray-100 p-1 relative cursor-pointer transition-colors ${
-                                  draggedJob ? 'hover:bg-blue-50' : 'hover:bg-gray-50'
-                                }`}
-                                onClick={(e) => {
-                                  if (slotsJobs.length === 0) {
-                                    e.stopPropagation();
-                                    handleSlotClick(day, timeSlot);
-                                  }
-                                }}
-                                onDragOver={handleDragOver}
-                                onDrop={(e) => handleDrop(e, day, timeSlot)}
-                              >
-                                {slotsJobs.map((job, jobIndex) => (
-                                  <div
-                                    key={job.id}
-                                    draggable
-                                    onDragStart={(e) => handleDragStart(e, job)}
-                                    onDragEnd={handleDragEnd}
-                                    className={`mb-1 p-1.5 rounded border cursor-pointer transition-all hover:shadow-sm text-xs ${getJobColor(job.status, job.property_type)}`}
-                                    style={{
-                                      marginTop: jobIndex > 0 ? '1px' : '0',
-                                      height: slotsJobs.length === 1 ? 'calc(100% - 4px)' : `${Math.min(60 / slotsJobs.length, 28)}px`
-                                    }}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleJobClick(job);
-                                    }}
-                                  >
-                                    {/* Job content */}
-                                    <div className="flex items-center justify-between h-full">
-                                      <div className="min-w-0 flex-1">
-                                        <div className="font-medium text-xs truncate">
-                                          {job.client?.name || 'Unknown Client'}
-                                        </div>
-                                        {slotsJobs.length === 1 && (
-                                          <div className="text-xs opacity-90 truncate">
-                                            {job.title || job.service_type}
-                                          </div>
-                                        )}
-                                      </div>
-                                      
-                                      {slotsJobs.length === 1 && (
-                                        <div className="flex flex-col items-end gap-0.5">
-                                          <div className="flex items-center gap-0.5">
-                                            {job.status === 'completed' && <CheckCircle className="w-2.5 h-2.5" />}
-                                            {job.status === 'in_progress' && <Clock className="w-2.5 h-2.5" />}
-                                            {job.status === 'cancelled' && <AlertCircle className="w-2.5 h-2.5" />}
-                                          </div>
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+                    <div className={`w-8 h-8 flex items-center justify-center rounded-full mt-1
+                      ${isSelectedDay 
+                        ? 'bg-[#307842] text-white' 
+                        : isDayToday 
+                          ? 'border-2 border-[#307842] text-[#307842]' 
+                          : 'text-gray-800'
+                      }
+                    `}>
+                      {format(day, 'd')}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          {/* Bottom status bar */}
-          <div className="bg-white border-t border-gray-200 px-6 py-3">
-            <div className="flex items-center justify-between text-sm text-gray-600">
-              <div className="flex items-center gap-6">
-                <span>
-                  {weekJobs.length} {weekJobs.length === 1 ? 'job' : 'jobs'} this week
-                  {propertyTypeFilter !== 'all' && (
-                    <span className="ml-1 text-blue-600">
-                      ({propertyTypeFilter === 'residential' ? '🏠 Residential' : '🏢 Commercial'})
-                    </span>
-                  )}
-                </span>
-                <div className="flex items-center gap-4">
-                  {/* Job Status Legend */}
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-gray-500 rounded"></div>
-                    <span>Scheduled</span>
+          {/* Calendar Content - Different views */}
+          <div className="flex-1 overflow-hidden">
+            {/* Day View */}
+            {viewMode === 'day' && (
+              <div className="h-full flex flex-col">
+                {/* User info bar */}
+                <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="font-medium text-lg text-gray-900">
+                      {user?.user_metadata?.name || user?.email}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-blue-500 rounded"></div>
-                    <span>In Progress</span>
+                  <div className="bg-gray-100 px-3 py-1 rounded-full text-sm font-medium">
+                    {weekJobs.filter(job => isSameDay(parseISO(job.scheduled_date), selectedDate)).length}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-green-500 rounded"></div>
-                    <span>Completed</span>
+                </div>
+                
+                {/* Scrollable timeline */}
+                <div 
+                  ref={timelineRef}
+                  className="flex-1 overflow-y-auto"
+                >
+                  <div className="relative min-h-full">
+                    {/* Time slots */}
+                    {timeSlots.map((time, index) => {
+                      const slotsJobs = getJobsForSlot(selectedDate, time);
+                      
+                      return (
+                        <div 
+                          key={time}
+                          className="flex h-[60px] border-b border-gray-100 relative"
+                        >
+                          {/* Time label */}
+                          <div className="w-16 flex-shrink-0 pr-2 pt-1 text-right">
+                            <span className="text-xs text-gray-500 font-medium">{time}</span>
+                          </div>
+                          
+                          {/* Job slot */}
+                          <div 
+                            className="flex-1 p-1 relative cursor-pointer hover:bg-gray-50"
+                            onClick={(e) => {
+                              if (slotsJobs.length === 0) {
+                                e.stopPropagation();
+                                handleSlotClick(selectedDate, time);
+                              }
+                            }}
+                            onDragOver={handleDragOver}
+                            onDrop={(e) => handleDrop(e, selectedDate, time)}
+                          >
+                            {slotsJobs.map((job) => (
+                              <div
+                                key={job.id}
+                                draggable
+                                onDragStart={(e) => handleDragStart(e, job)}
+                                onDragEnd={handleDragEnd}
+                                className={`p-2 rounded border cursor-pointer transition-all hover:shadow-md text-xs ${getJobColor(job.status, job.property_type)}`}
+                                style={{
+                                  height: 'calc(100% - 4px)'
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleJobClick(job);
+                                }}
+                              >
+                                {/* Job content */}
+                                <div className="flex items-center justify-between h-full">
+                                  <div className="min-w-0 flex-1">
+                                    <div className="font-medium text-xs truncate">
+                                      {job.client?.name || 'Unknown Client'}
+                                    </div>
+                                    <div className="text-xs opacity-90 truncate">
+                                      {job.title || job.service_type}
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="flex flex-col items-end gap-0.5">
+                                    <div className="flex items-center gap-0.5">
+                                      {job.status === 'completed' && <CheckCircle className="w-3 h-3" />}
+                                      {job.status === 'in_progress' && <Clock className="w-3 h-3" />}
+                                      {job.status === 'cancelled' && <AlertCircle className="w-3 h-3" />}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    
+                    {/* Current time indicator line - only show if viewing today */}
+                    {isToday && (
+                      <div 
+                        className="absolute left-0 right-0 border-t-2 border-[#307842] z-10 pointer-events-none"
+                        style={{ 
+                          top: `${getCurrentTimePosition()}px`,
+                        }}
+                      >
+                        <div className="absolute -left-1 -top-2 w-4 h-4 rounded-full bg-[#307842]"></div>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-red-500 rounded"></div>
-                    <span>Cancelled</span>
+                </div>
+              </div>
+            )}
+
+            {/* List View */}
+            {viewMode === 'list' && (
+              <div className="p-6">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                  <div className="p-4 border-b border-gray-200">
+                    <h3 className="font-medium text-lg">
+                      Jobs for {format(selectedDate, 'MMMM d, yyyy')}
+                    </h3>
                   </div>
                   
-                  {/* Property Type Legend */}
-                  <div className="border-l border-gray-300 pl-4 ml-2">
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-2 bg-blue-500 rounded"></div>
-                        <span>🏠 Residential</span>
+                  <div className="divide-y divide-gray-100">
+                    {weekJobs.filter(job => isSameDay(parseISO(job.scheduled_date), selectedDate))
+                      .sort((a, b) => {
+                        if (!a.scheduled_time) return -1;
+                        if (!b.scheduled_time) return 1;
+                        return a.scheduled_time.localeCompare(b.scheduled_time);
+                      })
+                      .map(job => (
+                        <div 
+                          key={job.id}
+                          className="p-4 hover:bg-gray-50 cursor-pointer"
+                          onClick={() => handleJobClick(job)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className={`w-3 h-3 rounded-full ${
+                                job.status === 'completed' ? 'bg-green-500' :
+                                job.status === 'in_progress' ? 'bg-blue-500' :
+                                job.status === 'cancelled' ? 'bg-red-500' : 'bg-gray-500'
+                              }`}></div>
+                              <div>
+                                <div className="font-medium">{job.client?.name || 'Unknown Client'}</div>
+                                <div className="text-sm text-gray-600">{job.title || job.service_type}</div>
+                              </div>
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {job.scheduled_time ? format(new Date(`2000-01-01T${job.scheduled_time}`), 'h:mm a') : 'No time set'}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      
+                    {weekJobs.filter(job => isSameDay(parseISO(job.scheduled_date), selectedDate)).length === 0 && (
+                      <div className="p-8 text-center text-gray-500">
+                        <p>No jobs scheduled for this day</p>
+                        <button
+                          onClick={() => setShowQuickJobModal(true)}
+                          className="mt-4 px-4 py-2 bg-[#307842] text-white rounded-lg text-sm hover:bg-[#276835] transition-colors"
+                        >
+                          Add Job
+                        </button>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-2 bg-orange-500 rounded"></div>
-                        <span>🏢 Commercial</span>
-                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Map View */}
+            {viewMode === 'map' && (
+              <div className="p-6 h-full">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full flex items-center justify-center">
+                  <div className="text-center p-6">
+                    <MapIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                    <h3 className="text-xl font-medium text-gray-700 mb-2">Map View</h3>
+                    <p className="text-gray-500 mb-6">
+                      Map integration coming soon. This view will show job locations for the selected day.
+                    </p>
+                    <div className="text-sm text-gray-600">
+                      {weekJobs.filter(job => isSameDay(parseISO(job.scheduled_date), selectedDate)).length} job(s) scheduled for {format(selectedDate, 'MMMM d')}
                     </div>
                   </div>
                 </div>
               </div>
-              
-              <div className="flex items-center gap-4">
-                <div className="text-gray-500">
-                  Week of {format(weekStart, 'MMM d, yyyy')}
-                </div>
-                {/* Keyboard shortcuts hint */}
-                <div className="text-xs text-gray-400">
-                  <span title="Ctrl+← Previous week, Ctrl+→ Next week, Ctrl+T Today, Ctrl+N New Job">
-                    Keyboard shortcuts available
-                  </span>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -727,35 +823,6 @@ const Calendar = () => {
             </div>
           </div>
 
-          {/* Map View Toggle */}
-          {showMapView && (
-            <div className="p-6 border-b border-gray-200 bg-gray-50">
-              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <MapPin className="w-5 h-5" />
-                Job Locations
-              </h3>
-              <div className="bg-white rounded-lg border border-gray-200 h-48 flex items-center justify-center text-gray-500">
-                <div className="text-center">
-                  <MapIcon className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-                  <p className="text-sm">Map integration coming soon</p>
-                  <p className="text-xs mt-1">{weekJobs.filter(j => j.address).length} jobs with addresses</p>
-                </div>
-              </div>
-              {/* Quick route summary */}
-              <div className="mt-4 space-y-2">
-                {todayJobs.filter(j => j.address).slice(0, 3).map((job, index) => (
-                  <div key={job.id} className="flex items-start gap-2 text-sm">
-                    <span className="font-medium text-gray-500">{index + 1}.</span>
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900">{job.client?.name}</p>
-                      <p className="text-gray-600 text-xs">{job.address}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Recent Activity */}
           <div className="p-6 flex-1 overflow-y-auto">
             <h3 className="font-semibold text-gray-900 mb-4">Recent Activity</h3>
@@ -780,7 +847,7 @@ const Calendar = () => {
                     </p>
                   </div>
                   <span className="text-xs text-gray-400">
-                    {job.scheduled_time || 'TBD'}
+                    {job.scheduled_time ? format(new Date(`2000-01-01T${job.scheduled_time}`), 'h:mm a') : 'TBD'}
                   </span>
                 </div>
               ))}
