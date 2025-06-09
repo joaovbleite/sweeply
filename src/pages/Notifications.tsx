@@ -263,7 +263,7 @@ const Notifications = () => {
               onClick={() => setFilter(tabType)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                 filter === tabType
-                  ? 'bg-[#307842] text-white'
+                  ? 'bg-pulse-500 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -302,7 +302,7 @@ const Notifications = () => {
               <div
                 key={notification.id}
                 className={`bg-white rounded-xl shadow-sm p-4 transition-all hover:shadow-md ${
-                  !notification.read ? 'border-l-4 border-[#307842]' : ''
+                  !notification.read ? 'border-l-4 border-pulse-500' : ''
                 }`}
               >
                 <div className="flex items-start gap-4">
@@ -311,7 +311,7 @@ const Notifications = () => {
                     type="checkbox"
                     checked={selectedNotifications.has(notification.id)}
                     onChange={() => toggleSelection(notification.id)}
-                    className="mt-1 rounded border-gray-300 text-[#307842] focus:ring-[#307842]"
+                    className="mt-1 rounded border-gray-300 text-pulse-500 focus:ring-pulse-500"
                   />
 
                   {/* Icon */}
@@ -333,7 +333,7 @@ const Notifications = () => {
                           <Link
                             to={notification.action_url}
                             onClick={() => markAsRead(notification.id)}
-                            className="inline-flex items-center gap-1 mt-2 text-sm text-[#307842] hover:text-[#245e34] font-medium"
+                            className="inline-flex items-center gap-1 mt-2 text-sm text-pulse-500 hover:text-pulse-600 font-medium"
                           >
                             {notification.action_label || 'View'}
                             <ChevronRight className="w-4 h-4" />
@@ -409,7 +409,7 @@ const Notifications = () => {
           </p>
           <Link
             to="/settings"
-            className="inline-flex items-center gap-2 text-sm text-[#307842] hover:text-[#245e34] font-medium"
+            className="inline-flex items-center gap-2 text-sm text-pulse-500 hover:text-pulse-600 font-medium"
           >
             Go to Settings
             <ChevronRight className="w-4 h-4" />
@@ -446,7 +446,7 @@ const Notifications = () => {
                     }}
                     className={`w-full py-3 px-4 rounded-lg text-left text-sm font-medium transition-colors flex items-center justify-between ${
                       filter === filterType
-                        ? 'bg-[#307842] text-white'
+                        ? 'bg-pulse-500 text-white'
                         : 'bg-white text-gray-700 hover:bg-gray-100'
                     }`}
                   >
