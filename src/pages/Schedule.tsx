@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronDown, Calendar as CalendarIcon, Search, Settings, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronDown, Calendar as CalendarIcon, Search, Settings, Plus, ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react';
 import { format, addDays, startOfWeek, isSameDay, addWeeks, subWeeks, addMonths, subMonths } from 'date-fns';
 import { Link } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
@@ -255,6 +255,131 @@ const Schedule = () => {
   const applyViewOptions = (options: ViewOptionsState) => {
     setViewOptions(options);
   };
+
+  // Render day view content
+  const renderDayView = () => {
+    if (loading) {
+      return (
+        <div className="flex justify-center items-center h-40">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        </div>
+      );
+    }
+
+    if (dayJobs.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center h-64">
+          <div className="text-dark-900 mb-4">
+            <CalendarIcon className="w-16 h-16 mx-auto" />
+          </div>
+          <p className="text-gray-700 text-lg mb-2 font-medium">No scheduled appointments</p>
+          <Link
+            to="/jobs/new"
+            className="text-blue-500 font-medium flex items-center"
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            Schedule a job
+          </Link>
+        </div>
+      );
+    }
+
+    return (
+      <div className="px-4">
+        {dayJobs.map(job => (
+          <Link
+            key={job.id}
+            to={`/jobs/${job.id}`}
+            className="block bg-white rounded-lg shadow mb-3 overflow-hidden"
+          >
+            <div className="border-l-4 border-blue-500 p-4">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-bold text-gray-900">{job.client?.name || 'Unknown Client'}</h3>
+                  <p className="text-sm text-gray-600 mt-1">{job.address || 'No address'}</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-medium">
+                    {job.scheduled_time ? format(new Date(`2000-01-01T${job.scheduled_time}`), 'h:mm a') : 'No time'}
+                  </div>
+                  <div className="text-sm text-blue-500 font-medium mt-1">
+                    ${job.estimated_price || 0}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    );
+  };
+
+  // Render list view content
+  const renderListView = () => {
+    if (loading) {
+      return (
+        <div className="flex justify-center items-center h-40">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        </div>
+      );
+    }
+
+    if (dayJobs.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center h-64">
+          <div className="text-dark-900 mb-4">
+            <CalendarIcon className="w-16 h-16 mx-auto" />
+          </div>
+          <p className="text-gray-700 text-lg mb-2 font-medium">No scheduled appointments</p>
+          <Link
+            to="/jobs/new"
+            className="text-blue-500 font-medium flex items-center"
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            Schedule a job
+          </Link>
+        </div>
+      );
+    }
+
+    return (
+      <div className="px-4">
+        {dayJobs.map(job => (
+          <Link
+            key={job.id}
+            to={`/jobs/${job.id}`}
+            className="block bg-white rounded-lg shadow mb-3 overflow-hidden"
+          >
+            <div className="border-l-4 border-green-600 p-4">
+              <h3 className="font-bold text-gray-900 text-lg">{job.title || 'Untitled Job'}</h3>
+              <p className="text-gray-700 mt-1">{job.service_type || 'Test'}</p>
+              
+              <div className="flex items-center text-gray-600 mt-2">
+                <Clock className="w-4 h-4 mr-1" />
+                <span className="text-sm">{job.scheduled_time ? `${format(new Date(`2000-01-01T${job.scheduled_time}`), 'h:mm a')} - 8:30 PM` : '6:30 PM - 8:30 PM'}</span>
+              </div>
+              
+              <div className="flex items-center text-gray-600 mt-1">
+                <MapPin className="w-4 h-4 mr-1" />
+                <span className="text-sm">{job.address || '704 Fairlane Drive'}</span>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    );
+  };
+
+  // Render map view content
+  const renderMapView = () => {
+    return (
+      <div className="flex justify-center items-center h-64 px-4">
+        <div className="text-center">
+          <p className="text-gray-700 mb-2">Map view coming soon</p>
+        </div>
+      </div>
+    );
+  };
   
   return (
     <AppLayout>
@@ -375,54 +500,11 @@ const Schedule = () => {
           </div>
         </div>
         
-        {/* Jobs list */}
+        {/* Content based on selected view */}
         <div className="flex-1 overflow-y-auto pb-20 mt-4">
-          {loading ? (
-            <div className="flex justify-center items-center h-40">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-            </div>
-          ) : dayJobs.length > 0 ? (
-            <div className="px-4">
-              {dayJobs.map(job => (
-                <Link
-                  key={job.id}
-                  to={`/jobs/${job.id}`}
-                  className="block bg-white rounded-lg shadow mb-3 overflow-hidden"
-                >
-                  <div className="border-l-4 border-blue-500 p-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-bold text-gray-900">{job.client?.name || 'Unknown Client'}</h3>
-                        <p className="text-sm text-gray-600 mt-1">{job.address || 'No address'}</p>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm font-medium">
-                          {job.scheduled_time ? format(new Date(`2000-01-01T${job.scheduled_time}`), 'h:mm a') : 'No time'}
-                        </div>
-                        <div className="text-sm text-blue-500 font-medium mt-1">
-                          ${job.estimated_price || 0}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-64">
-              <div className="text-dark-900 mb-4">
-                <CalendarIcon className="w-16 h-16 mx-auto" />
-              </div>
-              <p className="text-gray-700 text-lg mb-2 font-medium">No scheduled appointments</p>
-              <Link
-                to="/jobs/new"
-                className="text-blue-500 font-medium flex items-center"
-              >
-                <Plus className="w-4 h-4 mr-1" />
-                Schedule a job
-              </Link>
-            </div>
-          )}
+          {viewOptions.view === 'Day' && renderDayView()}
+          {viewOptions.view === 'List' && renderListView()}
+          {viewOptions.view === 'Map' && renderMapView()}
         </div>
       </div>
 
