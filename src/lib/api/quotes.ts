@@ -24,7 +24,7 @@ export interface Quote {
   }>;
   notes?: string;
   terms?: string;
-  salesperson?: string;
+  worker?: string;
   client?: {
     id: string;
     name: string;
@@ -51,7 +51,7 @@ export interface CreateQuoteInput {
   tax?: number;
   notes?: string;
   terms?: string;
-  salesperson?: string;
+  worker?: string;
 }
 
 export interface UpdateQuoteInput {
@@ -69,7 +69,7 @@ export interface UpdateQuoteInput {
   tax?: number;
   notes?: string;
   terms?: string;
-  salesperson?: string;
+  worker?: string;
   sent_at?: string;
 }
 
@@ -193,7 +193,7 @@ export const quotesApi = {
           total_amount: totalAmount,
           notes: quoteData.notes,
           terms: quoteData.terms || 'This quote is valid for 30 days from the date of issue.',
-          salesperson: quoteData.salesperson
+          worker: quoteData.worker
         }
       ])
       .select(`

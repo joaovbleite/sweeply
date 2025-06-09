@@ -1066,7 +1066,7 @@ const Clients = () => {
                           
                           <div className="flex items-center gap-2 text-sm text-gray-600">
                             <User className="w-4 h-4 text-[#307842]" />
-                            <span>Salesperson: {quote.salesperson || 'Not specified'}</span>
+                            <span>Worker: {quote.worker || 'Not specified'}</span>
                           </div>
                         </div>
                         
