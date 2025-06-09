@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { format, addMonths, subMonths, getDaysInMonth, startOfMonth, getDay } from 'date-fns';
 
@@ -17,6 +17,24 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(currentDate);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Handle clicks outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsExpanded(false);
+      }
+    };
+
+    if (isExpanded) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isExpanded]);
 
   // Navigate to previous/next month
   const changeMonth = (direction: 'prev' | 'next') => {
@@ -73,7 +91,7 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
   };
 
   return (
-    <div className="calendar-month-selector">
+    <div className="calendar-month-selector relative" ref={containerRef}>
       {/* Month header with toggle */}
       <div 
         className="flex items-center cursor-pointer" 
@@ -93,56 +111,65 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
 
       {/* Expandable calendar */}
       {isExpanded && (
-        <div className="absolute left-0 top-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 w-full max-w-md animate-slide-down">
-          {/* Month navigation */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200">
-            <button 
-              onClick={() => changeMonth('prev')}
-              className="p-1 hover:bg-gray-100 rounded-full"
-            >
-              <ChevronDown className="h-5 w-5 text-gray-600 rotate-90" />
-            </button>
-            
-            <div className="text-lg font-semibold text-gray-900">
-              {format(selectedMonth, 'MMMM yyyy')}
-            </div>
-            
-            <button 
-              onClick={() => changeMonth('next')}
-              className="p-1 hover:bg-gray-100 rounded-full"
-            >
-              <ChevronDown className="h-5 w-5 text-gray-600 -rotate-90" />
-            </button>
-          </div>
-          
-          {/* Weekday headers */}
-          <div className="calendar-month-grid p-4 pb-2">
-            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
-              <div key={index} className="h-8 flex items-center justify-center text-sm font-medium text-gray-500">
-                {day}
+        <>
+          <div className="fixed inset-0 bg-black/20 z-40" onClick={() => setIsExpanded(false)}></div>
+          <div className="absolute left-0 top-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 w-full max-w-md animate-slide-down">
+            {/* Month navigation */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  changeMonth('prev');
+                }}
+                className="p-1 hover:bg-gray-100 rounded-full"
+              >
+                <ChevronDown className="h-5 w-5 text-gray-600 rotate-90" />
+              </button>
+              
+              <div className="text-lg font-semibold text-gray-900">
+                {format(selectedMonth, 'MMMM yyyy')}
               </div>
-            ))}
-          </div>
-          
-          {/* Calendar grid */}
-          <div className="calendar-month-grid p-4 pt-0">
-            {generateCalendarDays()}
-          </div>
-        </div>
-      )}
-      
-      {/* User info and job count - only shown when calendar is expanded */}
-      {isExpanded && userName && (
-        <div className="absolute left-0 top-full mt-[340px] bg-white rounded-lg shadow-lg border border-gray-200 z-50 w-full max-w-md p-4 animate-fade-in">
-          <div className="flex items-center justify-between">
-            <div className="text-lg font-medium text-[#1a2e35]">
-              {userName}
+              
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  changeMonth('next');
+                }}
+                className="p-1 hover:bg-gray-100 rounded-full"
+              >
+                <ChevronDown className="h-5 w-5 text-gray-600 -rotate-90" />
+              </button>
             </div>
-            <div className="bg-gray-100 px-3 py-1 rounded-full text-sm font-medium">
-              {jobCount}
+            
+            {/* Weekday headers */}
+            <div className="calendar-month-grid p-4 pb-2">
+              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
+                <div key={index} className="h-8 flex items-center justify-center text-sm font-medium text-gray-500">
+                  {day}
+                </div>
+              ))}
             </div>
+            
+            {/* Calendar grid */}
+            <div className="calendar-month-grid p-4 pt-0">
+              {generateCalendarDays()}
+            </div>
+            
+            {/* User info and job count */}
+            {userName && (
+              <div className="p-4 border-t border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="text-lg font-medium text-[#1a2e35]">
+                    {userName}
+                  </div>
+                  <div className="bg-gray-100 px-3 py-1 rounded-full text-sm font-medium">
+                    {jobCount} jobs
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-        </div>
+        </>
       )}
     </div>
   );
