@@ -1,13 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ChevronRight, ChevronLeft, X, ArrowUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocale } from '@/hooks/useLocale';
 import { Link } from 'react-router-dom';
 import PageHeader from '@/components/ui/PageHeader';
+import { format, startOfWeek, endOfWeek } from 'date-fns';
 
 const BusinessHealthPage = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
   const { t } = useTranslation(['dashboard', 'common']);
   const { formatCurrency } = useLocale();
+  
+  // Generate current week date range
+  const currentWeekRange = useMemo(() => {
+    const now = new Date();
+    const weekStart = startOfWeek(now, { weekStartsOn: 0 }); // 0 = Sunday
+    const weekEnd = endOfWeek(now, { weekStartsOn: 0 });
+    
+    const startFormatted = format(weekStart, 'MMM d');
+    const endFormatted = format(weekEnd, 'MMM d');
+    
+    return `${startFormatted} - ${endFormatted}`;
+  }, []);
 
   if (!isOpen) return null;
 
@@ -102,7 +115,7 @@ const BusinessHealthPage = ({ isOpen, onClose }: { isOpen: boolean, onClose: () 
         {/* Jobs Section */}
         <div className="px-4 py-5 border-b border-gray-200">
           <h2 className="text-xl font-bold text-[#1a2e35] mb-1">Jobs</h2>
-          <p className="text-gray-500 text-sm mb-4">This week (Jun 1 - 7)</p>
+          <p className="text-gray-500 text-sm mb-4">This week ({currentWeekRange})</p>
           
           <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -173,6 +186,18 @@ const BusinessHealth = () => {
   const { t } = useTranslation(['dashboard', 'common']);
   const { formatCurrency } = useLocale();
   const [showFullPage, setShowFullPage] = useState(false);
+  
+  // Generate current week date range
+  const currentWeekRange = useMemo(() => {
+    const now = new Date();
+    const weekStart = startOfWeek(now, { weekStartsOn: 0 }); // 0 = Sunday
+    const weekEnd = endOfWeek(now, { weekStartsOn: 0 });
+    
+    const startFormatted = format(weekStart, 'MMM d');
+    const endFormatted = format(weekEnd, 'MMM d');
+    
+    return `${startFormatted} - ${endFormatted}`;
+  }, []);
 
   return (
     <>
@@ -194,7 +219,7 @@ const BusinessHealth = () => {
             <div className="flex justify-between items-center">
               <div>
                 <h3 className="text-base font-medium text-gray-700">{t('dashboard:businessHealthMetrics.jobValue')}</h3>
-                <p className="text-xs text-gray-500">This week (Jun 1 - 7)</p>
+                <p className="text-xs text-gray-500">This week ({currentWeekRange})</p>
               </div>
               <div className="flex items-center">
                 <span className="text-xl font-bold text-gray-900 mr-3">$200</span>
@@ -211,7 +236,7 @@ const BusinessHealth = () => {
             <div className="flex justify-between items-center">
               <div>
                 <h3 className="text-base font-medium text-gray-700">{t('dashboard:businessHealthMetrics.visitsScheduled')}</h3>
-                <p className="text-xs text-gray-500">This week (Jun 1 - 7)</p>
+                <p className="text-xs text-gray-500">This week ({currentWeekRange})</p>
               </div>
               <div className="flex items-center">
                 <span className="text-xl font-bold text-gray-900 mr-3">2</span>
