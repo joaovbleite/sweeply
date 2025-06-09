@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Plus, Users } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Users, Calendar, User } from "lucide-react";
 import { toast } from "sonner";
 import AppLayout from "@/components/AppLayout";
 import PageHeader from "@/components/ui/PageHeader";
@@ -108,11 +108,22 @@ const AddTask = () => {
     setSelectedDate(day);
   };
 
+  // Save button component for the header
+  const SaveButton = (
+    <button
+      onClick={handleSubmit}
+      className="bg-[#307842] text-white px-5 py-2.5 rounded-xl font-medium"
+    >
+      Save
+    </button>
+  );
+
   return (
     <AppLayout>
       <PageHeader 
         title="New task" 
         onBackClick={() => navigate(-1)}
+        rightElement={SaveButton}
       />
 
       <div className="px-4 pt-7 pb-32 flex-1 overflow-y-auto min-h-screen bg-white">
@@ -123,14 +134,14 @@ const AddTask = () => {
             value={formData.title}
             onChange={(e) => handleInputChange('title', e.target.value)}
             placeholder="Title"
-            className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
           />
           
           <textarea
             value={formData.description}
             onChange={(e) => handleInputChange('description', e.target.value)}
             placeholder="Description"
-            className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
             rows={4}
           />
         </div>
@@ -141,7 +152,7 @@ const AddTask = () => {
         {/* Client Section */}
         <div className="flex items-center justify-between py-5 mb-4">
           <div className="flex items-center">
-            <span className="text-2xl mr-3">👤</span>
+            <User className="w-6 h-6 text-gray-700 mr-3" />
             <h3 className="text-xl font-medium text-gray-800">Client</h3>
           </div>
           <button className="text-green-600">
@@ -157,7 +168,7 @@ const AddTask = () => {
         
         {/* Date Selection */}
         <div className="mb-8 border border-gray-300 rounded-xl p-4 flex items-center">
-          <span className="text-2xl mr-3">📅</span>
+          <Calendar className="w-6 h-6 text-gray-700 mr-3" />
           <div>
             <h3 className="text-lg font-medium text-gray-800">Date</h3>
             <p className="text-lg text-gray-800">Unscheduled</p>
@@ -174,16 +185,6 @@ const AddTask = () => {
             </div>
           </div>
           <ChevronRight className="w-6 h-6 text-green-600" />
-        </div>
-
-        {/* Save Button (Fixed at bottom) */}
-        <div className="fixed bottom-5 left-0 right-0 px-4 pb-5">
-          <button
-            onClick={handleSubmit}
-            className="w-full bg-[#307842] text-white py-4 rounded-xl font-medium"
-          >
-            Save
-          </button>
         </div>
       </div>
     </AppLayout>
