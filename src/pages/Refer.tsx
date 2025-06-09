@@ -83,15 +83,15 @@ const Refer: React.FC = () => {
           <div className="px-4 pt-5">
             <h3 className="text-2xl font-bold text-[#0d3547] mb-2">Share your code</h3>
             <p className="text-gray-700 text-base mb-3">
-              Refer friends to Jobber with your unique code! If they become a customer, you'll get a <span className="font-bold">$100 prepaid gift card</span> and they'll get rewarded too!
+              Refer friends to Sweeply with your unique code! If they become a customer, you'll get a <span className="font-bold">$100 prepaid gift card</span> and they'll get rewarded too!
             </p>
             
             {/* Referral Code Display */}
             <div className="flex justify-between items-center mb-3">
-              <div className="text-3xl font-bold text-[#3b82f6]">{referralCode}</div>
+              <div className="text-3xl font-bold text-[#307842]">{referralCode}</div>
               <button 
                 onClick={handleCopy}
-                className="text-[#3b82f6] font-bold text-lg"
+                className="text-[#307842] font-bold text-lg"
               >
                 COPY
               </button>
@@ -100,7 +100,7 @@ const Refer: React.FC = () => {
             {/* Share Button */}
             <button
               onClick={handleShare}
-              className="w-full bg-[#3b82f6] text-white font-bold text-base py-3 rounded-lg mb-6"
+              className="w-full bg-[#307842] text-white font-bold text-base py-3 rounded-lg mb-6"
             >
               Share Code
             </button>
@@ -109,7 +109,7 @@ const Refer: React.FC = () => {
             <h3 className="text-2xl font-bold text-[#0d3547] mb-2">Redeem a code</h3>
             
             <p className="text-gray-700 text-base mb-3">
-              Did your friend refer you to Jobber? Enter their referral code and we will send you both a reward!
+              Did your friend refer you to Sweeply? Enter their referral code and we will send you both a reward!
             </p>
             
             {/* Redeem Input */}
@@ -119,12 +119,12 @@ const Refer: React.FC = () => {
                 value={redeemCode}
                 onChange={(e) => setRedeemCode(e.target.value.toUpperCase())}
                 placeholder="Enter referral code"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 text-base focus:ring-[#3b82f6] focus:border-[#3b82f6] mb-3"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 text-base focus:ring-[#307842] focus:border-[#307842] mb-3"
               />
               
               <button
                 onClick={handleRedeem}
-                className="w-full bg-white border border-[#3b82f6] text-[#3b82f6] font-bold text-base py-3 rounded-lg mb-3"
+                className="w-full bg-white border border-[#307842] text-[#307842] font-bold text-base py-3 rounded-lg mb-3"
               >
                 Redeem a Code
               </button>
@@ -132,7 +132,7 @@ const Refer: React.FC = () => {
             
             {/* Terms Note */}
             <p className="text-gray-600 text-sm mb-6">
-              By sharing or redeeming a referral code, you agree to the <a href="#" className="text-[#3b82f6]">program terms of use</a>.
+              By sharing or redeeming a referral code, you agree to the <a href="#" className="text-[#307842]">program terms of use</a>.
             </p>
           </div>
         </div>
