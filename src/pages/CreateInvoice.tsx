@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, User, MapPin, Phone, Mail, ChevronDown } from "lucide-react";
+import { Search, User, MapPin, Phone, Mail, ChevronDown, Plus, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { invoicesApi } from "@/lib/api/invoices";
 import { clientsApi } from "@/lib/api/clients";
@@ -9,12 +9,15 @@ import { CreateInvoiceInput } from "@/types/invoice";
 import AppLayout from "@/components/AppLayout";
 import PageHeader from "@/components/ui/PageHeader";
 import { format, addDays } from "date-fns";
+import { useLocale } from "@/hooks/useLocale";
 
 const CreateInvoice = () => {
   const navigate = useNavigate();
+  const { formatCurrency } = useLocale();
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [showClientMessage, setShowClientMessage] = useState(false);
 
   const [formData, setFormData] = useState<CreateInvoiceInput>({
     client_id: "",
@@ -33,7 +36,7 @@ const CreateInvoice = () => {
     discount_amount: 0,
     notes: "",
     terms: "Payment due within 30 days of invoice date.",
-    footer_text: "Thank you for your business!"
+    footer_text: "Thank you for your business. Please contact us with any questions regarding this invoice."
   });
 
   // Load clients on mount
@@ -113,24 +116,41 @@ const CreateInvoice = () => {
     return true;
   };
 
-  // Save button component for the header
-  const SaveButton = (
+  const calculateSubtotal = () => {
+    return formData.items.reduce((sum, item) => sum + (item.amount || 0), 0);
+  };
+
+  const calculateTax = () => {
+    return calculateSubtotal() * (formData.tax_rate || 0) / 100;
+  };
+
+  const calculateTotal = () => {
+    return calculateSubtotal() + calculateTax() - (formData.discount_amount || 0);
+  };
+
+  // Toggle client message section
+  const handleToggleClientMessage = () => {
+    setShowClientMessage(!showClientMessage);
+  };
+
+  // Review and Send button for the header
+  const ReviewSendButton = (
     <button
-      onClick={handleSaveAsDraft}
+      onClick={handleReviewAndSend}
       disabled={loading}
-      className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-medium"
+      className="bg-green-600 text-white px-5 py-2.5 rounded-xl font-medium"
     >
-      Save
+      Review and Send
     </button>
   );
 
   return (
     <AppLayout>
-      {/* Page Header with Save button on the right */}
+      {/* Page Header with Review and Send button on the right */}
       <PageHeader 
         title="New Invoice" 
         onBackClick={() => navigate(-1)}
-        rightElement={SaveButton}
+        rightElement={ReviewSendButton}
       />
 
       <div className="px-4 pt-7 pb-24 flex-1 overflow-y-auto min-h-screen bg-white">
@@ -276,9 +296,82 @@ const CreateInvoice = () => {
         {/* Product / Service Section */}
         <h2 className="text-xl text-gray-700 font-medium mb-4">Product / Service</h2>
         
-        {/* Add your product/service content here */}
-        <div className="pb-20">
-          {/* This section would be expanded based on requirements */}
+        {/* Line items Section */}
+        <div className="flex items-center justify-between py-4 border-t border-b mb-4">
+          <h3 className="text-xl font-bold text-gray-800">Line items</h3>
+          <button className="text-green-600">
+            <Plus className="w-6 h-6" />
+          </button>
+        </div>
+
+        {/* Pricing Information */}
+        <div className="space-y-4 mb-8">
+          {/* Subtotal */}
+          <div className="flex items-center justify-between py-4">
+            <h3 className="text-xl font-medium text-gray-800">Subtotal</h3>
+            <span className="text-xl text-gray-800">{formatCurrency(calculateSubtotal())}</span>
+          </div>
+          
+          {/* Discount */}
+          <div className="flex items-center justify-between py-4">
+            <h3 className="text-xl font-medium text-gray-800">Discount</h3>
+            <span className="text-xl text-green-600">{formatCurrency(formData.discount_amount || 0)}</span>
+          </div>
+          
+          {/* Tax */}
+          <div className="flex items-center justify-between py-4">
+            <h3 className="text-xl font-medium text-gray-800">Tax</h3>
+            <span className="text-xl text-green-600">{formatCurrency(calculateTax())}</span>
+          </div>
+        </div>
+        
+        {/* Total Section */}
+        <div className="flex items-center justify-between py-4 bg-gray-100 -mx-4 px-4 mb-8">
+          <h3 className="text-xl font-bold text-gray-800">Total</h3>
+          <span className="text-xl font-bold text-gray-800">{formatCurrency(calculateTotal())}</span>
+        </div>
+        
+        {/* Client Message Section */}
+        <div className="border-t border-b py-4 mb-8">
+          <div 
+            className="flex justify-between items-center cursor-pointer"
+            onClick={handleToggleClientMessage}
+          >
+            <h3 className="text-xl font-bold text-gray-800">Client message</h3>
+            <Plus className="w-6 h-6 text-green-600" />
+          </div>
+          
+          {showClientMessage && (
+            <div className="mt-4">
+              <textarea
+                placeholder="Add a message to your client"
+                className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                rows={4}
+                value={formData.notes || ''}
+                onChange={(e) => handleInputChange('notes', e.target.value)}
+              />
+            </div>
+          )}
+        </div>
+        
+        {/* Contract / Disclaimer Section */}
+        <div className="border-b py-4 mb-8">
+          <div className="flex justify-between items-center cursor-pointer">
+            <h3 className="text-xl font-bold text-gray-800">Contract / Disclaimer</h3>
+            <ChevronRight className="w-6 h-6 text-green-600" />
+          </div>
+          <p className="mt-2 text-gray-700">{formData.footer_text}</p>
+        </div>
+        
+        {/* Save Button */}
+        <div className="pb-12 text-center">
+          <button
+            onClick={handleSaveAsDraft}
+            disabled={loading}
+            className="text-green-600 font-medium text-lg"
+          >
+            Save
+          </button>
         </div>
       </div>
     </AppLayout>
