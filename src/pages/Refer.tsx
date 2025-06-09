@@ -1,3 +1,4 @@
+// Refer a Friend page - Updated for new deployment
 import React, { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
