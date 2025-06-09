@@ -133,7 +133,7 @@ const CreateInvoice = () => {
         rightElement={SaveButton}
       />
 
-      <div className="px-4 pt-7 pb-32 flex-1 overflow-y-auto min-h-screen bg-white">
+      <div className="px-4 pt-7 pb-24 flex-1 overflow-y-auto min-h-screen bg-white">
         {/* Billed To Section */}
         <h2 className="text-xl text-gray-700 font-medium mb-4">Billed to</h2>
         
@@ -274,25 +274,11 @@ const CreateInvoice = () => {
         <div className="w-full h-3 bg-gray-100 -mx-4 px-4 mb-8"></div>
         
         {/* Product / Service Section */}
-        <h2 className="text-xl text-gray-700 font-medium mb-20">Product / Service</h2>
+        <h2 className="text-xl text-gray-700 font-medium mb-4">Product / Service</h2>
         
-        {/* Action Buttons */}
-        <div className="fixed bottom-20 left-0 right-0 p-4 space-y-4 bg-white border-t border-gray-200">
-          <button
-            onClick={handleReviewAndSend}
-            disabled={loading}
-            className="w-full py-4 bg-green-600 text-white font-medium rounded-xl flex items-center justify-center"
-          >
-            Review and Send
-          </button>
-          
-          <button
-            onClick={handleSaveAsDraft}
-            disabled={loading}
-            className="w-full text-green-600 font-medium"
-          >
-            Save
-          </button>
+        {/* Add your product/service content here */}
+        <div className="pb-20">
+          {/* This section would be expanded based on requirements */}
         </div>
       </div>
     </AppLayout>
