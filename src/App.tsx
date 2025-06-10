@@ -40,6 +40,7 @@ import Support from "./pages/Support";
 import Company from "./pages/Company";
 import Preferences from "./pages/Preferences";
 import Team from "./pages/Team";
+import AddTeamMember from "./pages/AddTeamMember";
 import Profile from "./pages/Profile";
 import PricingAssistant from "./pages/PricingAssistant";
 import NewQuote from "./pages/NewQuote";
@@ -373,6 +374,14 @@ const AppRoutes = () => {
             <PageTransition>
               <Team />
             </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/team/new" 
+        element={
+          <ProtectedRoute>
+            <AddTeamMember />
           </ProtectedRoute>
         } 
       />

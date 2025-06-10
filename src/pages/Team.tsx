@@ -149,11 +149,12 @@ const Team: React.FC = () => {
             </button>
             <h1 className="text-xl font-semibold text-[#1a2e35]">Manage Team</h1>
           </div>
-          <button 
+          <Link 
+            to="/team/new"
             className="w-10 h-10 rounded-full bg-pulse-500 text-white flex items-center justify-center hover:bg-pulse-600 transition-colors shadow-sm"
           >
             <Plus className="w-6 h-6" />
-          </button>
+          </Link>
         </div>
 
         <div className="px-4 pb-36 pt-5">
