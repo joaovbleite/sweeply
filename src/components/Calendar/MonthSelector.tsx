@@ -85,9 +85,9 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
         <div 
           key={day} 
           onClick={() => selectDay(day)}
-          className={`calendar-day cursor-pointer h-9 w-9 flex items-center justify-center rounded-full hover:bg-blue-100 transition-colors ${
-            isSelected ? 'bg-blue-500 text-white' : 
-            isCurrentDay ? 'border-2 border-blue-500 text-blue-500' : ''
+          className={`calendar-day cursor-pointer h-9 w-9 flex items-center justify-center rounded-full hover:bg-green-100 transition-colors ${
+            isSelected ? 'bg-[#307842] text-white' : 
+            isCurrentDay ? 'border-2 border-[#307842] text-[#307842]' : 'text-gray-700'
           }`}
         >
           {day}
@@ -108,7 +108,7 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
     <div className="calendar-month-selector relative" ref={containerRef}>
       {/* Month header with toggle */}
       <button 
-        className="flex items-center px-2 py-1 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer" 
+        className="flex items-center px-2 py-1 rounded-lg hover:bg-green-50 transition-colors cursor-pointer" 
         onClick={toggleDropdown}
         aria-expanded={isExpanded}
         aria-haspopup="true"
@@ -118,9 +118,9 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
         </div>
         <div className="ml-2">
           {isExpanded ? (
-            <ChevronUp className="h-5 w-5 text-blue-500" />
+            <ChevronUp className="h-5 w-5 text-[#307842]" />
           ) : (
-            <ChevronDown className="h-5 w-5 text-blue-500" />
+            <ChevronDown className="h-5 w-5 text-[#307842]" />
           )}
         </div>
       </button>
@@ -141,10 +141,10 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
                     e.stopPropagation();
                     changeMonth('prev');
                   }}
-                  className="p-1.5 hover:bg-blue-50 rounded-full"
+                  className="p-1.5 hover:bg-green-50 rounded-full"
                   aria-label="Previous month"
                 >
-                  <ChevronLeft className="h-5 w-5 text-blue-500" />
+                  <ChevronLeft className="h-5 w-5 text-[#307842]" />
                 </button>
                 <div className="text-lg font-bold text-gray-900">
                   {format(selectedMonth, 'MMMM yyyy')}
@@ -154,10 +154,10 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
                     e.stopPropagation();
                     changeMonth('next');
                   }}
-                  className="p-1.5 hover:bg-blue-50 rounded-full"
+                  className="p-1.5 hover:bg-green-50 rounded-full"
                   aria-label="Next month"
                 >
-                  <ChevronRight className="h-5 w-5 text-blue-500" />
+                  <ChevronRight className="h-5 w-5 text-[#307842]" />
                 </button>
               </div>
             </div>
@@ -165,7 +165,7 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
             {/* Week day labels */}
             <div className="grid grid-cols-7 gap-1 px-3 py-2 text-center">
               {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
-                <div key={index} className="text-sm font-medium text-blue-400">
+                <div key={index} className="text-sm font-medium text-[#307842]">
                   {day}
                 </div>
               ))}
@@ -182,7 +182,7 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
                 <div className="text-sm font-medium text-[#1a2e35] truncate max-w-[160px]">
                   {userName}
                 </div>
-                <div className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
+                <div className="bg-green-100 text-[#307842] px-2 py-1 rounded-full text-xs font-medium">
                   {jobCount} jobs
                 </div>
               </div>
