@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronDown, Calendar as CalendarIcon, Search, Settings, Plus, ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react';
-import { format, addDays, startOfWeek, isSameDay, addWeeks, subWeeks, addMonths, subMonths } from 'date-fns';
+import { format, addDays, startOfWeek, isSameDay, addWeeks, subWeeks, addMonths, subMonths, isToday } from 'date-fns';
 import { Link } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
 import { jobsApi } from '@/lib/api/jobs';
@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import ViewOptionsModal, { ViewOptionsState } from '@/components/schedule/ViewOptionsModal';
 import MonthSelector from '@/components/Calendar/MonthSelector';
+import { AnimatePresence, motion } from 'framer-motion';
 
 // Add an interface for the HTMLDivElement with scrollTimeout
 interface DivWithScrollTimeout extends HTMLDivElement {
@@ -23,6 +24,8 @@ const Schedule = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [searchTerm, setSearchTerm] = useState('');
   const [isViewOptionsModalOpen, setIsViewOptionsModalOpen] = useState(false);
+  const [weekDirection, setWeekDirection] = useState<'left' | 'right' | null>(null);
+  const [animatingWeekChange, setAnimatingWeekChange] = useState(false);
   
   // Ref for week day scroll container
   const weekDaysRef = useRef<HTMLDivElement>(null);
@@ -91,53 +94,49 @@ const Schedule = () => {
     if (index !== undefined) {
       if (index < 7) {
         // Previous week selection
+        setWeekDirection('left');
         setCurrentDate(subWeeks(date, 1));
       } else if (index >= 14) {
         // Next week selection
+        setWeekDirection('right');
         setCurrentDate(addWeeks(date, 1));
       }
     }
   };
 
-  // Handle week navigation with animation
+  // Handle week navigation with improved animation
   const navigateWeek = (direction: 'prev' | 'next') => {
-    const newDate = direction === 'next' ? addWeeks(currentDate, 1) : subWeeks(currentDate, 1);
-    setCurrentDate(newDate);
+    if (animatingWeekChange) return; // Prevent multiple animations at once
     
-    // Animate the scroll to the appropriate week
-    if (weekDaysRef.current) {
-      const targetPosition = direction === 'next' 
-        ? weekDaysRef.current.scrollWidth * 2/3  // Move to next week (last third)
-        : 0;                                    // Move to previous week (first third)
-      
-      weekDaysRef.current.scrollTo({
-        left: targetPosition,
-        behavior: 'smooth'
-      });
-      
-      // After animation completes, reset to middle week
-      setTimeout(() => {
-        if (weekDaysRef.current) {
-          weekDaysRef.current.scrollTo({
-            left: weekDaysRef.current.scrollWidth / 3,
-            behavior: 'auto'
-          });
-        }
-      }, 300); // Wait for scroll animation to complete
-    }
+    setAnimatingWeekChange(true);
+    setWeekDirection(direction === 'prev' ? 'left' : 'right');
+    
+    // First animate visually
+    setTimeout(() => {
+      // Then update the actual data
+      const newDate = direction === 'next' ? addWeeks(currentDate, 1) : subWeeks(currentDate, 1);
+      setCurrentDate(newDate);
+      setAnimatingWeekChange(false);
+    }, 300); // Match this with the animation duration
   };
 
   // Go to today
   const goToToday = () => {
-    setCurrentDate(new Date());
+    // If we're already on today, don't animate
+    if (isSameDay(currentDate, new Date())) return;
     
-    // Reset to middle position immediately
-    if (weekDaysRef.current) {
-      weekDaysRef.current.scrollTo({
-        left: weekDaysRef.current.scrollWidth / 3,
-        behavior: 'smooth'
-      });
-    }
+    // Determine which direction to animate based on current date vs today
+    const today = new Date();
+    const direction = today > currentDate ? 'right' : 'left';
+    setWeekDirection(direction);
+    setAnimatingWeekChange(true);
+    
+    // First animate visually
+    setTimeout(() => {
+      // Then update the actual data
+      setCurrentDate(today);
+      setAnimatingWeekChange(false);
+    }, 300);
   };
 
   // Handling touch events for swipe detection
@@ -181,66 +180,6 @@ const Schedule = () => {
     }
   };
 
-  // Handle scroll end for pagination
-  const handleScrollEnd = () => {
-    if (weekDaysRef.current) {
-      const { scrollLeft, scrollWidth } = weekDaysRef.current;
-      const viewportWidth = weekDaysRef.current.clientWidth;
-      
-      // If we've scrolled near the end, load the next week
-      if (scrollLeft + viewportWidth >= scrollWidth - 20) {
-        const newDate = addWeeks(currentDate, 1);
-        setCurrentDate(newDate);
-      }
-      // If we've scrolled near the start, load the previous week
-      else if (scrollLeft <= 20) {
-        const newDate = subWeeks(currentDate, 1);
-        setCurrentDate(newDate);
-      }
-    }
-  };
-
-  // Attach scroll event listener
-  useEffect(() => {
-    const scrollContainer = weekDaysRef.current as DivWithScrollTimeout;
-    if (scrollContainer) {
-      const handleScroll = () => {
-        // Use a debounce technique for the scroll end detection
-        if (scrollContainer.scrollTimeout) {
-          clearTimeout(scrollContainer.scrollTimeout);
-        }
-        
-        // Store timeout ID for cleanup
-        scrollContainer.scrollTimeout = window.setTimeout(handleScrollEnd, 150);
-      };
-      
-      scrollContainer.addEventListener('scroll', handleScroll);
-      return () => {
-        scrollContainer.removeEventListener('scroll', handleScroll);
-        if (scrollContainer.scrollTimeout) {
-          clearTimeout(scrollContainer.scrollTimeout);
-        }
-      };
-    }
-  }, [currentDate]);
-
-  // Scroll to current week on initial load or when current date changes
-  useEffect(() => {
-    if (weekDaysRef.current) {
-      // Reset scroll position to show current week
-      setTimeout(() => {
-        if (weekDaysRef.current) {
-          // For the initial positioning, we want to show the current week (middle 7 days)
-          weekDaysRef.current.scrollLeft = 0; // Reset first
-          weekDaysRef.current.scrollTo({
-            left: weekDaysRef.current.scrollWidth / 3,
-            behavior: 'auto'
-          });
-        }
-      }, 100);
-    }
-  }, [currentDate]);
-
   // Open view options modal
   const openViewOptionsModal = () => {
     setIsViewOptionsModalOpen(true);
@@ -254,6 +193,78 @@ const Schedule = () => {
   // Apply view options
   const applyViewOptions = (options: ViewOptionsState) => {
     setViewOptions(options);
+  };
+
+  // Render week day selector with smooth animations
+  const renderWeekDaySelector = () => {
+    const weekVariants = {
+      enter: (direction: 'left' | 'right') => ({
+        x: direction === 'left' ? '-100%' : '100%',
+        opacity: 0
+      }),
+      center: {
+        x: 0,
+        opacity: 1
+      },
+      exit: (direction: 'left' | 'right') => ({
+        x: direction === 'left' ? '100%' : '-100%',
+        opacity: 0
+      })
+    };
+
+    return (
+      <div className="relative mx-4 mt-4 overflow-hidden">
+        <AnimatePresence initial={false} custom={weekDirection} mode="wait">
+          <motion.div
+            key={format(weekStart, 'yyyy-MM-dd')}
+            custom={weekDirection}
+            variants={weekVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: "spring", stiffness: 300, damping: 30 },
+              opacity: { duration: 0.2 }
+            }}
+            className="flex py-2"
+          >
+            {/* Map current week days */}
+            {weekDays.map((day, index) => {
+              const isCurrentDay = isToday(day);
+              const isSelected = isSameDay(day, currentDate);
+              const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+              
+              // Skip weekends if not showing them
+              if (isWeekend && !viewOptions.showWeekends) {
+                return null;
+              }
+              
+              return (
+                <motion.button
+                  key={index}
+                  className={`w-[calc(100%/7)] flex-shrink-0 flex flex-col items-center py-2`}
+                  onClick={() => handleDateSelect(day)}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.1 }}
+                >
+                  <div className="text-sm text-gray-500 uppercase font-medium">
+                    {format(day, 'EEE').charAt(0)}
+                  </div>
+                  <motion.div 
+                    className={`w-10 h-10 flex items-center justify-center rounded-full mt-1 text-lg
+                      ${isSelected ? 'bg-blue-500 text-white' : isCurrentDay ? 'text-blue-500 border-2 border-blue-500' : 'text-gray-800'}`}
+                    whileHover={{ scale: 1.1 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                  >
+                    {format(day, 'd')}
+                  </motion.div>
+                </motion.button>
+              );
+            })}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    );
   };
 
   // Render day view content
@@ -390,90 +401,66 @@ const Schedule = () => {
             <MonthSelector 
               currentDate={currentDate} 
               onDateChange={(date) => {
-                setCurrentDate(date);
-                // Scroll will be adjusted automatically via the useEffect
+                const direction = date > currentDate ? 'right' : 'left';
+                setWeekDirection(direction);
+                setAnimatingWeekChange(true);
+                
+                setTimeout(() => {
+                  setCurrentDate(date);
+                  setAnimatingWeekChange(false);
+                }, 300);
               }}
               userName={user?.user_metadata?.name || user?.email}
               jobCount={dayJobs.length}
             />
           </div>
           <div className="flex items-center gap-5">
-            <button className="p-2" onClick={goToToday}>
+            <motion.button 
+              className="p-2" 
+              onClick={goToToday}
+              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: 1.1 }}
+            >
               <CalendarIcon className="w-6 h-6 text-gray-800" />
-            </button>
-            <button className="p-2" onClick={openViewOptionsModal}>
+            </motion.button>
+            <motion.button 
+              className="p-2" 
+              onClick={openViewOptionsModal}
+              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: 1.1 }}
+            >
               <Settings className="w-6 h-6 text-gray-800" />
-            </button>
+            </motion.button>
           </div>
         </div>
         
         {/* View selector tabs */}
         <div className="bg-gray-100 rounded-lg mx-4 p-1.5 flex relative z-10">
-          <button 
+          <motion.button 
             className={`flex-1 py-3 rounded-md text-center font-medium ${viewOptions.view === 'Day' ? 'bg-white shadow text-gray-800' : 'text-gray-600'}`}
             onClick={() => setViewOptions(prev => ({ ...prev, view: 'Day' }))}
+            whileTap={{ scale: 0.95 }}
           >
             Day
-          </button>
-          <button 
+          </motion.button>
+          <motion.button 
             className={`flex-1 py-3 rounded-md text-center font-medium ${viewOptions.view === 'List' ? 'bg-white shadow text-gray-800' : 'text-gray-600'}`}
             onClick={() => setViewOptions(prev => ({ ...prev, view: 'List' }))}
+            whileTap={{ scale: 0.95 }}
           >
             List
-          </button>
-          <button 
+          </motion.button>
+          <motion.button 
             className={`flex-1 py-3 rounded-md text-center font-medium ${viewOptions.view === 'Map' ? 'bg-white shadow text-gray-800' : 'text-gray-600'}`}
             onClick={() => setViewOptions(prev => ({ ...prev, view: 'Map' }))}
+            whileTap={{ scale: 0.95 }}
           >
             Map
-          </button>
+          </motion.button>
         </div>
         
-        {/* Week day selector - now scrollable with controlled pagination */}
-        <div className="relative mx-4 mt-4">
-          {/* Scrollable container */}
-          <div 
-            ref={weekDaysRef}
-            className="overflow-x-auto scrollbar-hide snap-x scroll-smooth"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            onWheel={handleWheel}
-          >
-            <div className="flex w-full snap-mandatory py-2">
-              {/* Map all days (3 weeks worth) */}
-              {allWeekDays.map((day, index) => {
-                const isToday = isSameDay(day, new Date());
-                const isSelected = isSameDay(day, currentDate);
-                const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-                const isCurrentWeek = index >= 7 && index < 14;
-                
-                // Skip weekends if not showing them
-                if (isWeekend && !viewOptions.showWeekends) {
-                  return null;
-                }
-                
-                return (
-                  <button
-                    key={index}
-                    className={`w-[calc(100%/7)] flex-shrink-0 flex flex-col items-center py-2 snap-center ${isCurrentWeek ? 'opacity-100' : 'opacity-80'}`}
-                    onClick={() => handleDateSelect(day, index)}
-                  >
-                    <div className="text-sm text-gray-500 uppercase font-medium">
-                      {format(day, 'EEE').charAt(0)}
-                    </div>
-                    <div 
-                      className={`w-10 h-10 flex items-center justify-center rounded-full mt-1 text-lg
-                        ${isSelected ? 'bg-blue-500 text-white' : isToday ? 'text-blue-500 border-2 border-blue-500' : 'text-gray-800'}`}
-                    >
-                      {format(day, 'd')}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+        {/* Week day selector with smooth animations */}
+        {renderWeekDaySelector()}
         
         {/* Client filter/search */}
         <div className="mx-4 mt-6 border-t border-gray-200 pt-4">
