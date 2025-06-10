@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, Check, ChevronDown } from "lucide-react";
+import { ArrowLeft, Check, ChevronDown, Save } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,6 +14,9 @@ const Preferences: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { preferences, refreshPreferences } = useLocale();
+  
+  // Track if any changes have been made
+  const [hasChanges, setHasChanges] = useState(false);
   
   // Notification preferences state
   const [notifications, setNotifications] = useState({
@@ -38,6 +41,18 @@ const Preferences: React.FC = () => {
   // State for currency selection
   const [selectedCurrency, setSelectedCurrency] = useState(preferences.currency);
   const [showCurrencyOptions, setShowCurrencyOptions] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Effect to track changes
+  useEffect(() => {
+    const notificationChanged = Object.keys(notifications).some(
+      (key) => notifications[key as keyof typeof notifications] !== false
+    );
+    
+    const currencyChanged = selectedCurrency !== preferences.currency;
+    
+    setHasChanges(notificationChanged || currencyChanged);
+  }, [notifications, selectedCurrency, preferences.currency]);
 
   // Toggle notification setting
   const toggleNotification = (key: keyof typeof notifications) => {
@@ -48,31 +63,63 @@ const Preferences: React.FC = () => {
   };
 
   // Handle currency selection
-  const handleCurrencyChange = async (currencyCode: string) => {
+  const handleCurrencyChange = (currencyCode: string) => {
+    setSelectedCurrency(currencyCode);
+    setShowCurrencyOptions(false);
+  };
+
+  // Save all changes
+  const saveChanges = async () => {
+    setIsLoading(true);
     try {
+      // Save currency preference
       await profileApi.upsertProfile({
-        currency: currencyCode
+        currency: selectedCurrency
       });
-      setSelectedCurrency(currencyCode);
-      setShowCurrencyOptions(false);
+      
+      // Save notification settings
+      await profileApi.upsertProfile({
+        push_notifications: notifications
+      });
+      
       refreshPreferences();
-      toast.success("Currency updated successfully");
+      setHasChanges(false);
+      toast.success("Preferences saved successfully");
     } catch (error) {
-      console.error("Error updating currency:", error);
-      toast.error("Failed to update currency");
+      console.error("Error saving preferences:", error);
+      toast.error("Failed to save preferences");
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  // Create Apply button element
+  const ApplyButton = hasChanges ? (
+    <button
+      onClick={saveChanges}
+      disabled={isLoading}
+      className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center"
+    >
+      {isLoading ? (
+        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+      ) : (
+        <Save className="w-4 h-4 mr-2" />
+      )}
+      Apply
+    </button>
+  ) : null;
 
   return (
     <AppLayout>
       <div className="min-h-screen bg-white flex flex-col">
-        {/* Use the PageHeader component */}
+        {/* Use the PageHeader component with Apply button */}
         <PageHeader
           title="Preferences"
           onBackClick={() => navigate(-1)}
+          rightElement={ApplyButton}
         />
 
-        <div className="px-4 pb-20 pt-5">
+        <div className="px-4 pb-40 pt-5">
           {/* Currency Section */}
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-[#0d3547] mb-2">Currency</h2>
@@ -83,7 +130,9 @@ const Preferences: React.FC = () => {
                 onClick={() => setShowCurrencyOptions(!showCurrencyOptions)} 
                 className="w-full p-4 text-left text-lg bg-white border border-gray-200 rounded-lg shadow-sm flex justify-between items-center"
               >
-                <span>{currencies.find(c => c.code === selectedCurrency)?.label || selectedCurrency}</span>
+                <span className="font-medium text-gray-900">
+                  {currencies.find(c => c.code === selectedCurrency)?.label || selectedCurrency}
+                </span>
                 <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${showCurrencyOptions ? 'rotate-180' : ''}`} />
               </button>
               
@@ -95,9 +144,9 @@ const Preferences: React.FC = () => {
                       onClick={() => handleCurrencyChange(currency.code)}
                       className="w-full p-4 text-left hover:bg-gray-50 flex justify-between items-center"
                     >
-                      <span>{currency.label}</span>
+                      <span className="font-medium text-gray-900">{currency.label}</span>
                       {selectedCurrency === currency.code && (
-                        <Check className="w-5 h-5 text-[#307842]" />
+                        <Check className="w-5 h-5 text-blue-600" />
                       )}
                     </button>
                   ))}
@@ -122,7 +171,7 @@ const Preferences: React.FC = () => {
                     checked={notifications.todayWorkOverview}
                     onChange={() => toggleNotification('todayWorkOverview')}
                   />
-                  <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-pulse-500"></div>
+                  <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-600"></div>
                 </label>
               </div>
               
@@ -136,7 +185,7 @@ const Preferences: React.FC = () => {
                     checked={notifications.todayScheduleChanged}
                     onChange={() => toggleNotification('todayScheduleChanged')}
                   />
-                  <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-pulse-500"></div>
+                  <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-600"></div>
                 </label>
               </div>
               
@@ -150,7 +199,7 @@ const Preferences: React.FC = () => {
                     checked={notifications.newRequest}
                     onChange={() => toggleNotification('newRequest')}
                   />
-                  <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-pulse-500"></div>
+                  <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-600"></div>
                 </label>
               </div>
               
@@ -164,7 +213,7 @@ const Preferences: React.FC = () => {
                     checked={notifications.newOnlineBooking}
                     onChange={() => toggleNotification('newOnlineBooking')}
                   />
-                  <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-pulse-500"></div>
+                  <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-600"></div>
                 </label>
               </div>
               
@@ -178,7 +227,7 @@ const Preferences: React.FC = () => {
                     checked={notifications.clientViewedQuote}
                     onChange={() => toggleNotification('clientViewedQuote')}
                   />
-                  <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-pulse-500"></div>
+                  <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-600"></div>
                 </label>
               </div>
               
@@ -192,11 +241,29 @@ const Preferences: React.FC = () => {
                     checked={notifications.clientApprovedQuote}
                     onChange={() => toggleNotification('clientApprovedQuote')}
                   />
-                  <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-pulse-500"></div>
+                  <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-blue-600"></div>
                 </label>
               </div>
             </div>
           </div>
+
+          {/* Bottom fixed apply button for mobile - shown when there are changes */}
+          {hasChanges && (
+            <div className="fixed bottom-20 left-0 right-0 p-4 bg-white shadow-lg border-t border-gray-200">
+              <button 
+                onClick={saveChanges}
+                disabled={isLoading}
+                className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg flex items-center justify-center"
+              >
+                {isLoading ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                ) : (
+                  <Save className="w-4 h-4 mr-2" />
+                )}
+                Save Changes
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </AppLayout>
