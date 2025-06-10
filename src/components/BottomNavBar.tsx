@@ -16,11 +16,12 @@ const BottomNavBar: React.FC = () => {
   const location = useLocation();
 
   // Define the navigation items based on the image
-  // Home, Schedule, Finance, More
+  // Home, Schedule, Finance, Clients, More
   const navItems = [
     { id: "home", icon: Home, path: "/dashboard" },
     { id: "schedule", icon: Calendar, path: "/schedule" },
     { id: "finance", icon: DollarSign, path: "/finance" },
+    { id: "clients", icon: Users, path: "/clients" },
     { id: "more", icon: MoreHorizontal, path: "/more" }
   ];
 
@@ -29,7 +30,8 @@ const BottomNavBar: React.FC = () => {
       <nav className="bg-black text-white rounded-full flex items-center justify-between px-6 py-3.5 max-w-md mx-auto shadow-lg">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = location.pathname === item.path;
+          const isActive = location.pathname === item.path || 
+                          (item.id === "clients" && location.pathname.includes("/client"));
           
           return (
             <Link
@@ -39,26 +41,13 @@ const BottomNavBar: React.FC = () => {
                 isActive 
                   ? "bg-white text-black rounded-full w-9 h-9" 
                   : "text-white hover:text-gray-300 w-9 h-9"
-              }`}
+              } ${item.id === "clients" ? "bg-[#3b82f6] text-white hover:scale-105" : ""}`}
               aria-label={item.id}
             >
               <Icon className="w-5 h-5" strokeWidth={2} />
             </Link>
           );
         })}
-        
-        {/* Clients button - replacing the Profile button */}
-        <Link
-          to="/clients"
-          className={`flex items-center justify-center w-11 h-11 ${
-            location.pathname === "/clients" || location.pathname.includes("/client") 
-              ? "bg-white text-[#3b82f6]" 
-              : "bg-[#3b82f6] text-white"
-          } rounded-full shadow-sm transition-all duration-200 ease-in-out hover:scale-105`}
-          aria-label="clients"
-        >
-          <Users className="w-5 h-5" strokeWidth={2} />
-        </Link>
       </nav>
     </div>
   );
