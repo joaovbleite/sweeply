@@ -48,7 +48,7 @@ const Dashboard = () => {
   const isMobile = useIsMobile();
   
   // State management
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
@@ -61,7 +61,6 @@ const Dashboard = () => {
   // Load dashboard data
   const loadDashboardData = async () => {
     try {
-      setLoading(true);
       setError(null);
 
       const [jobsData, clientsData, invoicesData] = await Promise.all([
@@ -197,19 +196,6 @@ const Dashboard = () => {
       .slice(0, 5); // Show only next 5 jobs
   }, [jobs]);
 
-  if (loading) {
-    return (
-      <AppLayout>
-        <div className="flex items-center justify-center h-96">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">{t('dashboard:loadingDashboard')}</p>
-          </div>
-        </div>
-      </AppLayout>
-    );
-  }
-
   if (error) {
     return (
       <AppLayout>
@@ -244,19 +230,21 @@ const Dashboard = () => {
           {stats.map((stat, index) => (
             <div 
               key={index} 
-              className={`bg-white p-3 sm:p-4 md:p-5 rounded-xl shadow-sm border border-gray-100 transition-transform hover:scale-[1.02] hover:shadow-md`}
+              className={`bg-white p-3 sm:p-4 md:p-5 rounded-xl shadow-sm border border-gray-100 transition-transform hover:scale-[1.02] hover:shadow-md ${loading ? 'animate-pulse' : ''}`}
             >
               <div className="flex items-start justify-between">
                 <div className="flex flex-col">
                   <p className="text-gray-500 text-xs sm:text-sm font-medium">{stat.label}</p>
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mt-0.5 sm:mt-1">{stat.value}</h3>
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mt-0.5 sm:mt-1">
+                    {loading ? '-' : stat.value}
+                  </h3>
                   <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5">{stat.subLabel}</p>
                 </div>
                 <div className="flex flex-col items-end">
                   <div className={`rounded-full p-1.5 sm:p-2 md:p-2.5 ${stat.icon === Calendar ? "bg-blue-100" : stat.icon === Users ? "bg-green-100" : stat.icon === DollarSign ? "bg-indigo-100" : "bg-gray-100"}`}>
                     <stat.icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 ${stat.icon === Calendar ? "text-blue-600" : stat.icon === Users ? "text-green-600" : stat.icon === DollarSign ? "text-indigo-600" : "text-gray-600"}`} />
                   </div>
-                  {stat.trend && (
+                  {stat.trend && !loading && (
                     <div className={`flex items-center mt-1 sm:mt-1.5 md:mt-2 ${
                       stat.trend === 'up' ? 'text-green-600' : 
                       stat.trend === 'down' ? 'text-red-600' : 
@@ -274,7 +262,7 @@ const Dashboard = () => {
         </div>
         
         {/* Revenue Chart */}
-        <div className="bg-white p-3 sm:p-4 md:p-5 rounded-xl shadow-sm border border-gray-100 mt-3 sm:mt-5 md:mt-6">
+        <div className={`bg-white p-3 sm:p-4 md:p-5 rounded-xl shadow-sm border border-gray-100 mt-3 sm:mt-5 md:mt-6 ${loading ? 'animate-pulse' : ''}`}>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
             <div>
               <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">Revenue Overview</h3>
