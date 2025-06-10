@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Mail, ArrowRight, User, Phone, Lock, Camera, Trash2, Loader } from "lucide-react";
+import { Mail, ArrowRight, User, Phone, Lock, Camera, Trash2, Loader, Image as ImageIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,6 +13,7 @@ const Profile: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   
   // User profile state with defaults
   const [profileData, setProfileData] = useState({
@@ -25,6 +26,7 @@ const Profile: React.FC = () => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [showPhotoOptions, setShowPhotoOptions] = useState(false);
 
   // Handle input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,13 +65,27 @@ const Profile: React.FC = () => {
       
       // Store file for upload
       setAvatarFile(file);
+      // Close the photo options modal
+      setShowPhotoOptions(false);
     }
   };
 
   // Trigger file input click
   const handleUploadClick = () => {
+    setShowPhotoOptions(true);
+  };
+
+  // Handle selecting from gallery
+  const handleGallerySelect = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
+    }
+  };
+
+  // Handle taking a photo with camera
+  const handleTakePhoto = () => {
+    if (cameraInputRef.current) {
+      cameraInputRef.current.click();
     }
   };
 
@@ -146,6 +162,11 @@ const Profile: React.FC = () => {
     } finally {
       setUploading(false);
     }
+  };
+
+  // Close photo options modal
+  const handleClosePhotoOptions = () => {
+    setShowPhotoOptions(false);
   };
 
   // Handle sending password reset email
@@ -245,12 +266,20 @@ const Profile: React.FC = () => {
                 <Camera className="w-4 h-4" />
               </button>
               
-              {/* Hidden file input */}
+              {/* Hidden file inputs */}
               <input
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileChange}
                 accept="image/jpeg,image/png,image/webp,image/jpg"
+                className="hidden"
+              />
+              <input
+                type="file"
+                ref={cameraInputRef}
+                onChange={handleFileChange}
+                accept="image/jpeg,image/png,image/webp,image/jpg"
+                capture="environment"
                 className="hidden"
               />
             </div>
@@ -278,6 +307,44 @@ const Profile: React.FC = () => {
               >
                 Remove
               </button>
+            </div>
+          )}
+
+          {/* Photo Selection Modal */}
+          {showPhotoOptions && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden">
+                <div className="p-4 border-b border-gray-100">
+                  <h3 className="text-lg font-semibold text-gray-900">Choose Profile Picture</h3>
+                </div>
+                <div className="p-4 space-y-3">
+                  <button
+                    type="button"
+                    onClick={handleGallerySelect}
+                    className="w-full py-3 flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-colors"
+                  >
+                    <ImageIcon className="w-5 h-5" />
+                    <span>Choose from Gallery</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleTakePhoto}
+                    className="w-full py-3 flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-colors"
+                  >
+                    <Camera className="w-5 h-5" />
+                    <span>Take a Photo</span>
+                  </button>
+                </div>
+                <div className="p-4 border-t border-gray-100">
+                  <button
+                    type="button"
+                    onClick={handleClosePhotoOptions}
+                    className="w-full py-2 text-gray-600 hover:text-gray-800"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 
