@@ -210,7 +210,7 @@ const Profile: React.FC = () => {
         }
       }
       
-      toast.success("Profile updated successfully");
+    toast.success("Profile updated successfully");
     } catch (error) {
       console.error('Error updating profile:', error);
       toast.error("Failed to update profile");
@@ -245,7 +245,7 @@ const Profile: React.FC = () => {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <User className="w-12 h-12 text-[#307842]" />
+                  <User className="w-12 h-12 text-[#3B82F6]" />
                 )}
                 
                 {/* Loading overlay */}
@@ -257,14 +257,14 @@ const Profile: React.FC = () => {
               </div>
               
               {/* Edit button */}
-              <button 
+            <button 
                 type="button"
                 onClick={handleUploadClick}
-                className="absolute bottom-0 right-0 bg-[#307842] text-white rounded-full p-2 shadow-md"
+                className="absolute bottom-0 right-0 bg-[#3B82F6] text-white rounded-full p-2 shadow-md"
                 disabled={uploading}
-              >
+            >
                 <Camera className="w-4 h-4" />
-              </button>
+            </button>
               
               {/* Hidden file inputs */}
               <input
@@ -292,7 +292,7 @@ const Profile: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleUploadAvatar}
-                  className="text-sm text-[#307842] font-medium"
+                  className="text-sm text-[#3B82F6] font-medium"
                   disabled={uploading}
                 >
                   Save Photo
@@ -344,8 +344,8 @@ const Profile: React.FC = () => {
                     Cancel
                   </button>
                 </div>
-              </div>
-            </div>
+          </div>
+        </div>
           )}
 
           {/* User Information */}
@@ -356,14 +356,14 @@ const Profile: React.FC = () => {
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <User className="h-5 w-5 text-gray-400" />
                 </div>
-                <input
-                  type="text"
-                  id="fullName"
-                  name="fullName"
-                  value={profileData.fullName}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-gray-600 focus:ring-[#307842] focus:border-[#307842]"
-                />
+              <input
+                type="text"
+                id="fullName"
+                name="fullName"
+                value={profileData.fullName}
+                onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-gray-600 focus:ring-[#3B82F6] focus:border-[#3B82F6]"
+              />
               </div>
             </div>
             
@@ -373,14 +373,14 @@ const Profile: React.FC = () => {
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-gray-400" />
                 </div>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={profileData.email}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-gray-600 focus:ring-[#307842] focus:border-[#307842]"
-                />
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={profileData.email}
+                onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-gray-600 focus:ring-[#3B82F6] focus:border-[#3B82F6]"
+              />
               </div>
             </div>
             
@@ -390,15 +390,15 @@ const Profile: React.FC = () => {
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Phone className="h-5 w-5 text-gray-400" />
                 </div>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={profileData.phone}
-                  onChange={handleChange}
-                  placeholder="Mobile phone number"
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-gray-600 focus:ring-[#307842] focus:border-[#307842]"
-                />
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={profileData.phone}
+                onChange={handleChange}
+                placeholder="Mobile phone number"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-gray-600 focus:ring-[#3B82F6] focus:border-[#3B82F6]"
+              />
               </div>
             </div>
           </div>
@@ -411,13 +411,13 @@ const Profile: React.FC = () => {
               className="w-full flex items-center justify-between py-3 px-0 text-left"
             >
               <div className="flex items-center">
-                <Lock className="w-5 h-5 text-[#307842] mr-3" />
-                <div>
+                <Lock className="w-5 h-5 text-[#3B82F6] mr-3" />
+              <div>
                   <h3 className="text-lg font-bold text-[#0d3547]">Change password</h3>
                   <p className="text-gray-600 text-sm">Send password reset link to your email</p>
                 </div>
               </div>
-              <div className="text-[#307842]">
+              <div className="text-[#3B82F6]">
                 <ArrowRight className="w-5 h-5" />
               </div>
             </button>
@@ -444,7 +444,7 @@ const Profile: React.FC = () => {
           <button
             type="submit"
             disabled={uploading}
-            className="w-full mt-8 mb-10 py-3 bg-[#307842] hover:bg-[#276335] text-white font-medium rounded-lg transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full mt-8 mb-10 py-3 bg-[#3B82F6] hover:bg-[#2563EB] text-white font-medium rounded-lg transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {uploading ? 'Saving...' : 'Save Profile'}
           </button>
