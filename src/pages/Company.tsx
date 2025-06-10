@@ -68,7 +68,7 @@ const Company: React.FC = () => {
           onBackClick={() => navigate(-1)}
         />
 
-        <form onSubmit={handleSubmit} className="px-4 pb-36">
+        <form onSubmit={handleSubmit} className="px-4 pb-24">
           {/* Company Information */}
           <div className="mt-4 space-y-4">
             <div>
@@ -221,13 +221,15 @@ const Company: React.FC = () => {
             </div>
           </div>
           
-          {/* Save Button */}
-          <button
-            type="submit"
-            className="fixed bottom-24 left-4 right-4 py-4 bg-pulse-500 hover:bg-pulse-600 text-white text-lg font-medium rounded-lg transition-colors shadow-md"
-          >
-            Save
-          </button>
+          {/* Save Button - no longer fixed */}
+          <div className="mt-8 mb-4">
+            <button
+              type="submit"
+              className="w-full py-4 bg-pulse-500 hover:bg-pulse-600 text-white text-lg font-medium rounded-lg transition-colors shadow-md"
+            >
+              Save
+            </button>
+          </div>
         </form>
       </div>
     </AppLayout>
