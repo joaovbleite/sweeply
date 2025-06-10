@@ -138,11 +138,23 @@ const Team: React.FC = () => {
   return (
     <AppLayout>
       <div className="min-h-screen bg-gray-50 flex flex-col">
-        {/* Use the PageHeader component */}
-        <PageHeader
-          title="Manage Team"
-          onBackClick={() => navigate(-1)}
-        />
+        {/* Use the PageHeader component with add button */}
+        <div className="bg-white px-4 py-4 flex items-center justify-between shadow-sm">
+          <div className="flex items-center">
+            <button
+              onClick={() => navigate(-1)}
+              className="mr-3 hover:bg-gray-100 p-1 rounded-full transition-colors"
+            >
+              <ArrowLeft className="w-6 h-6 text-[#1a2e35]" />
+            </button>
+            <h1 className="text-xl font-semibold text-[#1a2e35]">Manage Team</h1>
+          </div>
+          <button 
+            className="w-10 h-10 rounded-full bg-pulse-500 text-white flex items-center justify-center hover:bg-pulse-600 transition-colors shadow-sm"
+          >
+            <Plus className="w-6 h-6" />
+          </button>
+        </div>
 
         <div className="px-4 pb-36 pt-5">
           {/* Team Stats Summary */}
