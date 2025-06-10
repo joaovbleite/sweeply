@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, User, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import AppLayout from "@/components/AppLayout";
-import PageHeader from "@/components/ui/PageHeader";
 import { teamManagementApi } from "@/lib/api/team-management";
 
 const AddTeamMember = () => {
@@ -79,31 +78,37 @@ const AddTeamMember = () => {
 
   return (
     <AppLayout>
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        {/* Use PageHeader component for consistency */}
-        <PageHeader
-          title="Add new user"
-          onBackClick={() => navigate(-1)}
-        />
+      <div className="min-h-screen bg-white flex flex-col">
+        {/* Header - simpler and more similar to screenshots */}
+        <div className="bg-white px-4 py-4 flex items-center">
+          <button
+            onClick={() => navigate(-1)}
+            className="mr-3"
+            aria-label="Back"
+          >
+            <X className="w-6 h-6 text-[#1a2e35]" />
+          </button>
+          <h1 className="text-xl font-bold text-[#1a2e35]">Add new user</h1>
+        </div>
 
-        <div className="flex-1 px-4 py-6 space-y-6 pt-28">
-          {/* Add from contacts button */}
+        <div className="flex-1 px-4 py-4 space-y-5">
+          {/* Add from contacts button - green like screenshot */}
           <button
             onClick={handleAddFromContacts}
-            className="w-full py-4 px-4 border border-gray-300 rounded-xl flex items-center justify-center text-blue-500 font-medium"
+            className="w-full py-4 px-4 border border-gray-300 rounded-lg flex items-center justify-center text-green-600 font-medium"
           >
             <User className="mr-2 w-5 h-5" />
             Add From Contacts
           </button>
 
-          {/* Form fields */}
+          {/* Form fields - simpler styling closer to screenshots */}
           <div className="space-y-4">
             <input
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               placeholder="Full name"
-              className="w-full py-4 px-4 border border-gray-300 rounded-xl text-gray-700 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full py-4 px-4 border border-gray-300 rounded-lg text-gray-700 text-lg"
             />
             
             <input
@@ -111,7 +116,7 @@ const AddTeamMember = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email address"
-              className="w-full py-4 px-4 border border-gray-300 rounded-xl text-gray-700 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full py-4 px-4 border border-gray-300 rounded-lg text-gray-700 text-lg"
             />
             
             <input
@@ -119,35 +124,35 @@ const AddTeamMember = () => {
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
               placeholder="Mobile phone number"
-              className="w-full py-4 px-4 border border-gray-300 rounded-xl text-gray-700 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full py-4 px-4 border border-gray-300 rounded-lg text-gray-700 text-lg"
             />
           </div>
 
           {/* Permissions Section */}
           <div className="mt-8">
-            <h2 className="text-2xl font-bold text-[#1a2e35] mb-4">Permissions</h2>
+            <h2 className="text-2xl font-bold text-[#1a2e35]">Permissions</h2>
             
-            <h3 className="text-xl font-bold text-[#1a2e35] mb-3">Limited Worker</h3>
+            <h3 className="text-xl font-bold text-[#1a2e35] mt-4 mb-2">Limited Worker</h3>
             
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 mb-4">
               User will be sent an invitation to join your Jobber account. Once accepted, they will be able to login with the following permissions.
             </p>
 
-            {/* Permission items */}
-            <div className="space-y-6">
+            {/* Permission items - green checkmarks as in screenshots */}
+            <div className="space-y-0">
               <div className="flex items-center justify-between py-4 border-b border-gray-200">
                 <span className="text-lg text-gray-700">View their schedule and mark work complete</span>
-                <Check className="w-6 h-6 text-blue-500" />
+                <Check className="w-6 h-6 text-green-600" />
               </div>
               
               <div className="flex items-center justify-between py-4 border-b border-gray-200">
                 <span className="text-lg text-gray-700">View client details for their assigned work</span>
-                <Check className="w-6 h-6 text-blue-500" />
+                <Check className="w-6 h-6 text-green-600" />
               </div>
               
               <div className="flex items-center justify-between py-4 border-b border-gray-200">
                 <span className="text-lg text-gray-700">View and record their time</span>
-                <Check className="w-6 h-6 text-blue-500" />
+                <Check className="w-6 h-6 text-green-600" />
               </div>
               
               <div className="flex items-center justify-between py-4 border-b border-gray-200">
@@ -157,7 +162,7 @@ const AddTeamMember = () => {
                   className="focus:outline-none"
                 >
                   {permissions.editNotes ? (
-                    <Check className="w-6 h-6 text-blue-500" />
+                    <Check className="w-6 h-6 text-green-600" />
                   ) : (
                     <X className="w-6 h-6 text-gray-400" />
                   )}
@@ -171,7 +176,7 @@ const AddTeamMember = () => {
                   className="focus:outline-none"
                 >
                   {!permissions.seePricing ? (
-                    <Check className="w-6 h-6 text-blue-500" />
+                    <Check className="w-6 h-6 text-green-600" />
                   ) : (
                     <X className="w-6 h-6 text-gray-400" />
                   )}
@@ -184,11 +189,11 @@ const AddTeamMember = () => {
             </p>
           </div>
 
-          {/* Save Button */}
+          {/* Save Button - green as in screenshot */}
           <button
             onClick={handleSaveUser}
             disabled={isLoading}
-            className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-medium rounded-lg transition-colors mt-8"
+            className="w-full py-4 bg-green-600 hover:bg-green-700 text-white text-lg font-medium rounded-lg transition-colors mt-8"
           >
             {isLoading ? "Saving..." : "Save New User"}
           </button>
