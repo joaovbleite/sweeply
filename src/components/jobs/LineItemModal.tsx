@@ -75,16 +75,27 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
 
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col">
-      {/* PageHeader component instead of custom header */}
-      <PageHeader
-        title={showCustomForm ? "Add custom item" : "Add line item"}
-        onBackClick={showCustomForm ? () => setShowCustomForm(false) : onClose}
-        rightElement={AddButton}
-      />
+      {/* Fixed header at the top */}
+      <div className="sticky top-0 left-0 right-0 z-10 bg-white border-b border-gray-200">
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center">
+            <button 
+              onClick={showCustomForm ? () => setShowCustomForm(false) : onClose}
+              className="p-2 mr-2 text-gray-600"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <h1 className="text-xl font-bold text-gray-900">
+              {showCustomForm ? "Add custom item" : "Add line item"}
+            </h1>
+          </div>
+          {AddButton}
+        </div>
+      </div>
       
       {showCustomForm ? (
         // Custom item form
-        <div className="p-4 flex-1">
+        <div className="p-4 flex-1 overflow-y-auto pt-2">
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
