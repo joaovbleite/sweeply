@@ -22,6 +22,12 @@ export type RecurringFrequency =
   | 'monthly' 
   | 'quarterly';
 
+export interface LineItem {
+  description: string;
+  quantity: number;
+  price: number;
+}
+
 export interface Job {
   id: string;
   user_id: string;
@@ -90,6 +96,9 @@ export interface Job {
     state?: string;
     zip?: string;
   };
+  
+  // Line Items
+  line_items?: LineItem[];
 }
 
 export interface CreateJobInput {
@@ -119,6 +128,9 @@ export interface CreateJobInput {
   is_recurring?: boolean;
   recurring_frequency?: RecurringFrequency;
   recurring_end_date?: string;
+  
+  // Line Items
+  line_items?: LineItem[];
 }
 
 export interface UpdateJobInput {
@@ -154,6 +166,9 @@ export interface UpdateJobInput {
   is_recurring?: boolean;
   recurring_frequency?: RecurringFrequency;
   recurring_end_date?: string;
+  
+  // Line Items
+  line_items?: LineItem[];
 }
 
 // Helper types for UI

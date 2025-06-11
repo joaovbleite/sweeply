@@ -188,6 +188,19 @@ export const jobsApi = {
     if (jobData.house_type) insertData.house_type = jobData.house_type;
     if (jobData.recurring_frequency) insertData.recurring_frequency = jobData.recurring_frequency;
     if (jobData.recurring_end_date) insertData.recurring_end_date = jobData.recurring_end_date;
+    
+    // Add line items if provided
+    if (jobData.line_items && jobData.line_items.length > 0) {
+      insertData.line_items = jobData.line_items;
+      
+      // Calculate total estimated price from line items if not already set
+      if (!jobData.estimated_price) {
+        insertData.estimated_price = jobData.line_items.reduce(
+          (sum, item) => sum + (item.price * (item.quantity || 1)), 
+          0
+        );
+      }
+    }
 
     console.log('Creating job with cleaned data:', insertData);
 

@@ -207,7 +207,15 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
       <div className={`flex-1 flex flex-col min-h-screen max-h-screen overflow-hidden ${hideBottomNav ? 'pb-safe' : ''}`}>
         {/* Page Content - removed the header for desktop */}
         <main className="flex-1 overflow-y-auto">
-          {children}
+          <div style={{ 
+            willChange: 'opacity',
+            contentVisibility: 'auto',
+            contain: 'content',
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden'
+          }}>
+            {children}
+          </div>
         </main>
 
         {/* Only render navigation elements if hideBottomNav is false */}

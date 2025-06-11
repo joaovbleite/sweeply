@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { X, Plus, Search } from "lucide-react";
+import PageHeader from "@/components/ui/PageHeader";
+import { useLocale } from "@/hooks/useLocale";
 
 interface LineItemModalProps {
   isOpen: boolean;
@@ -9,8 +11,12 @@ interface LineItemModalProps {
 
 const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddItem }) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [customName, setCustomName] = useState("");
+  const [customPrice, setCustomPrice] = useState("");
+  const [showCustomForm, setShowCustomForm] = useState(false);
+  const { formatCurrency } = useLocale();
 
-  // Mock predefined items
+  // Predefined items - in a real implementation, these would come from an API
   const predefinedItems = [
     { id: 1, description: "Free Assessment", price: 0.00 },
     { id: 2, description: "Standard Cleaning", price: 150.00 },
@@ -31,62 +37,153 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
     onClose();
   };
 
+  // Handle custom item creation
+  const handleAddCustomItem = () => {
+    if (!customName.trim()) {
+      return; // Don't allow empty names
+    }
+    
+    const price = parseFloat(customPrice) || 0;
+    onAddItem({ description: customName, price });
+    onClose();
+  };
+
+  // Toggle custom form visibility
+  const handleToggleCustomForm = () => {
+    setShowCustomForm(!showCustomForm);
+  };
+
+  // Create the Add button for the header
+  const AddButton = showCustomForm ? (
+    <button 
+      onClick={handleAddCustomItem}
+      className="text-blue-600 font-medium"
+      disabled={!customName.trim()}
+    >
+      Add
+    </button>
+  ) : (
+    <button 
+      onClick={handleToggleCustomForm}
+      className="text-blue-600"
+    >
+      <Plus className="w-6 h-6" />
+    </button>
+  );
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
-        <div className="flex items-center">
-          <button 
-            onClick={onClose}
-            className="p-2 mr-2 text-gray-600"
-          >
-            <X className="w-6 h-6" />
-          </button>
-          <h2 className="text-xl font-semibold text-gray-900">Add line item</h2>
-        </div>
-        <button className="text-green-600">
-          <Plus className="w-6 h-6" />
-        </button>
-      </div>
-      
-      {/* Search bar */}
-      <div className="p-4 border-b border-gray-200">
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
+      {/* Fixed header at the top */}
+      <div className="sticky top-0 left-0 right-0 z-10 bg-white border-b border-gray-200">
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center">
+            <button 
+              onClick={showCustomForm ? () => setShowCustomForm(false) : onClose}
+              className="p-2 mr-2 text-gray-600"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <h1 className="text-xl font-bold text-gray-900">
+              {showCustomForm ? "Add custom item" : "Add line item"}
+            </h1>
           </div>
-          <input
-            type="text"
-            placeholder="Search line items"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-          />
+          {AddButton}
         </div>
       </div>
       
-      {/* Item list */}
-      <div className="flex-1 overflow-y-auto">
-        {filteredItems.map(item => (
-          <div 
-            key={item.id}
-            className="p-4 border-b border-gray-100 flex justify-between items-center"
-            onClick={() => handleItemSelect(item)}
-          >
+      {showCustomForm ? (
+        // Custom item form
+        <div className="p-4 flex-1 overflow-y-auto pt-2">
+          <div className="space-y-4">
             <div>
-              <h3 className="text-lg font-medium text-gray-900">{item.description}</h3>
-              <p className="text-gray-500">{item.description === "Free Assessment" ? 
-                "Our experts will come to assess your property" : 
-                "Click to add this service"}</p>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Item name
+              </label>
+              <input
+                type="text"
+                value={customName}
+                onChange={(e) => setCustomName(e.target.value)}
+                placeholder="Enter item name"
+                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
             </div>
-            <span className="text-lg font-semibold text-gray-900">
-              ${item.price.toFixed(2)}
-            </span>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Price
+              </label>
+              <input
+                type="number"
+                value={customPrice}
+                onChange={(e) => setCustomPrice(e.target.value)}
+                placeholder="0.00"
+                step="0.01"
+                min="0"
+                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
           </div>
-        ))}
-      </div>
+        </div>
+      ) : (
+        <>
+          {/* Search bar */}
+          <div className="p-4 border-b border-gray-200">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search line items"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+          
+          {/* Item list */}
+          <div className="flex-1 overflow-y-auto">
+            {filteredItems.length > 0 ? (
+              filteredItems.map(item => (
+                <div 
+                  key={item.id}
+                  className="p-4 border-b border-gray-100 flex justify-between items-center cursor-pointer hover:bg-gray-50"
+                  onClick={() => handleItemSelect(item)}
+                >
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900">{item.description}</h3>
+                    <p className="text-gray-500">{item.description === "Free Assessment" ? 
+                      "Our experts will come to assess your property" : 
+                      "Click to add this service"}</p>
+                  </div>
+                  <span className="text-lg font-semibold text-gray-900">
+                    {formatCurrency(item.price)}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="p-4 text-center text-gray-500">
+                No items found. Try a different search or add a custom item.
+              </div>
+            )}
+            
+            {/* Add custom item button at the bottom */}
+            <div 
+              className="p-4 border-b border-gray-100 flex justify-between items-center cursor-pointer hover:bg-gray-50"
+              onClick={handleToggleCustomForm}
+            >
+              <div>
+                <h3 className="text-lg font-medium text-blue-600">Add custom item</h3>
+                <p className="text-gray-500">Create a new line item</p>
+              </div>
+              <Plus className="w-5 h-5 text-blue-600" />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

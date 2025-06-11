@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { format, addMonths, subMonths } from 'date-fns';
-import { ChevronDown } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useRef, useEffect } from 'react';
+import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { format, addMonths, subMonths, getDaysInMonth, startOfMonth, getDay } from 'date-fns';
 
 interface MonthSelectorProps {
   currentDate: Date;
@@ -14,117 +13,180 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
   currentDate, 
   onDateChange,
   userName,
-  jobCount
+  jobCount = 0
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [monthDirection, setMonthDirection] = useState<'left' | 'right' | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState(currentDate);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const handlePrevMonth = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setMonthDirection('left');
-    onDateChange(subMonths(currentDate, 1));
-  };
+  // Update selectedMonth when currentDate changes
+  useEffect(() => {
+    setSelectedMonth(currentDate);
+  }, [currentDate]);
 
-  const handleNextMonth = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setMonthDirection('right');
-    onDateChange(addMonths(currentDate, 1));
-  };
-
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
-
-  // Animation variants for month transitions
-  const monthVariants = {
-    initial: (direction: 'left' | 'right') => ({
-      x: direction === 'left' ? -20 : 20,
-      opacity: 0
-    }),
-    animate: {
-      x: 0,
-      opacity: 1,
-      transition: {
-        x: { type: "spring", stiffness: 300, damping: 30 },
-        opacity: { duration: 0.2 }
+  // Handle clicks outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsExpanded(false);
       }
-    },
-    exit: (direction: 'left' | 'right') => ({
-      x: direction === 'left' ? 20 : -20,
-      opacity: 0,
-      transition: { duration: 0.2 }
-    })
+    };
+
+    if (isExpanded) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isExpanded]);
+
+  // Navigate to previous/next month
+  const changeMonth = (direction: 'prev' | 'next') => {
+    const newMonth = direction === 'prev' 
+      ? subMonths(selectedMonth, 1) 
+      : addMonths(selectedMonth, 1);
+    
+    setSelectedMonth(newMonth);
+  };
+
+  // Handle day selection
+  const selectDay = (day: number) => {
+    const newDate = new Date(selectedMonth);
+    newDate.setDate(day);
+    onDateChange(newDate);
+    setIsExpanded(false);
+  };
+
+  // Generate calendar grid
+  const generateCalendarDays = () => {
+    const daysInMonth = getDaysInMonth(selectedMonth);
+    const firstDayOfMonth = getDay(startOfMonth(selectedMonth));
+    const days = [];
+    
+    // Add empty cells for days before the first day of month
+    for (let i = 0; i < firstDayOfMonth; i++) {
+      days.push(<div key={`empty-${i}`} className="calendar-day invisible"></div>);
+    }
+    
+    // Add days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      const isCurrentDay = 
+        day === currentDate.getDate() && 
+        selectedMonth.getMonth() === currentDate.getMonth() && 
+        selectedMonth.getFullYear() === currentDate.getFullYear();
+      
+      const isSelected = 
+        day === currentDate.getDate() && 
+        selectedMonth.getMonth() === currentDate.getMonth() && 
+        selectedMonth.getFullYear() === currentDate.getFullYear();
+      
+      days.push(
+        <div 
+          key={day} 
+          onClick={() => selectDay(day)}
+          className={`calendar-day cursor-pointer h-9 w-9 flex items-center justify-center rounded-full hover:bg-blue-100 transition-colors ${
+            isSelected ? 'bg-blue-500 text-white' : 
+            isCurrentDay ? 'border-2 border-blue-500 text-blue-500' : ''
+          }`}
+        >
+          {day}
+        </div>
+      );
+    }
+    
+    return days;
+  };
+
+  // Toggle dropdown
+  const toggleDropdown = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsExpanded(!isExpanded);
   };
 
   return (
-    <div className="relative">
-      <motion.button 
+    <div className="calendar-month-selector relative" ref={containerRef}>
+      {/* Month header with toggle */}
+      <button 
+        className="flex items-center px-2 py-1 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer" 
         onClick={toggleDropdown}
-        className="flex items-center space-x-2 text-lg font-medium text-gray-800 focus:outline-none p-1 rounded-lg"
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
+        aria-expanded={isExpanded}
+        aria-haspopup="true"
       >
-        <div className="flex flex-col">
-          <div className="flex items-center">
-            <AnimatePresence mode="wait" initial={false} custom={monthDirection}>
-              <motion.span
-                key={format(currentDate, 'MMMM-yyyy')}
-                custom={monthDirection}
-                variants={monthVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                className="mr-1"
-              >
-                {format(currentDate, 'MMMM yyyy')}
-              </motion.span>
-            </AnimatePresence>
-            <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
-          </div>
-          {userName && (
-            <div className="text-sm text-gray-500 font-normal">
-              {userName}
-            </div>
+        <div className="text-2xl font-bold text-[#1a2e35]">
+          {format(currentDate, 'MMMM')}
+        </div>
+        <div className="ml-2">
+          {isExpanded ? (
+            <ChevronUp className="h-5 w-5 text-blue-500" />
+          ) : (
+            <ChevronDown className="h-5 w-5 text-blue-500" />
           )}
         </div>
-      </motion.button>
+      </button>
 
-      {isOpen && (
-        <div className="absolute top-full left-0 mt-2 p-2 bg-white rounded-lg shadow-lg z-20">
-          <div className="flex justify-between items-center p-2">
-            <motion.button 
-              onClick={handlePrevMonth}
-              className="p-2 hover:bg-gray-100 rounded-full"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-            </motion.button>
-            <AnimatePresence mode="wait" initial={false} custom={monthDirection}>
-              <motion.span
-                key={format(currentDate, 'MMMM-yyyy-dropdown')}
-                custom={monthDirection}
-                variants={monthVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                className="font-medium"
-              >
-                {format(currentDate, 'MMMM yyyy')}
-              </motion.span>
-            </AnimatePresence>
-            <motion.button 
-              onClick={handleNextMonth}
-              className="p-2 hover:bg-gray-100 rounded-full"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-              </svg>
-            </motion.button>
+      {/* Inline calendar dropdown - fixed positioning */}
+      {isExpanded && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-20" onClick={() => setIsExpanded(false)}>
+          <div 
+            className="absolute left-4 right-4 top-[130px] md:left-auto md:right-auto md:w-[320px] bg-white rounded-xl shadow-xl border border-gray-200 max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+            style={{ transform: 'translateX(0)', maxWidth: '100%' }}
+          >
+            {/* Title with month/year */}
+            <div className="text-center p-3 border-b border-gray-100 sticky top-0 bg-white z-10">
+              <div className="flex items-center justify-between">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    changeMonth('prev');
+                  }}
+                  className="p-1.5 hover:bg-blue-50 rounded-full"
+                  aria-label="Previous month"
+                >
+                  <ChevronLeft className="h-5 w-5 text-blue-500" />
+                </button>
+                <div className="text-lg font-bold text-gray-900">
+                  {format(selectedMonth, 'MMMM yyyy')}
+                </div>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    changeMonth('next');
+                  }}
+                  className="p-1.5 hover:bg-blue-50 rounded-full"
+                  aria-label="Next month"
+                >
+                  <ChevronRight className="h-5 w-5 text-blue-500" />
+                </button>
+              </div>
+            </div>
+
+            {/* Week day labels */}
+            <div className="grid grid-cols-7 gap-1 px-3 py-2 text-center">
+              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
+                <div key={index} className="text-sm font-medium text-blue-400">
+                  {day}
+                </div>
+              ))}
+            </div>
+            
+            {/* Calendar grid */}
+            <div className="grid grid-cols-7 gap-1 px-3 pb-3">
+              {generateCalendarDays()}
+            </div>
+            
+            {/* User info and job count */}
+            {userName && (
+              <div className="p-3 border-t border-gray-200 flex items-center justify-between">
+                <div className="text-sm font-medium text-[#1a2e35] truncate max-w-[160px]">
+                  {userName}
+                </div>
+                <div className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
+                  {jobCount} jobs
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
