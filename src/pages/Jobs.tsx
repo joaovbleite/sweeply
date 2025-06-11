@@ -35,6 +35,7 @@ import { useLocale } from "@/hooks/useLocale";
 import AppLayout from "@/components/AppLayout";
 import RecurringJobManager from "@/components/RecurringJobManager";
 import { useAuth } from "@/contexts/AuthContext";
+import PageHeader from "@/components/ui/PageHeader";
 
 const Jobs = () => {
   const { user } = useAuth();
@@ -67,6 +68,10 @@ const Jobs = () => {
   useEffect(() => {
     loadJobs();
   }, [filters]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Handle status update
   const handleStatusUpdate = async (jobId: string, newStatus: JobStatus) => {
@@ -255,6 +260,7 @@ const Jobs = () => {
 
   return (
     <AppLayout>
+      <PageHeader title="Jobs" compact />
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-8">

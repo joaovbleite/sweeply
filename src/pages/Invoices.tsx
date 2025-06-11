@@ -31,6 +31,7 @@ import { format, differenceInDays, addDays } from "date-fns";
 import AppLayout from "@/components/AppLayout";
 import { useTranslation } from "react-i18next";
 import { useLocale } from "@/hooks/useLocale";
+import PageHeader from "@/components/ui/PageHeader";
 
 const Invoices = () => {
   const { t } = useTranslation(['invoices', 'common']);
@@ -74,6 +75,10 @@ const Invoices = () => {
   useEffect(() => {
     loadInvoices();
   }, [filters]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Handle search
   const handleSearch = async () => {
@@ -298,6 +303,7 @@ const Invoices = () => {
 
   return (
     <AppLayout>
+      <PageHeader title="Invoices" compact />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">

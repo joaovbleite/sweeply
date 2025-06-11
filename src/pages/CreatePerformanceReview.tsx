@@ -19,6 +19,7 @@ import {
 import { employeesApi } from "@/lib/api/employees";
 import { CreatePerformanceReviewInput, PerformanceRating, Employee } from "@/types/employee";
 import AppLayout from "@/components/AppLayout";
+import PageHeader from "@/components/ui/PageHeader";
 
 const CreatePerformanceReview = () => {
   const navigate = useNavigate();
@@ -55,6 +56,7 @@ const CreatePerformanceReview = () => {
 
   useEffect(() => {
     loadEmployees();
+    window.scrollTo(0, 0);
   }, []);
 
   const loadEmployees = async () => {
@@ -236,6 +238,7 @@ const CreatePerformanceReview = () => {
 
   return (
     <AppLayout>
+      <PageHeader title="Create Performance Review" compact />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">

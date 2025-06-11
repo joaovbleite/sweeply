@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import './page-header.css';
 
 interface PageHeaderProps {
-  title: string;
+  title: ReactNode;
   backUrl?: string;
   rightElement?: ReactNode;
   onBackClick?: () => void;

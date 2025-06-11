@@ -34,6 +34,7 @@ import { useTranslation } from "react-i18next";
 import { useLocale } from "@/hooks/useLocale";
 import { format, startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear } from "date-fns";
 import AppLayout from "@/components/AppLayout";
+import PageHeader from "@/components/ui/PageHeader";
 
 const Reports = () => {
   const { t } = useTranslation(['reports', 'common', 'dashboard']);
@@ -202,17 +203,10 @@ const Reports = () => {
 
   return (
     <AppLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-display font-bold text-gray-900 flex items-center gap-3">
-              <BarChart3 className="w-8 h-8 text-pulse-500" />
-              {t('reports:businessReports')}
-            </h1>
-            <p className="mt-1 text-gray-600">{t('reports:comprehensiveAnalytics')}</p>
-          </div>
-          <div className="mt-4 sm:mt-0 flex gap-3">
+      <PageHeader
+        title={<span className="flex items-center gap-3"><BarChart3 className="w-8 h-8 text-pulse-500" />{t('reports:businessReports')}</span>}
+        rightElement={
+          <div className="flex gap-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
               className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 transition-colors"
@@ -235,8 +229,10 @@ const Reports = () => {
               {t('reports:exportPDF')}
             </button>
           </div>
-        </div>
-
+        }
+        compact
+      />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Quick Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-gradient-to-r from-pulse-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">

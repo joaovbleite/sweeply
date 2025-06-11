@@ -34,6 +34,7 @@ import { employeesApi } from "@/lib/api/employees";
 import { Employee, EmployeeFilters, EmployeeStatus, EmployeeRole, EmployeeStats } from "@/types/employee";
 import { format, differenceInDays } from "date-fns";
 import AppLayout from "@/components/AppLayout";
+import PageHeader from "@/components/ui/PageHeader";
 
 const Employees = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -65,6 +66,10 @@ const Employees = () => {
   useEffect(() => {
     loadEmployees();
   }, [filters]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Handle search
   const handleSearch = async () => {
@@ -184,6 +189,7 @@ const Employees = () => {
 
   return (
     <AppLayout>
+      <PageHeader title="Employees" compact />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">

@@ -40,6 +40,7 @@ import BusinessHealth from "@/components/dashboard/BusinessHealth";
 import TodayScheduleSlider from "@/components/dashboard/TodayScheduleSlider";
 import GettingStartedTodo from "@/components/dashboard/GettingStartedTodo";
 import { useIsMobile } from "@/hooks/use-mobile";
+import PageHeader from "@/components/ui/PageHeader";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -199,19 +200,9 @@ const Dashboard = () => {
   if (error) {
     return (
       <AppLayout>
+        <PageHeader title="Dashboard" compact />
         <div className="flex items-center justify-center h-96">
-          <div className="text-center">
-            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('dashboard:errorTitle')}</h2>
-            <p className="text-gray-600 mb-4">{error}</p>
-            <button
-              onClick={() => loadDashboardData()}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-2 mx-auto"
-            >
-              <Activity className="w-4 h-4" />
-              {t('dashboard:tryAgain')}
-            </button>
-          </div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pulse-500"></div>
         </div>
       </AppLayout>
     );
@@ -219,6 +210,7 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
+      <PageHeader title="Dashboard" compact />
       <div className={`${isMobile ? 'px-3 sm:px-4' : 'px-6 lg:px-8'} py-0 sm:py-4 md:py-6`}>
         {/* Welcome Widget */}
         <div className={isMobile ? '' : 'mt-6'}>
@@ -332,7 +324,7 @@ const Dashboard = () => {
         
         {/* Mobile Dashboard Sections */}
         {isMobile ? (
-          <div className="pb-16">
+          <div className="pb-6">
             {/* Today's Schedule */}
             <TodayScheduleSlider hasJobs={upcomingJobs.length > 0} />
             
@@ -343,7 +335,7 @@ const Dashboard = () => {
             <BusinessHealth />
             
             {/* Discover Section */}
-            <div className="mt-6 mb-4">
+            <div className="mt-6 mb-6">
               <h3 className="text-lg font-bold text-gray-900 mb-3 px-1">Discover</h3>
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
@@ -366,7 +358,7 @@ const Dashboard = () => {
             </div>
             
             {/* Need Help? button - positioned higher above the bottom toolbar */}
-            <div className="px-1 mt-4 mb-16">
+            <div className="px-1 mt-4 mb-6">
               <Link 
                 to="/support" 
                 className="flex justify-center items-center py-3.5 bg-white rounded-lg shadow-md border border-gray-100 text-blue-600 font-medium"

@@ -43,6 +43,7 @@ import {
   Cell,
   Legend
 } from 'recharts';
+import PageHeader from "@/components/ui/PageHeader";
 
 interface Transaction {
   id: string;
@@ -127,6 +128,10 @@ const Finance = () => {
     loadTransactions();
   }, []);
   
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  
   // Calculate summary stats
   const totalIncome = transactions
     .filter(t => t.amount > 0)
@@ -168,6 +173,7 @@ const Finance = () => {
 
   return (
     <AppLayout>
+      <PageHeader title="Finance" compact />
       <div className="flex flex-col h-full bg-gray-50 pt-12">
         {/* Header with title and tabs */}
         <div className="px-4 py-3">

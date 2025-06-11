@@ -39,6 +39,7 @@ import JobDetailsModal from "@/components/Calendar/JobDetailsModal";
 import MonthSelector from "@/components/Calendar/MonthSelector";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
+import PageHeader from "@/components/ui/PageHeader";
 
 const timeSlots = [
   '7:00am', '8:00am', '9:00am', '10:00am', '11:00am', '12:00pm',
@@ -188,6 +189,10 @@ const Calendar = () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
   }, [user?.id]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Get week dates for display - show 3 weeks for scrolling (prev, current, next)
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 0 });
@@ -572,6 +577,7 @@ const Calendar = () => {
 
   return (
     <AppLayout>
+      <PageHeader title="Calendar" compact />
       <div className="h-full flex bg-gray-50">
         {/* Main Calendar Area */}
         <div className="flex-1 flex flex-col">

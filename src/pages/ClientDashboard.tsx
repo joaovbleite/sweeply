@@ -34,6 +34,7 @@ import { Client } from "@/types/client";
 import { Job } from "@/types/job";
 import { format, differenceInDays, startOfYear, endOfYear } from "date-fns";
 import AppLayout from "@/components/AppLayout";
+import PageHeader from "@/components/ui/PageHeader";
 
 const ClientDashboard = () => {
   const { id } = useParams<{ id: string }>();
@@ -70,6 +71,10 @@ const ClientDashboard = () => {
 
     loadClientData();
   }, [id]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Calculate client analytics
   const analytics = React.useMemo(() => {
@@ -175,6 +180,7 @@ const ClientDashboard = () => {
 
   return (
     <AppLayout>
+      <PageHeader title="Client Dashboard" compact />
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
