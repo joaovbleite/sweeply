@@ -76,10 +76,6 @@ const Invoices = () => {
     loadInvoices();
   }, [filters]);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
   // Handle search
   const handleSearch = async () => {
     if (!searchTerm.trim()) {
@@ -303,7 +299,28 @@ const Invoices = () => {
 
   return (
     <AppLayout>
-      <PageHeader title="Invoices" compact />
+      <PageHeader
+        title="Invoices"
+        rightElement={
+          <div className="flex gap-2 sm:gap-3">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="px-3 sm:px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 transition-colors text-xs sm:text-sm"
+            >
+              <Filter className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline">Filter</span>
+            </button>
+            <Link
+              to="/invoices/new"
+              className="px-3 sm:px-4 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 flex items-center gap-2 transition-colors text-xs sm:text-sm"
+            >
+              <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline">New</span> Invoice
+            </Link>
+          </div>
+        }
+        compact
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
@@ -319,13 +336,6 @@ const Invoices = () => {
               <Download className="w-4 h-4" />
               Export
             </button>
-            <Link
-              to="/invoices/new"
-              className="px-4 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 flex items-center gap-2 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              New Invoice
-            </Link>
           </div>
         </div>
 
@@ -398,15 +408,6 @@ const Invoices = () => {
                 />
               </div>
             </div>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
-            >
-              <Filter className="w-4 h-4" />
-              Filters {Object.keys(filters).filter(k => k !== 'sort_by' && k !== 'sort_order' && filters[k as keyof typeof filters]).length > 0 && 
-                `(${Object.keys(filters).filter(k => k !== 'sort_by' && k !== 'sort_order' && filters[k as keyof typeof filters]).length})`
-              }
-            </button>
           </div>
 
           {/* Filter Panel */}

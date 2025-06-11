@@ -69,10 +69,6 @@ const Jobs = () => {
     loadJobs();
   }, [filters]);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
   // Handle status update
   const handleStatusUpdate = async (jobId: string, newStatus: JobStatus) => {
     try {
@@ -260,15 +256,10 @@ const Jobs = () => {
 
   return (
     <AppLayout>
-      <PageHeader title="Jobs" compact />
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-8">
-          <div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-gray-900">Jobs</h1>
-            <p className="mt-1 text-sm sm:text-base text-gray-600">Manage your cleaning appointments and services</p>
-          </div>
-          <div className="mt-3 sm:mt-0 flex gap-2 sm:gap-3">
+      <PageHeader
+        title="Jobs"
+        rightElement={
+          <div className="flex gap-2 sm:gap-3">
             {selectedJobs.size > 0 && (
               <button
                 onClick={() => setShowBulkActions(!showBulkActions)}
@@ -286,8 +277,10 @@ const Jobs = () => {
               <span className="hidden xs:inline">New</span> Job
             </Link>
           </div>
-        </div>
-
+        }
+        compact
+      />
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Statistics Cards - Mobile Scrollable, Desktop Grid */}
         <div className="flex overflow-x-auto pb-2 sm:pb-0 sm:grid sm:grid-cols-2 lg:grid-cols-6 gap-2 sm:gap-4 lg:gap-6 mb-4 sm:mb-8 no-scrollbar">
           <div className="bg-white rounded-xl shadow-sm p-3 sm:p-5 flex-shrink-0 w-32 sm:w-auto">

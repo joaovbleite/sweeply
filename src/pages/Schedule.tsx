@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import ViewOptionsModal, { ViewOptionsState } from '@/components/schedule/ViewOptionsModal';
 import MonthSelector from '@/components/Calendar/MonthSelector';
 import { AnimatePresence, motion } from 'framer-motion';
+import PageHeader from "@/components/ui/PageHeader";
 
 // Add an interface for the HTMLDivElement with scrollTimeout
 interface DivWithScrollTimeout extends HTMLDivElement {
@@ -394,6 +395,29 @@ const Schedule = () => {
   
   return (
     <AppLayout>
+      <PageHeader
+        title="Schedule"
+        rightElement={
+          <div className="flex gap-2">
+            <button
+              onClick={goToToday}
+              className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 transition-colors text-xs sm:text-sm"
+            >
+              <CalendarIcon className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline">Today</span>
+            </button>
+            <button
+              onClick={openViewOptionsModal}
+              className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 transition-colors text-xs sm:text-sm"
+            >
+              <Settings className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline">Options</span>
+            </button>
+          </div>
+        }
+        compact
+      />
+      
       <div className="flex flex-col h-full bg-gray-50 pt-12">
         {/* Header with month selector */}
         <div className="flex justify-between items-center px-4 py-3 relative z-20">
@@ -413,24 +437,6 @@ const Schedule = () => {
               userName={user?.user_metadata?.name || user?.email}
               jobCount={dayJobs.length}
             />
-          </div>
-          <div className="flex items-center gap-5">
-            <motion.button 
-              className="p-2" 
-              onClick={goToToday}
-              whileTap={{ scale: 0.9 }}
-              whileHover={{ scale: 1.1 }}
-            >
-              <CalendarIcon className="w-6 h-6 text-gray-800" />
-            </motion.button>
-            <motion.button 
-              className="p-2" 
-              onClick={openViewOptionsModal}
-              whileTap={{ scale: 0.9 }}
-              whileHover={{ scale: 1.1 }}
-            >
-              <Settings className="w-6 h-6 text-gray-800" />
-            </motion.button>
           </div>
         </div>
         

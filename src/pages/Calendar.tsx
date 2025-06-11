@@ -40,6 +40,7 @@ import MonthSelector from "@/components/Calendar/MonthSelector";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import PageHeader from "@/components/ui/PageHeader";
+import { Link } from "react-router-dom";
 
 const timeSlots = [
   '7:00am', '8:00am', '9:00am', '10:00am', '11:00am', '12:00pm',
@@ -189,10 +190,6 @@ const Calendar = () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
   }, [user?.id]);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   // Get week dates for display - show 3 weeks for scrolling (prev, current, next)
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 0 });
@@ -577,7 +574,29 @@ const Calendar = () => {
 
   return (
     <AppLayout>
-      <PageHeader title="Calendar" compact />
+      <PageHeader
+        title="Calendar"
+        rightElement={
+          <div className="flex gap-2">
+            <button
+              onClick={goToToday}
+              className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 transition-colors text-xs sm:text-sm"
+            >
+              <CalendarIcon className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline">Today</span>
+            </button>
+            <Link
+              to="/jobs/new"
+              className="px-3 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 flex items-center gap-2 transition-colors text-xs sm:text-sm"
+            >
+              <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline">New</span> Job
+            </Link>
+          </div>
+        }
+        compact
+      />
+      
       <div className="h-full flex bg-gray-50">
         {/* Main Calendar Area */}
         <div className="flex-1 flex flex-col">
