@@ -490,7 +490,7 @@ const Clients = () => {
       />
 
       {/* Main content - with minimal padding to account for fixed header */}
-      <div className="pt-2 px-4 pb-20">
+      <div className="pt-0 px-4 pb-20">
         {/* Tabs Navigation */}
         <div className="flex overflow-x-auto mb-6 border-b border-gray-200 no-scrollbar">
           <button
