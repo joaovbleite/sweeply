@@ -42,7 +42,6 @@ import { Quote } from "@/lib/api/quotes";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import AppLayout from "@/components/AppLayout";
-import PageHeader from "@/components/ui/PageHeader";
 
 const Clients = () => {
   const { user } = useAuth();
@@ -482,15 +481,8 @@ const Clients = () => {
 
   return (
     <AppLayout>
-      {/* Use PageHeader with dynamic title and button */}
-      <PageHeader
-        title={getTitle()}
-        rightElement={getAddButton()}
-        compact
-      />
-
-      {/* Main content - with no top padding and negative margin to pull content up */}
-      <div className="pt-0 -mt-1 px-4 pb-20">
+      {/* Main content - with minimal padding to account for fixed header */}
+      <div className="pt-12 px-4 pb-20">
         {/* Tabs Navigation */}
         <div className="flex overflow-x-auto mb-6 border-b border-gray-200 no-scrollbar">
           <button
