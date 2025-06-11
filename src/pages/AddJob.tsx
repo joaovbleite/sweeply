@@ -3,7 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Search, User, MapPin, Phone, Mail, Plus, ChevronDown, ChevronLeft, ChevronRight, Users } from "lucide-react";
 import { toast } from "sonner";
 import { clientsApi } from "@/lib/api/clients";
+import { jobsApi } from "@/lib/api/jobs";
 import { Client } from "@/types/client";
+import { ServiceType, PropertyType } from "@/types/job";
 import AppLayout from "@/components/AppLayout";
 import PageHeader from "@/components/ui/PageHeader";
 import { useLocale } from "@/hooks/useLocale";
@@ -27,6 +29,7 @@ const AddJob = () => {
   const [remindToInvoice, setRemindToInvoice] = useState(false);
   const [showLineItemModal, setShowLineItemModal] = useState(false);
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     clientId: "",
@@ -78,24 +81,147 @@ const AddJob = () => {
     }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Validation
-    if (!formData.firstName || !formData.lastName) {
-      toast.error("Client name is required");
+    if (!formData.jobTitle) {
+      toast.error("Job title is required");
       return;
     }
 
-    toast.success("Job created successfully!");
-    navigate("/jobs");
+    if (!formData.clientId) {
+      toast.error("Client selection is required");
+      return;
+    }
+
+    if (!selectedDate) {
+      toast.error("Please select a scheduled date");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      // Format the date for the API
+      const scheduledDate = new Date(
+        currentMonth.getFullYear(),
+        currentMonth.getMonth(),
+        selectedDate
+      ).toISOString().split('T')[0];
+
+      // Prepare line items data
+      const lineItemsData = lineItems.map(item => ({
+        description: item.description,
+        quantity: item.quantity || 1,
+        price: item.price
+      }));
+
+      // Create job data object
+      const jobData = {
+        client_id: formData.clientId,
+        title: formData.jobTitle,
+        description: formData.instructions,
+        special_instructions: formData.instructions,
+        service_type: 'regular' as ServiceType,
+        property_type: 'residential' as PropertyType,
+        scheduled_date: scheduledDate,
+        estimated_price: formData.subtotal,
+        line_items: lineItemsData, // This is custom data that will be stored as JSON
+      };
+
+      const createdJob = await jobsApi.create(jobData);
+
+      toast.success("Job created successfully!");
+      navigate("/jobs");
+    } catch (error) {
+      console.error('Error creating job:', error);
+      toast.error("Failed to create job. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleSaveAsDraft = () => {
-    toast.success("Job saved as draft");
-    navigate("/jobs");
+  const handleSaveAsDraft = async () => {
+    // Similar to handleSubmit but with draft status
+    try {
+      setIsSubmitting(true);
+
+      // Format the date for the API (use current date if none selected)
+      const scheduledDate = selectedDate 
+        ? new Date(
+            currentMonth.getFullYear(),
+            currentMonth.getMonth(),
+            selectedDate
+          ).toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0];
+
+      // Prepare line items data
+      const lineItemsData = lineItems.map(item => ({
+        description: item.description,
+        quantity: item.quantity || 1,
+        price: item.price
+      }));
+
+      // Create job data object
+      const jobData = {
+        client_id: formData.clientId || (clients.length > 0 ? clients[0].id : ''),
+        title: formData.jobTitle || 'Draft Job',
+        description: formData.instructions,
+        special_instructions: formData.instructions,
+        service_type: 'regular' as ServiceType,
+        property_type: 'residential' as PropertyType,
+        scheduled_date: scheduledDate,
+        estimated_price: formData.subtotal,
+        line_items: lineItemsData, // This is custom data that will be stored as JSON
+        status: 'draft' as any // We're adding a custom status that's not in the type
+      };
+
+      const createdJob = await jobsApi.create(jobData);
+
+      toast.success("Job saved as draft");
+      navigate("/jobs");
+    } catch (error) {
+      console.error('Error saving job as draft:', error);
+      toast.error("Failed to save draft. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleAddLineItem = (item: { description: string; price: number }) => {
     const newLineItems = [...lineItems, { ...item, quantity: 1 }];
+    setLineItems(newLineItems);
+    
+    // Update subtotal
+    const newSubtotal = newLineItems.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+    setFormData(prev => ({
+      ...prev,
+      subtotal: newSubtotal
+    }));
+  };
+
+  // Add function to handle removing a line item
+  const handleRemoveLineItem = (index: number) => {
+    const newLineItems = [...lineItems];
+    newLineItems.splice(index, 1);
+    setLineItems(newLineItems);
+    
+    // Update subtotal
+    const newSubtotal = newLineItems.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+    setFormData(prev => ({
+      ...prev,
+      subtotal: newSubtotal
+    }));
+  };
+
+  // Add function to handle quantity changes
+  const handleQuantityChange = (index: number, newQuantity: number) => {
+    if (newQuantity < 1) return; // Don't allow quantities less than 1
+    
+    const newLineItems = [...lineItems];
+    newLineItems[index] = {
+      ...newLineItems[index],
+      quantity: newQuantity
+    };
     setLineItems(newLineItems);
     
     // Update subtotal
@@ -181,8 +307,9 @@ const AddJob = () => {
     <button
       onClick={handleSubmit}
       className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-medium"
+      disabled={isSubmitting}
     >
-      Save
+      {isSubmitting ? 'Saving...' : 'Save'}
     </button>
   );
 
@@ -215,6 +342,33 @@ const AddJob = () => {
                 className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             rows={4}
               />
+        </div>
+
+        {/* Client Selection Section */}
+        <div className="mb-8">
+          <h2 className="text-xl text-gray-700 font-medium mb-4">Client</h2>
+          
+          {loadingClients ? (
+            <div className="p-4 text-center text-gray-500">Loading clients...</div>
+          ) : clients.length > 0 ? (
+            <div className="border rounded-xl overflow-hidden">
+              <select
+                value={formData.clientId}
+                onChange={(e) => {
+                  const client = clients.find(c => c.id === e.target.value);
+                  if (client) handleClientSelect(client);
+                }}
+                className="w-full p-4 border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+              >
+                <option value="">Select a client</option>
+                {clients.map(client => (
+                  <option key={client.id} value={client.id}>{client.name}</option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <div className="p-4 text-center text-gray-500">No clients found.</div>
+          )}
         </div>
 
         {/* Worker Section (formerly Salesperson) */}
@@ -257,19 +411,51 @@ const AddJob = () => {
         </div>
 
         {/* Display Line Items */}
-        {lineItems.length > 0 && (
+        {lineItems.length > 0 ? (
           <div className="mb-4 space-y-3">
             {lineItems.map((item, index) => (
               <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <div>
+                <div className="flex-1">
                   <h4 className="font-medium text-gray-900">{item.description}</h4>
-                  <p className="text-sm text-gray-500">Qty: {item.quantity || 1}</p>
+                  <div className="flex items-center mt-1">
+                    <button 
+                      onClick={() => handleQuantityChange(index, (item.quantity || 1) - 1)}
+                      className="w-8 h-8 flex items-center justify-center text-blue-600 border border-gray-300 rounded-l-lg"
+                    >
+                      -
+                    </button>
+                    <input 
+                      type="number" 
+                      min="1" 
+                      value={item.quantity || 1} 
+                      onChange={(e) => handleQuantityChange(index, parseInt(e.target.value) || 1)}
+                      className="w-12 h-8 text-center border-t border-b border-gray-300 text-sm" 
+                    />
+                    <button 
+                      onClick={() => handleQuantityChange(index, (item.quantity || 1) + 1)}
+                      className="w-8 h-8 flex items-center justify-center text-blue-600 border border-gray-300 rounded-r-lg"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
-                <span className="font-medium text-gray-900">
-                  {formatCurrency(item.price)}
-                </span>
+                <div className="flex flex-col items-end">
+                  <span className="font-medium text-gray-900">
+                    {formatCurrency(item.price * (item.quantity || 1))}
+                  </span>
+                  <button 
+                    onClick={() => handleRemoveLineItem(index)}
+                    className="text-red-500 text-sm mt-1"
+                  >
+                    Remove
+                  </button>
+                </div>
               </div>
             ))}
+          </div>
+        ) : (
+          <div className="mb-4 p-6 bg-gray-50 rounded-lg text-center text-gray-500">
+            No items added yet. Click the + button to add line items.
           </div>
         )}
 
@@ -288,7 +474,7 @@ const AddJob = () => {
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-medium text-gray-800">Schedule later</h3>
           <div 
-            className={`w-14 h-8 rounded-full p-1 transition-colors duration-200 ease-in-out ${scheduleForLater ? 'bg-gray-400' : 'bg-gray-300'}`}
+            className={`w-14 h-8 rounded-full p-1 transition-colors duration-200 ease-in-out ${scheduleForLater ? 'bg-blue-600' : 'bg-gray-300'}`}
             onClick={() => setScheduleForLater(!scheduleForLater)}
           >
             <div 
@@ -352,7 +538,7 @@ const AddJob = () => {
             <Users className="w-6 h-6 text-gray-700 mr-3" />
             <div>
               <h3 className="text-xl font-medium text-gray-800">Team</h3>
-              <p className="text-lg text-gray-800">victor leite</p>
+              <p className="text-lg text-gray-800">{formData.salesperson}</p>
             </div>
           </div>
           <ChevronRight className="w-6 h-6 text-gray-700" />
@@ -381,9 +567,10 @@ const AddJob = () => {
         {/* Draft Button */}
           <button
           onClick={handleSaveAsDraft}
-          className="w-full border border-blue-600 text-blue-600 py-4 rounded-xl font-medium mb-20"
+          className="w-full border border-blue-600 text-blue-600 py-4 rounded-xl font-medium mb-20 disabled:opacity-50"
+          disabled={isSubmitting}
           >
-          Draft
+          {isSubmitting ? 'Saving...' : 'Draft'}
           </button>
       </div>
 
