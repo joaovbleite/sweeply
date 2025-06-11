@@ -19,7 +19,7 @@ const Support: React.FC = () => {
           compact
         />
 
-        <div className="px-4 pb-20 pt-7 flex-1 overflow-y-auto">
+        <div className="px-4 pb-32 pt-7 flex-1 overflow-y-auto">
           <div className="mb-8">
             {/* Support Chat */}
             <div className="flex items-center justify-between py-5 border-b border-gray-200">
