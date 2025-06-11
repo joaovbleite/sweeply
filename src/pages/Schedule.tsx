@@ -410,7 +410,7 @@ const Schedule = () => {
       <div className="flex flex-col h-[calc(100vh-77px)] bg-gray-50 overflow-hidden">
         <div className="overflow-y-auto no-bounce flex-1">
           {/* Header with month selector */}
-          <div className="sticky top-0 flex justify-between items-center px-4 py-3 z-20 bg-gray-50">
+          <div className="sticky top-0 flex justify-between items-center px-4 pt-1 pb-2 z-20 bg-gray-50">
             <div className="flex items-center">
               <MonthSelector 
                 currentDate={currentDate} 

@@ -39,7 +39,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 
   return (
     <div className="sticky top-0 left-0 right-0 z-30 bg-white shadow-sm">
-      <div className={`flex items-center justify-between px-4 border-b border-gray-200 ${compact ? 'page-header-compact' : 'pt-6 pb-4'}`}>
+      <div className={`flex items-center justify-between px-4 border-b border-gray-200 ${compact ? 'page-header-compact' : 'pt-2 pb-4'}`}>
         <div className="flex items-center">
           {backUrl ? (
             <Link to={backUrl} className="mr-2 text-gray-600">
