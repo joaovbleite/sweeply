@@ -19,11 +19,10 @@ const BottomNavBar: React.FC = () => {
   const navRef = useRef<HTMLDivElement>(null);
   
   // Define the navigation items based on the image
-  // Home, Schedule, Finance, Clients, More
+  // Home, Schedule, Clients, More (removed Finance)
   const navItems = [
     { id: "home", icon: Home, path: "/dashboard" },
     { id: "schedule", icon: Calendar, path: "/schedule" },
-    { id: "finance", icon: DollarSign, path: "/finance" },
     { id: "clients", icon: Users, path: "/clients" },
     { id: "more", icon: MoreHorizontal, path: "/more" }
   ];
