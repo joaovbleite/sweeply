@@ -198,72 +198,61 @@ const Schedule = () => {
 
   // Render week day selector with smooth animations
   const renderWeekDaySelector = () => {
-    const weekVariants = {
-      enter: (direction: 'left' | 'right') => ({
-        x: direction === 'left' ? '-100%' : '100%',
-        opacity: 0
-      }),
-      center: {
-        x: 0,
-        opacity: 1
-      },
-      exit: (direction: 'left' | 'right') => ({
-        x: direction === 'left' ? '100%' : '-100%',
-        opacity: 0
-      })
+    // Calculate positions for week day slider
+    const weekDayTouchScrollHandler = (event: React.TouchEvent) => {
+      event.stopPropagation(); // Prevent parent containers from handling the touch
+      // Touch scrolling is handled by browser's natural behavior
     };
-
+    
     return (
-      <div className="relative mx-4 mt-4 overflow-hidden">
-        <AnimatePresence initial={false} custom={weekDirection} mode="wait">
-          <motion.div
-            key={format(weekStart, 'yyyy-MM-dd')}
-            custom={weekDirection}
-            variants={weekVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{
-              x: { type: "spring", stiffness: 300, damping: 30 },
-              opacity: { duration: 0.2 }
-            }}
-            className="flex py-2"
-          >
-            {/* Map current week days */}
-            {weekDays.map((day, index) => {
-              const isCurrentDay = isToday(day);
-              const isSelected = isSameDay(day, currentDate);
-              const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-              
-              // Skip weekends if not showing them
-              if (isWeekend && !viewOptions.showWeekends) {
-                return null;
-              }
-              
-              return (
-                <motion.button
-                  key={index}
-                  className={`w-[calc(100%/7)] flex-shrink-0 flex flex-col items-center py-2`}
-                  onClick={() => handleDateSelect(day)}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ duration: 0.1 }}
-                >
-                  <div className="text-sm text-gray-500 uppercase font-medium">
-                    {format(day, 'EEE').charAt(0)}
-                  </div>
-                  <motion.div 
-                    className={`w-10 h-10 flex items-center justify-center rounded-full mt-1 text-lg
-                      ${isSelected ? 'bg-blue-500 text-white' : isCurrentDay ? 'text-blue-500 border-2 border-blue-500' : 'text-gray-800'}`}
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      <div className="mx-4 mt-2 overflow-hidden">
+        <div
+          ref={weekDaysRef}
+          className="flex overflow-x-auto hide-scrollbar pb-2 pt-1"
+          onTouchStart={weekDayTouchScrollHandler}
+          onTouchMove={weekDayTouchScrollHandler}
+        >
+          <AnimatePresence mode='wait' initial={false}>
+            <motion.div 
+              key={`week-${weekStart.toISOString()}`}
+              className="flex space-x-2 px-1"
+              initial={{ 
+                x: weekDirection === 'left' ? -20 : weekDirection === 'right' ? 20 : 0,
+                opacity: weekDirection ? 0.5 : 1 
+              }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ 
+                x: weekDirection === 'left' ? 20 : weekDirection === 'right' ? -20 : 0,
+                opacity: 0.5 
+              }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+            >
+              {weekDays.map((day, index) => {
+                const formattedDate = format(day, 'd');
+                const dayName = format(day, 'EEE');
+                const isCurrentDate = isSameDay(day, currentDate);
+                const isToday = isSameDay(day, new Date());
+                
+                return (
+                  <button
+                    key={`day-${index}`}
+                    onClick={() => handleDateSelect(day)}
+                    className={`flex flex-col items-center justify-center p-1.5 rounded-xl min-w-[56px] transition-colors
+                      ${isCurrentDate ? 'bg-blue-100' : ''}
+                    `}
                   >
-                    {format(day, 'd')}
-                  </motion.div>
-                </motion.button>
-              );
-            })}
-          </motion.div>
-        </AnimatePresence>
+                    <span className="text-xs font-medium text-gray-500">{dayName}</span>
+                    <div className={`w-8 h-8 flex items-center justify-center rounded-full mt-1
+                      ${isCurrentDate ? 'bg-blue-500 text-white' : isToday ? 'border border-blue-500 text-blue-500' : 'text-gray-800'}
+                    `}>
+                      {formattedDate}
+                    </div>
+                  </button>
+                );
+              })}
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
     );
   };
@@ -418,86 +407,88 @@ const Schedule = () => {
         compact
       />
       
-      <div className="flex flex-col h-full bg-gray-50 pt-12">
-        {/* Header with month selector */}
-        <div className="flex justify-between items-center px-4 py-3 relative z-20">
-          <div className="flex items-center">
-            <MonthSelector 
-              currentDate={currentDate} 
-              onDateChange={(date) => {
-                const direction = date > currentDate ? 'right' : 'left';
-                setWeekDirection(direction);
-                setAnimatingWeekChange(true);
-                
-                setTimeout(() => {
-                  setCurrentDate(date);
-                  setAnimatingWeekChange(false);
-                }, 300);
-              }}
-              userName={user?.user_metadata?.name || user?.email}
-              jobCount={dayJobs.length}
-            />
-          </div>
-        </div>
-        
-        {/* View selector tabs */}
-        <div className="bg-gray-100 rounded-lg mx-4 p-1.5 flex relative z-10">
-          <motion.button 
-            className={`flex-1 py-3 rounded-md text-center font-medium ${viewOptions.view === 'Day' ? 'bg-white shadow text-gray-800' : 'text-gray-600'}`}
-            onClick={() => setViewOptions(prev => ({ ...prev, view: 'Day' }))}
-            whileTap={{ scale: 0.95 }}
-          >
-            Day
-          </motion.button>
-          <motion.button 
-            className={`flex-1 py-3 rounded-md text-center font-medium ${viewOptions.view === 'List' ? 'bg-white shadow text-gray-800' : 'text-gray-600'}`}
-            onClick={() => setViewOptions(prev => ({ ...prev, view: 'List' }))}
-            whileTap={{ scale: 0.95 }}
-          >
-            List
-          </motion.button>
-          <motion.button 
-            className={`flex-1 py-3 rounded-md text-center font-medium ${viewOptions.view === 'Map' ? 'bg-white shadow text-gray-800' : 'text-gray-600'}`}
-            onClick={() => setViewOptions(prev => ({ ...prev, view: 'Map' }))}
-            whileTap={{ scale: 0.95 }}
-          >
-            Map
-          </motion.button>
-        </div>
-        
-        {/* Week day selector with smooth animations */}
-        {renderWeekDaySelector()}
-        
-        {/* Client filter/search */}
-        <div className="mx-4 mt-6 border-t border-gray-200 pt-4">
-          <div className="flex items-center justify-between">
+      <div className="flex flex-col h-[calc(100vh-77px)] bg-gray-50 overflow-hidden">
+        <div className="overflow-y-auto no-bounce flex-1">
+          {/* Header with month selector */}
+          <div className="sticky top-0 flex justify-between items-center px-4 py-3 z-20 bg-gray-50">
             <div className="flex items-center">
-              <span className="text-gray-800 font-medium text-lg">
-                {user ? (user.email?.split('@')[0] || 'All clients') : 'All clients'}
-              </span>
-            </div>
-            <div className="bg-gray-200 rounded-lg px-3 py-1 text-gray-800 font-medium">
-              {dayJobs.length} {dayJobs.length === 1 ? 'job' : 'jobs'}
+              <MonthSelector 
+                currentDate={currentDate} 
+                onDateChange={(date) => {
+                  const direction = date > currentDate ? 'right' : 'left';
+                  setWeekDirection(direction);
+                  setAnimatingWeekChange(true);
+                  
+                  setTimeout(() => {
+                    setCurrentDate(date);
+                    setAnimatingWeekChange(false);
+                  }, 300);
+                }}
+                userName={user?.user_metadata?.name || user?.email}
+                jobCount={dayJobs.length}
+              />
             </div>
           </div>
           
-          <div className="relative mt-4">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search clients..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-            />
+          {/* View selector tabs */}
+          <div className="bg-gray-100 rounded-lg mx-4 p-1.5 flex relative z-10">
+            <motion.button 
+              className={`flex-1 py-3 rounded-md text-center font-medium ${viewOptions.view === 'Day' ? 'bg-white shadow text-gray-800' : 'text-gray-600'}`}
+              onClick={() => setViewOptions(prev => ({ ...prev, view: 'Day' }))}
+              whileTap={{ scale: 0.95 }}
+            >
+              Day
+            </motion.button>
+            <motion.button 
+              className={`flex-1 py-3 rounded-md text-center font-medium ${viewOptions.view === 'List' ? 'bg-white shadow text-gray-800' : 'text-gray-600'}`}
+              onClick={() => setViewOptions(prev => ({ ...prev, view: 'List' }))}
+              whileTap={{ scale: 0.95 }}
+            >
+              List
+            </motion.button>
+            <motion.button 
+              className={`flex-1 py-3 rounded-md text-center font-medium ${viewOptions.view === 'Map' ? 'bg-white shadow text-gray-800' : 'text-gray-600'}`}
+              onClick={() => setViewOptions(prev => ({ ...prev, view: 'Map' }))}
+              whileTap={{ scale: 0.95 }}
+            >
+              Map
+            </motion.button>
           </div>
-        </div>
-        
-        {/* Content based on selected view */}
-        <div className="flex-1 overflow-y-auto pb-20 mt-4">
-          {viewOptions.view === 'Day' && renderDayView()}
-          {viewOptions.view === 'List' && renderListView()}
-          {viewOptions.view === 'Map' && renderMapView()}
+          
+          {/* Week day selector with smooth animations */}
+          {renderWeekDaySelector()}
+          
+          {/* Client filter/search */}
+          <div className="mx-4 mt-6 border-t border-gray-200 pt-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <span className="text-gray-800 font-medium text-lg">
+                  {user ? (user.email?.split('@')[0] || 'All clients') : 'All clients'}
+                </span>
+              </div>
+              <div className="bg-gray-200 rounded-lg px-3 py-1 text-gray-800 font-medium">
+                {dayJobs.length} {dayJobs.length === 1 ? 'job' : 'jobs'}
+              </div>
+            </div>
+            
+            <div className="relative mt-4">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search clients..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              />
+            </div>
+          </div>
+          
+          {/* Content based on selected view */}
+          <div className="pb-24 mt-4">
+            {viewOptions.view === 'Day' && renderDayView()}
+            {viewOptions.view === 'List' && renderListView()}
+            {viewOptions.view === 'Map' && renderMapView()}
+          </div>
         </div>
       </div>
 

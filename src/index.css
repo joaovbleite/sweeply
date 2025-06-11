@@ -24,6 +24,14 @@
     display: none;  /* Chrome, Safari and Opera */
   }
   
+  /* Prevent over-scrolling (rubber-banding) on iOS */
+  .no-bounce {
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+    position: relative;
+  }
+  
   /* Safe area padding utilities for mobile devices */
   .pt-safe {
     padding-top: env(safe-area-inset-top);
