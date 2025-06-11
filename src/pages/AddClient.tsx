@@ -94,14 +94,16 @@ const AddClient = () => {
 
       {/* Content with padding to account for fixed header */}
       <div className="pt-28 px-4 pb-24 flex-1 overflow-y-auto min-h-screen bg-white">
-        {/* Add from contacts button */}
-        <button 
-          className="w-full flex items-center justify-center gap-2 p-4 border border-gray-300 rounded-lg mb-6 text-[#307842] font-medium"
-          onClick={() => toast.info("Contacts access feature coming soon")}
-        >
-          <User className="w-5 h-5" />
-          Add From Contacts
-        </button>
+        {/* Add from contacts button - Styled to match screenshot */}
+        <div className="mb-6">
+          <button 
+            className="w-full flex items-center justify-center gap-2 p-4 rounded-lg border border-gray-200 text-[#307842] font-medium"
+            onClick={() => toast.info("Contacts access feature coming soon")}
+          >
+            <User className="w-5 h-5" />
+            Add From Contacts
+          </button>
+        </div>
 
         {/* Form fields */}
         <div className="space-y-6 mb-16">
@@ -114,19 +116,19 @@ const AddClient = () => {
                 placeholder="First name"
                 value={firstName}
                 onChange={(e) => handleInputChange("firstName", e.target.value)}
-                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-gray-900"
+                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-gray-900"
               />
               <input
                 type="text"
                 placeholder="Last name"
                 value={lastName}
                 onChange={(e) => handleInputChange("lastName", e.target.value)}
-                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-gray-900"
+                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-gray-900"
               />
             </div>
           </div>
 
-          {/* Company name - collapsible */}
+          {/* Company name - collapsible but showing as placeholder */}
           <div className="flex items-center gap-3">
             <Building className="w-5 h-5 text-gray-500" />
             {companyExpanded === true ? (
@@ -135,20 +137,20 @@ const AddClient = () => {
                 placeholder="Company name"
                 value={formData.notes?.replace('Company: ', '') || ''}
                 onChange={(e) => handleInputChange("companyName", e.target.value)}
-                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-gray-900"
+                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-gray-900"
                 autoFocus
               />
             ) : (
               <button 
                 onClick={() => setCompanyExpanded(true)}
-                className="text-[#307842] font-medium text-left w-full py-2"
+                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg text-gray-400 text-left"
               >
                 Add Company Name
               </button>
             )}
           </div>
 
-          {/* Phone number - collapsible */}
+          {/* Phone number - collapsible but showing as placeholder */}
           <div className="flex items-center gap-3">
             <Phone className="w-5 h-5 text-gray-500" />
             {phoneExpanded === true ? (
@@ -157,20 +159,20 @@ const AddClient = () => {
                 placeholder="Phone number"
                 value={formData.phone || ""}
                 onChange={(e) => handleInputChange("phone", e.target.value)}
-                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-gray-900"
+                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-gray-900"
                 autoFocus
               />
             ) : (
               <button 
                 onClick={() => setPhoneExpanded(true)}
-                className="text-[#307842] font-medium text-left w-full py-2"
+                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg text-gray-400 text-left"
               >
                 Add Phone Number
               </button>
             )}
           </div>
 
-          {/* Email - collapsible */}
+          {/* Email - collapsible but showing as placeholder */}
           <div className="flex items-center gap-3">
             <Mail className="w-5 h-5 text-gray-500" />
             {emailExpanded === true ? (
@@ -179,20 +181,20 @@ const AddClient = () => {
                 placeholder="Email address"
                 value={formData.email || ""}
                 onChange={(e) => handleInputChange("email", e.target.value)}
-                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-gray-900"
+                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-gray-900"
                 autoFocus
               />
             ) : (
               <button 
                 onClick={() => setEmailExpanded(true)}
-                className="text-[#307842] font-medium text-left w-full py-2"
+                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg text-gray-400 text-left"
               >
                 Add Email
               </button>
             )}
           </div>
 
-          {/* Lead source - collapsible */}
+          {/* Lead source - collapsible but showing as placeholder */}
           <div className="flex items-center gap-3">
             <List className="w-5 h-5 text-gray-500" />
             {leadSourceExpanded === true ? (
@@ -201,13 +203,13 @@ const AddClient = () => {
                 placeholder="Lead source"
                 value={formData.preferences || ""}
                 onChange={(e) => handleInputChange("leadSource", e.target.value)}
-                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-gray-900"
+                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-gray-900"
                 autoFocus
               />
             ) : (
               <button 
                 onClick={() => setLeadSourceExpanded(true)}
-                className="text-[#307842] font-medium text-left w-full py-2"
+                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg text-gray-400 text-left"
               >
                 Add Lead Source
               </button>
@@ -222,16 +224,16 @@ const AddClient = () => {
               placeholder="Property address"
               value={formData.address || ""}
               onChange={(e) => handleInputChange("address", e.target.value)}
-              className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-gray-900"
+              className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-gray-900"
             />
           </div>
         </div>
 
-        {/* Save Button - using green color instead of blue */}
+        {/* Save Button - using blue color as shown in screenshot */}
         <button
           onClick={handleSubmit}
           disabled={loading || !formData.name.trim()}
-          className="w-full py-4 bg-[#307842] text-white font-medium rounded-lg disabled:opacity-70 flex items-center justify-center"
+          className="w-full py-4 bg-blue-500 text-white font-medium rounded-full disabled:opacity-70 flex items-center justify-center"
         >
           {loading ? (
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
