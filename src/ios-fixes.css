@@ -1,0 +1,39 @@
+/* iOS-specific styles to ensure proper status bar appearance */
+
+/* Apply to both html and body to ensure full coverage */
+html, body {
+  background-color: #FFFFFF !important;
+  min-height: 100vh;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Safe area insets */
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Full height container */
+#root {
+  min-height: 100vh;
+  background-color: #FFFFFF;
+}
+
+/* Status bar fix for iOS */
+@supports (-webkit-touch-callout: none) {
+  .ios-status-bar-fix {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-top, 0px);
+    background-color: #FFFFFF;
+    z-index: 9999;
+  }
+} 

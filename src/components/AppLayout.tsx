@@ -70,6 +70,25 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
     }
   }, [location.pathname]);
 
+  // Set the background color of the document elements on mount
+  useEffect(() => {
+    // Set the background color of HTML and body
+    document.documentElement.style.backgroundColor = "#FFFFFF";
+    document.body.style.backgroundColor = "#FFFFFF";
+    
+    // Add a class to handle the safe area insets
+    document.documentElement.classList.add('h-full', 'bg-white');
+    document.body.classList.add('h-full', 'bg-white');
+    
+    return () => {
+      // Cleanup when component unmounts
+      document.documentElement.style.backgroundColor = "";
+      document.body.style.backgroundColor = "";
+      document.documentElement.classList.remove('h-full', 'bg-white');
+      document.body.classList.remove('h-full', 'bg-white');
+    };
+  }, []);
+
   const handleLogout = async () => {
     await signOut();
   };
@@ -86,7 +105,10 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
   ];
 
   return (
-    <div className="min-h-screen bg-white flex flex-col lg:flex-row pt-safe">
+    <div className="h-full min-h-screen bg-white flex flex-col lg:flex-row pt-safe">
+      {/* White background that extends to the top edge of the screen */}
+      <div className="fixed inset-0 bg-white -z-10"></div>
+      
       {/* Sidebar */}
       <aside 
         id="mobile-sidebar"
