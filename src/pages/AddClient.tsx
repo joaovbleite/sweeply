@@ -136,9 +136,10 @@ const AddClient = () => {
       <PageHeader
         title="New client"
         onBackClick={() => navigate(-1)}
+        compact
       />
 
-      <div className="pt-12 px-4 pb-24 flex-1 overflow-y-auto min-h-screen bg-white">
+      <div className="pt-3 px-4 pb-24 flex-1 overflow-y-auto min-h-screen bg-white">
         {/* Add From Contacts button */}
         <div className="mb-6">
           <button 
