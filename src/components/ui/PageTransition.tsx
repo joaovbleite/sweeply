@@ -11,21 +11,30 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
   const isMobile = useIsMobile();
   const [isAnimating, setIsAnimating] = useState(false);
   const [displayChildren, setDisplayChildren] = useState(children);
+  const [isExiting, setIsExiting] = useState(false);
   
   useEffect(() => {
     if (isMobile) {
-      // Start animation with current children
-      setIsAnimating(true);
+      // Start exit animation
+      setIsExiting(true);
       
-      // Update the children immediately to ensure content is ready
-      setDisplayChildren(children);
+      // Wait for exit animation to complete before updating content
+      const exitTimer = setTimeout(() => {
+        // Update the children after exit animation
+        setDisplayChildren(children);
+        setIsExiting(false);
+        // Start entrance animation
+        setIsAnimating(true);
+        
+        // Reset animation state after entrance animation completes
+        const enterTimer = setTimeout(() => {
+          setIsAnimating(false);
+        }, 300); // Entrance animation duration (0.3s)
+        
+        return () => clearTimeout(enterTimer);
+      }, 200); // Exit animation duration (0.2s)
       
-      // Reset animation state after animation completes
-      const timer = setTimeout(() => {
-        setIsAnimating(false);
-      }, 250); // Match this with the CSS transition duration (0.25s)
-      
-      return () => clearTimeout(timer);
+      return () => clearTimeout(exitTimer);
     } else {
       // On desktop, just update children without animation
       setDisplayChildren(children);
@@ -46,9 +55,10 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
       }}
     >
       <div
-        className={`w-full h-full ${
-          isAnimating ? "animate-slide-up" : ""
-        }`}
+        className={`w-full h-full transition-all duration-300 ease-in-out
+          ${isExiting ? 'opacity-0' : ''}
+          ${isAnimating ? 'animate-pure-fade' : 'opacity-100'}
+        `}
         style={{
           backfaceVisibility: "hidden",
           WebkitBackfaceVisibility: "hidden"
