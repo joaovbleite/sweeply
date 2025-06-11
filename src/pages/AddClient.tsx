@@ -95,11 +95,12 @@ const AddClient = () => {
         {/* Add From Contacts button */}
         <div className="mb-8">
           <button 
-            className="w-full flex items-center justify-center gap-2 p-4 rounded-lg border border-gray-200 text-[#EF4444] font-medium"
+            className="w-full flex items-center justify-center gap-2 p-4 rounded-lg border border-gray-200 font-medium"
             onClick={() => toast.info("Contacts access feature coming soon")}
+            style={{ color: "#FF00FF" }}
           >
-            <User className="w-5 h-5" />
-            Add From Contacts
+            <User className="w-5 h-5" style={{ color: "#FF00FF" }} />
+            <span style={{ color: "#FF00FF" }}>Add From Contacts</span>
           </button>
         </div>
 
