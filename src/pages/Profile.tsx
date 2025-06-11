@@ -227,7 +227,7 @@ const Profile: React.FC = () => {
           compact
         />
 
-        <form onSubmit={handleSubmit} className="px-4 pb-36 flex-1">
+        <form onSubmit={handleSubmit} className="px-4 pb-6 flex-1">
           {/* Profile Avatar */}
           <div className="flex justify-center my-6">
             <div className="relative">

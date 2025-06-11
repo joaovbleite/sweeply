@@ -31,7 +31,7 @@ const BusinessHealthPage = ({ isOpen, onClose }: { isOpen: boolean, onClose: () 
         onBackClick={onClose}
       />
 
-      <div className="overflow-y-auto h-[calc(100vh-77px)] pb-20">
+      <div className="overflow-y-auto h-[calc(100vh-77px)] pb-6">
         {/* Clients Section */}
         <div className="px-4 py-5 border-b border-gray-200">
           <h2 className="text-xl font-bold text-[#1a2e35] mb-1">Clients</h2>
