@@ -53,7 +53,6 @@ const Dashboard = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [selectedTimeRange, setSelectedTimeRange] = useState<'week' | 'month' | 'year'>('week');
 
   // Get user's name from metadata or email
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'there';
@@ -111,21 +110,6 @@ const Dashboard = () => {
       return createdDate >= lastWeekStart;
     });
 
-    // Pending invoices (unpaid)
-    const pendingInvoices = invoices.filter(invoice => invoice.status === 'sent' || invoice.status === 'overdue');
-    const pendingAmount = pendingInvoices.reduce((sum, invoice) => sum + invoice.balance_due, 0);
-
-    // Total revenue this month
-    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-    const monthlyRevenue = invoices
-      .filter(invoice => invoice.status === 'paid' && new Date(invoice.paid_at || '') >= monthStart)
-      .reduce((sum, invoice) => sum + invoice.total_amount, 0);
-
-    // Total hours today
-    const totalHoursToday = todaysJobs.reduce((sum, job) => {
-      return sum + ((job.estimated_duration || 120) / 60); // Convert minutes to hours, default 2 hours
-    }, 0);
-
     return [
       { 
         label: t('dashboard:jobsToday'), 
@@ -144,48 +128,11 @@ const Dashboard = () => {
         trend: newClientsThisWeek.length > 0 ? 'up' : 'neutral',
         trendValue: `+${newClientsThisWeek.length}`,
         subLabel: `${newClientsThisWeek.length} new this week`
-      },
-      { 
-        label: t('dashboard:monthlyRevenue'), 
-        value: formatCurrency(monthlyRevenue), 
-        icon: DollarSign, 
-        color: "from-blue-700 to-blue-800",
-        trend: monthlyRevenue > 0 ? 'up' : 'neutral',
-        trendValue: '+12%',
-        subLabel: 'vs last month'
-      },
-      { 
-        label: t('dashboard:pendingPayments'), 
-        value: formatCurrency(pendingAmount), 
-        icon: CreditCard, 
-        color: "from-gray-600 to-gray-700",
-        trend: pendingInvoices.length > 0 ? 'down' : 'neutral',
-        trendValue: `${pendingInvoices.length} invoices`,
-        subLabel: 'awaiting payment'
-      },
+      }
     ];
-  }, [jobs, clients, invoices, formatCurrency, t]);
+  }, [jobs, clients, t]);
 
-  // Revenue chart data
-  const revenueData = React.useMemo(() => {
-    const last7Days = Array.from({ length: 7 }, (_, i) => {
-      const date = subDays(new Date(), 6 - i);
-      const dayRevenue = invoices
-        .filter(invoice => {
-          const invoiceDate = new Date(invoice.created_at);
-          return format(invoiceDate, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd') && 
-                 invoice.status === 'paid';
-        })
-        .reduce((sum, invoice) => sum + invoice.total_amount, 0);
-      
-      return {
-        date: format(date, 'MMM dd'),
-        revenue: dayRevenue,
-        jobs: jobs.filter(job => format(new Date(job.scheduled_date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')).length
-      };
-    });
-    return last7Days;
-  }, [jobs, invoices]);
+
 
   // Today's upcoming jobs
   const upcomingJobs = React.useMemo(() => {
@@ -226,7 +173,7 @@ const Dashboard = () => {
         </div>
         
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 mt-3 sm:mt-5 md:mt-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-5 mt-3 sm:mt-5 md:mt-6">
           {stats.map((stat, index) => (
             <div 
               key={index} 
@@ -261,74 +208,7 @@ const Dashboard = () => {
           ))}
         </div>
         
-        {/* Revenue Chart */}
-        <div className={`bg-white p-3 sm:p-4 md:p-5 rounded-xl shadow-sm border border-gray-100 mt-3 sm:mt-5 md:mt-6 ${loading ? 'animate-pulse' : ''}`}>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
-            <div>
-              <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">Revenue Overview</h3>
-              <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1">Track your daily earnings</p>
-            </div>
-            <div className="flex items-center mt-2 sm:mt-0 self-end sm:self-auto gap-1 sm:gap-2">
-              <button 
-                onClick={() => setSelectedTimeRange('week')} 
-                className={`px-3 py-1 rounded-full text-xs sm:text-sm ${selectedTimeRange === 'week' ? 'bg-blue-100 text-blue-600 font-medium' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-              >
-                Week
-              </button>
-              <button 
-                onClick={() => setSelectedTimeRange('month')} 
-                className={`px-3 py-1 rounded-full text-xs sm:text-sm ${selectedTimeRange === 'month' ? 'bg-blue-100 text-blue-600 font-medium' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-              >
-                Month
-              </button>
-            </div>
-          </div>
-          
-          <div className="h-44 sm:h-52 md:h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
-                data={revenueData}
-                margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
-              >
-                <defs>
-                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#4F46E5" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                <XAxis 
-                  dataKey="date" 
-                  tick={{ fontSize: 10 }}
-                  tickLine={false}
-                  axisLine={{ stroke: '#f0f0f0' }}
-                />
-                <YAxis
-                  tickFormatter={(value) => `${value}`}
-                  tick={{ fontSize: 10 }}
-                  tickLine={false}
-                  axisLine={false}
-                  tickCount={4}
-                />
-                <Tooltip
-                  formatter={(value) => [`${formatCurrency(value as number)}`, 'Revenue']}
-                  labelFormatter={(label) => `${label}`}
-                  contentStyle={{ fontSize: '12px', borderRadius: '8px', border: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="revenue" 
-                  stroke="#4F46E5" 
-                  fillOpacity={1} 
-                  fill="url(#colorRevenue)" 
-                  strokeWidth={2}
-                  dot={{ stroke: '#4F46E5', strokeWidth: 2, r: 4, fill: 'white' }}
-                  activeDot={{ stroke: '#4F46E5', strokeWidth: 2, r: 6, fill: 'white' }}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+
         
         {/* Mobile Dashboard Sections */}
         {isMobile ? (
