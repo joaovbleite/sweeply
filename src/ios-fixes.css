@@ -8,6 +8,7 @@ html, body {
   width: 100%;
   margin: 0;
   padding: 0;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 /* Safe area insets */
@@ -22,18 +23,102 @@ html, body {
 /* Full height container */
 #root {
   min-height: 100vh;
-  background-color: #FFFFFF;
+  background-color: #FFFFFF !important;
 }
 
 /* Status bar fix for iOS */
 @supports (-webkit-touch-callout: none) {
+  /* This targets iOS devices specifically */
+  html {
+    background-color: #FFFFFF !important;
+    position: relative;
+  }
+  
+  body {
+    background-color: #FFFFFF !important;
+  }
+  
+  #root {
+    background-color: #FFFFFF !important;
+  }
+  
   .ios-status-bar-fix {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    height: env(safe-area-inset-top, 0px);
-    background-color: #FFFFFF;
+    height: env(safe-area-inset-top, 40px); /* Fallback height for older iOS */
+    background-color: #FFFFFF !important;
+    z-index: 9999;
+    -webkit-backdrop-filter: none !important; /* Prevent backdrop filters */
+    backdrop-filter: none !important;
+  }
+  
+  /* Target iOS 15+ where transparent status bars are common */
+  @supports (padding-top: env(safe-area-inset-top)) {
+    body {
+      /* Ensure content starts below status bar */
+      padding-top: 0; /* Remove default padding, we'll handle it with components */
+    }
+  }
+}
+
+/* For PWA mode - force white status bar */
+@media (display-mode: standalone) {
+  html {
+    background-color: #FFFFFF !important;
+  }
+  
+  body {
+    background-color: #FFFFFF !important;
+  }
+  
+  /* Ensure body starts below the status bar inset */
+  body {
+    padding-top: env(safe-area-inset-top, 0);
+  }
+  
+  /* Ensure status bar background in standalone mode */
+  .ios-status-bar-fix {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-top, 40px);
+    background-color: #FFFFFF !important;
     z-index: 9999;
   }
+}
+
+/* Full-height body without bouncing/elastic overscroll */
+.no-bounce {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.no-bounce > div {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Fix for iOS dark mode */
+@media (prefers-color-scheme: dark) {
+  @supports (-webkit-touch-callout: none) {
+    html, body, #root, .ios-status-bar-fix {
+      background-color: #FFFFFF !important;
+    }
+  }
+}
+
+/* Force white background on all elements that might inherit transparency */
+.bg-white, [class*="bg-white"], [style*="background-color"] {
+  background-color: #FFFFFF !important;
 } 

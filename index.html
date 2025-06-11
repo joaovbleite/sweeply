@@ -3,12 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <!-- PWA Meta Tags -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
     <meta name="theme-color" content="#FFFFFF" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Sweeply" />
     <meta name="application-name" content="Sweeply" />
+    <meta name="format-detection" content="telephone=no" />
     <meta name="msapplication-TileColor" content="#FFFFFF" />
     <meta name="msapplication-navbutton-color" content="#FFFFFF" />
     <meta name="description" content="Manage your cleaning business with ease - schedule jobs, track clients, and send invoices" />
@@ -31,6 +32,27 @@
     
     <!-- Apple splash screens -->
     <link rel="apple-touch-startup-image" href="/apple-touch-icon.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)" />
+    
+    <!-- iOS specific styling to prevent transparent status bar -->
+    <style>
+      /* Force white background to fix iOS status bar */
+      html, body, #root {
+        background-color: #FFFFFF !important;
+      }
+      
+      /* Status bar fix */
+      @supports (-webkit-touch-callout: none) {
+        .ios-status-bar-fix {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: env(safe-area-inset-top, 40px);
+          background-color: #FFFFFF !important;
+          z-index: 9999;
+        }
+      }
+    </style>
     
     <title>Sweeply - Professional Cleaning Management</title>
   </head>

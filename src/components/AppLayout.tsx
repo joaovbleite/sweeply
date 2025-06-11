@@ -70,21 +70,33 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
     }
   }, [location.pathname]);
 
-  // Scroll restoration - ensure pages open at the top
-  useEffect(() => {
-    // Scroll to top when route changes
-    window.scrollTo(0, 0);
-  }, [location.pathname]);
-
   // Set the background color of the document elements on mount
   useEffect(() => {
     // Set the background color of HTML and body
     document.documentElement.style.backgroundColor = "#FFFFFF";
     document.body.style.backgroundColor = "#FFFFFF";
     
-    // Add a class to handle the safe area insets
+    // Add a class to handle the safe area insets and ensure no transparency
     document.documentElement.classList.add('h-full', 'bg-white');
     document.body.classList.add('h-full', 'bg-white');
+    
+    // Add meta tag to control status bar appearance on iOS
+    let metaTag = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]') as HTMLMetaElement;
+    if (!metaTag) {
+      metaTag = document.createElement('meta');
+      metaTag.name = 'apple-mobile-web-app-status-bar-style';
+      metaTag.content = 'default'; // 'default' ensures white status bar instead of transparent
+      document.head.appendChild(metaTag);
+    } else {
+      // Ensure the content is set to 'default'
+      metaTag.content = 'default';
+    }
+    
+    // Ensure viewport meta tag has viewport-fit=cover
+    const viewportTag = document.querySelector('meta[name="viewport"]') as HTMLMetaElement;
+    if (viewportTag && !viewportTag.content.includes('viewport-fit=cover')) {
+      viewportTag.content = viewportTag.content + ', viewport-fit=cover';
+    }
     
     return () => {
       // Cleanup when component unmounts
@@ -92,6 +104,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
       document.body.style.backgroundColor = "";
       document.documentElement.classList.remove('h-full', 'bg-white');
       document.body.classList.remove('h-full', 'bg-white');
+      // We don't remove the meta tags as they should persist
     };
   }, []);
 
@@ -114,6 +127,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
     <div className="h-full min-h-screen bg-white flex flex-col lg:flex-row pt-safe">
       {/* White background that extends to the top edge of the screen */}
       <div className="fixed inset-0 bg-white -z-10"></div>
+      
+      {/* iOS status bar background fix - shown only on iOS */}
+      <div className="ios-status-bar-fix"></div>
       
       {/* Sidebar */}
       <aside 
@@ -232,9 +248,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
       </aside>
 
       {/* Main Content */}
-      <div className={`flex-1 flex flex-col min-h-screen max-h-screen bg-white ${hideBottomNav ? 'pb-safe' : ''}`}>
+      <div className={`flex-1 flex flex-col min-h-screen max-h-screen overflow-hidden bg-white ${hideBottomNav ? 'pb-safe' : ''}`}>
         {/* Page Content - removed the header for desktop */}
-        <main className="flex-1 overflow-hidden bg-white">
+        <main className="flex-1 overflow-y-auto bg-white">
           <div style={{ 
             willChange: 'opacity',
             contentVisibility: 'auto',
