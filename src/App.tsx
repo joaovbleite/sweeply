@@ -51,6 +51,8 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Tasks from "./pages/Tasks";
 import AddTask from "./pages/AddTask";
 import Refer from "./pages/Refer";
+import AddRequest from "./pages/AddRequest";
+import AddExpense from "./pages/AddExpense";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -410,6 +412,22 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <AddTask />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/requests/new" 
+        element={
+          <ProtectedRoute>
+            <AddRequest />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/expenses/new" 
+        element={
+          <ProtectedRoute>
+            <AddExpense />
           </ProtectedRoute>
         } 
       />
