@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { User, Mail, Phone, MapPin, Building, List } from "lucide-react";
 import { toast } from "sonner";
 import { clientsApi } from "@/lib/api/clients";
@@ -23,11 +23,11 @@ const AddClient = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   
-  // Expanded field states
-  const [companyExpanded, setCompanyExpanded] = useState(false);
-  const [phoneExpanded, setPhoneExpanded] = useState(false);
-  const [emailExpanded, setEmailExpanded] = useState(false);
-  const [leadSourceExpanded, setLeadSourceExpanded] = useState(false);
+  // Expanded field states - explicitly set to false
+  const [companyExpanded, setCompanyExpanded] = useState<boolean>(false);
+  const [phoneExpanded, setPhoneExpanded] = useState<boolean>(false);
+  const [emailExpanded, setEmailExpanded] = useState<boolean>(false);
+  const [leadSourceExpanded, setLeadSourceExpanded] = useState<boolean>(false);
 
   const handleInputChange = (field: string, value: string) => {
     if (field === "firstName") {
@@ -105,7 +105,7 @@ const AddClient = () => {
 
         {/* Form fields */}
         <div className="space-y-6 mb-16">
-          {/* Name fields */}
+          {/* Name fields - always expanded */}
           <div className="flex items-start gap-3">
             <User className="w-5 h-5 text-gray-500 mt-4" />
             <div className="flex-1 space-y-4">
@@ -126,10 +126,10 @@ const AddClient = () => {
             </div>
           </div>
 
-          {/* Company name */}
+          {/* Company name - collapsible */}
           <div className="flex items-center gap-3">
             <Building className="w-5 h-5 text-gray-500" />
-            {companyExpanded ? (
+            {companyExpanded === true ? (
               <input
                 type="text"
                 placeholder="Company name"
@@ -148,10 +148,10 @@ const AddClient = () => {
             )}
           </div>
 
-          {/* Phone number */}
+          {/* Phone number - collapsible */}
           <div className="flex items-center gap-3">
             <Phone className="w-5 h-5 text-gray-500" />
-            {phoneExpanded ? (
+            {phoneExpanded === true ? (
               <input
                 type="tel"
                 placeholder="Phone number"
@@ -170,10 +170,10 @@ const AddClient = () => {
             )}
           </div>
 
-          {/* Email */}
+          {/* Email - collapsible */}
           <div className="flex items-center gap-3">
             <Mail className="w-5 h-5 text-gray-500" />
-            {emailExpanded ? (
+            {emailExpanded === true ? (
               <input
                 type="email"
                 placeholder="Email address"
@@ -192,10 +192,10 @@ const AddClient = () => {
             )}
           </div>
 
-          {/* Lead source */}
+          {/* Lead source - collapsible */}
           <div className="flex items-center gap-3">
             <List className="w-5 h-5 text-gray-500" />
-            {leadSourceExpanded ? (
+            {leadSourceExpanded === true ? (
               <input
                 type="text"
                 placeholder="Lead source"
@@ -214,7 +214,7 @@ const AddClient = () => {
             )}
           </div>
 
-          {/* Property address field */}
+          {/* Property address field - always expanded */}
           <div className="flex items-center gap-3">
             <MapPin className="w-5 h-5 text-gray-500" />
             <input
