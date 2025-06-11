@@ -54,7 +54,7 @@ const More: React.FC = () => {
           compact
         />
 
-        <div className="px-4 pb-20 pt-3 flex-1 overflow-y-auto">
+        <div className="px-4 pb-40 pt-2 flex-1 overflow-y-auto">
           {/* Feature Boxes */}
           <div className="grid grid-cols-2 gap-4 mb-6">
             <Link 

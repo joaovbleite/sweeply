@@ -290,7 +290,7 @@ const Invoices = () => {
 
   // Get color for progress bar
   const getProgressColor = (invoice: Invoice) => {
-    if (invoice.status === 'paid') return 'bg-green-500';
+    if (invoice.status === 'paid') return 'bg-blue-500';
     if (invoice.status === 'cancelled') return 'bg-gray-400';
     if (invoice.status === 'sent' && new Date(invoice.due_date) < new Date()) return 'bg-red-500';
     return 'bg-blue-500';
