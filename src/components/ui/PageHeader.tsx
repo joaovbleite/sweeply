@@ -1,12 +1,14 @@
 import React, { ReactNode } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import './page-header.css';
 
 interface PageHeaderProps {
   title: string;
   backUrl?: string;
   rightElement?: ReactNode;
   onBackClick?: () => void;
+  compact?: boolean;
 }
 
 /**
@@ -16,12 +18,14 @@ interface PageHeaderProps {
  * @param backUrl - URL to navigate to when back button is clicked (if provided, creates a Link)
  * @param rightElement - Optional element to display on the right side of the header
  * @param onBackClick - Optional callback for back button (used if backUrl is not provided)
+ * @param compact - If true, uses reduced spacing
  */
 const PageHeader: React.FC<PageHeaderProps> = ({ 
   title, 
   backUrl, 
   rightElement,
-  onBackClick 
+  onBackClick,
+  compact = false
 }) => {
   const navigate = useNavigate();
   
@@ -35,7 +39,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 
   return (
     <div className="sticky top-0 left-0 right-0 z-30 bg-white shadow-sm">
-      <div className="flex items-center justify-between px-4 pt-16 pb-4 border-b border-gray-200">
+      <div className={`flex items-center justify-between px-4 border-b border-gray-200 ${compact ? 'page-header-compact' : 'pt-16 pb-4'}`}>
         <div className="flex items-center">
           {backUrl ? (
             <Link to={backUrl} className="mr-2 text-gray-600">

@@ -107,6 +107,7 @@ const NewQuote = () => {
         title="New quote"
         onBackClick={handleBack}
         rightElement={ReviewButton}
+        compact
       />
 
       {/* Main content - with top padding to account for fixed header */}

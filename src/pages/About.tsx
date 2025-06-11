@@ -43,6 +43,7 @@ const About: React.FC = () => {
         <PageHeader
           title="About"
           onBackClick={() => navigate(-1)}
+          compact
         />
 
         <div className="px-4 pb-20 pt-7 flex-1 overflow-y-auto">

@@ -64,8 +64,9 @@ const Company: React.FC = () => {
       <div className="min-h-screen bg-white flex flex-col">
         {/* Use the PageHeader component */}
         <PageHeader
-          title="Company details"
+          title="Company"
           onBackClick={() => navigate(-1)}
+          compact
         />
 
         <form onSubmit={handleSubmit} className="px-4 pb-24">

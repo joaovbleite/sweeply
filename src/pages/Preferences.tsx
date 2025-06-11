@@ -117,6 +117,7 @@ const Preferences: React.FC = () => {
           title="Preferences"
           onBackClick={() => navigate(-1)}
           rightElement={ApplyButton}
+          compact
         />
 
         <div className="px-4 pb-40 pt-5">

@@ -486,6 +486,7 @@ const Clients = () => {
       <PageHeader
         title={getTitle()}
         rightElement={getAddButton()}
+        compact
       />
 
       {/* Main content - with top padding to account for fixed header */}

@@ -248,6 +248,7 @@ const Notifications = () => {
           title="Notifications"
           onBackClick={() => navigate(-1)}
           rightElement={headerRightElement}
+          compact
         />
 
         <div className="px-4 py-6 flex-1 overflow-y-auto">

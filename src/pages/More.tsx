@@ -51,6 +51,7 @@ const More: React.FC = () => {
         <PageHeader
           title="More"
           rightElement={headerRightElement}
+          compact
         />
 
         <div className="px-4 pb-20 pt-3 flex-1 overflow-y-auto">

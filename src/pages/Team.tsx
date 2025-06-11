@@ -153,6 +153,7 @@ const Team: React.FC = () => {
           title="Manage Team"
           onBackClick={() => navigate(-1)}
           rightElement={AddButton}
+          compact
         />
 
         <div className="px-4 pb-36 pt-28">

@@ -1,0 +1,5 @@
+/* Compact header style for PageHeader */
+.page-header-compact {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+} 

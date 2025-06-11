@@ -224,6 +224,7 @@ const Profile: React.FC = () => {
         <PageHeader
           title="Profile"
           onBackClick={() => navigate(-1)}
+          compact
         />
 
         <form onSubmit={handleSubmit} className="px-4 pb-36 flex-1">

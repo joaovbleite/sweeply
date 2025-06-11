@@ -61,6 +61,7 @@ const Refer: React.FC = () => {
         <PageHeader
           title="Refer a friend"
           onBackClick={() => navigate(-1)}
+          compact
         />
 
         <div className="flex-1 overflow-y-auto pb-20">
