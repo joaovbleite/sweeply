@@ -16,9 +16,10 @@ const Support: React.FC = () => {
         <PageHeader
           title="Support"
           onBackClick={() => navigate(-1)}
+          compact
         />
 
-        <div className="px-4 pb-20 pt-7 flex-1 overflow-y-auto">
+        <div className="px-4 pb-40 pt-2 flex-1 overflow-y-auto">
           <div className="mb-8">
             {/* Support Chat */}
             <div className="flex items-center justify-between py-5 border-b border-gray-200">
