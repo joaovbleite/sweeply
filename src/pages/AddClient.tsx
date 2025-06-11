@@ -91,11 +91,11 @@ const AddClient = () => {
         onBackClick={() => navigate(-1)}
       />
 
-      <div className="pt-28 px-4 pb-24 flex-1 overflow-y-auto min-h-screen bg-white">
+      <div className="pt-20 px-4 pb-24 flex-1 overflow-y-auto min-h-screen bg-white">
         {/* Add From Contacts button */}
-        <div className="mb-8">
+        <div className="mb-6">
           <button 
-            className="w-full flex items-center justify-center gap-2 p-4 rounded-lg border border-gray-200 text-[#307842] font-medium"
+            className="w-full flex items-center justify-center gap-2 p-4 rounded-lg border border-gray-200 text-blue-500 font-medium"
             onClick={() => toast.info("Contacts access feature coming soon")}
           >
             <User className="w-5 h-5" />
@@ -126,7 +126,7 @@ const AddClient = () => {
             </div>
           </div>
 
-          {/* Company Name - green text only, no box until expanded */}
+          {/* Company Name - blue text only, no box until expanded */}
           <div className="flex items-center gap-3">
             <Building className="w-5 h-5 text-gray-500" />
             {companyExpanded ? (
@@ -141,14 +141,14 @@ const AddClient = () => {
             ) : (
               <button 
                 onClick={() => setCompanyExpanded(true)}
-                className="text-[#307842] font-medium text-left w-full py-2"
+                className="text-blue-500 font-medium text-left w-full py-2"
               >
                 Add Company Name
               </button>
             )}
           </div>
 
-          {/* Phone Number - green text only, no box until expanded */}
+          {/* Phone Number - blue text only, no box until expanded */}
           <div className="flex items-center gap-3">
             <Phone className="w-5 h-5 text-gray-500" />
             {phoneExpanded ? (
@@ -163,14 +163,14 @@ const AddClient = () => {
             ) : (
               <button 
                 onClick={() => setPhoneExpanded(true)}
-                className="text-[#307842] font-medium text-left w-full py-2"
+                className="text-blue-500 font-medium text-left w-full py-2"
               >
                 Add Phone Number
               </button>
             )}
           </div>
 
-          {/* Email - green text only, no box until expanded */}
+          {/* Email - blue text only, no box until expanded */}
           <div className="flex items-center gap-3">
             <Mail className="w-5 h-5 text-gray-500" />
             {emailExpanded ? (
@@ -185,14 +185,14 @@ const AddClient = () => {
             ) : (
               <button 
                 onClick={() => setEmailExpanded(true)}
-                className="text-[#307842] font-medium text-left w-full py-2"
+                className="text-blue-500 font-medium text-left w-full py-2"
               >
                 Add Email
               </button>
             )}
           </div>
 
-          {/* Lead Source - green text only, no box until expanded */}
+          {/* Lead Source - blue text only, no box until expanded */}
           <div className="flex items-center gap-3">
             <List className="w-5 h-5 text-gray-500" />
             {leadSourceExpanded ? (
@@ -207,7 +207,7 @@ const AddClient = () => {
             ) : (
               <button 
                 onClick={() => setLeadSourceExpanded(true)}
-                className="text-[#307842] font-medium text-left w-full py-2"
+                className="text-blue-500 font-medium text-left w-full py-2"
               >
                 Add Lead Source
               </button>
@@ -231,7 +231,7 @@ const AddClient = () => {
         <button
           onClick={handleSubmit}
           disabled={loading || !formData.name.trim()}
-          className="w-full py-4 bg-green-600 text-white font-medium rounded-lg disabled:opacity-70 flex items-center justify-center"
+          className="w-full py-4 bg-blue-500 text-white font-medium rounded-lg disabled:opacity-70 flex items-center justify-center"
         >
           {loading ? (
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
