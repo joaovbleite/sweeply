@@ -23,7 +23,7 @@ const AddClient = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   
-  // Expanded field states - explicitly set to false
+  // Track which fields are currently being edited
   const [companyExpanded, setCompanyExpanded] = useState<boolean>(false);
   const [phoneExpanded, setPhoneExpanded] = useState<boolean>(false);
   const [emailExpanded, setEmailExpanded] = useState<boolean>(false);
@@ -86,16 +86,14 @@ const AddClient = () => {
 
   return (
     <AppLayout>
-      {/* Use the PageHeader component */}
       <PageHeader
         title="New client"
         onBackClick={() => navigate(-1)}
       />
 
-      {/* Content with padding to account for fixed header */}
       <div className="pt-28 px-4 pb-24 flex-1 overflow-y-auto min-h-screen bg-white">
-        {/* Add from contacts button - Styled to match screenshot */}
-        <div className="mb-6">
+        {/* Add From Contacts button */}
+        <div className="mb-8">
           <button 
             className="w-full flex items-center justify-center gap-2 p-4 rounded-lg border border-gray-200 text-[#307842] font-medium"
             onClick={() => toast.info("Contacts access feature coming soon")}
@@ -107,116 +105,116 @@ const AddClient = () => {
 
         {/* Form fields */}
         <div className="space-y-6 mb-16">
-          {/* Name fields - always expanded */}
+          {/* Name fields - always shown as inputs */}
           <div className="flex items-start gap-3">
-            <User className="w-5 h-5 text-gray-500 mt-4" />
+            <User className="w-5 h-5 text-gray-500 mt-5" />
             <div className="flex-1 space-y-4">
               <input
                 type="text"
                 placeholder="First name"
                 value={firstName}
                 onChange={(e) => handleInputChange("firstName", e.target.value)}
-                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-gray-900"
+                className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-400"
               />
               <input
                 type="text"
                 placeholder="Last name"
                 value={lastName}
                 onChange={(e) => handleInputChange("lastName", e.target.value)}
-                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-gray-900"
+                className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-400"
               />
             </div>
           </div>
 
-          {/* Company name - collapsible but showing as placeholder */}
+          {/* Company Name */}
           <div className="flex items-center gap-3">
             <Building className="w-5 h-5 text-gray-500" />
-            {companyExpanded === true ? (
+            {companyExpanded ? (
               <input
                 type="text"
                 placeholder="Company name"
                 value={formData.notes?.replace('Company: ', '') || ''}
                 onChange={(e) => handleInputChange("companyName", e.target.value)}
-                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-gray-900"
+                className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-900"
                 autoFocus
               />
             ) : (
               <button 
                 onClick={() => setCompanyExpanded(true)}
-                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg text-gray-400 text-left"
+                className="w-full p-4 bg-white border border-gray-200 rounded-lg text-gray-400 text-left"
               >
                 Add Company Name
               </button>
             )}
           </div>
 
-          {/* Phone number - collapsible but showing as placeholder */}
+          {/* Phone Number */}
           <div className="flex items-center gap-3">
             <Phone className="w-5 h-5 text-gray-500" />
-            {phoneExpanded === true ? (
+            {phoneExpanded ? (
               <input
                 type="tel"
                 placeholder="Phone number"
                 value={formData.phone || ""}
                 onChange={(e) => handleInputChange("phone", e.target.value)}
-                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-gray-900"
+                className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-900"
                 autoFocus
               />
             ) : (
               <button 
                 onClick={() => setPhoneExpanded(true)}
-                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg text-gray-400 text-left"
+                className="w-full p-4 bg-white border border-gray-200 rounded-lg text-gray-400 text-left"
               >
                 Add Phone Number
               </button>
             )}
           </div>
 
-          {/* Email - collapsible but showing as placeholder */}
+          {/* Email */}
           <div className="flex items-center gap-3">
             <Mail className="w-5 h-5 text-gray-500" />
-            {emailExpanded === true ? (
+            {emailExpanded ? (
               <input
                 type="email"
                 placeholder="Email address"
                 value={formData.email || ""}
                 onChange={(e) => handleInputChange("email", e.target.value)}
-                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-gray-900"
+                className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-900"
                 autoFocus
               />
             ) : (
               <button 
                 onClick={() => setEmailExpanded(true)}
-                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg text-gray-400 text-left"
+                className="w-full p-4 bg-white border border-gray-200 rounded-lg text-gray-400 text-left"
               >
                 Add Email
               </button>
             )}
           </div>
 
-          {/* Lead source - collapsible but showing as placeholder */}
+          {/* Lead Source */}
           <div className="flex items-center gap-3">
             <List className="w-5 h-5 text-gray-500" />
-            {leadSourceExpanded === true ? (
+            {leadSourceExpanded ? (
               <input
                 type="text"
                 placeholder="Lead source"
                 value={formData.preferences || ""}
                 onChange={(e) => handleInputChange("leadSource", e.target.value)}
-                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-gray-900"
+                className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-900"
                 autoFocus
               />
             ) : (
               <button 
                 onClick={() => setLeadSourceExpanded(true)}
-                className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg text-gray-400 text-left"
+                className="w-full p-4 bg-white border border-gray-200 rounded-lg text-gray-400 text-left"
               >
                 Add Lead Source
               </button>
             )}
           </div>
 
-          {/* Property address field - always expanded */}
+          {/* Property Address */}
           <div className="flex items-center gap-3">
             <MapPin className="w-5 h-5 text-gray-500" />
             <input
@@ -224,12 +222,12 @@ const AddClient = () => {
               placeholder="Property address"
               value={formData.address || ""}
               onChange={(e) => handleInputChange("address", e.target.value)}
-              className="w-full p-4 bg-gray-50 border border-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#307842] text-gray-900"
+              className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-400"
             />
           </div>
         </div>
 
-        {/* Save Button - using blue color as shown in screenshot */}
+        {/* Save Button */}
         <button
           onClick={handleSubmit}
           disabled={loading || !formData.name.trim()}
