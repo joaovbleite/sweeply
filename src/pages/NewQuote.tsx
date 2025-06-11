@@ -7,6 +7,7 @@ import { clientsApi } from "@/lib/api/clients";
 import { Client } from "@/types/client";
 import { useLocale } from "@/hooks/useLocale";
 import PageHeader from "@/components/ui/PageHeader";
+import AppLayout from "@/components/AppLayout";
 
 const NewQuote = () => {
   const { t } = useTranslation(['common', 'quotes']);
@@ -101,8 +102,7 @@ const NewQuote = () => {
   );
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-20">
-      {/* Use the new PageHeader component with right element */}
+    <AppLayout>
       <PageHeader
         title="New quote"
         onBackClick={handleBack}
@@ -110,10 +110,9 @@ const NewQuote = () => {
         compact
       />
 
-      {/* Main content - with top padding to account for fixed header */}
-      <div className="pt-28">
+      <div className="px-4 pt-3 pb-24 flex-1 overflow-y-auto bg-white">
         {/* Client section */}
-        <div className="p-4">
+        <div className="mb-6">
           <h2 className="text-lg text-gray-600 mb-4">Service for</h2>
           
           {/* Client selector */}
@@ -174,10 +173,10 @@ const NewQuote = () => {
         </div>
         
         {/* Separator bar */}
-        <div className="w-full h-12 bg-gray-100 border-t border-b border-gray-200"></div>
+        <div className="w-full h-8 bg-gray-100 -mx-4 px-4 mb-6"></div>
         
         {/* Overview section */}
-        <div className="p-4">
+        <div className="mb-6">
           <h2 className="text-lg text-gray-600 mb-4">Overview</h2>
           
           <div className="space-y-4">
@@ -210,7 +209,7 @@ const NewQuote = () => {
         </div>
         
         {/* Introduction Section */}
-        <div className="border-t border-b border-gray-200 px-4 py-5">
+        <div className="border-t border-b border-gray-200 -mx-4 px-4 py-5 mb-6">
           <button 
             onClick={handleToggleIntroduction}
             className="w-full flex items-center justify-between"
@@ -230,12 +229,12 @@ const NewQuote = () => {
         </div>
         
         {/* Product / Service Section */}
-        <div className="px-4 py-5">
+        <div className="mb-6">
           <h2 className="text-xl font-medium text-gray-600">Product / Service</h2>
         </div>
         
         {/* Line Items Section */}
-        <div className="border-t border-b border-gray-200 px-4 py-5">
+        <div className="border-t border-b border-gray-200 -mx-4 px-4 py-5 mb-6">
           <button 
             onClick={handleToggleLineItems}
             className="w-full flex items-center justify-between"
@@ -253,7 +252,7 @@ const NewQuote = () => {
         </div>
         
         {/* Pricing Section */}
-        <div className="px-4 py-5">
+        <div className="mb-6">
           <div className="space-y-5">
             <div className="flex justify-between items-center">
               <h3 className="text-xl font-medium text-gray-800">Subtotal</h3>
@@ -273,7 +272,7 @@ const NewQuote = () => {
         </div>
         
         {/* Total Section */}
-        <div className="bg-gray-100 px-4 py-5">
+        <div className="bg-gray-100 -mx-4 px-4 py-5 mb-6">
           <div className="flex justify-between items-center">
             <h3 className="text-xl font-medium text-gray-800">Total</h3>
             <span className="text-xl text-gray-800">{formatCurrency(quoteData.total)}</span>
@@ -281,7 +280,7 @@ const NewQuote = () => {
         </div>
         
         {/* Required Deposit Section */}
-        <div className="px-4 py-5">
+        <div className="mb-6">
           <div className="flex justify-between items-center">
             <h3 className="text-xl font-medium text-gray-800">Required deposit</h3>
             <span className="text-xl text-blue-500">{formatCurrency(quoteData.requiredDeposit)}</span>
@@ -289,7 +288,7 @@ const NewQuote = () => {
         </div>
         
         {/* Client Message Section */}
-        <div className="border-t border-b border-gray-200 px-4 py-5">
+        <div className="border-t border-b border-gray-200 -mx-4 px-4 py-5 mb-6">
           <button 
             onClick={handleToggleClientMessage}
             className="w-full flex items-center justify-between"
@@ -309,7 +308,7 @@ const NewQuote = () => {
         </div>
         
         {/* Contract / Disclaimer Section */}
-        <div className="border-b border-gray-200 px-4 py-5">
+        <div className="border-b border-gray-200 -mx-4 px-4 py-5 mb-6">
           <button 
             onClick={handleToggleDisclaimerEdit}
             className="w-full flex items-center justify-between"
@@ -343,7 +342,7 @@ const NewQuote = () => {
           </button>
         </div>
       </div>
-    </div>
+    </AppLayout>
   );
 };
 
