@@ -402,3 +402,20 @@
   border-bottom: 1px solid #f0f0f0;
   position: relative;
 }
+
+/* Calendar visibility fix: Make calendar text more visible */
+.react-day-picker,
+.react-day-picker * {
+  color: #1a1a1a !important;
+}
+
+.react-day-picker .rdp-day_disabled,
+.react-day-picker .rdp-day_outside {
+  color: #b0b0b0 !important;
+  opacity: 0.7 !important;
+}
+
+.react-day-picker .rdp-head_cell {
+  color: #2d3748 !important;
+  font-weight: 600;
+}

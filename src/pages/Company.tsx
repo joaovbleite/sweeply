@@ -224,12 +224,12 @@ const Company: React.FC = () => {
           
           {/* Save Button - no longer fixed */}
           <div className="mt-8 mb-4">
-            <button
-              type="submit"
+          <button
+            type="submit"
               className="w-full py-4 bg-pulse-500 hover:bg-pulse-600 text-white text-lg font-medium rounded-lg transition-colors shadow-md"
-            >
-              Save
-            </button>
+          >
+            Save
+          </button>
           </div>
         </form>
       </div>
