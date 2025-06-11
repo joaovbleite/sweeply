@@ -44,7 +44,7 @@ const BusinessHealthPage = ({ isOpen, onClose }: { isOpen: boolean, onClose: () 
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-[#1a2e35] text-2xl font-bold">3</span>
-                <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full flex items-center text-sm">
+                <span className="px-2 py-1 bg-blue-100 text-blue-600 rounded-full flex items-center text-sm">
                   <ArrowUp className="w-3 h-3 mr-1" />
                   100%
                 </span>
@@ -57,7 +57,7 @@ const BusinessHealthPage = ({ isOpen, onClose }: { isOpen: boolean, onClose: () 
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-[#1a2e35] text-2xl font-bold">2</span>
-                <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full flex items-center text-sm">
+                <span className="px-2 py-1 bg-blue-100 text-blue-600 rounded-full flex items-center text-sm">
                   <ArrowUp className="w-3 h-3 mr-1" />
                   100%
                 </span>
@@ -124,7 +124,7 @@ const BusinessHealthPage = ({ isOpen, onClose }: { isOpen: boolean, onClose: () 
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-[#1a2e35] text-2xl font-bold">$200</span>
-                <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full flex items-center text-sm">
+                <span className="px-2 py-1 bg-blue-100 text-blue-600 rounded-full flex items-center text-sm">
                   <ArrowUp className="w-3 h-3 mr-1" />
                   100%
                 </span>
@@ -137,7 +137,7 @@ const BusinessHealthPage = ({ isOpen, onClose }: { isOpen: boolean, onClose: () 
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-[#1a2e35] text-2xl font-bold">2</span>
-                <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full flex items-center text-sm">
+                <span className="px-2 py-1 bg-blue-100 text-blue-600 rounded-full flex items-center text-sm">
                   <ArrowUp className="w-3 h-3 mr-1" />
                   100%
                 </span>
@@ -223,7 +223,7 @@ const BusinessHealth = () => {
               </div>
               <div className="flex items-center">
                 <span className="text-xl font-bold text-gray-900 mr-3">$200</span>
-                <span className="bg-green-100 text-green-700 text-xs px-2.5 py-1 rounded-full flex items-center">
+                <span className="bg-blue-100 text-blue-600 text-xs px-2.5 py-1 rounded-full flex items-center">
                   <ArrowUp className="w-3 h-3 mr-1" />
                   100%
                 </span>
@@ -240,7 +240,7 @@ const BusinessHealth = () => {
               </div>
               <div className="flex items-center">
                 <span className="text-xl font-bold text-gray-900 mr-3">2</span>
-                <span className="bg-green-100 text-green-700 text-xs px-2.5 py-1 rounded-full flex items-center">
+                <span className="bg-blue-100 text-blue-600 text-xs px-2.5 py-1 rounded-full flex items-center">
                   <ArrowUp className="w-3 h-3 mr-1" />
                   100%
                 </span>

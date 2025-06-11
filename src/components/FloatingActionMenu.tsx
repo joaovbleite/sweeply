@@ -66,8 +66,8 @@ const FloatingActionMenu: React.FC = () => {
       label: "Job", 
       icon: Briefcase, 
       action: () => navigate("/jobs/new"),
-      color: "bg-green-50",
-      iconColor: "text-green-600"
+      color: "bg-blue-50",
+      iconColor: "text-blue-600"
     },
     { 
       id: "quote", 
@@ -90,8 +90,8 @@ const FloatingActionMenu: React.FC = () => {
       label: "Expense", 
       icon: DollarSign, 
       action: () => navigate("/expenses/new"),
-      color: "bg-green-50",
-      iconColor: "text-green-600"
+      color: "bg-blue-50",
+      iconColor: "text-blue-600"
     },
     { 
       id: "task", 
