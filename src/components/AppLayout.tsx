@@ -86,7 +86,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-white flex flex-col lg:flex-row pt-safe">
       {/* Sidebar */}
       <aside 
         id="mobile-sidebar"
@@ -204,9 +204,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
       </aside>
 
       {/* Main Content */}
-      <div className={`flex-1 flex flex-col min-h-screen max-h-screen overflow-hidden ${hideBottomNav ? 'pb-safe' : ''}`}>
+      <div className={`flex-1 flex flex-col min-h-screen max-h-screen overflow-hidden bg-white ${hideBottomNav ? 'pb-safe' : ''}`}>
         {/* Page Content - removed the header for desktop */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto bg-white">
           <div style={{ 
             willChange: 'opacity',
             contentVisibility: 'auto',
