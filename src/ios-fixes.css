@@ -36,4 +36,57 @@ html, body {
     background-color: #FFFFFF;
     z-index: 9999;
   }
+}
+
+/* iOS-specific fixes for transparency and status bar issues */
+
+/* Force white background and prevent transparency */
+html, body {
+  background-color: #FFFFFF !important;
+}
+
+/* Status bar background fix */
+.ios-status-bar-fix {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top);
+  background-color: #FFFFFF !important;
+  z-index: 9999;
+}
+
+/* For PWA mode - force white status bar */
+@media (display-mode: standalone) {
+  html {
+    background-color: #FFFFFF;
+  }
+  
+  body {
+    background-color: #FFFFFF;
+  }
+  
+  /* Ensure body starts below the status bar inset */
+  body {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* Full-height body without bouncing/elastic overscroll */
+.no-bounce {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.no-bounce > div {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 } 

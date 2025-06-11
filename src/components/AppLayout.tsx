@@ -76,9 +76,15 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
     document.documentElement.style.backgroundColor = "#FFFFFF";
     document.body.style.backgroundColor = "#FFFFFF";
     
-    // Add a class to handle the safe area insets
+    // Add a class to handle the safe area insets and ensure no transparency
     document.documentElement.classList.add('h-full', 'bg-white');
     document.body.classList.add('h-full', 'bg-white');
+    
+    // Add meta tag to control status bar appearance on iOS
+    const metaTag = document.createElement('meta');
+    metaTag.name = 'apple-mobile-web-app-status-bar-style';
+    metaTag.content = 'default'; // 'default' ensures white status bar instead of transparent
+    document.head.appendChild(metaTag);
     
     return () => {
       // Cleanup when component unmounts
@@ -86,6 +92,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
       document.body.style.backgroundColor = "";
       document.documentElement.classList.remove('h-full', 'bg-white');
       document.body.classList.remove('h-full', 'bg-white');
+      if (metaTag.parentNode) {
+        document.head.removeChild(metaTag);
+      }
     };
   }, []);
 
