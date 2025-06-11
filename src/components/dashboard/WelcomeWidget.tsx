@@ -5,6 +5,7 @@ import { Bell, Sparkles, Calendar, Clock, Sun, Cloud, CloudRain, Zap } from 'luc
 import { notificationsApi } from '@/lib/api/notifications';
 import { format } from 'date-fns';
 import { useIsMobile } from '@/hooks/use-mobile';
+import '@/pages/dashboard.css'; // Import dashboard-specific styles
 
 const WelcomeWidget = () => {
   const { user } = useAuth();
@@ -74,7 +75,7 @@ const WelcomeWidget = () => {
   // If mobile, render the original widget
   if (isMobile) {
     return (
-      <div className="pt-14 pb-3 px-4 bg-white">
+      <div className="dashboard-welcome-widget">
         {/* Header with date and icons */}
         <div className="flex items-center justify-between mb-2 mt-2">
           <p className="text-[#0d3547]/70 text-base">{formattedDate}</p>

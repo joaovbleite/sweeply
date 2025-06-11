@@ -1,0 +1,15 @@
+/* Dashboard-specific style adjustments */
+.dashboard-welcome-widget {
+  padding-top: 8px !important; /* Reduced from 14px */
+  padding-bottom: 3px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  background-color: white;
+}
+
+/* Only for mobile welcome widget */
+@media (max-width: 768px) {
+  .dashboard-welcome-widget {
+    padding-top: 8px !important;
+  }
+} 
