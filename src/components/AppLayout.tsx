@@ -70,6 +70,12 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
     }
   }, [location.pathname]);
 
+  // Scroll restoration - ensure pages open at the top
+  useEffect(() => {
+    // Scroll to top when route changes
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   // Set the background color of the document elements on mount
   useEffect(() => {
     // Set the background color of HTML and body
