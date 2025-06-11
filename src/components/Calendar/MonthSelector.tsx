@@ -86,8 +86,8 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
           key={day} 
           onClick={() => selectDay(day)}
           className={`calendar-day cursor-pointer h-9 w-9 flex items-center justify-center rounded-full hover:bg-blue-100 transition-colors ${
-            isSelected ? 'bg-blue-600 text-white' : 
-            isCurrentDay ? 'border-2 border-blue-600 text-blue-600' : 'text-gray-700'
+            isSelected ? 'bg-blue-500 text-white' : 
+            isCurrentDay ? 'border-2 border-blue-500 text-blue-500' : ''
           }`}
         >
           {day}
@@ -118,9 +118,9 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
         </div>
         <div className="ml-2">
           {isExpanded ? (
-            <ChevronUp className="h-5 w-5 text-blue-600" />
+            <ChevronUp className="h-5 w-5 text-blue-500" />
           ) : (
-            <ChevronDown className="h-5 w-5 text-blue-600" />
+            <ChevronDown className="h-5 w-5 text-blue-500" />
           )}
         </div>
       </button>
@@ -144,7 +144,7 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
                   className="p-1.5 hover:bg-blue-50 rounded-full"
                   aria-label="Previous month"
                 >
-                  <ChevronLeft className="h-5 w-5 text-blue-600" />
+                  <ChevronLeft className="h-5 w-5 text-blue-500" />
                 </button>
                 <div className="text-lg font-bold text-gray-900">
                   {format(selectedMonth, 'MMMM yyyy')}
@@ -157,7 +157,7 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
                   className="p-1.5 hover:bg-blue-50 rounded-full"
                   aria-label="Next month"
                 >
-                  <ChevronRight className="h-5 w-5 text-blue-600" />
+                  <ChevronRight className="h-5 w-5 text-blue-500" />
                 </button>
               </div>
             </div>
@@ -165,7 +165,7 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
             {/* Week day labels */}
             <div className="grid grid-cols-7 gap-1 px-3 py-2 text-center">
               {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
-                <div key={index} className="text-sm font-medium text-blue-600">
+                <div key={index} className="text-sm font-medium text-blue-400">
                   {day}
                 </div>
               ))}
@@ -182,7 +182,7 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
                 <div className="text-sm font-medium text-[#1a2e35] truncate max-w-[160px]">
                   {userName}
                 </div>
-                <div className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-xs font-medium">
+                <div className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
                   {jobCount} jobs
                 </div>
               </div>
