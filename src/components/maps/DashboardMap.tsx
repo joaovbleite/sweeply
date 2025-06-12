@@ -315,6 +315,33 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
         }} 
       />
       
+      {/* Top fade overlay */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '60px',
+          pointerEvents: 'none',
+          background: 'linear-gradient(to bottom, white 80%, rgba(255,255,255,0) 100%)',
+          zIndex: 20
+        }}
+      />
+      {/* Bottom fade overlay */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          width: '100%',
+          height: '60px',
+          pointerEvents: 'none',
+          background: 'linear-gradient(to top, white 80%, rgba(255,255,255,0) 100%)',
+          zIndex: 20
+        }}
+      />
+      
       {/* Loading indicator */}
       <div id="map-loading" className="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
         <div className="text-center">
