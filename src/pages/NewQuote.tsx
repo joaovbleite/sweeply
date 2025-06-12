@@ -104,7 +104,7 @@ const NewQuote = () => {
     <div className="bg-gray-50 min-h-screen pb-20">
       {/* Use the new PageHeader component with right element */}
       <PageHeader
-        title="New quote"
+        title="New Quote"
         onBackClick={handleBack}
         rightElement={ReviewButton}
         compact

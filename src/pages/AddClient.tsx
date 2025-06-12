@@ -134,7 +134,7 @@ const AddClient = () => {
   return (
     <AppLayout>
       <PageHeader
-        title="New client"
+        title="New Client"
         onBackClick={() => navigate(-1)}
       />
 
@@ -271,7 +271,7 @@ const AddClient = () => {
                   className="text-green-600 font-medium text-left w-full py-2"
                   onClick={() => toast.info("Multiple phone numbers coming soon")}
                 >
-                  Add another phone number
+                  Add Another Phone Number
                 </button>
               </div>
             ) : (
