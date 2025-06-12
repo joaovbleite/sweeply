@@ -302,7 +302,7 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
   }, []);
 
   return (
-    <div className={`relative rounded-xl overflow-hidden shadow-sm border border-gray-100 ${className}`} style={{ height: '350px', position: 'relative' }}>
+    <div className={`relative rounded-xl overflow-hidden shadow-sm border border-gray-100 ${className}`} style={{ height: '350px', position: 'relative', width: '100vw', left: '50%', transform: 'translateX(-50%)', borderRadius: 0, border: 'none' }}>
       {/* Map container with explicitly defined dimensions */}
       <div 
         ref={mapContainer} 
@@ -322,9 +322,9 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
           top: 0,
           left: 0,
           width: '100%',
-          height: '32px',
+          height: '56px',
           pointerEvents: 'none',
-          background: 'linear-gradient(to bottom, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.0) 100%)',
+          background: 'linear-gradient(to bottom, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.0) 100%)',
           zIndex: 20
         }}
       />
@@ -335,9 +335,9 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
           bottom: 0,
           left: 0,
           width: '100%',
-          height: '32px',
+          height: '56px',
           pointerEvents: 'none',
-          background: 'linear-gradient(to top, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.0) 100%)',
+          background: 'linear-gradient(to top, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.0) 100%)',
           zIndex: 20
         }}
       />
