@@ -102,20 +102,6 @@ const Subscription: React.FC = () => {
           }
         />
 
-        {/* Current Plan (placeholder) */}
-        <div className="bg-white rounded-xl shadow-sm mb-6 p-4">
-          <h2 className="text-lg font-semibold mb-2">Current Plan</h2>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-700 font-medium">Free Trial</p>
-              <p className="text-sm text-gray-500">Expires in 7 days</p>
-            </div>
-            <button className="text-sm text-blue-600 font-medium px-3 py-1.5 rounded-md hover:bg-blue-50">
-              Contact Support
-            </button>
-          </div>
-        </div>
-
         {/* Plan Selection Tabs */}
         <div className="mt-4 bg-gray-100 rounded-full p-1.5 flex mb-8">
           {['standard', 'pro', 'enterprise'].map((plan) => (
@@ -204,8 +190,22 @@ const Subscription: React.FC = () => {
           )}
         </div>
         
+        {/* Current Plan (moved to bottom) */}
+        <div className="bg-white rounded-xl shadow-sm my-8 p-4">
+          <h2 className="text-lg font-semibold mb-2">Current Plan</h2>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-700 font-medium">Free Trial</p>
+              <p className="text-sm text-gray-500">Expires in 7 days</p>
+            </div>
+            <button className="text-sm text-blue-600 font-medium px-3 py-1.5 rounded-md hover:bg-blue-50">
+              Contact Support
+            </button>
+          </div>
+        </div>
+        
         {/* Contact Support Info */}
-        <div className="mt-8 text-center">
+        <div className="mt-4 text-center">
           <p className="text-sm text-gray-600 mb-2">
             Need help choosing a plan or want to cancel?
           </p>
