@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { 
   Calendar, 
@@ -41,7 +41,45 @@ import BusinessHealth from "@/components/dashboard/BusinessHealth";
 import TodayScheduleSlider from "@/components/dashboard/TodayScheduleSlider";
 import GettingStartedTodo from "@/components/dashboard/GettingStartedTodo";
 import { useIsMobile } from "@/hooks/use-mobile";
-import DashboardMap from "@/components/maps/DashboardMap";
+// Import the map component with React.lazy for code splitting
+const DashboardMap = React.lazy(() => import("@/components/maps/DashboardMap"));
+
+// Error boundary component to catch map errors
+class MapErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> {
+  constructor(props: {children: React.ReactNode}) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: any) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: any, errorInfo: any) {
+    console.error("Map component error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="rounded-xl overflow-hidden shadow-sm border border-gray-100 flex items-center justify-center p-4" style={{ height: '350px' }}>
+          <div className="text-center">
+            <AlertCircle className="w-8 h-8 text-amber-500 mx-auto mb-2" />
+            <p className="text-gray-600">Map could not be loaded</p>
+            <button 
+              onClick={() => this.setState({ hasError: false })}
+              className="mt-2 px-3 py-1 bg-blue-500 text-white rounded-md text-sm font-medium"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -221,7 +259,20 @@ const Dashboard = () => {
               View Calendar <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
             </Link>
           </div>
-          <DashboardMap jobs={jobs} className="mt-2" />
+          <MapErrorBoundary>
+            <Suspense fallback={
+              <div className="rounded-xl overflow-hidden shadow-sm border border-gray-100 flex items-center justify-center bg-gray-50" style={{ height: '350px' }}>
+                <div className="text-center">
+                  <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-500 border-r-transparent" role="status">
+                    <span className="sr-only">Loading map...</span>
+                  </div>
+                  <p className="mt-2 text-sm text-gray-600">Loading map...</p>
+                </div>
+              </div>
+            }>
+              <DashboardMap jobs={jobs} className="mt-2" />
+            </Suspense>
+          </MapErrorBoundary>
         </div>
         
         {/* Mobile Dashboard Sections */}

@@ -16,6 +16,9 @@ interface DashboardMapProps {
 // Define the Mapbox token - using public token (pk) for client-side usage
 const MAPBOX_TOKEN = 'pk.eyJ1IjoianZsZWl0ZTE1MiIsImEiOiJjbWJzbTRyMGgwbXQ1MmtweHFsOXA1aHZsIn0.6mkwBGmb0wnelPMyIjZNpQ';
 
+// Use the custom style URL from Mapbox Studio
+const MAPBOX_STYLE_URL = 'mapbox://styles/jvleite152/cmbsxe4yf000101s90fzw4cns';
+
 const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
@@ -170,7 +173,7 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
         // Initialize the map
         mapInstance.current = new mapboxgl.Map({
           container: mapContainer.current,
-          style: 'mapbox://styles/mapbox/streets-v12',
+          style: MAPBOX_STYLE_URL, // Use custom style instead of 'mapbox://styles/mapbox/streets-v12'
           center: [-96.7, 39.8], // Default center (US)
           zoom: 3.5,
           attributionControl: true
