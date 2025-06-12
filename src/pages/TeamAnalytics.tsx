@@ -22,6 +22,7 @@ import { employeesApi } from "@/lib/api/employees";
 import { Employee, EmployeeStats, PerformanceReview } from "@/types/employee";
 import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
 import AppLayout from "@/components/AppLayout";
+import PageHeader from "@/components/ui/PageHeader";
 
 const TeamAnalytics = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -197,6 +198,11 @@ const TeamAnalytics = () => {
 
   return (
     <AppLayout>
+      <PageHeader
+        title="Team Analytics"
+        onBackClick={() => window.history.back()}
+        rightElement={<BarChart3 className="w-8 h-8 text-pulse-600" />}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">

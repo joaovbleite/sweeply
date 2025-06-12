@@ -34,6 +34,7 @@ import { Client } from "@/types/client";
 import { Job } from "@/types/job";
 import { format, differenceInDays, startOfYear, endOfYear } from "date-fns";
 import AppLayout from "@/components/AppLayout";
+import PageHeader from "@/components/ui/PageHeader";
 
 const ClientDashboard = () => {
   const { id } = useParams<{ id: string }>();
@@ -177,46 +178,16 @@ const ClientDashboard = () => {
     <AppLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link
-              to="/clients"
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                <User className="w-8 h-8 text-pulse-500" />
-                {client.name}
-              </h1>
-              <p className="text-gray-600 mt-1">Client Dashboard & Analytics</p>
+        <PageHeader
+          title={client.name}
+          onBackClick={() => window.history.back()}
+          rightElement={clientTier && (
+            <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${clientTier.color}`}>
+              <TierIcon className="w-4 h-4" />
+              {clientTier.tier}
             </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {clientTier && (
-              <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${clientTier.color}`}>
-                <TierIcon className="w-4 h-4" />
-                {clientTier.tier} Client
-              </div>
-            )}
-            <Link
-              to={`/invoices/new?client=${id}`}
-              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2"
-            >
-              <FileText className="w-4 h-4" />
-              Create Invoice
-            </Link>
-            <Link
-              to={`/clients/${id}/edit`}
-              className="px-4 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 transition-colors flex items-center gap-2"
-            >
-              <Edit className="w-4 h-4" />
-              Edit Client
-            </Link>
-          </div>
-        </div>
+          )}
+        />
 
         {/* Quick Stats */}
         {analytics && (
