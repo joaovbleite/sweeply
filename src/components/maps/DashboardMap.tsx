@@ -16,14 +16,13 @@ interface DashboardMapProps {
 // Define the Mapbox token - using public token (pk) for client-side usage
 const MAPBOX_TOKEN = 'pk.eyJ1IjoianZsZWl0ZTE1MiIsImEiOiJjbWJzbTRyMGgwbXQ1MmtweHFsOXA1aHZsIn0.6mkwBGmb0wnelPMyIjZNpQ';
 
-// Use the custom style URL from Mapbox Studio
-const MAPBOX_STYLE_URL = 'mapbox://styles/jvleite152/cmbsxe4yf000101s90fzw4cns';
-
 const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
   const [geocodedJobs, setGeocodedJobs] = useState<Array<any>>([]);
   const [isMapInitialized, setIsMapInitialized] = useState<boolean>(false);
+  const [mapError, setMapError] = useState<string | null>(null);
+  const [isMapLoaded, setIsMapLoaded] = useState<boolean>(false);
 
   // Function to geocode addresses to coordinates
   const geocodeAddress = async (address: string) => {
@@ -74,57 +73,62 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
     geocodeJobs();
   }, [jobs]);
 
-  // Effect to add job markers to the map once it's initialized
+  // Effect to add job markers to the map once it's initialized and loaded
   useEffect(() => {
-    if (!isMapInitialized || !mapInstance.current || geocodedJobs.length === 0) return;
+    if (!isMapInitialized || !mapInstance.current || !isMapLoaded || geocodedJobs.length === 0) return;
     
-    // Add markers for each geocoded job
-    geocodedJobs.forEach(job => {
-      if (!job.coordinates) return;
-      
-      // Create a popup
-      const mapboxgl = (window as any).mapboxgl;
-      const popup = new mapboxgl.Popup({ offset: 25 })
-        .setHTML(`
-          <div style="padding: 8px;">
-            <h3 style="margin: 0 0 5px 0; font-weight: 600;">${job.title}</h3>
-            <p style="margin: 0; font-size: 12px;">${job.address}</p>
-            <p style="margin: 5px 0 0 0; font-size: 11px; color: #666;">
-              ${new Date(job.scheduled_date).toLocaleDateString()}
-            </p>
-          </div>
-        `);
-      
-      // Create a marker
-      new mapboxgl.Marker({
-        color: '#10b981', // Green color for job markers
-      })
-        .setLngLat(job.coordinates)
-        .setPopup(popup)
-        .addTo(mapInstance.current);
-    });
-    
-    // If we have jobs with coordinates, fit the map to show all markers
-    if (geocodedJobs.length > 0) {
-      // Create a bounds object
-      const mapboxgl = (window as any).mapboxgl;
-      const bounds = new mapboxgl.LngLatBounds();
-      
-      // Extend the bounds to include each job's location
+    try {
+      // Add markers for each geocoded job
       geocodedJobs.forEach(job => {
-        if (job.coordinates) {
-          bounds.extend(job.coordinates);
-        }
+        if (!job.coordinates) return;
+        
+        // Create a popup
+        const mapboxgl = (window as any).mapboxgl;
+        const popup = new mapboxgl.Popup({ offset: 25 })
+          .setHTML(`
+            <div style="padding: 8px;">
+              <h3 style="margin: 0 0 5px 0; font-weight: 600;">${job.title}</h3>
+              <p style="margin: 0; font-size: 12px;">${job.address}</p>
+              <p style="margin: 5px 0 0 0; font-size: 11px; color: #666;">
+                ${new Date(job.scheduled_date).toLocaleDateString()}
+              </p>
+            </div>
+          `);
+        
+        // Create a marker
+        new mapboxgl.Marker({
+          color: '#10b981', // Green color for job markers
+        })
+          .setLngLat(job.coordinates)
+          .setPopup(popup)
+          .addTo(mapInstance.current);
       });
       
-      // Fit the map to the bounds
-      mapInstance.current.fitBounds(bounds, {
-        padding: 50, // Add some padding around the bounds
-        maxZoom: 14, // Don't zoom in too far
-        duration: 1000 // Animation duration in milliseconds
-      });
+      // If we have jobs with coordinates, fit the map to show all markers
+      if (geocodedJobs.length > 0) {
+        // Create a bounds object
+        const mapboxgl = (window as any).mapboxgl;
+        const bounds = new mapboxgl.LngLatBounds();
+        
+        // Extend the bounds to include each job's location
+        geocodedJobs.forEach(job => {
+          if (job.coordinates) {
+            bounds.extend(job.coordinates);
+          }
+        });
+        
+        // Fit the map to the bounds
+        mapInstance.current.fitBounds(bounds, {
+          padding: 50, // Add some padding around the bounds
+          maxZoom: 14, // Don't zoom in too far
+          duration: 1000 // Animation duration in milliseconds
+        });
+      }
+    } catch (error) {
+      console.error('Error adding markers to map:', error);
+      setMapError('Failed to add markers to map');
     }
-  }, [isMapInitialized, geocodedJobs]);
+  }, [isMapInitialized, geocodedJobs, isMapLoaded]);
 
   useEffect(() => {
     // Define inline styles for debug purposes
@@ -143,49 +147,33 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
     `;
     document.head.appendChild(debugStyles);
 
-    // Load Mapbox GL JS script dynamically
-    const script = document.createElement('script');
-    script.src = 'https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js';
-    script.async = true;
-    
-    script.onload = () => {
+    // Initialize the map
+    const initializeMap = () => {
       if (!mapContainer.current) return;
       
-      // Access mapboxgl through the window object
-      const mapboxgl = (window as any).mapboxgl;
-      
-      if (!mapboxgl) {
-        console.error('Mapbox GL JS failed to load');
-        // Add debug info to the map container
-        if (mapContainer.current) {
-          const debugInfo = document.createElement('div');
-          debugInfo.className = 'map-debug-info';
-          debugInfo.textContent = 'Error: Mapbox GL JS failed to load';
-          mapContainer.current.appendChild(debugInfo);
-        }
-        return;
-      }
-
       try {
+        // Access mapboxgl through the window object
+        const mapboxgl = (window as any).mapboxgl;
+        
+        if (!mapboxgl) {
+          console.error('Mapbox GL JS failed to load');
+          setMapError('Mapbox GL JS failed to load');
+          return;
+        }
+
         // Set the access token
         mapboxgl.accessToken = MAPBOX_TOKEN;
         
         // Initialize the map
         mapInstance.current = new mapboxgl.Map({
           container: mapContainer.current,
-          style: MAPBOX_STYLE_URL, // Use custom style instead of 'mapbox://styles/mapbox/streets-v12'
+          style: 'mapbox://styles/mapbox/streets-v12',
           center: [-96.7, 39.8], // Default center (US)
           zoom: 3.5,
-          attributionControl: true
+          attributionControl: true,
+          preserveDrawingBuffer: true,
+          antialias: true
         });
-        
-        // Add navigation controls
-        mapInstance.current.addControl(
-          new mapboxgl.NavigationControl({
-            showCompass: true
-          }),
-          'top-right'
-        );
         
         // Force map to be visible and responsive
         if (mapContainer.current) {
@@ -194,47 +182,13 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
           mapContainer.current.style.display = 'block';
         }
         
-        // Try to get user's location
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const { longitude, latitude } = position.coords;
-              
-              // Move map to user's location
-              mapInstance.current.flyTo({
-                center: [longitude, latitude],
-                zoom: 12,
-                essential: true
-              });
-              
-              // Add a marker at user's location
-              new mapboxgl.Marker({
-                color: '#3b82f6' // Blue for user's location
-              })
-                .setLngLat([longitude, latitude])
-                .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML('<p style="margin: 0; font-weight: 500;">Your Location</p>'))
-                .addTo(mapInstance.current);
-                
-              // Force a resize after map loads
-              setTimeout(() => {
-                if (mapInstance.current) {
-                  mapInstance.current.resize();
-                }
-              }, 500);
-            },
-            (error) => {
-              console.error('Error getting user location:', error);
-              // Add debug info about geolocation error
-              if (mapContainer.current) {
-                const debugInfo = document.createElement('div');
-                debugInfo.className = 'map-debug-info';
-                debugInfo.textContent = `Geolocation error: ${error.message}`;
-                mapContainer.current.appendChild(debugInfo);
-              }
-            },
-            { enableHighAccuracy: true, timeout: 10000 }
-          );
-        }
+        // Add navigation controls
+        mapInstance.current.addControl(
+          new mapboxgl.NavigationControl({
+            showCompass: true
+          }),
+          'top-right'
+        );
         
         // Add map load event handler
         mapInstance.current.on('load', () => {
@@ -261,31 +215,70 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
           
           // Set map as initialized so we can add job markers
           setIsMapInitialized(true);
+          setIsMapLoaded(true);
+          
+          // Force a resize to ensure the map renders correctly
+          setTimeout(() => {
+            if (mapInstance.current) {
+              mapInstance.current.resize();
+            }
+          }, 200);
+          
+          // Try to get user's location after map is loaded
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const { longitude, latitude } = position.coords;
+                
+                // Move map to user's location
+                mapInstance.current.flyTo({
+                  center: [longitude, latitude],
+                  zoom: 12,
+                  essential: true
+                });
+                
+                // Add a marker at user's location
+                new mapboxgl.Marker({
+                  color: '#3b82f6' // Blue for user's location
+                })
+                  .setLngLat([longitude, latitude])
+                  .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML('<p style="margin: 0; font-weight: 500;">Your Location</p>'))
+                  .addTo(mapInstance.current);
+              },
+              (error) => {
+                console.error('Error getting user location:', error);
+                // Add debug info about geolocation error
+                if (mapContainer.current) {
+                  const debugInfo = document.createElement('div');
+                  debugInfo.className = 'map-debug-info';
+                  debugInfo.textContent = `Geolocation error: ${error.message}`;
+                  mapContainer.current.appendChild(debugInfo);
+                }
+              },
+              { enableHighAccuracy: true, timeout: 10000 }
+            );
+          }
         });
         
         // Add map error event handler
         mapInstance.current.on('error', (e: any) => {
           console.error('Map error:', e);
-          
-          // Add debug info about map error
-          if (mapContainer.current) {
-            const debugInfo = document.createElement('div');
-            debugInfo.className = 'map-debug-info';
-            debugInfo.textContent = `Map error: ${e.error?.message || 'Unknown error'}`;
-            mapContainer.current.appendChild(debugInfo);
-          }
+          setMapError(`Map error: ${e.error?.message || 'Unknown error'}`);
         });
       } catch (error) {
         console.error('Error initializing map:', error);
-        
-        // Add debug info about initialization error
-        if (mapContainer.current) {
-          const debugInfo = document.createElement('div');
-          debugInfo.className = 'map-debug-info';
-          debugInfo.textContent = `Error initializing map: ${(error as Error).message}`;
-          mapContainer.current.appendChild(debugInfo);
-        }
+        setMapError(`Error initializing map: ${(error as Error).message}`);
       }
+    };
+
+    // Load Mapbox GL JS script dynamically
+    const script = document.createElement('script');
+    script.src = 'https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js';
+    script.async = true;
+    script.onload = initializeMap;
+    script.onerror = () => {
+      console.error('Failed to load Mapbox GL JS script');
+      setMapError('Failed to load Mapbox GL JS script');
     };
     
     document.head.appendChild(script);
@@ -298,8 +291,8 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
       
       // Remove the script if it exists
       const scriptEl = document.querySelector('script[src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"]');
-      if (scriptEl) {
-        document.head.removeChild(scriptEl);
+      if (scriptEl && scriptEl.parentNode) {
+        scriptEl.parentNode.removeChild(scriptEl);
       }
       
       // Remove debug styles
@@ -311,7 +304,18 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
 
   return (
     <div className={`relative rounded-xl overflow-hidden shadow-sm border border-gray-100 ${className}`} style={{ height: '350px', position: 'relative' }}>
-      <div ref={mapContainer} style={{ width: '100%', height: '100%', minHeight: '350px', position: 'relative' }} />
+      {/* Map container with explicitly defined dimensions */}
+      <div 
+        ref={mapContainer} 
+        style={{ 
+          width: '100%', 
+          height: '100%', 
+          minHeight: '350px', 
+          position: 'relative',
+          background: '#e5e7eb' // Light gray background to make it visible before map loads
+        }} 
+      />
+      
       {/* Loading indicator */}
       <div id="map-loading" className="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
         <div className="text-center">
@@ -322,8 +326,25 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
         </div>
       </div>
       
+      {/* Error message */}
+      {mapError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 z-20">
+          <div className="text-center p-4 max-w-xs">
+            <div className="h-10 w-10 mx-auto mb-3 text-red-500">⚠️</div>
+            <p className="text-red-600 font-medium mb-2">Map Error</p>
+            <p className="text-sm text-gray-700 mb-3">{mapError}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="px-4 py-2 bg-blue-500 text-white rounded-md text-sm"
+            >
+              Reload
+            </button>
+          </div>
+        </div>
+      )}
+      
       {/* Job count badge */}
-      {geocodedJobs.length > 0 && (
+      {geocodedJobs.length > 0 && isMapLoaded && (
         <div className="absolute top-2 left-2 bg-white rounded-full px-3 py-1 text-xs font-medium shadow-sm border border-gray-100 z-20">
           {geocodedJobs.length} {geocodedJobs.length === 1 ? 'job' : 'jobs'} on map
         </div>
