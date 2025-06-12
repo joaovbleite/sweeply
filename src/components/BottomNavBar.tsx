@@ -42,7 +42,7 @@ const BottomNavBar: React.FC = () => {
   }, [location.pathname]);
 
   return (
-    <div className="fixed bottom-16 left-0 right-0 mx-auto px-4 z-50 lg:hidden">
+    <div className="fixed bottom-24 left-0 right-0 mx-auto px-4 z-50 lg:hidden">
       <nav 
         ref={navRef}
         className="bg-black text-white rounded-full flex items-center justify-between px-6 py-3.5 max-w-md mx-auto shadow-xl relative"
