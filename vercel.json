@@ -16,5 +16,6 @@
       ]
     }
   ],
-  "buildCommand": "npm install react-map-gl mapbox-gl --save && npm run build"
+  "buildCommand": "npm install --save react-map-gl mapbox-gl && npm run build",
+  "installCommand": "npm install"
 } 
