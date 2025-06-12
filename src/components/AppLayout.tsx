@@ -25,7 +25,6 @@ import { useTranslation } from "react-i18next";
 import { useProfile } from "@/hooks/useProfile";
 import { useIsMobile } from "@/hooks/use-mobile";
 import BottomNavBar from "./BottomNavBar";
-import FloatingActionMenu from "./FloatingActionMenu";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -254,9 +253,6 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
           <>
             {/* Bottom Navigation Bar - Mobile Only */}
             <BottomNavBar />
-            
-            {/* Floating Action Menu - Mobile Only */}
-            <FloatingActionMenu />
           </>
         )}
       </div>
