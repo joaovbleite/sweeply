@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Check, CreditCard } from "lucide-react";
+import { Check, CreditCard, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import AppLayout from "@/components/AppLayout";
 import PageHeader from "@/components/ui/PageHeader";
@@ -7,13 +7,12 @@ import { motion } from "framer-motion";
 
 const Subscription: React.FC = () => {
   const { t } = useTranslation(['settings', 'common']);
-  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('yearly');
+  const [selectedPlan, setSelectedPlan] = useState<'standard' | 'pro' | 'enterprise'>('pro');
+  
   // Define the plans based on user information
-  const plans = [
-    {
-      id: "standard",
+  const plans = {
+    standard: {
       name: "Standard",
       price: {
         monthly: 9.99,
@@ -22,15 +21,22 @@ const Subscription: React.FC = () => {
       description: "Perfect for small businesses",
       features: [
         "Basic scheduling",
-        "Up to 50 clients",
-        "Email support"
+        "Up to 50 clients", 
+        "Client management",
+        "Email support",
+        "Job scheduling",
+        "Mobile app access"
       ],
+      limitations: [
+        "Limited reporting",
+        "No team features",
+        "No custom branding"
+      ],
+      memberLimit: "1 member limit",
       color: "blue",
-      isPopular: false,
       savings: "$23.89"
     },
-    {
-      id: "pro",
+    pro: {
       name: "Pro",
       price: {
         monthly: 30,
@@ -38,18 +44,23 @@ const Subscription: React.FC = () => {
       },
       description: "For growing businesses",
       features: [
-        "Everything in Standard",
         "Advanced scheduling",
         "Unlimited clients",
         "Priority support",
-        "Advanced reporting"
+        "Advanced reporting",
+        "Team management (up to 5)",
+        "Custom invoicing",
+        "Email notifications",
+        "Client portal"
       ],
+      limitations: [
+        "Limited integrations"
+      ],
+      memberLimit: "5 member limit",
       color: "purple",
-      isPopular: true,
       savings: "$72"
     },
-    {
-      id: "enterprise",
+    enterprise: {
       name: "Enterprise",
       price: {
         monthly: 75,
@@ -61,19 +72,23 @@ const Subscription: React.FC = () => {
         "Custom website",
         "Dedicated account manager",
         "Custom integrations",
-        "Premium support"
+        "Premium support",
+        "Advanced analytics",
+        "White labeling",
+        "Unlimited team members"
       ],
+      limitations: [],
+      memberLimit: "Unlimited members",
       color: "green",
-      isPopular: false,
       savings: "$180"
     }
-  ];
+  };
 
-  const handlePlanSelect = (planId: string) => {
+  // Current active plan details
+  const activePlan = plans[selectedPlan];
+
+  const handlePlanSelect = (planId: 'standard' | 'pro' | 'enterprise') => {
     setSelectedPlan(planId);
-    // In a real implementation, this would navigate to a checkout page
-    // or show a modal for payment details
-    // For now, we'll just set the selected plan
   };
 
   return (
@@ -87,34 +102,6 @@ const Subscription: React.FC = () => {
           }
         />
 
-        {/* Billing Period Selection */}
-        <div className="bg-white rounded-xl shadow-sm my-4 p-4">
-          <h2 className="text-lg font-semibold mb-3">Billing Period</h2>
-          <div className="flex rounded-lg bg-gray-100 p-1">
-            {[
-              { id: 'monthly', label: 'Monthly' },
-              { id: 'yearly', label: 'Yearly' }
-            ].map((period) => (
-              <button
-                key={period.id}
-                className={`flex-1 py-2 text-sm font-medium rounded-md transition ${
-                  billingPeriod === period.id 
-                    ? 'bg-white shadow text-pulse-600' 
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-                onClick={() => setBillingPeriod(period.id as 'monthly' | 'yearly')}
-              >
-                {period.label}
-              </button>
-            ))}
-          </div>
-          {billingPeriod === 'yearly' && (
-            <p className="text-xs text-blue-600 mt-2 font-medium">
-              Save 20% with annual billing
-            </p>
-          )}
-        </div>
-        
         {/* Current Plan (placeholder) */}
         <div className="bg-white rounded-xl shadow-sm mb-4 p-4">
           <h2 className="text-lg font-semibold mb-2">Current Plan</h2>
@@ -129,75 +116,100 @@ const Subscription: React.FC = () => {
           </div>
         </div>
 
-        {/* Plans */}
-        <h2 className="text-xl font-bold mt-6 mb-3">Available Plans</h2>
-        <div className="space-y-4">
-          {plans.map((plan) => (
-            <motion.div
-              key={plan.id}
-              whileHover={{ y: -2 }}
-              className={`bg-white rounded-xl shadow-sm overflow-hidden ${
-                selectedPlan === plan.id ? `border-2 border-${plan.color}-500` : ''
+        {/* Plan Selection Tabs */}
+        <div className="mt-4 bg-gray-100 rounded-full p-1.5 flex">
+          {['standard', 'pro', 'enterprise'].map((plan) => (
+            <button
+              key={plan}
+              className={`flex-1 py-2.5 text-sm font-medium rounded-full transition ${
+                selectedPlan === plan 
+                  ? 'bg-white shadow text-gray-800' 
+                  : 'text-gray-500 hover:text-gray-700'
               }`}
+              onClick={() => handlePlanSelect(plan as 'standard' | 'pro' | 'enterprise')}
             >
-              {/* Plan Header */}
-              <div className={`p-4 bg-gradient-to-r ${
-                plan.color === 'blue' ? 'from-blue-500 to-blue-600' :
-                plan.color === 'purple' ? 'from-purple-500 to-purple-600' :
-                'from-green-500 to-green-600'
-              } text-white`}>
-                <div className="flex justify-between items-center">
-                  <h3 className="text-xl font-bold">{plan.name}</h3>
-                  {plan.isPopular && (
-                    <span className="bg-white text-blue-600 text-xs px-2 py-1 rounded-full font-bold">
-                      Popular
-                    </span>
-                  )}
-                </div>
-                <div className="mt-2">
-                  <span className="text-3xl font-bold">${plan.price[billingPeriod].toFixed(2)}</span>
-                  <span className="text-sm opacity-80">/{billingPeriod === 'yearly' ? 'year' : 'month'}</span>
-                </div>
-                {billingPeriod === 'yearly' && (
-                  <div className="mt-1 text-xs bg-white/20 rounded-full px-3 py-1 inline-block">
-                    Save {plan.savings} per year
-                  </div>
-                )}
-                <p className="text-sm mt-1 opacity-90">{plan.description}</p>
-              </div>
-              
-              {/* Plan Features */}
-              <div className="p-4">
-                <ul className="space-y-3">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start">
-                      <Check className={`w-5 h-5 mr-2 text-${plan.color}-500 flex-shrink-0`} />
-                      <span className="text-gray-700">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                
-                <button
-                  onClick={() => handlePlanSelect(plan.id)}
-                  className={`mt-4 w-full py-3 rounded-lg font-medium transition-colors ${
-                    plan.color === 'blue' ? 'bg-blue-500 hover:bg-blue-600 text-white' :
-                    plan.color === 'purple' ? 'bg-purple-500 hover:bg-purple-600 text-white' :
-                    'bg-green-500 hover:bg-green-600 text-white'
-                  }`}
-                >
-                  {selectedPlan === plan.id ? 'Selected' : 'Select Plan'}
-                </button>
-              </div>
-            </motion.div>
+              {plan === 'standard' ? 'Standard' : plan === 'pro' ? 'Pro' : 'Enterprise'}
+            </button>
           ))}
+        </div>
+
+        {/* Selected Plan Details */}
+        <div className="mt-8">
+          <h1 className="text-3xl font-bold text-center text-gray-800">
+            {activePlan.name}
+          </h1>
+          <div className="text-center mt-2">
+            <span className="inline-block px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">
+              {activePlan.memberLimit}
+            </span>
+          </div>
+          
+          {/* Feature List */}
+          <div className="mt-10 bg-gray-900 rounded-xl p-6">
+            {activePlan.features.map((feature, index) => (
+              <div key={index} className="flex items-start mb-6">
+                <Check className="w-6 h-6 text-blue-400 mr-3 flex-shrink-0" />
+                <div>
+                  <p className="text-white text-lg">{feature}</p>
+                </div>
+              </div>
+            ))}
+            
+            {/* Limitations */}
+            {activePlan.limitations.map((limitation, index) => (
+              <div key={`limit-${index}`} className="flex items-start mb-6">
+                <X className="w-6 h-6 text-gray-500 mr-3 flex-shrink-0" />
+                <div>
+                  <p className="text-gray-400 text-lg">{limitation}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Pricing Options */}
+          <div className="mt-8 grid grid-cols-2 gap-4">
+            <div 
+              className={`border-2 rounded-xl p-4 text-center ${
+                billingPeriod === 'yearly' 
+                  ? 'border-blue-500 bg-blue-50' 
+                  : 'border-gray-200'
+              }`}
+              onClick={() => setBillingPeriod('yearly')}
+            >
+              <p className="text-2xl font-bold text-blue-600">${activePlan.price.yearly}</p>
+              <p className="text-gray-600">per year</p>
+            </div>
+            <div 
+              className={`border-2 rounded-xl p-4 text-center ${
+                billingPeriod === 'monthly' 
+                  ? 'border-blue-500 bg-blue-50' 
+                  : 'border-gray-200'
+              }`}
+              onClick={() => setBillingPeriod('monthly')}
+            >
+              <p className="text-2xl font-bold">${activePlan.price.monthly}</p>
+              <p className="text-gray-600">per month</p>
+            </div>
+          </div>
+          
+          {/* Subscribe Button */}
+          <button className="mt-6 w-full py-4 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl text-lg transition">
+            Subscribe for ${billingPeriod === 'yearly' ? activePlan.price.yearly : activePlan.price.monthly} / {billingPeriod === 'yearly' ? 'year' : 'month'}
+          </button>
+          
+          {billingPeriod === 'yearly' && (
+            <p className="text-center text-sm text-blue-600 mt-2">
+              Save {activePlan.savings} with annual billing
+            </p>
+          )}
         </div>
         
         {/* Contact Support Info */}
-        <div className="mt-6 text-center">
+        <div className="mt-8 text-center">
           <p className="text-sm text-gray-500 mb-2">
             Need help choosing a plan or want to cancel?
           </p>
-          <button className="text-pulse-600 font-medium text-sm">
+          <button className="text-blue-600 font-medium text-sm">
             Contact Support
           </button>
         </div>
