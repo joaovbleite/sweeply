@@ -51,6 +51,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Tasks from "./pages/Tasks";
 import AddTask from "./pages/AddTask";
 import Refer from "./pages/Refer";
+import Subscription from "./pages/Subscription";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -333,6 +334,16 @@ const AppRoutes = () => {
           <ProtectedRoute>
             <PageTransition>
               <More />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/subscription" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <Subscription />
             </PageTransition>
           </ProtectedRoute>
         } 
