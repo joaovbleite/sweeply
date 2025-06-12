@@ -1,18 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
-import Map, { Marker, NavigationControl, GeolocateControl } from 'react-map-gl';
+import React, { useEffect, useRef } from 'react';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { MapPin, MapPinned } from 'lucide-react';
 
-// Define the Mapbox token
-const MAPBOX_TOKEN = 'sk.eyJ1IjoianZsZWl0ZTE1MiIsImEiOiJjbWJzbTdycWcwNWl0MmtxMnkzNzJxdGI2In0.1w3Q_bm1TrjXQWkZkOkm0A';
-
-interface JobLocation {
-  id: string;
-  title: string;
-  address: string;
-  coordinates: [number, number]; // [longitude, latitude]
-}
-
+// Import mapbox-gl as a regular JS import (not as a React component)
+// We'll access it directly through the window object
 interface DashboardMapProps {
   jobs: Array<{
     id: string;
@@ -23,175 +13,109 @@ interface DashboardMapProps {
   className?: string;
 }
 
-const DashboardMap: React.FC<DashboardMapProps> = ({ jobs, className = '' }) => {
-  const [viewState, setViewState] = useState({
-    longitude: -96.7,        // Center of US by default
-    latitude: 39.8,          // Center of US by default
-    zoom: 3.5,
-    bearing: 0,
-    pitch: 0
-  });
-  
-  const [jobLocations, setJobLocations] = useState<JobLocation[]>([]);
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
-  const mapRef = useRef(null);
-  const [isLoading, setIsLoading] = useState(true);
+// Define the Mapbox token
+const MAPBOX_TOKEN = 'sk.eyJ1IjoianZsZWl0ZTE1MiIsImEiOiJjbWJzbTdycWcwNWl0MmtxMnkzNzJxdGI2In0.1w3Q_bm1TrjXQWkZkOkm0A';
 
-  // Get user's location on component mount
+const DashboardMap: React.FC<DashboardMapProps> = ({ className = '' }) => {
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const mapInstance = useRef<any>(null);
+
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { longitude, latitude } = position.coords;
-          setUserLocation([longitude, latitude]);
-          setViewState(prev => ({
-            ...prev,
-            longitude,
-            latitude,
-            zoom: 11 // Zoom closer to user location
-          }));
-          setIsLoading(false);
-        },
-        (error) => {
-          console.error('Error getting user location:', error);
-          setIsLoading(false);
-        },
-        { enableHighAccuracy: true }
-      );
-    } else {
-      console.error('Geolocation is not supported by this browser.');
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Function to geocode an address to coordinates
-  const geocodeAddress = async (address: string): Promise<[number, number] | null> => {
-    try {
-      const endpoint = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${MAPBOX_TOKEN}`;
-      const response = await fetch(endpoint);
-      const data = await response.json();
+    // Load Mapbox GL JS script dynamically
+    const script = document.createElement('script');
+    script.src = 'https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js';
+    script.async = true;
+    
+    script.onload = () => {
+      if (!mapContainer.current) return;
       
-      if (data.features && data.features.length > 0) {
-        return data.features[0].center as [number, number];
-      }
-      return null;
-    } catch (error) {
-      console.error('Error geocoding address:', error);
-      return null;
-    }
-  };
-
-  // Geocode job addresses to get coordinates
-  useEffect(() => {
-    const geocodeJobs = async () => {
-      if (!jobs || jobs.length === 0) return;
-
-      // Filter jobs for today
-      const today = new Date().toISOString().split('T')[0];
-      const todaysJobs = jobs.filter(job => 
-        job.scheduled_date === today && job.address
-      );
-
-      // Geocode each job's address
-      const jobsWithCoordinates: JobLocation[] = [];
+      // Access mapboxgl through the window object
+      const mapboxgl = (window as any).mapboxgl;
       
-      for (const job of todaysJobs) {
-        if (job.address) {
-          const coordinates = await geocodeAddress(job.address);
-          if (coordinates) {
-            jobsWithCoordinates.push({
-              id: job.id,
-              title: job.title,
-              address: job.address,
-              coordinates
-            });
-          }
-        }
+      if (!mapboxgl) {
+        console.error('Mapbox GL JS failed to load');
+        return;
       }
       
-      setJobLocations(jobsWithCoordinates);
-    };
-
-    geocodeJobs();
-  }, [jobs]);
-
-  // Handle view state changes - only allow zoom, not panning
-  const handleViewStateChange = (newViewState: any) => {
-    // Only update zoom, keep the center fixed
-    if (userLocation) {
-      setViewState({
-        ...newViewState,
-        longitude: userLocation[0],
-        latitude: userLocation[1],
+      // Set the access token
+      mapboxgl.accessToken = MAPBOX_TOKEN;
+      
+      // Initialize the map
+      mapInstance.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [-96.7, 39.8], // Default center (US)
+        zoom: 3.5,
+        attributionControl: false
       });
-    } else {
-      setViewState(newViewState);
-    }
+      
+      // Add navigation controls
+      mapInstance.current.addControl(
+        new mapboxgl.NavigationControl({
+          showCompass: false
+        }),
+        'top-right'
+      );
+      
+      // Try to get user's location
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { longitude, latitude } = position.coords;
+            
+            // Move map to user's location
+            mapInstance.current.flyTo({
+              center: [longitude, latitude],
+              zoom: 10,
+              essential: true
+            });
+            
+            // Add a marker at user's location
+            new mapboxgl.Marker({
+              element: createCustomMarker('blue')
+            })
+              .setLngLat([longitude, latitude])
+              .addTo(mapInstance.current);
+          },
+          (error) => {
+            console.error('Error getting user location:', error);
+          },
+          { enableHighAccuracy: true }
+        );
+      }
+    };
+    
+    document.head.appendChild(script);
+    
+    // Cleanup function
+    return () => {
+      if (mapInstance.current) {
+        mapInstance.current.remove();
+      }
+      
+      // Remove the script if it exists
+      const scriptEl = document.querySelector('script[src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"]');
+      if (scriptEl) {
+        document.head.removeChild(scriptEl);
+      }
+    };
+  }, []);
+  
+  // Helper function to create custom markers
+  const createCustomMarker = (color: string) => {
+    const el = document.createElement('div');
+    el.style.width = '15px';
+    el.style.height = '15px';
+    el.style.borderRadius = '50%';
+    el.style.backgroundColor = color === 'blue' ? '#3b82f6' : '#ef4444';
+    el.style.border = '2px solid white';
+    el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
+    return el;
   };
 
   return (
     <div className={`relative rounded-xl overflow-hidden shadow-sm border border-gray-100 ${className}`} style={{ height: '350px' }}>
-      {isLoading ? (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pulse-600"></div>
-        </div>
-      ) : (
-        <Map
-          {...viewState}
-          ref={mapRef}
-          onMove={evt => handleViewStateChange(evt.viewState)}
-          mapStyle="mapbox://styles/mapbox/streets-v11"
-          mapboxAccessToken={MAPBOX_TOKEN}
-          attributionControl={false}
-          dragPan={false}  // Disable panning
-          dragRotate={false} // Disable rotation
-          doubleClickZoom={true}
-          scrollZoom={true}
-          style={{ width: '100%', height: '100%' }}
-        >
-          <NavigationControl showCompass={false} />
-          <GeolocateControl 
-            position="top-right"
-            trackUserLocation={true}
-            showUserLocation={true}
-            onGeolocate={(position) => {
-              const { longitude, latitude } = position.coords;
-              setUserLocation([longitude, latitude]);
-            }}
-          />
-
-          {/* User's current location */}
-          {userLocation && (
-            <Marker 
-              longitude={userLocation[0]} 
-              latitude={userLocation[1]}
-              anchor="bottom"
-            >
-              <div className="relative">
-                <div className="absolute -top-1 -left-1 w-6 h-6 bg-blue-500 rounded-full opacity-30 animate-ping"></div>
-                <div className="w-4 h-4 bg-blue-600 rounded-full border-2 border-white relative z-10"></div>
-              </div>
-            </Marker>
-          )}
-
-          {/* Job locations */}
-          {jobLocations.map((job) => (
-            <Marker 
-              key={job.id}
-              longitude={job.coordinates[0]} 
-              latitude={job.coordinates[1]}
-              anchor="bottom"
-            >
-              <div className="flex flex-col items-center">
-                <MapPin className="w-8 h-8 text-pulse-600 drop-shadow-md" fill="#f8fafc" />
-                <div className="bg-white text-gray-800 px-2 py-1 rounded-md text-xs font-medium shadow-md max-w-[150px] truncate">
-                  {job.title}
-                </div>
-              </div>
-            </Marker>
-          ))}
-        </Map>
-      )}
+      <div ref={mapContainer} style={{ width: '100%', height: '100%' }} />
     </div>
   );
 };
