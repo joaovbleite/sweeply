@@ -20,7 +20,8 @@ import {
   BarChart3,
   UserCheck,
   FileCheck,
-  HelpCircle
+  HelpCircle,
+  Globe
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -40,6 +41,7 @@ import BusinessHealth from "@/components/dashboard/BusinessHealth";
 import TodayScheduleSlider from "@/components/dashboard/TodayScheduleSlider";
 import GettingStartedTodo from "@/components/dashboard/GettingStartedTodo";
 import { useIsMobile } from "@/hooks/use-mobile";
+import DashboardMap from "@/components/maps/DashboardMap";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -208,7 +210,19 @@ const Dashboard = () => {
           ))}
         </div>
         
-
+        {/* Today's Job Map */}
+        <div className="mt-3 sm:mt-5 md:mt-6">
+          <div className="mb-2 sm:mb-3 flex justify-between items-center">
+            <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
+              <Globe className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+              Today's Jobs Map
+            </h3>
+            <Link to="/calendar" className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium flex items-center gap-1">
+              View Calendar <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+            </Link>
+          </div>
+          <DashboardMap jobs={jobs} className="mt-2" />
+        </div>
         
         {/* Mobile Dashboard Sections */}
         {isMobile ? (
