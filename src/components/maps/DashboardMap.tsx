@@ -13,8 +13,8 @@ interface DashboardMapProps {
   className?: string;
 }
 
-// Define the Mapbox token
-const MAPBOX_TOKEN = 'sk.eyJ1IjoianZsZWl0ZTE1MiIsImEiOiJjbWJzd2Z1YXIwNzl5MnFvb2FvYTR0ZGpvIn0.xeVvrp_h0jZkT-za_EmiLw';
+// Define the Mapbox token - using public token (pk) for client-side usage
+const MAPBOX_TOKEN = 'pk.eyJ1IjoianZsZWl0ZTE1MiIsImEiOiJjbWJzbTRyMGgwbXQ1MmtweHFsOXA1aHZsIn0.6mkwBGmb0wnelPMyIjZNpQ';
 
 const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -147,6 +147,10 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
               }
             }, 3000);
           }
+          
+          // Hide loading indicator when map is loaded
+          const mapLoading = document.getElementById('map-loading');
+          if (mapLoading) mapLoading.style.display = 'none';
         });
         
         // Add map error event handler
@@ -207,15 +211,6 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
           <p className="mt-2 text-sm text-gray-600">Loading map...</p>
         </div>
       </div>
-      <script dangerouslySetInnerHTML={{
-        __html: `
-          // Hide loading indicator when map is loaded
-          setTimeout(() => {
-            const mapLoading = document.getElementById('map-loading');
-            if (mapLoading) mapLoading.style.display = 'none';
-          }, 3000);
-        `
-      }} />
     </div>
   );
 };
