@@ -322,9 +322,9 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
           top: 0,
           left: 0,
           width: '100%',
-          height: '56px',
+          height: '80px',
           pointerEvents: 'none',
-          background: 'linear-gradient(to bottom, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.0) 100%)',
+          background: 'linear-gradient(to bottom, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.0) 100%)',
           zIndex: 20
         }}
       />
@@ -335,9 +335,9 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
           bottom: 0,
           left: 0,
           width: '100%',
-          height: '56px',
+          height: '80px',
           pointerEvents: 'none',
-          background: 'linear-gradient(to top, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.0) 100%)',
+          background: 'linear-gradient(to top, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.0) 100%)',
           zIndex: 20
         }}
       />
