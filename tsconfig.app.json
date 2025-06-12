@@ -27,7 +27,10 @@
       "@/*": ["./src/*"],
       "@src/*": ["./src/*"],
       "@public/*": ["./public/*"]
-    }
+    },
+    
+    /* Additional modules */
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
-  "include": ["src"]
+  "include": ["src", "src/types"]
 }
