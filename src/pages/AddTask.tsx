@@ -121,7 +121,7 @@ const AddTask = () => {
   return (
     <AppLayout>
       <PageHeader 
-        title="New task" 
+        title="New Task" 
         onBackClick={() => navigate(-1)}
         rightElement={SaveButton}
       />
