@@ -170,7 +170,7 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
           style: 'mapbox://styles/mapbox/streets-v12',
           center: [-96.7, 39.8], // Default center (US)
           zoom: 3.5,
-          attributionControl: true,
+          attributionControl: false,
           preserveDrawingBuffer: true,
           antialias: true
         });
@@ -182,13 +182,12 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
           mapContainer.current.style.display = 'block';
         }
         
-        // Add navigation controls
-        mapInstance.current.addControl(
-          new mapboxgl.NavigationControl({
-            showCompass: true
-          }),
-          'top-right'
-        );
+        // Add compass only (no zoom controls)
+        const navControl = new mapboxgl.NavigationControl({
+          showCompass: true,
+          showZoom: false
+        });
+        mapInstance.current.addControl(navControl, 'top-right');
         
         // Add map load event handler
         mapInstance.current.on('load', () => {
