@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Check, CreditCard, X } from "lucide-react";
+import { Check, CreditCard, X, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import AppLayout from "@/components/AppLayout";
 import PageHeader from "@/components/ui/PageHeader";
@@ -34,7 +34,8 @@ const Subscription: React.FC = () => {
       ],
       memberLimit: "1 member limit",
       color: "blue",
-      savings: "$23.89"
+      savings: "$23.89",
+      badge: null
     },
     pro: {
       name: "Pro",
@@ -58,7 +59,8 @@ const Subscription: React.FC = () => {
       ],
       memberLimit: "5 member limit",
       color: "purple",
-      savings: "$72"
+      savings: "$72",
+      badge: "Popular"
     },
     enterprise: {
       name: "Enterprise",
@@ -80,7 +82,8 @@ const Subscription: React.FC = () => {
       limitations: [],
       memberLimit: "Unlimited members",
       color: "green",
-      savings: "$180"
+      savings: "$180",
+      badge: null
     }
   };
 
@@ -91,6 +94,44 @@ const Subscription: React.FC = () => {
     setSelectedPlan(planId);
   };
 
+  // Color mapping for plans
+  const planColors = {
+    standard: {
+      bg: "bg-blue-50",
+      border: "border-blue-200",
+      text: "text-blue-700",
+      button: "bg-blue-600 hover:bg-blue-700",
+      highlight: "bg-blue-500",
+      lightText: "text-blue-600",
+      icon: "text-blue-500"
+    },
+    pro: {
+      bg: "bg-purple-50",
+      border: "border-purple-200",
+      text: "text-purple-700",
+      button: "bg-purple-600 hover:bg-purple-700",
+      highlight: "bg-purple-500",
+      lightText: "text-purple-600",
+      icon: "text-purple-500"
+    },
+    enterprise: {
+      bg: "bg-emerald-50",
+      border: "border-emerald-200",
+      text: "text-emerald-700",
+      button: "bg-emerald-600 hover:bg-emerald-700",
+      highlight: "bg-emerald-500",
+      lightText: "text-emerald-600",
+      icon: "text-emerald-500"
+    }
+  };
+
+  const currentColors = planColors[selectedPlan];
+
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
   return (
     <AppLayout>
       <div className="max-w-md mx-auto px-4 py-6 pb-28">
@@ -98,121 +139,217 @@ const Subscription: React.FC = () => {
           title={t('settings:subscription')} 
           backUrl="/more"
           rightElement={
-            <CreditCard className="w-6 h-6 text-pulse-500" />
+            <CreditCard className={`w-6 h-6 ${currentColors.icon}`} />
           }
         />
 
-        {/* Plan Selection Tabs */}
-        <div className="mt-4 bg-gray-100 rounded-full p-1.5 flex mb-8">
-          {['standard', 'pro', 'enterprise'].map((plan) => (
-            <button
-              key={plan}
-              className={`flex-1 py-2.5 text-sm font-medium rounded-full transition ${
-                selectedPlan === plan 
-                  ? 'bg-white shadow text-gray-800' 
-                  : 'text-gray-500 hover:text-gray-700'
+        {/* Billing Toggle */}
+        <div className="mt-6 mb-8">
+          <div className="flex justify-center">
+            <div className="bg-gray-100 p-1 rounded-full inline-flex">
+              <button
+                onClick={() => setBillingPeriod('yearly')}
+                className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+                  billingPeriod === 'yearly' 
+                    ? `${currentColors.button} text-white shadow-md` 
+                    : 'text-gray-600'
+                }`}
+              >
+                Yearly
+                {billingPeriod === 'yearly' && (
+                  <span className="ml-2 text-xs bg-white/20 px-2 py-0.5 rounded-full">
+                    Save 20%
+                  </span>
+                )}
+              </button>
+              <button
+                onClick={() => setBillingPeriod('monthly')}
+                className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+                  billingPeriod === 'monthly' 
+                    ? `${currentColors.button} text-white shadow-md` 
+                    : 'text-gray-600'
+                }`}
+              >
+                Monthly
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Plan Selection Cards */}
+        <div className="space-y-4 mb-8">
+          {Object.entries(plans).map(([planId, plan]) => (
+            <motion.div
+              key={planId}
+              initial="hidden"
+              animate="visible"
+              variants={fadeInUp}
+              transition={{ duration: 0.3, delay: planId === 'standard' ? 0 : planId === 'pro' ? 0.1 : 0.2 }}
+              className={`relative rounded-2xl border-2 transition-all cursor-pointer overflow-hidden ${
+                selectedPlan === planId
+                  ? `${planColors[planId as keyof typeof planColors].border} shadow-lg`
+                  : 'border-gray-200'
               }`}
-              onClick={() => handlePlanSelect(plan as 'standard' | 'pro' | 'enterprise')}
+              onClick={() => handlePlanSelect(planId as 'standard' | 'pro' | 'enterprise')}
             >
-              {plan === 'standard' ? 'Standard' : plan === 'pro' ? 'Pro' : 'Enterprise'}
-            </button>
+              {/* Popular badge */}
+              {plan.badge && (
+                <div className="absolute top-0 right-0">
+                  <div className={`${planColors[planId as keyof typeof planColors].button} text-white text-xs font-bold px-3 py-1 rounded-bl-lg flex items-center`}>
+                    <Sparkles className="w-3 h-3 mr-1" />
+                    {plan.badge}
+                  </div>
+                </div>
+              )}
+              
+              <div className={`p-5 ${selectedPlan === planId ? planColors[planId as keyof typeof planColors].bg : ''}`}>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className={`text-lg font-bold ${selectedPlan === planId ? planColors[planId as keyof typeof planColors].text : 'text-gray-800'}`}>
+                      {plan.name}
+                    </h3>
+                    <p className="text-gray-500 text-sm mt-0.5">{plan.description}</p>
+                  </div>
+                  {selectedPlan === planId && (
+                    <div className="bg-white rounded-full p-1 shadow-sm">
+                      <Check className={`w-5 h-5 ${planColors[planId as keyof typeof planColors].icon}`} />
+                    </div>
+                  )}
+                </div>
+                
+                <div className="mt-3">
+                  <div className="flex items-baseline">
+                    <span className={`text-2xl font-bold ${selectedPlan === planId ? planColors[planId as keyof typeof planColors].text : 'text-gray-800'}`}>
+                      ${billingPeriod === 'yearly' ? plan.price.yearly : plan.price.monthly}
+                    </span>
+                    <span className="text-gray-500 ml-1 text-sm">
+                      /{billingPeriod === 'yearly' ? 'year' : 'month'}
+                    </span>
+                  </div>
+                  
+                  {billingPeriod === 'yearly' && (
+                    <p className={`text-xs font-medium mt-1 ${planColors[planId as keyof typeof planColors].lightText}`}>
+                      Save {plan.savings} with annual billing
+                    </p>
+                  )}
+                </div>
+                
+                <div className="mt-3 flex items-center">
+                  <div className={`w-2 h-2 rounded-full ${selectedPlan === planId ? planColors[planId as keyof typeof planColors].highlight : 'bg-gray-300'}`}></div>
+                  <span className="text-sm text-gray-600 ml-2">{plan.memberLimit}</span>
+                </div>
+              </div>
+            </motion.div>
           ))}
         </div>
 
         {/* Selected Plan Details */}
-        <div className="mt-4">
-          <h1 className="text-3xl font-bold text-center text-gray-800">
-            {activePlan.name}
-          </h1>
-          <div className="text-center mt-2 mb-6">
-            <span className="inline-block px-4 py-1.5 bg-gray-200 text-gray-700 rounded-full text-sm font-medium">
-              {activePlan.memberLimit}
-            </span>
-          </div>
-          
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="mt-6"
+        >
           {/* Feature List */}
-          <div className="mt-4 bg-[#14171f] rounded-xl p-6">
+          <div className={`mt-4 rounded-2xl p-6 shadow-lg ${currentColors.bg} border ${currentColors.border}`}>
+            <h2 className={`text-xl font-bold mb-4 ${currentColors.text}`}>
+              What's included
+            </h2>
+            
             {activePlan.features.map((feature, index) => (
-              <div key={index} className="flex items-start mb-6">
-                <Check className="w-6 h-6 text-blue-400 mr-3 flex-shrink-0" />
-                <div>
-                  <p className="text-white text-lg font-medium">{feature}</p>
+              <motion.div 
+                key={index} 
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                className="flex items-start mb-5"
+              >
+                <div className={`rounded-full p-1 ${currentColors.highlight} mr-3 flex-shrink-0`}>
+                  <Check className="w-4 h-4 text-white" />
                 </div>
-              </div>
+                <div>
+                  <p className="text-gray-700 font-medium">{feature}</p>
+                </div>
+              </motion.div>
             ))}
             
             {/* Limitations */}
-            {activePlan.limitations.map((limitation, index) => (
-              <div key={`limit-${index}`} className="flex items-start mb-6">
-                <X className="w-6 h-6 text-gray-400 mr-3 flex-shrink-0" />
-                <div>
-                  <p className="text-gray-400 text-lg">{limitation}</p>
-                </div>
+            {activePlan.limitations.length > 0 && (
+              <div className="mt-6 pt-4 border-t border-gray-200">
+                <h3 className="text-gray-500 font-medium mb-3">Limitations</h3>
+                {activePlan.limitations.map((limitation, index) => (
+                  <motion.div 
+                    key={`limit-${index}`} 
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: (activePlan.features.length + index) * 0.05 }}
+                    className="flex items-start mb-4"
+                  >
+                    <div className="rounded-full p-1 bg-gray-200 mr-3 flex-shrink-0">
+                      <X className="w-4 h-4 text-gray-500" />
+                    </div>
+                    <div>
+                      <p className="text-gray-500">{limitation}</p>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
-            ))}
-          </div>
-          
-          {/* Pricing Options */}
-          <div className="mt-8 grid grid-cols-2 gap-4">
-            <div 
-              className={`border-2 rounded-xl p-4 text-center cursor-pointer ${
-                billingPeriod === 'yearly' 
-                  ? 'border-blue-500 bg-blue-50' 
-                  : 'border-gray-200'
-              }`}
-              onClick={() => setBillingPeriod('yearly')}
-            >
-              <p className="text-2xl font-bold text-blue-600">${activePlan.price.yearly}</p>
-              <p className="text-gray-700 font-medium">per year</p>
-            </div>
-            <div 
-              className={`border-2 rounded-xl p-4 text-center cursor-pointer ${
-                billingPeriod === 'monthly' 
-                  ? 'border-blue-500 bg-blue-50' 
-                  : 'border-gray-200'
-              }`}
-              onClick={() => setBillingPeriod('monthly')}
-            >
-              <p className="text-2xl font-bold text-gray-800">${activePlan.price.monthly}</p>
-              <p className="text-gray-700 font-medium">per month</p>
-            </div>
+            )}
           </div>
           
           {/* Subscribe Button */}
-          <button className="mt-6 w-full py-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl text-lg transition shadow-md">
-            Subscribe for ${billingPeriod === 'yearly' ? activePlan.price.yearly : activePlan.price.monthly} / {billingPeriod === 'yearly' ? 'year' : 'month'}
-          </button>
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className={`mt-6 w-full py-4 ${currentColors.button} text-white font-semibold rounded-xl text-lg transition shadow-md flex items-center justify-center`}
+          >
+            <CreditCard className="w-5 h-5 mr-2" />
+            Subscribe Now
+          </motion.button>
           
           {billingPeriod === 'yearly' && (
-            <p className="text-center text-sm text-blue-600 font-medium mt-2">
+            <p className={`text-center text-sm ${currentColors.lightText} font-medium mt-2`}>
               Save {activePlan.savings} with annual billing
             </p>
           )}
-        </div>
+        </motion.div>
         
-        {/* Current Plan (moved to bottom) */}
-        <div className="bg-white rounded-xl shadow-sm my-8 p-4">
+        {/* Current Plan */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+          className="bg-white rounded-xl shadow-sm border border-gray-200 my-8 p-5"
+        >
           <h2 className="text-lg font-semibold mb-2">Current Plan</h2>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-700 font-medium">Free Trial</p>
-              <p className="text-sm text-gray-500">Expires in 7 days</p>
+              <div className="flex items-center">
+                <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+                <p className="text-gray-700 font-medium">Free Trial</p>
+              </div>
+              <p className="text-sm text-gray-500 mt-1">Expires in 7 days</p>
             </div>
-            <button className="text-sm text-blue-600 font-medium px-3 py-1.5 rounded-md hover:bg-blue-50">
+            <button className={`text-sm ${currentColors.lightText} font-medium px-3 py-1.5 rounded-md hover:bg-gray-100`}>
               Contact Support
             </button>
           </div>
-        </div>
+        </motion.div>
         
         {/* Contact Support Info */}
-        <div className="mt-4 text-center">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.3 }}
+          className="mt-4 text-center"
+        >
           <p className="text-sm text-gray-600 mb-2">
             Need help choosing a plan or want to cancel?
           </p>
-          <button className="text-blue-600 font-medium text-sm">
+          <button className={`${currentColors.lightText} font-medium text-sm`}>
             Contact Support
           </button>
-        </div>
+        </motion.div>
       </div>
     </AppLayout>
   );
