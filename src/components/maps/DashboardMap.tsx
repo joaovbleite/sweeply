@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 // Import mapbox-gl as a regular JS import (not as a React component)
@@ -19,6 +19,109 @@ const MAPBOX_TOKEN = 'pk.eyJ1IjoianZsZWl0ZTE1MiIsImEiOiJjbWJzbTRyMGgwbXQ1MmtweHF
 const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
+  const [geocodedJobs, setGeocodedJobs] = useState<Array<any>>([]);
+  const [isMapInitialized, setIsMapInitialized] = useState<boolean>(false);
+
+  // Function to geocode addresses to coordinates
+  const geocodeAddress = async (address: string) => {
+    if (!address) return null;
+    
+    try {
+      // Use Mapbox Geocoding API
+      const encodedAddress = encodeURIComponent(address);
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodedAddress}.json?access_token=${MAPBOX_TOKEN}`
+      );
+      
+      if (!response.ok) {
+        throw new Error(`Geocoding error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.features && data.features.length > 0) {
+        // Return the first result's coordinates [longitude, latitude]
+        return data.features[0].center;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error geocoding address:', error);
+      return null;
+    }
+  };
+
+  // Effect to geocode job addresses
+  useEffect(() => {
+    const geocodeJobs = async () => {
+      if (!jobs.length) return;
+      
+      const geocodedResults = await Promise.all(
+        jobs.map(async (job) => {
+          if (!job.address) return { ...job, coordinates: null };
+          
+          const coordinates = await geocodeAddress(job.address);
+          return { ...job, coordinates };
+        })
+      );
+      
+      setGeocodedJobs(geocodedResults.filter(job => job.coordinates !== null));
+    };
+    
+    geocodeJobs();
+  }, [jobs]);
+
+  // Effect to add job markers to the map once it's initialized
+  useEffect(() => {
+    if (!isMapInitialized || !mapInstance.current || geocodedJobs.length === 0) return;
+    
+    // Add markers for each geocoded job
+    geocodedJobs.forEach(job => {
+      if (!job.coordinates) return;
+      
+      // Create a popup
+      const mapboxgl = (window as any).mapboxgl;
+      const popup = new mapboxgl.Popup({ offset: 25 })
+        .setHTML(`
+          <div style="padding: 8px;">
+            <h3 style="margin: 0 0 5px 0; font-weight: 600;">${job.title}</h3>
+            <p style="margin: 0; font-size: 12px;">${job.address}</p>
+            <p style="margin: 5px 0 0 0; font-size: 11px; color: #666;">
+              ${new Date(job.scheduled_date).toLocaleDateString()}
+            </p>
+          </div>
+        `);
+      
+      // Create a marker
+      new mapboxgl.Marker({
+        color: '#10b981', // Green color for job markers
+      })
+        .setLngLat(job.coordinates)
+        .setPopup(popup)
+        .addTo(mapInstance.current);
+    });
+    
+    // If we have jobs with coordinates, fit the map to show all markers
+    if (geocodedJobs.length > 0) {
+      // Create a bounds object
+      const mapboxgl = (window as any).mapboxgl;
+      const bounds = new mapboxgl.LngLatBounds();
+      
+      // Extend the bounds to include each job's location
+      geocodedJobs.forEach(job => {
+        if (job.coordinates) {
+          bounds.extend(job.coordinates);
+        }
+      });
+      
+      // Fit the map to the bounds
+      mapInstance.current.fitBounds(bounds, {
+        padding: 50, // Add some padding around the bounds
+        maxZoom: 14, // Don't zoom in too far
+        duration: 1000 // Animation duration in milliseconds
+      });
+    }
+  }, [isMapInitialized, geocodedJobs]);
 
   useEffect(() => {
     // Define inline styles for debug purposes
@@ -103,9 +206,10 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
               
               // Add a marker at user's location
               new mapboxgl.Marker({
-                color: '#3b82f6'
+                color: '#3b82f6' // Blue for user's location
               })
                 .setLngLat([longitude, latitude])
+                .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML('<p style="margin: 0; font-weight: 500;">Your Location</p>'))
                 .addTo(mapInstance.current);
                 
               // Force a resize after map loads
@@ -151,6 +255,9 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
           // Hide loading indicator when map is loaded
           const mapLoading = document.getElementById('map-loading');
           if (mapLoading) mapLoading.style.display = 'none';
+          
+          // Set map as initialized so we can add job markers
+          setIsMapInitialized(true);
         });
         
         // Add map error event handler
@@ -211,6 +318,13 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
           <p className="mt-2 text-sm text-gray-600">Loading map...</p>
         </div>
       </div>
+      
+      {/* Job count badge */}
+      {geocodedJobs.length > 0 && (
+        <div className="absolute top-2 left-2 bg-white rounded-full px-3 py-1 text-xs font-medium shadow-sm border border-gray-100 z-20">
+          {geocodedJobs.length} {geocodedJobs.length === 1 ? 'job' : 'jobs'} on map
+        </div>
+      )}
     </div>
   );
 };
