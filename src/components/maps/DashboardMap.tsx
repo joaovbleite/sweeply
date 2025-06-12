@@ -315,21 +315,6 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
         }} 
       />
       
-      {/* Overlay to cover Mapbox logo/watermark */}
-      <div
-        style={{
-          position: 'absolute',
-          left: 0,
-          bottom: 0,
-          width: '120px',
-          height: '40px',
-          background: 'white',
-          borderTopRightRadius: '16px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-          zIndex: 30
-        }}
-      />
-      
       {/* Loading indicator */}
       <div id="map-loading" className="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
         <div className="text-center">
