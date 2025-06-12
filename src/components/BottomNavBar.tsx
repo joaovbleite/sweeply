@@ -8,7 +8,14 @@ import {
   MoreHorizontal,
   Calendar,
   DollarSign,
-  Plus
+  Plus,
+  Download, 
+  FileText, 
+  Clipboard, 
+  FileEdit, 
+  Briefcase,
+  User,
+  X
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion } from "framer-motion";
@@ -30,6 +37,66 @@ const BottomNavBar: React.FC = () => {
     { id: "more", icon: MoreHorizontal, path: "/more" }
   ];
 
+  // Original FloatingActionMenu items
+  const menuItems = [
+    { 
+      id: "client", 
+      label: "Client", 
+      icon: User, 
+      action: () => navigate("/clients/new"),
+      color: "bg-slate-50",
+      iconColor: "text-slate-600"
+    },
+    { 
+      id: "job", 
+      label: "Job", 
+      icon: Briefcase, 
+      action: () => navigate("/jobs/new"),
+      color: "bg-green-50",
+      iconColor: "text-green-600"
+    },
+    { 
+      id: "quote", 
+      label: "Quote", 
+      icon: FileEdit, 
+      action: () => navigate("/quotes/new"),
+      color: "bg-purple-50",
+      iconColor: "text-purple-600"
+    },
+    { 
+      id: "invoice", 
+      label: "Invoice", 
+      icon: FileText, 
+      action: () => navigate("/invoices/new"),
+      color: "bg-blue-50",
+      iconColor: "text-blue-600"
+    },
+    { 
+      id: "expense", 
+      label: "Expense", 
+      icon: DollarSign, 
+      action: () => navigate("/expenses/new"),
+      color: "bg-green-50",
+      iconColor: "text-green-600"
+    },
+    { 
+      id: "task", 
+      label: "Task", 
+      icon: Clipboard, 
+      action: () => navigate("/add-task"),
+      color: "bg-blue-50",
+      iconColor: "text-blue-600"
+    },
+    { 
+      id: "request", 
+      label: "Request", 
+      icon: Download, 
+      action: () => navigate("/requests/new"),
+      color: "bg-amber-50",
+      iconColor: "text-amber-600"
+    }
+  ];
+
   // Update active tab based on location
   useEffect(() => {
     const currentPath = location.pathname;
@@ -43,10 +110,37 @@ const BottomNavBar: React.FC = () => {
     }
   }, [location.pathname]);
   
-  // Handle the floating action button click
-  const handleActionClick = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  // Close menu when route changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (isMenuOpen && !target.closest('.floating-menu-container') && !target.closest('.fab-button')) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
+
+  // Prevent scrolling when menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMenuOpen]);
 
   return (
     <div className="fixed bottom-24 left-0 right-0 mx-auto px-4 z-50 lg:hidden">
@@ -60,13 +154,13 @@ const BottomNavBar: React.FC = () => {
                           (item.id === "clients" && location.pathname.includes("/client")));
           
           if (item.isAction) {
-            // Floating action button in the middle
+            // Floating action button in the middle - preserving original styles and appearance
             return (
               <button
                 key={item.id}
-                className="relative flex items-center justify-center z-10 bg-[#1a2e35] w-12 h-12 rounded-full shadow-lg transform transition-all duration-300 border-2 border-black hover:scale-105"
+                className={`fab-button relative flex items-center justify-center z-10 bg-[#1a2e35] w-12 h-12 rounded-full shadow-lg transform transition-all duration-300 ${isMenuOpen ? 'rotate-45' : ''}`}
                 aria-label="Create new"
-                onClick={handleActionClick}
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
               >
                 <Plus className="w-6 h-6 text-white" />
               </button>
@@ -99,58 +193,42 @@ const BottomNavBar: React.FC = () => {
         })}
       </nav>
       
-      {/* Floating Action Menu (shown when the + button is clicked) */}
-      {isMenuOpen && (
+      {/* Floating Action Menu - Preserving original menu appearance and functionality */}
+      <div 
+        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300 ${
+          isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={() => setIsMenuOpen(false)}
+      >
         <div 
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300"
-          onClick={() => setIsMenuOpen(false)}
+          className="floating-menu-container fixed right-6 bottom-[calc(theme(spacing.24)+theme(spacing.5))] z-50 flex flex-col-reverse items-end space-y-reverse space-y-3 pb-16"
+          onClick={(e) => e.stopPropagation()}
         >
-          <div 
-            className="fixed left-1/2 transform -translate-x-1/2 bottom-40 z-50 flex flex-col items-center space-y-3"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Quick action buttons */}
-            <div className="flex flex-col space-y-3">
-              <button 
-                className="flex items-center bg-white rounded-full shadow-md p-3 min-w-[160px]"
-                onClick={() => {
-                  navigate("/clients/new");
-                  setIsMenuOpen(false);
-                }}
-              >
-                <span className="flex-1 text-center font-medium">New Client</span>
-              </button>
-              <button 
-                className="flex items-center bg-white rounded-full shadow-md p-3 min-w-[160px]"
-                onClick={() => {
-                  navigate("/jobs/new");
-                  setIsMenuOpen(false);
-                }}
-              >
-                <span className="flex-1 text-center font-medium">New Job</span>
-              </button>
-              <button 
-                className="flex items-center bg-white rounded-full shadow-md p-3 min-w-[160px]"
-                onClick={() => {
-                  navigate("/quotes/new");
-                  setIsMenuOpen(false);
-                }}
-              >
-                <span className="flex-1 text-center font-medium">New Quote</span>
-              </button>
-              <button 
-                className="flex items-center bg-white rounded-full shadow-md p-3 min-w-[160px]"
-                onClick={() => {
-                  navigate("/invoices/new");
-                  setIsMenuOpen(false);
-                }}
-              >
-                <span className="flex-1 text-center font-medium">New Invoice</span>
-              </button>
+          {menuItems.map((item, index) => (
+            <div 
+              key={item.id}
+              className={`flex items-center justify-between bg-white rounded-full shadow-md cursor-pointer transform transition-all duration-300 hover:scale-105 w-auto min-w-[160px] ${
+                isMenuOpen 
+                  ? 'opacity-100 translate-y-0' 
+                  : 'opacity-0 translate-y-10 pointer-events-none'
+              }`}
+              style={{ 
+                transitionDelay: isMenuOpen ? `${index * 50}ms` : '0ms',
+                pointerEvents: isMenuOpen ? 'auto' : 'none'
+              }}
+              onClick={() => {
+                item.action();
+                setIsMenuOpen(false);
+              }}
+            >
+              <span className="text-[#1a2e35] font-medium px-4 py-3">{item.label}</span>
+              <div className={`${item.color} rounded-full p-3 ml-1`}>
+                <item.icon className={`w-5 h-5 ${item.iconColor}`} />
+              </div>
             </div>
-          </div>
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 };
