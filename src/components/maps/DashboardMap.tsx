@@ -13,10 +13,10 @@ interface DashboardMapProps {
   className?: string;
 }
 
-// Define the Mapbox token
-const MAPBOX_TOKEN = 'sk.eyJ1IjoianZsZWl0ZTE1MiIsImEiOiJjbWJzbTdycWcwNWl0MmtxMnkzNzJxdGI2In0.1w3Q_bm1TrjXQWkZkOkm0A';
+// Define the Mapbox token - using public token instead of secret token for client-side usage
+const MAPBOX_TOKEN = 'pk.eyJ1IjoianZsZWl0ZTE1MiIsImEiOiJjbWJzbTM5aG8wMTFpMnN0YzF2dmduM3d5In0.40-SMQFHyUf7XSw9YQL-Jw';
 
-const DashboardMap: React.FC<DashboardMapProps> = ({ className = '' }) => {
+const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
 
@@ -57,6 +57,14 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '' }) => {
         'top-right'
       );
       
+      // Add some CSS to ensure map loads correctly
+      const mapElement = mapContainer.current;
+      if (mapElement) {
+        mapElement.style.width = '100%';
+        mapElement.style.height = '100%';
+        mapElement.style.minHeight = '350px';
+      }
+      
       // Try to get user's location
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -76,6 +84,13 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '' }) => {
             })
               .setLngLat([longitude, latitude])
               .addTo(mapInstance.current);
+              
+            // Force a resize event to ensure map renders correctly
+            setTimeout(() => {
+              if (mapInstance.current) {
+                mapInstance.current.resize();
+              }
+            }, 100);
           },
           (error) => {
             console.error('Error getting user location:', error);
@@ -87,6 +102,17 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '' }) => {
     
     document.head.appendChild(script);
     
+    // Add CSS to ensure proper map display
+    const styleEl = document.createElement('style');
+    styleEl.textContent = `
+      .mapboxgl-map {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 350px !important;
+      }
+    `;
+    document.head.appendChild(styleEl);
+    
     // Cleanup function
     return () => {
       if (mapInstance.current) {
@@ -97,6 +123,11 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '' }) => {
       const scriptEl = document.querySelector('script[src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"]');
       if (scriptEl) {
         document.head.removeChild(scriptEl);
+      }
+      
+      // Remove style element
+      if (styleEl.parentNode) {
+        document.head.removeChild(styleEl);
       }
     };
   }, []);
@@ -115,7 +146,12 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '' }) => {
 
   return (
     <div className={`relative rounded-xl overflow-hidden shadow-sm border border-gray-100 ${className}`} style={{ height: '350px' }}>
-      <div ref={mapContainer} style={{ width: '100%', height: '100%' }} />
+      <div ref={mapContainer} style={{ width: '100%', height: '100%', minHeight: '350px' }} />
+      {!mapInstance.current && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
+          <p className="text-gray-500">Loading map...</p>
+        </div>
+      )}
     </div>
   );
 };

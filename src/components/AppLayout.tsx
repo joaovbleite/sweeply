@@ -235,7 +235,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
       </aside>
 
       {/* Main Content */}
-      <div className={`flex-1 flex flex-col min-h-screen max-h-screen overflow-hidden bg-white ${hideBottomNav ? 'pb-safe' : ''}`}>
+      <div className={`flex-1 flex flex-col min-h-screen max-h-screen overflow-hidden bg-white ${hideBottomNav ? 'pb-safe' : 'pb-20'}`}>
         {/* Page Content - removed the header for desktop */}
         <main className="flex-1 overflow-y-auto bg-white">
           <div style={{ 
