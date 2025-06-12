@@ -152,7 +152,7 @@ const BottomNavBar: React.FC = () => {
         onClick={() => setIsMenuOpen(false)}
       >
         <div 
-          className="floating-menu-container fixed left-1/2 -translate-x-1/2 bottom-36 z-50 flex flex-col-reverse items-center space-y-reverse space-y-3 pb-3"
+          className="floating-menu-container fixed left-1/2 -translate-x-1/2 bottom-48 z-50 flex flex-col-reverse items-center space-y-reverse space-y-3 pb-3"
           onClick={(e) => e.stopPropagation()}
         >
           {menuItems.map((item, index) => (
