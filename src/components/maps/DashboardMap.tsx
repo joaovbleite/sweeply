@@ -73,17 +73,37 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
     geocodeJobs();
   }, [jobs]);
 
-  // Effect to add job markers to the map once it's initialized and loaded
+  // Helper to get the next job (today's job with the earliest time)
+  const getNextJob = () => {
+    if (!geocodedJobs.length) return null;
+    // Filter jobs for today
+    const today = new Date();
+    const todayJobs = geocodedJobs.filter(job => {
+      const jobDate = new Date(job.scheduled_date);
+      return (
+        jobDate.getFullYear() === today.getFullYear() &&
+        jobDate.getMonth() === today.getMonth() &&
+        jobDate.getDate() === today.getDate()
+      );
+    });
+    if (!todayJobs.length) return null;
+    // Sort by time if available, otherwise just pick the first
+    return todayJobs[0];
+  };
+
+  // Effect to add job markers and center map
   useEffect(() => {
-    if (!isMapInitialized || !mapInstance.current || !isMapLoaded || geocodedJobs.length === 0) return;
-    
+    if (!isMapInitialized || !mapInstance.current || !isMapLoaded) return;
+    const mapboxgl = (window as any).mapboxgl;
     try {
+      // Remove all existing markers
+      if (mapInstance.current._markers) {
+        mapInstance.current._markers.forEach((m: any) => m.remove());
+      }
+      mapInstance.current._markers = [];
       // Add markers for each geocoded job
       geocodedJobs.forEach(job => {
         if (!job.coordinates) return;
-        
-        // Create a popup
-        const mapboxgl = (window as any).mapboxgl;
         const popup = new mapboxgl.Popup({ offset: 25 })
           .setHTML(`
             <div style="padding: 8px;">
@@ -94,38 +114,33 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
               </p>
             </div>
           `);
-        
-        // Create a marker
-        new mapboxgl.Marker({
-          color: '#10b981', // Green color for job markers
-        })
+        const marker = new mapboxgl.Marker({ color: '#10b981' })
           .setLngLat(job.coordinates)
           .setPopup(popup)
           .addTo(mapInstance.current);
+        mapInstance.current._markers.push(marker);
       });
-      
-      // If we have jobs with coordinates, fit the map to show all markers
-      if (geocodedJobs.length > 0) {
-        // Create a bounds object
-        const mapboxgl = (window as any).mapboxgl;
-        const bounds = new mapboxgl.LngLatBounds();
-        
-        // Extend the bounds to include each job's location
-        geocodedJobs.forEach(job => {
-          if (job.coordinates) {
-            bounds.extend(job.coordinates);
-          }
-        });
-        
-        // Fit the map to the bounds
-        mapInstance.current.fitBounds(bounds, {
-          padding: 50, // Add some padding around the bounds
-          maxZoom: 14, // Don't zoom in too far
-          duration: 1000 // Animation duration in milliseconds
-        });
+      // Center logic
+      const nextJob = getNextJob();
+      if (nextJob && nextJob.coordinates) {
+        mapInstance.current.flyTo({ center: nextJob.coordinates, zoom: 14, essential: true });
+      } else if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { longitude, latitude } = position.coords;
+            mapInstance.current.flyTo({ center: [longitude, latitude], zoom: 14, essential: true });
+            // Add a marker for user's location
+            const userMarker = new mapboxgl.Marker({ color: '#3b82f6' })
+              .setLngLat([longitude, latitude])
+              .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML('<p style="margin: 0; font-weight: 500;">Your Location</p>'))
+              .addTo(mapInstance.current);
+            mapInstance.current._markers.push(userMarker);
+          },
+          (error) => {},
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
       }
     } catch (error) {
-      console.error('Error adding markers to map:', error);
       setMapError('Failed to add markers to map');
     }
   }, [isMapInitialized, geocodedJobs, isMapLoaded]);
@@ -172,7 +187,14 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
           zoom: 3.5,
           attributionControl: false,
           preserveDrawingBuffer: true,
-          antialias: true
+          antialias: true,
+          dragPan: false,
+          dragRotate: false,
+          touchZoomRotate: false,
+          doubleClickZoom: true,
+          scrollZoom: true,
+          boxZoom: true,
+          keyboard: false
         });
         
         // Force map to be visible and responsive
@@ -182,10 +204,10 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
           mapContainer.current.style.display = 'block';
         }
         
-        // Add compass only (no zoom controls)
+        // Add navigation controls (only zoom, no compass)
         const navControl = new mapboxgl.NavigationControl({
-          showCompass: true,
-          showZoom: false
+          showCompass: false,
+          showZoom: true
         });
         mapInstance.current.addControl(navControl, 'top-right');
         
