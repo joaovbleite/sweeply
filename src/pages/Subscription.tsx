@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 
 const Subscription: React.FC = () => {
   const { t } = useTranslation(['settings', 'common']);
-  const [billingPeriod, setBillingPeriod] = useState<'monthly' | '3months' | 'yearly'>('monthly');
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
   // Define the plans based on user information
@@ -16,9 +16,8 @@ const Subscription: React.FC = () => {
       id: "standard",
       name: "Standard",
       price: {
-        monthly: 10,
-        "3months": 20, // Pay 2 months, get 1 free
-        yearly: 100 // Annual discount
+        monthly: 9.99,
+        yearly: 95.99 // ~20% discount from $119.88
       },
       description: "Perfect for small businesses",
       features: [
@@ -27,15 +26,15 @@ const Subscription: React.FC = () => {
         "Email support"
       ],
       color: "blue",
-      isPopular: false
+      isPopular: false,
+      savings: "$23.89"
     },
     {
       id: "pro",
       name: "Pro",
       price: {
         monthly: 30,
-        "3months": 60, // Pay 2 months, get 1 free
-        yearly: 300 // Annual discount
+        yearly: 288 // ~20% discount from $360
       },
       description: "For growing businesses",
       features: [
@@ -46,15 +45,15 @@ const Subscription: React.FC = () => {
         "Advanced reporting"
       ],
       color: "purple",
-      isPopular: true
+      isPopular: true,
+      savings: "$72"
     },
     {
       id: "enterprise",
       name: "Enterprise",
       price: {
         monthly: 75,
-        "3months": 150, // Pay 2 months, get 1 free
-        yearly: 485 // Special offer for yearly
+        yearly: 720 // ~20% discount from $900
       },
       description: "For large operations",
       features: [
@@ -65,7 +64,8 @@ const Subscription: React.FC = () => {
         "Premium support"
       ],
       color: "green",
-      isPopular: false
+      isPopular: false,
+      savings: "$180"
     }
   ];
 
@@ -74,12 +74,6 @@ const Subscription: React.FC = () => {
     // In a real implementation, this would navigate to a checkout page
     // or show a modal for payment details
     // For now, we'll just set the selected plan
-  };
-
-  const discountMessage = {
-    monthly: "Regular price",
-    "3months": "Pay 2 months today, get 1 month free",
-    yearly: "Special yearly discount"
   };
 
   return (
@@ -99,7 +93,6 @@ const Subscription: React.FC = () => {
           <div className="flex rounded-lg bg-gray-100 p-1">
             {[
               { id: 'monthly', label: 'Monthly' },
-              { id: '3months', label: '3 Months' },
               { id: 'yearly', label: 'Yearly' }
             ].map((period) => (
               <button
@@ -109,15 +102,17 @@ const Subscription: React.FC = () => {
                     ? 'bg-white shadow text-pulse-600' 
                     : 'text-gray-500 hover:text-gray-700'
                 }`}
-                onClick={() => setBillingPeriod(period.id as 'monthly' | '3months' | 'yearly')}
+                onClick={() => setBillingPeriod(period.id as 'monthly' | 'yearly')}
               >
                 {period.label}
               </button>
             ))}
           </div>
-          <p className="text-xs text-blue-600 mt-2 font-medium">
-            {discountMessage[billingPeriod]}
-          </p>
+          {billingPeriod === 'yearly' && (
+            <p className="text-xs text-blue-600 mt-2 font-medium">
+              Save 20% with annual billing
+            </p>
+          )}
         </div>
         
         {/* Current Plan (placeholder) */}
@@ -160,9 +155,14 @@ const Subscription: React.FC = () => {
                   )}
                 </div>
                 <div className="mt-2">
-                  <span className="text-3xl font-bold">${plan.price[billingPeriod]}</span>
-                  <span className="text-sm opacity-80">/{billingPeriod === 'yearly' ? 'year' : 'billing period'}</span>
+                  <span className="text-3xl font-bold">${plan.price[billingPeriod].toFixed(2)}</span>
+                  <span className="text-sm opacity-80">/{billingPeriod === 'yearly' ? 'year' : 'month'}</span>
                 </div>
+                {billingPeriod === 'yearly' && (
+                  <div className="mt-1 text-xs bg-white/20 rounded-full px-3 py-1 inline-block">
+                    Save {plan.savings} per year
+                  </div>
+                )}
                 <p className="text-sm mt-1 opacity-90">{plan.description}</p>
               </div>
               
