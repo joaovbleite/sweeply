@@ -118,9 +118,9 @@ const FloatingActionMenu: React.FC = () => {
 
   return (
     <>
-      {/* Floating Action Button */}
+      {/* Floating Action Button - positioned in center of navbar */}
       <button
-        className={`fab-button fixed right-6 bottom-[calc(theme(spacing.24)+theme(spacing.5))] z-50 bg-[#1a2e35] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transform transition-all duration-300 ${isOpen ? 'rotate-45' : ''}`}
+        className={`fab-button fixed bottom-24 left-1/2 transform -translate-x-1/2 z-50 bg-[#1a2e35] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition-all duration-300 ${isOpen ? 'rotate-45' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Create new"
       >
@@ -135,7 +135,7 @@ const FloatingActionMenu: React.FC = () => {
         onClick={() => setIsOpen(false)}
       >
         <div 
-          className="floating-menu-container fixed right-6 bottom-[calc(theme(spacing.24)+theme(spacing.5))] z-50 flex flex-col-reverse items-end space-y-reverse space-y-3 pb-16"
+          className="floating-menu-container fixed left-1/2 transform -translate-x-1/2 bottom-40 z-50 flex flex-col-reverse items-end space-y-reverse space-y-3 pb-16"
           onClick={(e) => e.stopPropagation()}
         >
           {menuItems.map((item, index) => (
