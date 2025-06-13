@@ -27,6 +27,8 @@ const BottomNavBar: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("");
   const navRef = useRef<HTMLDivElement>(null);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [previousTab, setPreviousTab] = useState<string>("");
+  const [direction, setDirection] = useState<number>(0);
   
   // Define the navigation items with the Plus button in the middle (3rd position)
   const navItems = [
@@ -106,6 +108,19 @@ const BottomNavBar: React.FC = () => {
     );
     
     if (activeItem) {
+      // Determine direction of navigation
+      if (previousTab) {
+        const prevIndex = navItems.findIndex(item => item.id === previousTab);
+        const currentIndex = navItems.findIndex(item => item.id === activeItem.id);
+        
+        // Skip the action button in the middle when calculating direction
+        const adjustedPrevIndex = prevIndex > 2 ? prevIndex - 1 : prevIndex;
+        const adjustedCurrentIndex = currentIndex > 2 ? currentIndex - 1 : currentIndex;
+        
+        setDirection(adjustedCurrentIndex - adjustedPrevIndex);
+      }
+      
+      setPreviousTab(activeTab);
       setActiveTab(activeItem.id);
     }
   }, [location.pathname]);
@@ -185,7 +200,7 @@ const BottomNavBar: React.FC = () => {
       <div className="fixed bottom-24 left-0 right-0 mx-auto px-4 z-50 lg:hidden">
       <nav 
         ref={navRef}
-          className="bg-black text-white rounded-full flex items-center justify-between px-6 py-3.5 max-w-md mx-auto shadow-xl relative"
+          className="bg-black text-white rounded-full flex items-center justify-between px-6 py-3.5 max-w-md mx-auto shadow-xl relative overflow-hidden"
       >
         {navItems.map((item, index) => {
           const Icon = item.icon;
@@ -213,15 +228,46 @@ const BottomNavBar: React.FC = () => {
               data-id={item.id}
               className="relative flex items-center justify-center z-10 transition-all duration-200 ease-in-out w-10 h-10"
               aria-label={item.id}
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => {
+                setPreviousTab(activeTab);
+                setActiveTab(item.id);
+                
+                // Calculate direction for the animation
+                const prevIndex = navItems.findIndex(navItem => navItem.id === activeTab);
+                const currentIndex = index;
+                
+                // Skip the action button in the middle when calculating direction
+                const adjustedPrevIndex = prevIndex > 2 ? prevIndex - 1 : prevIndex;
+                const adjustedCurrentIndex = currentIndex > 2 ? currentIndex - 1 : currentIndex;
+                
+                setDirection(adjustedCurrentIndex - adjustedPrevIndex);
+              }}
             >
               {isActive && (
                 <motion.div
                   layoutId="activeTabBackground"
                   className="absolute inset-0 bg-white rounded-full"
-                  initial={{ scale: 0.8, opacity: 0.5 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  initial={{ 
+                    scale: 0.8, 
+                    opacity: 0.5,
+                    x: direction > 0 ? -20 : direction < 0 ? 20 : 0
+                  }}
+                  animate={{ 
+                    scale: 1, 
+                    opacity: 1,
+                    x: 0
+                  }}
+                  exit={{
+                    scale: 0.8,
+                    opacity: 0.5,
+                    x: direction > 0 ? 20 : direction < 0 ? -20 : 0
+                  }}
+                  transition={{ 
+                    type: "spring", 
+                    stiffness: 400, 
+                    damping: 30,
+                    mass: 1
+                  }}
                 />
               )}
               <div className={`relative z-10 ${isActive ? "text-black" : "text-white hover:text-gray-300"}`}>
