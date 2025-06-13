@@ -197,7 +197,7 @@ const BottomNavBar: React.FC = () => {
       </div>
       
       {/* Bottom Nav Bar - Always visible */}
-      <div className="fixed bottom-24 left-0 right-0 mx-auto px-4 z-50 lg:hidden">
+      <div className="mx-auto px-4 lg:hidden">
       <nav 
         ref={navRef}
           className="bg-black text-white rounded-full flex items-center justify-between px-6 py-3.5 max-w-md mx-auto shadow-xl relative overflow-hidden"

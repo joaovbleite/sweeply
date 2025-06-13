@@ -255,7 +255,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
         {!hideBottomNav && (
           <>
             {/* Bottom Navigation Bar - Mobile Only - Outside of page transition */}
-            <div className="bottom-nav-container fixed left-0 right-0 bottom-0 z-50">
+            <div className="bottom-nav-container fixed left-0 right-0 bottom-6 z-50">
               <BottomNavBar />
             </div>
           </>
