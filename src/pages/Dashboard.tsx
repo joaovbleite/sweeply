@@ -248,27 +248,16 @@ const Dashboard = () => {
           ))}
         </div>
         
-        {/* Today's Job Map */}
-        <div className="mt-3 sm:mt-5 md:mt-6">
-          <div className="mb-2 sm:mb-3 flex justify-between items-center">
-            <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
-              <Globe className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-              Today's Jobs Map
-            </h3>
-            <Link to="/calendar" className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium flex items-center gap-1">
-              View Calendar <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
-            </Link>
-          </div>
+        {/* Map section - now without the header */}
+        <div className="mt-4 sm:mt-5 md:mt-6">
           <MapErrorBoundary>
             <Suspense fallback={
-              <div className="rounded-xl overflow-hidden shadow-sm border border-gray-100 flex items-center justify-center bg-gray-50" style={{ height: '350px' }}>
+              <div className="rounded-xl overflow-hidden shadow-sm border border-gray-100 flex items-center justify-center p-4" style={{ height: '350px' }}>
                 <div className="text-center">
-                  <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-500 border-r-transparent" role="status">
-                    <span className="sr-only">Loading map...</span>
-                  </div>
-                  <p className="mt-2 text-sm text-gray-600">Loading map...</p>
+                  <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                  <p className="text-gray-600">Loading map...</p>
                 </div>
-          </div>
+              </div>
             }>
               <DashboardMap jobs={jobs} className="mt-2" />
             </Suspense>

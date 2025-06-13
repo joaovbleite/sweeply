@@ -188,9 +188,9 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
           attributionControl: false,
           preserveDrawingBuffer: true,
           antialias: true,
-          dragPan: false,
+          dragPan: true,
           dragRotate: false,
-          touchZoomRotate: false,
+          touchZoomRotate: true,
           doubleClickZoom: true,
           scrollZoom: true,
           boxZoom: true,
@@ -204,31 +204,9 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
           mapContainer.current.style.display = 'block';
         }
         
-        // Add navigation controls (only zoom, no compass)
-        const navControl = new mapboxgl.NavigationControl({
-          showCompass: false,
-          showZoom: true
-        });
-        mapInstance.current.addControl(navControl, 'top-right');
-        
         // Add map load event handler
         mapInstance.current.on('load', () => {
           console.log('Map loaded successfully');
-          
-          // Add debug info when map loads
-          if (mapContainer.current) {
-            const debugInfo = document.createElement('div');
-            debugInfo.className = 'map-debug-info';
-            debugInfo.textContent = 'Map loaded successfully';
-            mapContainer.current.appendChild(debugInfo);
-            
-            // Remove the debug info after 3 seconds
-            setTimeout(() => {
-              if (debugInfo.parentNode) {
-                debugInfo.parentNode.removeChild(debugInfo);
-              }
-            }, 3000);
-          }
           
           // Hide loading indicator when map is loaded
           const mapLoading = document.getElementById('map-loading');
@@ -324,77 +302,38 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
   }, []);
 
   return (
-    <div className={`relative rounded-xl overflow-hidden shadow-sm border border-gray-100 ${className}`} style={{ height: '350px', position: 'relative', width: '100vw', left: '50%', transform: 'translateX(-50%)', borderRadius: 0, border: 'none' }}>
-      {/* Map container with explicitly defined dimensions */}
+    <div className={`relative rounded-xl overflow-hidden shadow-sm border border-gray-100 ${className}`}>
+      {/* Map container */}
       <div 
         ref={mapContainer} 
-        style={{ 
-          width: '100%', 
-          height: '100%', 
-          minHeight: '350px', 
-          position: 'relative',
-          background: '#e5e7eb' // Light gray background to make it visible before map loads
-        }} 
-      />
-      
-      {/* Top fade overlay */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '80px',
-          pointerEvents: 'none',
-          background: 'linear-gradient(to bottom, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.0) 100%)',
-          zIndex: 20
-        }}
-      />
-      {/* Bottom fade overlay */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          width: '100%',
-          height: '80px',
-          pointerEvents: 'none',
-          background: 'linear-gradient(to top, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.0) 100%)',
-          zIndex: 20
-        }}
+        className="w-full h-[350px] bg-gray-100"
+        style={{ touchAction: 'pan-x pan-y' }} // Improve touch handling
       />
       
       {/* Loading indicator */}
-      <div id="map-loading" className="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
-        <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-500 border-r-transparent" role="status">
-            <span className="sr-only">Loading...</span>
-          </div>
+      <div 
+        id="map-loading"
+        className="absolute inset-0 bg-gray-50 bg-opacity-80 flex items-center justify-center"
+      >
+        <div className="flex flex-col items-center">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
           <p className="mt-2 text-sm text-gray-600">Loading map...</p>
         </div>
       </div>
       
       {/* Error message */}
       {mapError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 z-20">
-          <div className="text-center p-4 max-w-xs">
-            <div className="h-10 w-10 mx-auto mb-3 text-red-500">⚠️</div>
-            <p className="text-red-600 font-medium mb-2">Map Error</p>
-            <p className="text-sm text-gray-700 mb-3">{mapError}</p>
+        <div className="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center p-4">
+          <div className="text-center">
+            <p className="text-red-500 font-medium mb-2">Map Error</p>
+            <p className="text-sm text-gray-600">{mapError}</p>
             <button 
-              onClick={() => window.location.reload()} 
-              className="px-4 py-2 bg-blue-500 text-white rounded-md text-sm"
+              onClick={() => window.location.reload()}
+              className="mt-3 px-3 py-1 bg-blue-500 text-white text-sm rounded-md"
             >
               Reload
             </button>
           </div>
-        </div>
-      )}
-      
-      {/* Job count badge */}
-      {geocodedJobs.length > 0 && isMapLoaded && (
-        <div className="absolute top-2 left-2 bg-white rounded-full px-3 py-1 text-xs font-medium shadow-sm border border-gray-100 z-20">
-          {geocodedJobs.length} {geocodedJobs.length === 1 ? 'job' : 'jobs'} on map
         </div>
       )}
     </div>
