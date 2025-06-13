@@ -247,14 +247,14 @@ const Calendar = () => {
     
     switch (status) {
       case 'completed':
-        return `bg-blue-500 border-blue-600 text-white ${baseClasses}`;
+        return `bg-blue-600 border-blue-700 text-white font-medium ${baseClasses}`;
       case 'in_progress':
-        return `bg-blue-500 border-blue-600 text-white ${baseClasses}`;
+        return `bg-green-600 border-green-700 text-white font-medium ${baseClasses}`;
       case 'cancelled':
-        return `bg-red-500 border-red-600 text-white ${baseClasses}`;
+        return `bg-red-600 border-red-700 text-white font-medium ${baseClasses}`;
       case 'scheduled':
       default:
-        return `bg-gray-500 border-gray-600 text-white ${baseClasses}`;
+        return `bg-gray-700 border-gray-800 text-white font-medium ${baseClasses}`;
     }
   };
 
@@ -317,7 +317,7 @@ const Calendar = () => {
     const isLeftSwipe = distance > 50;
     const isRightSwipe = distance < -50;
     
-    // Only navigate if we've detected a clear swipe gesture
+    // Only allow navigating one week at a time
     if (isLeftSwipe) {
       navigateWeek('next');
     } else if (isRightSwipe) {
@@ -369,21 +369,27 @@ const Calendar = () => {
     }
   };
 
-  // Handle scroll end for pagination
+  // Handle scroll end for pagination - limit to only one week ahead or behind
   const handleScrollEnd = () => {
     if (weekDaysRef.current) {
       const { scrollLeft, scrollWidth } = weekDaysRef.current;
       const viewportWidth = weekDaysRef.current.clientWidth;
       
+      // Only allow scrolling one week at a time
       // If we've scrolled near the end, load the next week
       if (scrollLeft + viewportWidth >= scrollWidth - 20) {
-        const newWeek = addWeeks(currentWeek, 1);
-        setCurrentWeek(newWeek);
+        navigateWeek('next');
       }
       // If we've scrolled near the start, load the previous week
       else if (scrollLeft <= 20) {
-        const newWeek = subWeeks(currentWeek, 1);
-        setCurrentWeek(newWeek);
+        navigateWeek('prev');
+      }
+      // Otherwise reset to middle position
+      else {
+        weekDaysRef.current.scrollTo({
+          left: weekDaysRef.current.scrollWidth / 3,
+          behavior: 'auto'
+        });
       }
     }
   };
@@ -705,20 +711,20 @@ const Calendar = () => {
                       }}
                       className={`w-[calc(100%/7)] flex-shrink-0 flex flex-col items-center py-3 cursor-pointer border-b-2 transition-colors snap-center
                         ${isSelectedDay 
-                          ? 'border-[#307842] bg-gray-50' 
+                          ? 'border-[#307842] bg-gray-100' 
                           : 'border-transparent hover:bg-gray-50'
                         }
-                        ${isCurrentWeek ? 'opacity-100' : 'opacity-80'}
+                        ${isCurrentWeek ? 'opacity-100' : 'opacity-85'}
                       `}
                     >
-                      <div className="text-sm text-gray-500 font-medium">
+                      <div className={`text-sm font-medium ${isSelectedDay ? 'text-[#307842]' : 'text-gray-600'}`}>
                         {format(day, 'EEE').charAt(0)}
                       </div>
                       <div className={`w-8 h-8 flex items-center justify-center rounded-full mt-1
                         ${isSelectedDay 
-                          ? 'bg-[#307842] text-white' 
+                          ? 'bg-[#307842] text-white font-bold shadow-sm' 
                           : isDayToday 
-                            ? 'border-2 border-[#307842] text-[#307842]' 
+                            ? 'border-2 border-[#307842] text-[#307842] font-bold' 
                             : 'text-gray-800'
                         }
                       `}>
