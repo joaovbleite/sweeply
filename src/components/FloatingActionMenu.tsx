@@ -120,7 +120,7 @@ const FloatingActionMenu: React.FC = () => {
     <>
       {/* Floating Action Button - positioned in center of navbar */}
       <button
-        className={`fab-button fixed bottom-16 left-1/2 transform -translate-x-1/2 z-50 bg-[#1a2e35] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition-all duration-300 ${isOpen ? 'rotate-45' : ''}`}
+        className={`fab-button fixed bottom-10 left-1/2 transform -translate-x-1/2 z-50 bg-[#1a2e35] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition-all duration-300 ${isOpen ? 'rotate-45' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Create new"
       >
@@ -135,7 +135,7 @@ const FloatingActionMenu: React.FC = () => {
         onClick={() => setIsOpen(false)}
       >
         <div 
-          className="floating-menu-container fixed left-1/2 transform -translate-x-1/2 bottom-20 z-50 flex flex-col-reverse items-end space-y-reverse space-y-2 pb-4"
+          className="floating-menu-container fixed left-1/2 transform -translate-x-1/2 bottom-14 z-50 flex flex-col-reverse items-end space-y-reverse space-y-1 pb-2"
           onClick={(e) => e.stopPropagation()}
         >
           {menuItems.map((item, index) => (
@@ -155,9 +155,9 @@ const FloatingActionMenu: React.FC = () => {
                 setIsOpen(false);
               }}
             >
-              <span className="text-[#1a2e35] font-medium px-4 py-3">{item.label}</span>
-              <div className={`${item.color} rounded-full p-3 ml-1`}>
-                <item.icon className={`w-5 h-5 ${item.iconColor}`} />
+              <span className="text-[#1a2e35] font-medium px-3 py-2">{item.label}</span>
+              <div className={`${item.color} rounded-full p-2 ml-1`}>
+                <item.icon className={`w-4 h-4 ${item.iconColor}`} />
               </div>
             </div>
           ))}
