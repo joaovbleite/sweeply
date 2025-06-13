@@ -38,7 +38,15 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   };
 
   return (
-    <div className="sticky top-0 left-0 right-0 z-30 bg-white shadow-sm">
+    <div 
+      className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm"
+      style={{ 
+        willChange: 'transform',
+        transform: 'translateZ(0)',
+        backfaceVisibility: 'hidden',
+        WebkitBackfaceVisibility: 'hidden'
+      }}
+    >
       <div className={`flex items-center justify-between px-4 border-b border-gray-200 ${compact ? 'pt-2 pb-2' : 'pt-8 pb-4'}`}>
         <div className="flex items-center">
           {backUrl ? (

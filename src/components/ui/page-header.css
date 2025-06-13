@@ -2,4 +2,13 @@
 .page-header-compact {
   padding-top: 8px !important;
   padding-bottom: 8px !important;
+}
+
+/* Ensure header stays fixed during page transitions */
+.fixed {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform;
+  isolation: isolate;
 } 

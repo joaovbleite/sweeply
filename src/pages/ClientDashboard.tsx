@@ -182,11 +182,11 @@ const ClientDashboard = () => {
           title={client.name}
           onBackClick={() => window.history.back()}
           rightElement={clientTier && (
-            <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${clientTier.color}`}>
-              <TierIcon className="w-4 h-4" />
+              <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${clientTier.color}`}>
+                <TierIcon className="w-4 h-4" />
               {clientTier.tier}
-            </div>
-          )}
+              </div>
+            )}
         />
 
         {/* Quick Stats */}

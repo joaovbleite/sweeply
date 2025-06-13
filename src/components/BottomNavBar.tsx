@@ -200,6 +200,18 @@ const BottomNavBar: React.FC = () => {
       <nav 
         ref={navRef}
         className="bg-black text-white rounded-full flex items-center justify-between px-6 py-3.5 max-w-md mx-auto shadow-xl relative overflow-hidden"
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '50%',
+          transform: 'translateX(-50%) translateZ(0)',
+          width: 'calc(100% - 32px)',
+          maxWidth: '400px',
+          zIndex: 100,
+          willChange: 'transform',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden'
+        }}
       >
         {navItems.map((item, index) => {
           const Icon = item.icon;

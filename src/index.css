@@ -441,3 +441,27 @@
   color: #2d3748 !important;
   font-weight: 600;
 }
+
+/* Add these rules to ensure fixed position elements stay in place during transitions */
+.fixed,
+[class*="fixed"],
+[style*="position: fixed"] {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform;
+  z-index: var(--z-index, 50);
+}
+
+/* Ensure page transitions don't affect fixed elements */
+.page-transition-container {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+}
+
+/* Animation classes for page transitions */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

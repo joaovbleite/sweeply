@@ -123,6 +123,13 @@ const FloatingActionMenu: React.FC = () => {
         className={`fab-button fixed bottom-10 left-1/2 transform -translate-x-1/2 z-50 bg-[#1a2e35] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition-all duration-300 ${isOpen ? 'rotate-45' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Create new"
+        style={{
+          willChange: 'transform',
+          transform: 'translateX(-50%) translateZ(0)',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
+          zIndex: 100
+        }}
       >
         <Plus className="w-6 h-6" />
       </button>
@@ -133,6 +140,12 @@ const FloatingActionMenu: React.FC = () => {
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={() => setIsOpen(false)}
+        style={{
+          zIndex: 99,
+          willChange: 'opacity',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden'
+        }}
       >
         <div 
           className="floating-menu-container fixed left-1/2 transform -translate-x-1/2 bottom-14 z-50 flex flex-col-reverse items-end space-y-reverse space-y-1 pb-2"

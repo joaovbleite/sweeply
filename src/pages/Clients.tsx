@@ -425,14 +425,14 @@ const Clients = () => {
   const getAddButton = () => {
     switch (activeTab) {
       case 'clients':
-        return (
-          <Link
-            to="/clients/new"
+  return (
+            <Link
+              to="/clients/new"
             className="bg-[#3b82f6] text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2"
-          >
+            >
             <Plus className="w-4 h-4" />
             <span>Add Client</span>
-          </Link>
+            </Link>
         );
       case 'jobs':
         return (
