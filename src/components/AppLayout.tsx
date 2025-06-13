@@ -237,13 +237,16 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
       <div className={`flex-1 flex flex-col min-h-screen max-h-screen overflow-hidden bg-white ${hideBottomNav ? 'pb-safe' : 'pb-40'}`}>
         {/* Page Content - removed the header for desktop */}
         <main className="flex-1 overflow-y-auto bg-white">
-          <div style={{ 
-            willChange: 'opacity',
-            contentVisibility: 'auto',
-            contain: 'content',
-            backfaceVisibility: 'hidden',
-            WebkitBackfaceVisibility: 'hidden'
-          }}>
+          <div 
+            className="page-content-wrapper"
+            style={{ 
+              willChange: 'opacity',
+              contentVisibility: 'auto',
+              contain: 'content',
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden'
+            }}
+          >
             {children}
           </div>
         </main>
@@ -251,8 +254,10 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
         {/* Only render navigation elements if hideBottomNav is false */}
         {!hideBottomNav && (
           <>
-            {/* Bottom Navigation Bar - Mobile Only */}
-            <BottomNavBar />
+            {/* Bottom Navigation Bar - Mobile Only - Outside of page transition */}
+            <div className="bottom-nav-container fixed left-0 right-0 bottom-0 z-50">
+              <BottomNavBar />
+            </div>
           </>
         )}
       </div>
