@@ -122,24 +122,40 @@ export default {
 					'100%': { opacity: '1', transform: 'translateY(0)' }
 				},
 				'exit-slide-down': {
-					'0%': { opacity: '1', transform: 'translateY(0)' },
-					'100%': { opacity: '0', transform: 'translateY(15px)' }
+					'0%': { transform: 'translateY(0)', opacity: '1' },
+					'100%': { transform: 'translateY(20px)', opacity: '0' }
 				},
 				'exit-slide-up': {
-					'0%': { opacity: '1', transform: 'translateY(0)' },
-					'100%': { opacity: '0', transform: 'translateY(-15px)' }
+					'0%': { transform: 'translateY(0)', opacity: '1' },
+					'100%': { transform: 'translateY(-20px)', opacity: '0' }
 				},
 				'fade-in-right': {
-					'0%': { opacity: '0', transform: 'translateX(-20px)' },
-					'100%': { opacity: '1', transform: 'translateX(0)' }
+					'0%': { transform: 'translateX(-20px)', opacity: '0' },
+					'100%': { transform: 'translateX(0)', opacity: '1' }
 				},
 				'fade-in-left': {
-					'0%': { opacity: '0', transform: 'translateX(20px)' },
-					'100%': { opacity: '1', transform: 'translateX(0)' }
+					'0%': { transform: 'translateX(20px)', opacity: '0' },
+					'100%': { transform: 'translateX(0)', opacity: '1' }
+				},
+				'exit-slide-down-fast': {
+					'0%': { transform: 'translateY(0)', opacity: '1' },
+					'100%': { transform: 'translateY(10px)', opacity: '0.5' }
+				},
+				'exit-slide-up-fast': {
+					'0%': { transform: 'translateY(0)', opacity: '1' },
+					'100%': { transform: 'translateY(-10px)', opacity: '0.5' }
+				},
+				'fade-slide-down-fast': {
+					'0%': { transform: 'translateY(-10px)', opacity: '0.5' },
+					'100%': { transform: 'translateY(0)', opacity: '1' }
+				},
+				'fade-slide-up-fast': {
+					'0%': { transform: 'translateY(10px)', opacity: '0.5' },
+					'100%': { transform: 'translateY(0)', opacity: '1' }
 				},
 				'pulse-slow': {
 					'0%, 100%': { opacity: '1' },
-					'50%': { opacity: '0.8' }
+					'50%': { opacity: '0.5' }
 				},
 				'float': {
 					'0%, 100%': { transform: 'translateY(0)' },
@@ -178,7 +194,11 @@ export default {
 				'slide-left': 'slide-left 0.3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards',
 				'slide-right': 'slide-right 0.3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards',
 				'slide-exit-left': 'slide-exit-left 0.3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards',
-				'slide-exit-right': 'slide-exit-right 0.3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards'
+				'slide-exit-right': 'slide-exit-right 0.3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards',
+				'exit-slide-down-fast': 'exit-slide-down-fast 0.2s cubic-bezier(0.25, 0.1, 0.25, 1) forwards',
+				'exit-slide-up-fast': 'exit-slide-up-fast 0.2s cubic-bezier(0.25, 0.1, 0.25, 1) forwards',
+				'fade-slide-down-fast': 'fade-slide-down-fast 0.25s cubic-bezier(0.25, 0.1, 0.25, 1) forwards',
+				'fade-slide-up-fast': 'fade-slide-up-fast 0.25s cubic-bezier(0.25, 0.1, 0.25, 1) forwards'
 			},
 			backgroundImage: {
 				'hero-gradient': 'linear-gradient(90deg, hsla(24, 100%, 83%, 1) 0%, hsla(341, 91%, 68%, 1) 100%)',
