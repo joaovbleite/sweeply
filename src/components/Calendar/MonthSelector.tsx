@@ -87,7 +87,7 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
           onClick={() => selectDay(day)}
           className={`calendar-day cursor-pointer h-9 w-9 flex items-center justify-center rounded-full hover:bg-blue-100 transition-colors ${
             isSelected ? 'bg-blue-500 text-white' : 
-            isCurrentDay ? 'border-2 border-blue-500 text-blue-500' : ''
+            isCurrentDay ? 'border-2 border-blue-500 text-blue-500' : 'text-gray-800'
           }`}
         >
           {day}

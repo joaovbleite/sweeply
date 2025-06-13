@@ -38,7 +38,7 @@ const Schedule = () => {
   const [viewOptions, setViewOptions] = useState<ViewOptionsState>({
     view: 'Day',
     showUnscheduledAppointments: false,
-    showWeekends: false,
+    showWeekends: true,
     selectedTeamMembers: ['1'] // Default to victor leite selected
   });
   
