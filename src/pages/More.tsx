@@ -47,6 +47,11 @@ const More: React.FC = () => {
   return (
     <AppLayout>
       <div className="bg-[#F7F8F5] flex flex-col">
+        {/* Test text in yellow */}
+        <div className="bg-yellow-400 text-black font-bold p-4 text-center">
+          TEST - Production Ready Branch
+        </div>
+        
         {/* Use PageHeader with custom right element */}
         <PageHeader
           title="More"
