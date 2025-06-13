@@ -264,9 +264,10 @@ const BottomNavBar: React.FC = () => {
                   }}
                   transition={{ 
                     type: "spring", 
-                    stiffness: 400, 
-                    damping: 30,
-                    mass: 1
+                    stiffness: 300, 
+                    damping: 26,
+                    mass: 1.2,
+                    duration: 0.5
                   }}
                 />
               )}
