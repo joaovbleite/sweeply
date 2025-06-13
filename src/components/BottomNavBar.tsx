@@ -152,7 +152,7 @@ const BottomNavBar: React.FC = () => {
         onClick={() => setIsMenuOpen(false)}
       >
         <div 
-          className="floating-menu-container fixed left-1/2 -translate-x-1/2 bottom-32 z-50 flex flex-col-reverse items-center space-y-reverse space-y-2 pb-2"
+          className="floating-menu-container fixed left-1/2 -translate-x-1/2 bottom-40 z-50 flex flex-col-reverse items-center space-y-reverse space-y-2 pb-2"
           onClick={(e) => e.stopPropagation()}
         >
           {menuItems.map((item, index) => (
@@ -172,9 +172,9 @@ const BottomNavBar: React.FC = () => {
                 setIsMenuOpen(false);
               }}
             >
-              <span className="text-[#1a2e35] font-medium px-3 py-2">{item.label}</span>
-              <div className={`${item.color} rounded-full p-2 ml-1`}>
-                <item.icon className={`w-4 h-4 ${item.iconColor}`} />
+              <span className="text-[#1a2e35] font-medium px-4 py-3">{item.label}</span>
+              <div className={`${item.color} rounded-full p-3 ml-2`}>
+                <item.icon className={`w-5 h-5 ${item.iconColor}`} />
               </div>
             </div>
           ))}
@@ -182,7 +182,7 @@ const BottomNavBar: React.FC = () => {
       </div>
       
       {/* Bottom Nav Bar - Always visible */}
-      <div className="fixed bottom-16 left-0 right-0 mx-auto px-4 z-50 lg:hidden">
+      <div className="fixed bottom-24 left-0 right-0 mx-auto px-4 z-50 lg:hidden">
       <nav 
         ref={navRef}
           className="bg-black text-white rounded-full flex items-center justify-between px-6 py-3.5 max-w-md mx-auto shadow-xl relative"

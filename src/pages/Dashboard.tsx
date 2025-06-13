@@ -206,11 +206,6 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
-      {/* Test text in yellow */}
-      <div className="bg-yellow-400 text-black font-bold p-4 text-center">
-        TEST - Production Ready Branch
-      </div>
-      
       <div className={`${isMobile ? 'px-3 sm:px-4' : 'px-6 lg:px-8'} py-0 sm:py-4 md:py-6`}>
         {/* Welcome Widget */}
         <div className={isMobile ? '' : 'mt-6'}>
