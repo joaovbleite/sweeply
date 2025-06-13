@@ -152,7 +152,7 @@ const BottomNavBar: React.FC = () => {
         onClick={() => setIsMenuOpen(false)}
       >
         <div 
-          className="floating-menu-container fixed left-1/2 -translate-x-1/2 bottom-43 z-50 flex flex-col-reverse items-center space-y-reverse space-y-3 pb-3"
+          className="floating-menu-container fixed left-1/2 -translate-x-1/2 bottom-24 z-50 flex flex-col-reverse items-center space-y-reverse space-y-2 pb-2"
           onClick={(e) => e.stopPropagation()}
         >
           {menuItems.map((item, index) => (
@@ -172,9 +172,9 @@ const BottomNavBar: React.FC = () => {
                 setIsMenuOpen(false);
               }}
             >
-              <span className="text-[#1a2e35] font-medium px-4 py-3">{item.label}</span>
-              <div className={`${item.color} rounded-full p-3 ml-1`}>
-                <item.icon className={`w-5 h-5 ${item.iconColor}`} />
+              <span className="text-[#1a2e35] font-medium px-3 py-2">{item.label}</span>
+              <div className={`${item.color} rounded-full p-2 ml-1`}>
+                <item.icon className={`w-4 h-4 ${item.iconColor}`} />
               </div>
             </div>
           ))}
@@ -182,13 +182,13 @@ const BottomNavBar: React.FC = () => {
       </div>
       
       {/* Bottom Nav Bar - Always visible */}
-      <div className="fixed bottom-24 left-0 right-0 mx-auto px-4 z-50 lg:hidden">
-        <nav 
-          ref={navRef}
+      <div className="fixed bottom-8 left-0 right-0 mx-auto px-4 z-50 lg:hidden">
+      <nav 
+        ref={navRef}
           className="bg-black text-white rounded-full flex items-center justify-between px-6 py-3.5 max-w-md mx-auto shadow-xl relative"
-        >
-          {navItems.map((item, index) => {
-            const Icon = item.icon;
+      >
+        {navItems.map((item, index) => {
+          const Icon = item.icon;
             const isActive = !item.isAction && (location.pathname === item.path || 
                             (item.id === "clients" && location.pathname.includes("/client")));
             
@@ -205,33 +205,33 @@ const BottomNavBar: React.FC = () => {
                 </button>
               );
             }
-            
-            return (
-              <Link
-                key={item.id}
-                to={item.path}
-                data-id={item.id}
-                className="relative flex items-center justify-center z-10 transition-all duration-200 ease-in-out w-10 h-10"
-                aria-label={item.id}
-                onClick={() => setActiveTab(item.id)}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="activeTabBackground"
-                    className="absolute inset-0 bg-white rounded-full"
-                    initial={{ scale: 0.8, opacity: 0.5 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  />
-                )}
-                <div className={`relative z-10 ${isActive ? "text-black" : "text-white hover:text-gray-300"}`}>
-                  <Icon className="w-5 h-5" strokeWidth={2} />
-                </div>
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
+          
+          return (
+            <Link
+              key={item.id}
+              to={item.path}
+              data-id={item.id}
+              className="relative flex items-center justify-center z-10 transition-all duration-200 ease-in-out w-10 h-10"
+              aria-label={item.id}
+              onClick={() => setActiveTab(item.id)}
+            >
+              {isActive && (
+                <motion.div
+                  layoutId="activeTabBackground"
+                  className="absolute inset-0 bg-white rounded-full"
+                  initial={{ scale: 0.8, opacity: 0.5 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                />
+              )}
+              <div className={`relative z-10 ${isActive ? "text-black" : "text-white hover:text-gray-300"}`}>
+                <Icon className="w-5 h-5" strokeWidth={2} />
+              </div>
+            </Link>
+          );
+        })}
+      </nav>
+    </div>
     </>
   );
 };
