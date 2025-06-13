@@ -197,10 +197,9 @@ const BottomNavBar: React.FC = () => {
       </div>
       
       {/* Bottom Nav Bar - Always visible */}
-      <div className="mx-auto px-4 lg:hidden">
       <nav 
         ref={navRef}
-          className="bg-black text-white rounded-full flex items-center justify-between px-6 py-3.5 max-w-md mx-auto shadow-xl relative overflow-hidden"
+        className="bg-black text-white rounded-full flex items-center justify-between px-6 py-3.5 max-w-md mx-auto shadow-xl relative overflow-hidden"
       >
         {navItems.map((item, index) => {
           const Icon = item.icon;
@@ -264,10 +263,9 @@ const BottomNavBar: React.FC = () => {
                   }}
                   transition={{ 
                     type: "spring", 
-                    stiffness: 300, 
-                    damping: 26,
-                    mass: 1.2,
-                    duration: 0.5
+                    stiffness: 400, 
+                    damping: 30,
+                    mass: 1
                   }}
                 />
               )}
@@ -278,7 +276,6 @@ const BottomNavBar: React.FC = () => {
           );
         })}
       </nav>
-    </div>
     </>
   );
 };

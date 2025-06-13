@@ -233,9 +233,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
         )}
       </aside>
 
-      {/* Main Content */}
-      <div className={`flex-1 flex flex-col min-h-screen max-h-screen overflow-hidden bg-white ${hideBottomNav ? 'pb-safe' : 'pb-40'}`}>
-        {/* Page Content - removed the header for desktop */}
+      {/* Main Content - Separate from bottom navigation */}
+      <div className={`flex-1 flex flex-col min-h-screen max-h-screen overflow-hidden bg-white ${hideBottomNav ? 'pb-safe' : 'pb-32'}`}>
+        {/* Page Content */}
         <main className="flex-1 overflow-y-auto bg-white">
           <div 
             className="page-content-wrapper"
@@ -250,17 +250,14 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
             {children}
           </div>
         </main>
-
-        {/* Only render navigation elements if hideBottomNav is false */}
-        {!hideBottomNav && (
-          <>
-            {/* Bottom Navigation Bar - Mobile Only - Outside of page transition */}
-            <div className="bottom-nav-container fixed left-0 right-0 bottom-6 z-50">
-              <BottomNavBar />
-            </div>
-          </>
-        )}
       </div>
+
+      {/* Bottom Navigation Bar - Completely separate from page content and transitions */}
+      {!hideBottomNav && isMobile && (
+        <div className="bottom-nav-wrapper fixed left-0 right-0 bottom-6 z-50 pointer-events-auto" style={{ isolation: 'isolate' }}>
+          <BottomNavBar />
+        </div>
+      )}
 
       {/* Mobile sidebar overlay */}
       {isSidebarOpen && (
