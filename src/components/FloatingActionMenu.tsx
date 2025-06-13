@@ -135,7 +135,7 @@ const FloatingActionMenu: React.FC = () => {
         onClick={() => setIsOpen(false)}
       >
         <div 
-          className="floating-menu-container fixed left-1/2 transform -translate-x-1/2 bottom-40 z-50 flex flex-col-reverse items-end space-y-reverse space-y-3 pb-16"
+          className="floating-menu-container fixed left-1/2 transform -translate-x-1/2 bottom-28 z-50 flex flex-col-reverse items-end space-y-reverse space-y-2 pb-8"
           onClick={(e) => e.stopPropagation()}
         >
           {menuItems.map((item, index) => (
