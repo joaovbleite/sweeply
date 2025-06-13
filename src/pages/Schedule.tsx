@@ -156,13 +156,16 @@ const Schedule = () => {
     const isLeftSwipe = distance > 50;
     const isRightSwipe = distance < -50;
     
+    // Only navigate if we've detected a clear swipe gesture
     if (isLeftSwipe) {
       navigateWeek('next');
-    }
-    
-    if (isRightSwipe) {
+    } else if (isRightSwipe) {
       navigateWeek('prev');
     }
+    
+    // Reset touch values after handling
+    setTouchStart(null);
+    setTouchEnd(null);
   };
 
   // Handle wheel event handler for desktop scrolling
@@ -170,13 +173,26 @@ const Schedule = () => {
     // Prevent default browser scroll behavior
     e.preventDefault();
     
-    // Check scroll direction
-    if (e.deltaX > 50) {
-      // Scrolling right (next week)
-      navigateWeek('next');
-    } else if (e.deltaX < -50) {
-      // Scrolling left (previous week)
-      navigateWeek('prev');
+    // Debounce wheel events to prevent rapid firing
+    const scrollContainer = weekDaysRef.current as DivWithScrollTimeout;
+    
+    // Clear any existing timeout
+    if (scrollContainer && scrollContainer.scrollTimeout) {
+      clearTimeout(scrollContainer.scrollTimeout);
+    }
+    
+    // Set a new timeout
+    if (scrollContainer) {
+      scrollContainer.scrollTimeout = window.setTimeout(() => {
+        // Check scroll direction with a higher threshold
+        if (e.deltaX > 80) {
+          // Scrolling right (next week)
+          navigateWeek('next');
+        } else if (e.deltaX < -80) {
+          // Scrolling left (previous week)
+          navigateWeek('prev');
+        }
+      }, 50); // Small delay to debounce
     }
   };
 

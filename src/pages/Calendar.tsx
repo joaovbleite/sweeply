@@ -316,12 +316,19 @@ const Calendar = () => {
     const isLeftSwipe = distance > 50;
     const isRightSwipe = distance < -50;
     
+    // Only navigate if we've detected a clear swipe gesture
     if (isLeftSwipe) {
       navigateWeek('next');
-    }
-    
-    if (isRightSwipe) {
+    } else if (isRightSwipe) {
       navigateWeek('prev');
+    } else {
+      // If it's not a clear swipe, reset to middle position
+      if (weekDaysRef.current) {
+        weekDaysRef.current.scrollTo({
+          left: weekDaysRef.current.scrollWidth / 3,
+          behavior: 'auto'
+        });
+      }
     }
   };
 
@@ -330,13 +337,34 @@ const Calendar = () => {
     // Prevent default browser scroll behavior
     e.preventDefault();
     
-    // Check scroll direction
-    if (e.deltaX > 50) {
-      // Scrolling right (next week)
-      navigateWeek('next');
-    } else if (e.deltaX < -50) {
-      // Scrolling left (previous week)
-      navigateWeek('prev');
+    // Debounce wheel events to prevent rapid firing
+    if (weekDaysRef.current) {
+      const scrollContainer = weekDaysRef.current as DivWithScrollTimeout;
+      
+      // Clear any existing timeout
+      if (scrollContainer.scrollTimeout) {
+        clearTimeout(scrollContainer.scrollTimeout);
+      }
+      
+      // Set a new timeout
+      scrollContainer.scrollTimeout = window.setTimeout(() => {
+        // Check scroll direction with a higher threshold
+        if (e.deltaX > 80) {
+          // Scrolling right (next week)
+          navigateWeek('next');
+        } else if (e.deltaX < -80) {
+          // Scrolling left (previous week)
+          navigateWeek('prev');
+        } else {
+          // Reset to middle position if the scroll wasn't significant
+          if (weekDaysRef.current) {
+            weekDaysRef.current.scrollTo({
+              left: weekDaysRef.current.scrollWidth / 3,
+              behavior: 'auto'
+            });
+          }
+        }
+      }, 50); // Small delay to debounce
     }
   };
 
