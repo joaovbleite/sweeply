@@ -10,7 +10,7 @@ import AppLayout from "@/components/AppLayout";
 import PageHeader from "@/components/ui/PageHeader";
 import { useLocale } from "@/hooks/useLocale";
 import LineItemModal from "@/components/jobs/LineItemModal";
-import { PageSeparator } from "@/components/ui/separator";
+import PageSeparator from "@/components/ui/page-separator";
 
 interface LineItem {
   description: string;
