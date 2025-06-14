@@ -202,7 +202,7 @@ const BottomNavBar: React.FC = () => {
         className="bg-black text-white rounded-full flex items-center justify-between px-5 py-3 max-w-md mx-auto shadow-xl relative overflow-hidden"
         style={{
           position: 'fixed',
-          bottom: '120px',
+          bottom: '80px',
           left: '50%',
           transform: 'translateX(-50%)',
           width: 'calc(100% - 32px)',
