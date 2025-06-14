@@ -26,7 +26,8 @@ import {
   Map
 } from "lucide-react";
 import { toast } from "sonner";
-import { format, addDays, startOfWeek, endOfWeek, isSameDay, parseISO, addWeeks, subWeeks, getHours, getMinutes } from "date-fns";
+import { format, addDays, startOfWeek, endOfWeek, isSameDay, addWeeks, subWeeks, getHours, getMinutes } from "date-fns";
+import { parseISO } from "date-fns/parseISO";
 import { jobsApi } from "@/lib/api/jobs";
 import { clientsApi } from "@/lib/api/clients";
 import { Job, JobStatus } from "@/types/job";
