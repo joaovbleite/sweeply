@@ -87,7 +87,7 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
           onClick={() => selectDay(day)}
           className={`calendar-day cursor-pointer h-9 w-9 flex items-center justify-center rounded-full hover:bg-blue-100 transition-colors ${
             isSelected ? 'bg-blue-500 text-white' : 
-            isCurrentDay ? 'border-2 border-blue-500 text-blue-500' : ''
+            isCurrentDay ? 'border-2 border-blue-500 text-blue-500' : 'text-gray-800 font-medium'
           }`}
         >
           {day}
@@ -165,7 +165,7 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
             {/* Week day labels */}
             <div className="grid grid-cols-7 gap-1 px-3 py-2 text-center">
               {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
-                <div key={index} className="text-sm font-medium text-blue-400">
+                <div key={index} className="text-sm font-medium text-gray-700">
                   {day}
                 </div>
               ))}

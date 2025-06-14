@@ -680,7 +680,7 @@ const Calendar = () => {
                           ? 'border-[#307842] bg-gray-50' 
                           : 'border-transparent hover:bg-gray-50'
                         }
-                        ${isCurrentWeek ? 'opacity-100' : 'opacity-80'}
+                        ${isCurrentWeek ? 'opacity-100' : 'opacity-100'}
                       `}
                     >
                       <div className="text-sm text-gray-500 font-medium">
