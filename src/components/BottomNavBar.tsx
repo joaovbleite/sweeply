@@ -199,7 +199,19 @@ const BottomNavBar: React.FC = () => {
       {/* Bottom Nav Bar - Always visible */}
       <nav 
         ref={navRef}
-        className="bg-black text-white rounded-full flex items-center justify-between px-6 py-3.5 max-w-md mx-auto shadow-xl relative overflow-hidden"
+        className="bg-black text-white rounded-full flex items-center justify-between px-5 py-3 max-w-md mx-auto shadow-xl relative overflow-hidden"
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '50%',
+          transform: 'translateX(-50%) translateZ(0)',
+          width: 'calc(100% - 48px)', // Increased side margins from 32px to 48px
+          maxWidth: '360px', // Reduced from 400px
+          zIndex: 100,
+          willChange: 'transform',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden'
+        }}
       >
         {navItems.map((item, index) => {
           const Icon = item.icon;
@@ -211,11 +223,11 @@ const BottomNavBar: React.FC = () => {
               return (
                 <button
                   key={item.id}
-                  className={`fab-button relative flex items-center justify-center z-10 bg-[#1a2e35] w-12 h-12 rounded-full shadow-lg transform transition-all duration-300 ${isMenuOpen ? 'rotate-45' : ''}`}
+                  className={`fab-button relative flex items-center justify-center z-10 bg-[#1a2e35] w-11 h-11 rounded-full shadow-lg transform transition-all duration-300 ${isMenuOpen ? 'rotate-45' : ''}`}
                   aria-label="Create new"
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
                 >
-                  <Icon className="w-6 h-6 text-white" />
+                  <Icon className="w-5 h-5 text-white" />
                 </button>
               );
             }
@@ -225,7 +237,7 @@ const BottomNavBar: React.FC = () => {
               key={item.id}
               to={item.path}
               data-id={item.id}
-              className="relative flex items-center justify-center z-10 transition-all duration-200 ease-in-out w-10 h-10"
+              className="relative flex items-center justify-center z-10 transition-all duration-200 ease-in-out w-9 h-9"
               aria-label={item.id}
               onClick={() => {
                 setPreviousTab(activeTab);
@@ -270,7 +282,7 @@ const BottomNavBar: React.FC = () => {
                 />
               )}
               <div className={`relative z-10 ${isActive ? "text-black" : "text-white hover:text-gray-300"}`}>
-                <Icon className="w-5 h-5" strokeWidth={2} />
+                <Icon className="w-4 h-4" strokeWidth={2} />
               </div>
             </Link>
           );

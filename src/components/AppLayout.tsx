@@ -254,7 +254,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
 
       {/* Bottom Navigation Bar - Completely separate from page content and transitions */}
       {!hideBottomNav && isMobile && (
-        <div className="bottom-nav-wrapper fixed left-0 right-0 bottom-6 z-50 pointer-events-auto" style={{ isolation: 'isolate' }}>
+        <div className="bottom-nav-wrapper fixed left-0 right-0 z-50 pointer-events-auto" style={{ isolation: 'isolate' }}>
           <BottomNavBar />
         </div>
       )}
