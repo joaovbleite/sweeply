@@ -662,7 +662,7 @@ const Calendar = () => {
                 width: '100%'
               }}
             >
-              <div className="flex w-[300%] snap-mandatory">
+              <div className="flex w-[700%] snap-mandatory">
                 {/* Map all days (3 weeks worth) */}
                 {allWeekDays.map((day, index) => {
                   const isSelectedDay = isSameDay(day, selectedDate);
