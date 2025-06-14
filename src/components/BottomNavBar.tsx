@@ -167,13 +167,13 @@ const BottomNavBar: React.FC = () => {
         onClick={() => setIsMenuOpen(false)}
       >
         <div 
-          className="floating-menu-container fixed left-1/2 -translate-x-1/2 bottom-40 z-50 flex flex-col-reverse items-center space-y-reverse space-y-2 pb-2"
+          className="floating-menu-container fixed left-1/2 -translate-x-1/2 bottom-28 z-50 flex flex-col-reverse items-center space-y-reverse space-y-3 pb-2"
           onClick={(e) => e.stopPropagation()}
         >
           {menuItems.map((item, index) => (
             <div 
               key={item.id}
-              className={`flex items-center justify-between bg-white rounded-full shadow-md cursor-pointer transform transition-all duration-300 hover:scale-105 w-auto min-w-[160px] ${
+              className={`flex items-center justify-between bg-white rounded-full shadow-md cursor-pointer transform transition-all duration-300 hover:scale-105 w-auto min-w-[180px] ${
                 isMenuOpen 
                   ? 'opacity-100 translate-y-0' 
                   : 'opacity-0 translate-y-10 pointer-events-none'
@@ -187,9 +187,9 @@ const BottomNavBar: React.FC = () => {
                 setIsMenuOpen(false);
               }}
             >
-              <span className="text-[#1a2e35] font-medium px-4 py-3">{item.label}</span>
-              <div className={`${item.color} rounded-full p-3 ml-2`}>
-                <item.icon className={`w-5 h-5 ${item.iconColor}`} />
+              <span className="text-[#1a2e35] font-medium text-base px-5 py-3.5">{item.label}</span>
+              <div className={`${item.color} rounded-full p-3.5 ml-2`}>
+                <item.icon className={`w-5.5 h-5.5 ${item.iconColor}`} />
               </div>
             </div>
           ))}
