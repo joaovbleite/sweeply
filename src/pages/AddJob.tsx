@@ -10,7 +10,6 @@ import AppLayout from "@/components/AppLayout";
 import PageHeader from "@/components/ui/PageHeader";
 import { useLocale } from "@/hooks/useLocale";
 import LineItemModal from "@/components/jobs/LineItemModal";
-import PageSeparator from "@/components/ui/page-separator";
 
 interface LineItem {
   description: string;
@@ -395,7 +394,7 @@ const AddJob = () => {
         </div>
 
         {/* Separator */}
-        <PageSeparator type="section" />
+        <div className="w-full h-3 bg-gray-100 -mx-4 px-4 mb-8"></div>
         
         {/* Service Section (renamed from Product / Service) */}
         <h2 className="text-xl text-gray-700 font-medium mb-4">Service</h2>
@@ -467,7 +466,7 @@ const AddJob = () => {
         </div>
 
         {/* Separator */}
-        <PageSeparator type="section" />
+        <div className="w-full h-3 bg-gray-100 -mx-4 px-4 mb-8"></div>
         
         {/* Schedule Section */}
         <h2 className="text-xl text-gray-700 font-medium mb-4">Schedule</h2>
@@ -530,8 +529,8 @@ const AddJob = () => {
           </div>
         </div>
 
-        {/* Separator with full width */}
-        <PageSeparator type="item" />
+        {/* Separator */}
+        <div className="w-full h-3 bg-gray-100 -mx-4 px-4 mb-8"></div>
           
         {/* Team Section */}
         <div className="flex items-center justify-between py-5 mb-8">
@@ -545,8 +544,8 @@ const AddJob = () => {
           <ChevronRight className="w-6 h-6 text-gray-700" />
         </div>
 
-        {/* Separator with full width */}
-        <PageSeparator type="item" />
+        {/* Separator */}
+        <div className="w-full h-3 bg-gray-100 -mx-4 px-4 mb-8"></div>
         
         {/* Invoicing Section */}
         <h2 className="text-xl text-gray-700 font-medium mb-4">Invoicing</h2>
