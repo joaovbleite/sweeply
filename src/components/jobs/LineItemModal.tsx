@@ -126,7 +126,7 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
       
       {showCustomForm ? (
         // Custom item form
-        <div className="p-4 flex-1 overflow-y-auto pt-2">
+        <div className="p-4 flex-1 overflow-y-auto pt-2 pb-safe" style={{ maxHeight: 'calc(100vh - 70px)' }}>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -159,7 +159,7 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
         </div>
       ) : selectedItem ? (
         // Customize price form for selected item
-        <div className="p-4 flex-1 overflow-y-auto pt-2">
+        <div className="p-4 flex-1 overflow-y-auto pt-2 pb-safe" style={{ maxHeight: 'calc(100vh - 70px)' }}>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -204,8 +204,8 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
             </div>
           </div>
           
-          {/* Item list */}
-          <div className="flex-1 overflow-y-auto">
+          {/* Item list - with fixed height and proper scrolling */}
+          <div className="flex-1 overflow-y-auto pb-safe" style={{ maxHeight: 'calc(100vh - 130px)' }}>
             {filteredItems.length > 0 ? (
               filteredItems.map(item => (
                 <div 
