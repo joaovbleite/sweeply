@@ -265,12 +265,12 @@ const Calendar = () => {
     
     // Animate the scroll to the appropriate week
     if (weekDaysRef.current) {
-      const targetPosition = direction === 'next' 
+      const targetScroll = direction === 'next' 
         ? weekDaysRef.current.scrollWidth * 2/3  // Move to next week (last third)
         : 0;                                    // Move to previous week (first third)
       
       weekDaysRef.current.scrollTo({
-        left: targetPosition,
+        left: targetScroll,
         behavior: 'smooth'
       });
       
@@ -282,7 +282,7 @@ const Calendar = () => {
             behavior: 'auto'
           });
         }
-      }, 300); // Wait for scroll animation to complete
+      }, 500); // Wait for scroll animation to complete
     }
   };
 
@@ -386,19 +386,20 @@ const Calendar = () => {
 
   // Scroll to current week on initial load or when current week changes
   useEffect(() => {
-    if (weekDaysRef.current) {
-      // Reset scroll position to show current week
-      setTimeout(() => {
-        if (weekDaysRef.current) {
-          // For the initial positioning, we want to show the current week (middle 7 days)
-          weekDaysRef.current.scrollLeft = 0; // Reset first
-          weekDaysRef.current.scrollTo({
-            left: weekDaysRef.current.scrollWidth / 3,
-            behavior: 'auto'
-          });
-        }
-      }, 100);
-    }
+    // Wait for component to render
+    const timer = setTimeout(() => {
+      if (weekDaysRef.current) {
+        // Reset scroll position to show current week
+        // For the initial positioning, we want to show the current week (middle 7 days)
+        weekDaysRef.current.scrollLeft = 0; // Reset first
+        weekDaysRef.current.scrollTo({
+          left: weekDaysRef.current.scrollWidth / 3,
+          behavior: 'auto'
+        });
+      }
+    }, 100); // Small delay to ensure component is fully rendered
+    
+    return () => clearTimeout(timer);
   }, [currentWeek]);
 
   // Calculate stats
@@ -654,8 +655,14 @@ const Calendar = () => {
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
               onWheel={handleWheel}
+              style={{ 
+                WebkitOverflowScrolling: 'touch',
+                scrollSnapType: 'x mandatory',
+                display: 'flex',
+                width: '100%'
+              }}
             >
-              <div className="flex w-full snap-mandatory">
+              <div className="flex w-[300%] snap-mandatory">
                 {/* Map all days (3 weeks worth) */}
                 {allWeekDays.map((day, index) => {
                   const isSelectedDay = isSameDay(day, selectedDate);
@@ -675,12 +682,11 @@ const Calendar = () => {
                           setCurrentWeek(addWeeks(currentWeek, 1));
                         }
                       }}
-                      className={`w-[calc(100%/7)] flex-shrink-0 flex flex-col items-center py-3 cursor-pointer border-b-2 transition-colors snap-center
+                      className={`w-[calc(100%/21)] flex-shrink-0 flex flex-col items-center py-3 cursor-pointer border-b-2 transition-colors snap-center
                         ${isSelectedDay 
                           ? 'border-[#307842] bg-gray-50' 
                           : 'border-transparent hover:bg-gray-50'
                         }
-                        ${isCurrentWeek ? 'opacity-100' : 'opacity-100'}
                       `}
                     >
                       <div className="text-sm text-gray-500 font-medium">
