@@ -1,29 +1,29 @@
-import * as React from "react"
-import * as SeparatorPrimitive from "@radix-ui/react-separator"
+import React from 'react';
 
-import { cn } from "@/lib/utils"
+interface SeparatorProps {
+  type?: 'section' | 'item';
+  className?: string;
+}
 
-const Separator = React.forwardRef<
-  React.ElementRef<typeof SeparatorPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root>
->(
-  (
-    { className, orientation = "horizontal", decorative = true, ...props },
-    ref
-  ) => (
-    <SeparatorPrimitive.Root
-      ref={ref}
-      decorative={decorative}
-      orientation={orientation}
-      className={cn(
-        "shrink-0 bg-border",
-        orientation === "horizontal" ? "h-[1px] w-full" : "h-full w-[1px]",
-        className
-      )}
-      {...props}
-    />
-  )
-)
-Separator.displayName = SeparatorPrimitive.Root.displayName
+/**
+ * A reusable separator component for visual separation between sections or items.
+ * 
+ * @param type - 'section' for major section breaks (thicker with background), 'item' for minor separations (thin line)
+ * @param className - Additional classes to apply to the separator
+ */
+const Separator: React.FC<SeparatorProps> = ({ 
+  type = 'section',
+  className = ''
+}) => {
+  if (type === 'section') {
+    return (
+      <div className={`w-full h-2 bg-gray-50 -mx-4 px-4 mb-8 shadow-inner ${className}`}></div>
+    );
+  }
+  
+  return (
+    <div className={`w-full border-t border-gray-200 -mx-4 px-4 mb-4 ${className}`}></div>
+  );
+};
 
-export { Separator }
+export default Separator;
