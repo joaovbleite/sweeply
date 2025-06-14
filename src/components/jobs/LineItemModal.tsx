@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, Plus, Search } from "lucide-react";
+import { X, Plus, Search, Edit2 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { useLocale } from "@/hooks/useLocale";
 
@@ -14,6 +14,8 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
   const [customName, setCustomName] = useState("");
   const [customPrice, setCustomPrice] = useState("");
   const [showCustomForm, setShowCustomForm] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<{ id: number; description: string; price: number } | null>(null);
+  const [customizedPrice, setCustomizedPrice] = useState("");
   const { formatCurrency } = useLocale();
 
   // Predefined items - in a real implementation, these would come from an API
@@ -33,8 +35,20 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
 
   // Handle item selection
   const handleItemSelect = (item: { id: number; description: string; price: number }) => {
-    onAddItem({ description: item.description, price: item.price });
-    onClose();
+    setSelectedItem(item);
+    setCustomizedPrice(item.price.toString());
+  };
+
+  // Handle adding selected item with customized price
+  const handleAddSelectedItem = () => {
+    if (selectedItem) {
+      const price = parseFloat(customizedPrice) || selectedItem.price;
+      onAddItem({ description: selectedItem.description, price });
+      onClose();
+      // Reset state
+      setSelectedItem(null);
+      setCustomizedPrice("");
+    }
   };
 
   // Handle custom item creation
@@ -51,6 +65,7 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
   // Toggle custom form visibility
   const handleToggleCustomForm = () => {
     setShowCustomForm(!showCustomForm);
+    setSelectedItem(null); // Clear selected item when toggling forms
   };
 
   // Create the Add button for the header
@@ -59,6 +74,13 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
       onClick={handleAddCustomItem}
       className="text-blue-600 font-medium"
       disabled={!customName.trim()}
+    >
+      Add
+    </button>
+  ) : selectedItem ? (
+    <button 
+      onClick={handleAddSelectedItem}
+      className="text-blue-600 font-medium"
     >
       Add
     </button>
@@ -80,13 +102,22 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center">
             <button 
-              onClick={showCustomForm ? () => setShowCustomForm(false) : onClose}
+              onClick={() => {
+                if (selectedItem) {
+                  setSelectedItem(null);
+                  setCustomizedPrice("");
+                } else if (showCustomForm) {
+                  setShowCustomForm(false);
+                } else {
+                  onClose();
+                }
+              }}
               className="p-2 mr-2 text-gray-600"
             >
               <X className="w-6 h-6" />
             </button>
             <h1 className="text-xl font-bold text-gray-900">
-              {showCustomForm ? "Add custom item" : "Add line item"}
+              {showCustomForm ? "Add custom item" : selectedItem ? "Customize price" : "Add line item"}
             </h1>
           </div>
           {AddButton}
@@ -119,6 +150,35 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
                 value={customPrice}
                 onChange={(e) => setCustomPrice(e.target.value)}
                 placeholder="0.00"
+                step="0.01"
+                min="0"
+                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+        </div>
+      ) : selectedItem ? (
+        // Customize price form for selected item
+        <div className="p-4 flex-1 overflow-y-auto pt-2">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Item name
+              </label>
+              <div className="w-full p-4 border border-gray-300 rounded-lg bg-gray-50 text-gray-900">
+                {selectedItem.description}
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Price
+              </label>
+              <input
+                type="number"
+                value={customizedPrice}
+                onChange={(e) => setCustomizedPrice(e.target.value)}
+                placeholder={selectedItem.price.toString()}
                 step="0.01"
                 min="0"
                 className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -159,9 +219,12 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
                       "Our experts will come to assess your property" : 
                       "Click to add this service"}</p>
                   </div>
-                  <span className="text-lg font-semibold text-gray-900">
-                    {formatCurrency(item.price)}
-                  </span>
+                  <div className="flex items-center">
+                    <span className="text-lg font-semibold text-gray-900 mr-2">
+                      {formatCurrency(item.price)}
+                    </span>
+                    <Edit2 className="w-4 h-4 text-blue-600" />
+                  </div>
                 </div>
               ))
             ) : (
