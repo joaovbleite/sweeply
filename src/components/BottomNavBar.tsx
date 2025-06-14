@@ -42,20 +42,20 @@ const BottomNavBar: React.FC = () => {
   // Original FloatingActionMenu items
   const menuItems = [
     { 
-      id: "client", 
-      label: "Client", 
-      icon: User, 
-      action: () => navigate("/clients/new"),
-      color: "bg-slate-50",
-      iconColor: "text-slate-600"
-    },
-    { 
       id: "job", 
       label: "Job", 
       icon: Briefcase, 
       action: () => navigate("/jobs/new"),
       color: "bg-green-50",
       iconColor: "text-green-600"
+    },
+    { 
+      id: "client", 
+      label: "Client", 
+      icon: User, 
+      action: () => navigate("/clients/new"),
+      color: "bg-slate-50",
+      iconColor: "text-slate-600"
     },
     { 
       id: "quote", 
