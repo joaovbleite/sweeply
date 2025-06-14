@@ -205,12 +205,14 @@ const BottomNavBar: React.FC = () => {
           bottom: '16px',
           left: '50%',
           transform: 'translateX(-50%) translateZ(0)',
-          width: 'calc(100% - 48px)', // Increased side margins from 32px to 48px
-          maxWidth: '360px', // Reduced from 400px
+          width: 'calc(100% - 48px)',
+          maxWidth: '360px',
           zIndex: 100,
           willChange: 'transform',
           backfaceVisibility: 'hidden',
-          WebkitBackfaceVisibility: 'hidden'
+          WebkitBackfaceVisibility: 'hidden',
+          isolation: 'isolate',
+          transformStyle: 'preserve-3d'
         }}
       >
         {navItems.map((item, index) => {
@@ -254,36 +256,13 @@ const BottomNavBar: React.FC = () => {
                 setDirection(adjustedCurrentIndex - adjustedPrevIndex);
               }}
             >
-              {isActive && (
-                <motion.div
-                  layoutId="activeTabBackground"
-                  className="absolute inset-0 bg-white rounded-full"
-                  initial={{ 
-                    scale: 0.8, 
-                    opacity: 0.5,
-                    x: direction > 0 ? -20 : direction < 0 ? 20 : 0
-                  }}
-                  animate={{ 
-                    scale: 1, 
-                    opacity: 1,
-                    x: 0
-                  }}
-                  exit={{
-                    scale: 0.8,
-                    opacity: 0.5,
-                    x: direction > 0 ? 20 : direction < 0 ? -20 : 0
-                  }}
-                  transition={{ 
-                    type: "spring", 
-                    stiffness: 400, 
-                    damping: 30,
-                    mass: 1
-                  }}
-                />
-              )}
-              <div className={`relative z-10 ${isActive ? "text-black" : "text-white hover:text-gray-300"}`}>
-                <Icon className="w-4 h-4" strokeWidth={2} />
-              </div>
+              <Icon 
+                className={`w-4 h-4 ${isActive ? 'text-white' : 'text-white/60'}`} 
+                style={{ 
+                  transition: 'all 0.2s ease',
+                  transform: isActive ? 'scale(1.2)' : 'scale(1)'
+                }}
+              />
             </Link>
           );
         })}

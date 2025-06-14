@@ -73,7 +73,14 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
   };
   
   return (
-    <div className={`${getExitAnimationClass()} ${getEntranceAnimationClass()}`}>
+    <div 
+      className={`${getExitAnimationClass()} ${getEntranceAnimationClass()} page-transition-container`}
+      style={{
+        isolation: 'isolate',
+        position: 'relative',
+        zIndex: 1
+      }}
+    >
       {displayChildren}
     </div>
   );
