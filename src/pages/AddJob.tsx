@@ -10,7 +10,7 @@ import AppLayout from "@/components/AppLayout";
 import PageHeader from "@/components/ui/PageHeader";
 import { useLocale } from "@/hooks/useLocale";
 import LineItemModal from "@/components/jobs/LineItemModal";
-import Separator from "@/components/ui/separator";
+import { PageSeparator } from "@/components/ui/separator";
 
 interface LineItem {
   description: string;
@@ -395,7 +395,7 @@ const AddJob = () => {
         </div>
 
         {/* Separator */}
-        <Separator type="section" />
+        <PageSeparator type="section" />
         
         {/* Service Section (renamed from Product / Service) */}
         <h2 className="text-xl text-gray-700 font-medium mb-4">Service</h2>
@@ -467,7 +467,7 @@ const AddJob = () => {
         </div>
 
         {/* Separator */}
-        <Separator type="section" />
+        <PageSeparator type="section" />
         
         {/* Schedule Section */}
         <h2 className="text-xl text-gray-700 font-medium mb-4">Schedule</h2>
@@ -531,7 +531,7 @@ const AddJob = () => {
         </div>
 
         {/* Separator with full width */}
-        <Separator type="item" />
+        <PageSeparator type="item" />
           
         {/* Team Section */}
         <div className="flex items-center justify-between py-5 mb-8">
@@ -546,7 +546,7 @@ const AddJob = () => {
         </div>
 
         {/* Separator with full width */}
-        <Separator type="item" />
+        <PageSeparator type="item" />
         
         {/* Invoicing Section */}
         <h2 className="text-xl text-gray-700 font-medium mb-4">Invoicing</h2>
