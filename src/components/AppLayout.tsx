@@ -117,146 +117,124 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
       {/* White background that extends to the top edge of the screen */}
       <div className="fixed inset-0 bg-white -z-10"></div>
       
-      {/* Sidebar - Only visible on desktop or when opened on mobile */}
-      {(!isMobile || isSidebarOpen) && (
-        <aside 
-          id="mobile-sidebar"
-          className={`fixed inset-y-0 left-0 z-50 w-[270px] transition-transform duration-300 transform 
-            ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
-            lg:translate-x-0 lg:static lg:inset-0 lg:w-56 lg:z-0 lg:min-h-screen overflow-y-auto
-            ${isMobile ? 'bg-white' : 'bg-[#121212] text-white'}`}
-        >
-          <div className={`flex items-center justify-between p-3 sm:p-4 sticky top-0 z-10 
-            ${isMobile ? 'border-b bg-white' : 'bg-[#121212] border-b border-gray-800'}`}>
-            <Link to="/" className="flex items-center gap-1.5 sm:gap-2">
-              <img src="/sweeply-favicon.png" alt="Sweeply" className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-6 lg:h-6" />
-              <span className={`text-base sm:text-lg font-bold 
-                ${isMobile ? 'bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent' : 'text-white'}`}>
-                {isMobile ? 'Sweeply' : 'Accessible Health Care'}
-              </span>
-            </Link>
-            <button
-              onClick={() => setIsSidebarOpen(false)}
-              className="lg:hidden p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-              aria-label="Close sidebar"
-            >
-              <X className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-          </div>
+      {/* Sidebar */}
+      <aside 
+        id="mobile-sidebar"
+        className={`fixed inset-y-0 left-0 z-50 w-[270px] transition-transform duration-300 transform 
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
+          lg:translate-x-0 lg:static lg:inset-0 lg:w-56 lg:z-0 lg:min-h-screen overflow-y-auto
+          ${isMobile ? 'bg-white' : 'bg-[#121212] text-white'}`}
+      >
+        <div className={`flex items-center justify-between p-3 sm:p-4 sticky top-0 z-10 
+          ${isMobile ? 'border-b bg-white' : 'bg-[#121212] border-b border-gray-800'}`}>
+          <Link to="/" className="flex items-center gap-1.5 sm:gap-2">
+            <img src="/sweeply-favicon.png" alt="Sweeply" className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-6 lg:h-6" />
+            <span className={`text-base sm:text-lg font-bold 
+              ${isMobile ? 'bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent' : 'text-white'}`}>
+              {isMobile ? 'Sweeply' : 'Accessible Health Care'}
+            </span>
+          </Link>
+          <button
+            onClick={() => setIsSidebarOpen(false)}
+            className="lg:hidden p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+            aria-label="Close sidebar"
+          >
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
+        </div>
 
-          {/* Create button - Desktop only */}
-          {!isMobile && (
-            <div className="px-4 py-3">
-              <button className="flex items-center gap-2 text-white hover:text-gray-300 transition-colors">
-                <Menu className="w-5 h-5" />
-                <span className="text-sm font-medium">Create</span>
-              </button>
-            </div>
-          )}
-
-          <nav className={`p-2 sm:p-3 ${isMobile ? 'md:p-4' : 'p-2'}`}>
-            <ul className={`${isMobile ? 'space-y-0.5 sm:space-y-1 md:space-y-2' : 'space-y-1'}`}>
-              {sidebarItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.path;
-                return (
-                  <li key={item.id}>
-                    <Link
-                      to={item.path}
-                      className={`w-full flex items-center gap-2 px-2 py-2 rounded-lg transition-colors ${
-                        isMobile 
-                          ? isActive
-                            ? "bg-blue-50 text-blue-600"
-                            : "text-gray-700 hover:bg-gray-100"
-                          : isActive
-                            ? "bg-blue-600 text-white"
-                            : "text-gray-300 hover:bg-gray-800"
-                      }`}
-                    >
-                      <Icon className={`${isMobile ? 'w-4 h-4 sm:w-5 sm:h-5' : 'w-4 h-4'} flex-shrink-0`} />
-                      <span className={`font-medium ${isMobile ? 'text-xs sm:text-sm md:text-base' : 'text-sm'} truncate`}>
-                        {item.label}
-                      </span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-
-          {!isMobile && (
-            <div className="px-4 py-3 mt-auto">
-              <Link
-                to="/settings"
-                className="w-full flex items-center gap-2 px-2 py-2 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
-              >
-                <Settings className="w-4 h-4 flex-shrink-0" />
-                <span className="font-medium text-sm truncate">Settings</span>
-              </Link>
-              
-              <Link
-                to="/profile"
-                className="w-full flex items-center gap-2 px-2 py-2 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors mt-1"
-              >
-                <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center flex-shrink-0">
-                  <UserCheck className="w-3 h-3 text-black" />
-                </div>
-                <span className="font-medium text-sm truncate">Profile</span>
-              </Link>
-              
-              <a
-                href="https://sweeplypro.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center gap-2 px-2 py-2 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors mt-1"
-                onClick={(e) => {
-                  e.preventDefault();
-                  window.open('https://sweeplypro.com', '_blank');
-                }}
-              >
-                <Globe className="w-4 h-4 flex-shrink-0" />
-                <span className="font-medium text-sm truncate">Visit Website</span>
-              </a>
-            </div>
-          )}
-
-          {isMobile && (
-            <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 md:p-4 border-t space-y-0.5 sm:space-y-1 md:space-y-2 bg-white">
-              {/* Logout Button */}
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center gap-2 sm:gap-3 px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 flex-shrink-0" />
-                <span className="font-medium text-xs sm:text-sm md:text-base">{t('common:logout')}</span>
-              </button>
-            </div>
-          )}
-        </aside>
-      )}
-
-      {/* Main Content - Separate from bottom navigation */}
-      <div className={`flex-1 flex flex-col min-h-screen max-h-screen overflow-hidden bg-white ${hideBottomNav ? 'pb-safe' : 'pb-32'}`}>
-        {/* Mobile header with menu button - Only visible on mobile */}
-        {isMobile && (
-          <div className="flex items-center justify-between p-3 border-b bg-white sticky top-0 z-10">
-            <Link to="/" className="flex items-center gap-1.5">
-              <img src="/sweeply-favicon.png" alt="Sweeply" className="w-5 h-5" />
-              <span className="text-base font-bold bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">
-                Sweeply
-              </span>
-            </Link>
-            <button
-              id="menu-button"
-              onClick={() => setIsSidebarOpen(true)}
-              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-              aria-label="Open sidebar"
-            >
-              <Menu className="w-4 h-4" />
+        {/* Create button - Desktop only */}
+        {!isMobile && (
+          <div className="px-4 py-3">
+            <button className="flex items-center gap-2 text-white hover:text-gray-300 transition-colors">
+              <Menu className="w-5 h-5" />
+              <span className="text-sm font-medium">Create</span>
             </button>
           </div>
         )}
-        
+
+        <nav className={`p-2 sm:p-3 ${isMobile ? 'md:p-4' : 'p-2'}`}>
+          <ul className={`${isMobile ? 'space-y-0.5 sm:space-y-1 md:space-y-2' : 'space-y-1'}`}>
+            {sidebarItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+              return (
+                <li key={item.id}>
+                  <Link
+                    to={item.path}
+                    className={`w-full flex items-center gap-2 px-2 py-2 rounded-lg transition-colors ${
+                      isMobile 
+                        ? isActive
+                          ? "bg-blue-50 text-blue-600"
+                          : "text-gray-700 hover:bg-gray-100"
+                        : isActive
+                          ? "bg-blue-600 text-white"
+                          : "text-gray-300 hover:bg-gray-800"
+                    }`}
+                  >
+                    <Icon className={`${isMobile ? 'w-4 h-4 sm:w-5 sm:h-5' : 'w-4 h-4'} flex-shrink-0`} />
+                    <span className={`font-medium ${isMobile ? 'text-xs sm:text-sm md:text-base' : 'text-sm'} truncate`}>
+                      {item.label}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        {!isMobile && (
+          <div className="px-4 py-3 mt-auto">
+            <Link
+              to="/settings"
+              className="w-full flex items-center gap-2 px-2 py-2 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
+            >
+              <Settings className="w-4 h-4 flex-shrink-0" />
+              <span className="font-medium text-sm truncate">Settings</span>
+            </Link>
+            
+            <Link
+              to="/profile"
+              className="w-full flex items-center gap-2 px-2 py-2 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors mt-1"
+            >
+              <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+                <UserCheck className="w-3 h-3 text-black" />
+              </div>
+              <span className="font-medium text-sm truncate">Profile</span>
+            </Link>
+            
+            <a
+              href="https://sweeplypro.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center gap-2 px-2 py-2 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors mt-1"
+              onClick={(e) => {
+                e.preventDefault();
+                window.open('https://sweeplypro.com', '_blank');
+              }}
+            >
+              <Globe className="w-4 h-4 flex-shrink-0" />
+              <span className="font-medium text-sm truncate">Visit Website</span>
+            </a>
+          </div>
+        )}
+
+        {isMobile && (
+          <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 md:p-4 border-t space-y-0.5 sm:space-y-1 md:space-y-2 bg-white">
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-2 sm:gap-3 px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 flex-shrink-0" />
+              <span className="font-medium text-xs sm:text-sm md:text-base">{t('common:logout')}</span>
+            </button>
+          </div>
+        )}
+      </aside>
+
+      {/* Main Content - Separate from bottom navigation */}
+      <div className={`flex-1 flex flex-col min-h-screen max-h-screen overflow-hidden bg-white ${hideBottomNav ? 'pb-safe' : 'pb-32'}`}>
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto bg-white">
           <div 
