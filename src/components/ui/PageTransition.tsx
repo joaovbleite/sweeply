@@ -30,26 +30,16 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
     prevPathRef.current = location.pathname;
     
     if (isMobile) {
-      // Start exit animation
-      setIsExiting(true);
+      // Update the children immediately but apply a fade animation
+      setDisplayChildren(children);
+      setIsAnimating(true);
       
-      // Wait for exit animation to complete before updating content
-      const exitTimer = setTimeout(() => {
-        // Update the children after exit animation
-        setDisplayChildren(children);
-        setIsExiting(false);
-        // Start entrance animation
-        setIsAnimating(true);
+      // Reset animation state after entrance animation completes
+      const enterTimer = setTimeout(() => {
+        setIsAnimating(false);
+      }, 200); // Shorter animation duration
       
-        // Reset animation state after entrance animation completes
-        const enterTimer = setTimeout(() => {
-          setIsAnimating(false);
-        }, 300); // Animation duration for entrance
-        
-        return () => clearTimeout(enterTimer);
-      }, 250); // Animation duration for exit
-      
-      return () => clearTimeout(exitTimer);
+      return () => clearTimeout(enterTimer);
     } else {
       // On desktop, just update children without animation
       setDisplayChildren(children);
@@ -61,24 +51,20 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
     return <>{children}</>;
   }
   
-  // Determine the animation classes based on navigation direction
-  const getExitAnimationClass = () => {
-    if (!isExiting) return '';
-    return isBackwardNavigation ? 'animate-exit-slide-down' : 'animate-exit-slide-up';
-  };
-  
-  const getEntranceAnimationClass = () => {
+  // Use a simple fade animation instead of slide animations
+  const getAnimationClass = () => {
     if (!isAnimating) return 'opacity-100';
-    return isBackwardNavigation ? 'animate-fade-slide-down' : 'animate-fade-slide-up';
+    return 'animate-pure-fade';
   };
   
   return (
     <div 
-      className={`${getExitAnimationClass()} ${getEntranceAnimationClass()} page-transition-container`}
+      className={`${getAnimationClass()} page-transition-container`}
       style={{
         isolation: 'isolate',
         position: 'relative',
-        zIndex: 1
+        zIndex: 1,
+        contain: 'content'
       }}
     >
       {displayChildren}

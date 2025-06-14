@@ -204,7 +204,7 @@ const BottomNavBar: React.FC = () => {
           position: 'fixed',
           bottom: '16px',
           left: '50%',
-          transform: 'translateX(-50%) translateZ(0)',
+          transform: 'translateX(-50%)',
           width: 'calc(100% - 48px)',
           maxWidth: '360px',
           zIndex: 100,
@@ -225,7 +225,7 @@ const BottomNavBar: React.FC = () => {
               return (
                 <button
                   key={item.id}
-                  className={`fab-button relative flex items-center justify-center z-10 bg-[#1a2e35] w-11 h-11 rounded-full shadow-lg transform transition-all duration-300 ${isMenuOpen ? 'rotate-45' : ''}`}
+                  className={`fab-button relative flex items-center justify-center z-10 bg-[#1a2e35] w-11 h-11 rounded-full shadow-lg ${isMenuOpen ? 'rotate-45' : ''}`}
                   aria-label="Create new"
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
                 >
@@ -239,29 +239,15 @@ const BottomNavBar: React.FC = () => {
               key={item.id}
               to={item.path}
               data-id={item.id}
-              className="relative flex items-center justify-center z-10 transition-all duration-200 ease-in-out w-9 h-9"
+              className="relative flex items-center justify-center z-10 w-9 h-9"
               aria-label={item.id}
               onClick={() => {
                 setPreviousTab(activeTab);
                 setActiveTab(item.id);
-                
-                // Calculate direction for the animation
-                const prevIndex = navItems.findIndex(navItem => navItem.id === activeTab);
-                const currentIndex = index;
-                
-                // Skip the action button in the middle when calculating direction
-                const adjustedPrevIndex = prevIndex > 2 ? prevIndex - 1 : prevIndex;
-                const adjustedCurrentIndex = currentIndex > 2 ? currentIndex - 1 : currentIndex;
-                
-                setDirection(adjustedCurrentIndex - adjustedPrevIndex);
               }}
             >
               <Icon 
                 className={`w-4 h-4 ${isActive ? 'text-white' : 'text-white/60'}`} 
-                style={{ 
-                  transition: 'all 0.2s ease',
-                  transform: isActive ? 'scale(1.2)' : 'scale(1)'
-                }}
               />
             </Link>
           );
