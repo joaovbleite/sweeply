@@ -662,7 +662,7 @@ const Calendar = () => {
                 width: '100%'
               }}
             >
-              <div className="flex w-[700%] snap-mandatory">
+              <div className="flex min-w-[700px] w-full snap-mandatory">
                 {/* Map all days (3 weeks worth) */}
                 {allWeekDays.map((day, index) => {
                   const isSelectedDay = isSameDay(day, selectedDate);
@@ -674,15 +674,13 @@ const Calendar = () => {
                       key={index}
                       onClick={() => {
                         setSelectedDate(day);
-                        
-                        // If selected day is in prev/next week, update current week
                         if (index < 7) {
                           setCurrentWeek(subWeeks(currentWeek, 1));
                         } else if (index >= 14) {
                           setCurrentWeek(addWeeks(currentWeek, 1));
                         }
                       }}
-                      className={`w-[calc(100%/21)] flex-shrink-0 flex flex-col items-center py-3 cursor-pointer border-b-2 transition-colors snap-center
+                      className={`flex-1 max-w-[100px] flex-shrink-0 flex flex-col items-center py-3 cursor-pointer border-b-2 transition-colors snap-center
                         ${isSelectedDay 
                           ? 'border-[#307842] bg-gray-50' 
                           : 'border-transparent hover:bg-gray-50'
