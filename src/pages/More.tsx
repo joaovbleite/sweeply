@@ -101,6 +101,19 @@ const More: React.FC = () => {
           {/* Menu Lists */}
           <div className="mb-8">
             <div>
+              {/* Notifications Button */}
+              <button
+                className="flex items-center justify-between py-4 px-0 border-b border-gray-200 w-full bg-transparent"
+                onClick={() => toast.success('Test notification')}
+              >
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-[#0d3547] text-lg font-medium">Notifications</span>
+                </div>
+              </button>
               <Link 
                 to="/support"
                 className="flex items-center justify-between py-4 px-0 border-b border-gray-200"
