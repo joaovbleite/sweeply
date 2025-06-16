@@ -21,7 +21,7 @@ import { useTranslation } from "react-i18next";
 import AppLayout from "@/components/AppLayout";
 import { toast } from "sonner";
 import PageHeader from "@/components/ui/PageHeader";
-import { notificationService } from '../lib/services/notificationService';
+import { notificationService } from "@/lib/services/notificationService";
 
 const More: React.FC = () => {
   const { t } = useTranslation(['settings', 'common']);
@@ -107,15 +107,16 @@ const More: React.FC = () => {
                 className="flex items-center justify-between py-4 px-0 border-b border-gray-200 w-full bg-transparent"
                 onClick={async () => {
                   try {
-                    const result = await notificationService.sendTestNotification();
+                    // Send 5 notifications, one every 5 seconds
+                    const result = await notificationService.sendMultipleTestNotifications(5, 5000);
                     if (result) {
-                      toast.success('Notification sent successfully!');
+                      toast.success('Sending 5 test notifications (1 every 5 seconds)');
                     } else {
-                      toast.error('Failed to send notification. Check permissions.');
+                      toast.error('Failed to send notifications. Check permissions.');
                     }
                   } catch (error) {
-                    console.error('Error sending notification:', error);
-                    toast.error('Error sending notification');
+                    console.error('Error sending notifications:', error);
+                    toast.error('Error sending notifications');
                   }
                 }}
               >
