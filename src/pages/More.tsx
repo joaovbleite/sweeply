@@ -21,6 +21,7 @@ import { useTranslation } from "react-i18next";
 import AppLayout from "@/components/AppLayout";
 import { toast } from "sonner";
 import PageHeader from "@/components/ui/PageHeader";
+import { notificationService } from '../lib/services/notificationService';
 
 const More: React.FC = () => {
   const { t } = useTranslation(['settings', 'common']);
@@ -104,7 +105,19 @@ const More: React.FC = () => {
               {/* Notifications Button */}
               <button
                 className="flex items-center justify-between py-4 px-0 border-b border-gray-200 w-full bg-transparent"
-                onClick={() => toast.success('Test notification')}
+                onClick={async () => {
+                  try {
+                    const result = await notificationService.sendTestNotification();
+                    if (result) {
+                      toast.success('Notification sent successfully!');
+                    } else {
+                      toast.error('Failed to send notification. Check permissions.');
+                    }
+                  } catch (error) {
+                    console.error('Error sending notification:', error);
+                    toast.error('Error sending notification');
+                  }
+                }}
               >
                 <div className="flex items-center">
                   <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
