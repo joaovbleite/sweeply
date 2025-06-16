@@ -38,7 +38,7 @@ const Schedule = () => {
   const [viewOptions, setViewOptions] = useState<ViewOptionsState>({
     view: 'Day',
     showUnscheduledAppointments: false,
-    showWeekends: false,
+    showWeekends: true,
     selectedTeamMembers: ['1'] // Default to victor leite selected
   });
   
@@ -394,9 +394,9 @@ const Schedule = () => {
   
   return (
     <AppLayout>
-      <div className="flex flex-col h-full bg-gray-50 pt-12">
+      <div className="flex flex-col h-full bg-gray-50 pt-8">
         {/* Header with month selector */}
-        <div className="flex justify-between items-center px-4 py-3 relative z-20">
+        <div className="flex justify-between items-center px-4 py-4 relative z-30 bg-white shadow-sm border-b border-gray-200">
           <div className="flex items-center">
             <MonthSelector 
               currentDate={currentDate} 
@@ -404,7 +404,6 @@ const Schedule = () => {
                 const direction = date > currentDate ? 'right' : 'left';
                 setWeekDirection(direction);
                 setAnimatingWeekChange(true);
-                
                 setTimeout(() => {
                   setCurrentDate(date);
                   setAnimatingWeekChange(false);
