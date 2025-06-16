@@ -8,6 +8,7 @@ import { profileApi } from "@/lib/api/profile";
 import AppLayout from "@/components/AppLayout";
 import { toast } from "sonner";
 import PageHeader from "@/components/ui/PageHeader";
+import { notificationService } from "@/lib/services/notificationService";
 
 const Preferences: React.FC = () => {
   const { t } = useTranslation(['settings', 'common']);
@@ -17,6 +18,9 @@ const Preferences: React.FC = () => {
   
   // Track if any changes have been made
   const [hasChanges, setHasChanges] = useState(false);
+  
+  // Notification permission state
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission | null>(null);
   
   // Notification preferences state
   const [notifications, setNotifications] = useState({
@@ -43,6 +47,38 @@ const Preferences: React.FC = () => {
   const [showCurrencyOptions, setShowCurrencyOptions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Check notification permission on load
+  useEffect(() => {
+    const checkPermission = async () => {
+      if (notificationService.isPushNotificationSupported()) {
+        setNotificationPermission(Notification.permission);
+      } else {
+        setNotificationPermission(null);
+      }
+    };
+    
+    checkPermission();
+  }, []);
+
+  // Load saved notification preferences
+  useEffect(() => {
+    const loadNotificationPreferences = async () => {
+      try {
+        const profile = await profileApi.getProfile();
+        if (profile?.push_notifications) {
+          setNotifications(prev => ({
+            ...prev,
+            ...profile.push_notifications
+          }));
+        }
+      } catch (error) {
+        console.error("Error loading notification preferences:", error);
+      }
+    };
+    
+    loadNotificationPreferences();
+  }, []);
+
   // Effect to track changes
   useEffect(() => {
     const notificationChanged = Object.keys(notifications).some(
@@ -55,7 +91,28 @@ const Preferences: React.FC = () => {
   }, [notifications, selectedCurrency, preferences.currency]);
 
   // Toggle notification setting
-  const toggleNotification = (key: keyof typeof notifications) => {
+  const toggleNotification = async (key: keyof typeof notifications) => {
+    // If turning on notifications and permission is not granted, request it
+    if (!notifications[key] && notificationPermission !== 'granted') {
+      try {
+        const permission = await notificationService.requestNotificationPermission();
+        setNotificationPermission(permission);
+        
+        if (permission !== 'granted') {
+          toast.error("Notification permission denied. Please enable notifications in your browser settings.");
+          return;
+        }
+        
+        // Subscribe to push notifications
+        await notificationService.subscribeToPushNotifications();
+      } catch (error) {
+        console.error("Error requesting notification permission:", error);
+        toast.error("Failed to enable notifications");
+        return;
+      }
+    }
+    
+    // Update the notification state
     setNotifications(prev => ({
       ...prev,
       [key]: !prev[key]
@@ -81,6 +138,12 @@ const Preferences: React.FC = () => {
       await profileApi.upsertProfile({
         push_notifications: notifications
       });
+      
+      // If any notifications are enabled, make sure we have a subscription
+      const hasEnabledNotifications = Object.values(notifications).some(value => value);
+      if (hasEnabledNotifications && notificationPermission === 'granted') {
+        await notificationService.subscribeToPushNotifications();
+      }
       
       refreshPreferences();
       setHasChanges(false);
@@ -108,6 +171,22 @@ const Preferences: React.FC = () => {
       Apply
     </button>
   ) : null;
+
+  // Function to show notification status
+  const getNotificationStatusText = () => {
+    if (!notificationService.isPushNotificationSupported()) {
+      return <span className="text-red-500 text-sm">Your browser doesn't support notifications</span>;
+    }
+    
+    switch (notificationPermission) {
+      case 'granted':
+        return <span className="text-green-500 text-sm">Notifications enabled</span>;
+      case 'denied':
+        return <span className="text-red-500 text-sm">Notifications blocked in browser settings</span>;
+      default:
+        return <span className="text-gray-500 text-sm">Enable toggles to request notification permission</span>;
+    }
+  };
 
   return (
     <AppLayout>
@@ -159,9 +238,10 @@ const Preferences: React.FC = () => {
           {/* Push Notifications Section */}
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-[#0d3547] mb-2">Push notifications</h2>
-            <p className="text-gray-500 mb-6">Receive push notifications on your mobile or tablet devices</p>
+            <p className="text-gray-500 mb-4">Receive push notifications on your mobile or tablet devices</p>
+            {getNotificationStatusText()}
             
-            <div className="space-y-6">
+            <div className="space-y-6 mt-6">
               {/* Today's work overview */}
               <div className="flex items-center justify-between">
                 <span className="text-lg text-[#0d3547]">Today's work overview</span>
