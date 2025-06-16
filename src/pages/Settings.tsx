@@ -453,7 +453,19 @@ const Settings = () => {
               </div>
             )}
 
-            {/* Add other tabs here */}
+            {/* Notifications Tab */}
+            {activeTab === 'notifications' && (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6">{t('settings:notificationSettings')}</h2>
+                {/* Test Notification Button */}
+                <button
+                  className="mb-8 px-4 py-2 bg-pulse-500 text-white rounded-md hover:bg-pulse-600 transition-colors font-medium"
+                  onClick={() => toast.success('Test notification')}
+                >
+                  Notifications
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
