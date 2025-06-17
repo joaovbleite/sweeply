@@ -2,8 +2,8 @@ import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import * as webPush from 'npm:web-push@3.6.0'
 
 // VAPID keys should be set as environment variables in production
-const VAPID_PUBLIC_KEY = Deno.env.get('VAPID_PUBLIC_KEY') || 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U';
-const VAPID_PRIVATE_KEY = Deno.env.get('VAPID_PRIVATE_KEY') || 'UUxI4O8-FDRrF8arCiBiLUd-EpucHJFJuiy7Ix0wHF8';
+const VAPID_PUBLIC_KEY = Deno.env.get('VAPID_PUBLIC_KEY') || 'BAyYRnubuH36yn-wcHO8NXS7_NAgmz3sy3061krF-FY2N5wUBR-1a8SiMZOMGJFpCkHb8Yt_BAcSVOW81xvVyj0';
+const VAPID_PRIVATE_KEY = Deno.env.get('VAPID_PRIVATE_KEY') || '7A-ov6JjYKP93hOkfaZ7U6hJbISud1X9RD1oqHaL2qg';
 const VAPID_EMAIL = Deno.env.get('VAPID_EMAIL') || 'admin@sweeply.com';
 
 // Set VAPID details

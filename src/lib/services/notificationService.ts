@@ -3,7 +3,7 @@
 import { supabase } from '../supabase';
 
 // VAPID public key - should match the one in the serverless function
-const VAPID_PUBLIC_KEY = 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U';
+const VAPID_PUBLIC_KEY = 'BAyYRnubuH36yn-wcHO8NXS7_NAgmz3sy3061krF-FY2N5wUBR-1a8SiMZOMGJFpCkHb8Yt_BAcSVOW81xvVyj0';
 
 // API endpoint for the serverless function
 const PUSH_API_ENDPOINT = import.meta.env.VITE_PUSH_API_ENDPOINT || 'https://sweeply.supabase.co/functions/v1/send-push-notification';
