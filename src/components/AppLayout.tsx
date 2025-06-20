@@ -77,7 +77,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
     
     // Add a class to handle the safe area insets and ensure no transparency
     document.documentElement.classList.add('h-full', 'bg-white');
-    document.body.classList.add('h-full', 'bg-white', 'overscroll-y-contain');
+    document.body.classList.add('h-full', 'bg-white');
     
     // Add meta tag to control status bar appearance on iOS
     const metaTag = document.createElement('meta');
@@ -90,7 +90,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
       document.documentElement.style.backgroundColor = "";
       document.body.style.backgroundColor = "";
       document.documentElement.classList.remove('h-full', 'bg-white');
-      document.body.classList.remove('h-full', 'bg-white', 'overscroll-y-contain');
+      document.body.classList.remove('h-full', 'bg-white');
       if (metaTag.parentNode) {
         document.head.removeChild(metaTag);
       }
@@ -236,7 +236,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
       {/* Main Content - Separate from bottom navigation */}
       <div className={`flex-1 flex flex-col min-h-screen max-h-screen overflow-hidden bg-white ${hideBottomNav ? 'pb-safe' : 'pb-16'}`}>
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto bg-white">
+        <main className="flex-1 overflow-y-auto bg-white overscroll-y-contain">
           <div 
             className="page-content-wrapper"
             style={{ 

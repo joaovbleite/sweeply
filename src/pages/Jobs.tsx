@@ -270,9 +270,9 @@ const Jobs = () => {
 
   return (
     <AppLayout>
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <div className="p-4 md:p-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
           <div>
             <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-gray-900">Jobs</h1>
             <p className="mt-1 text-sm sm:text-base text-gray-600">Manage your cleaning appointments and services</p>
