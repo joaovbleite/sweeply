@@ -259,20 +259,14 @@ const Dashboard = () => {
               View Calendar <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
             </Link>
           </div>
-          <MapErrorBoundary>
-            <Suspense fallback={
-              <div className="rounded-xl overflow-hidden shadow-sm border border-gray-100 flex items-center justify-center bg-gray-50" style={{ height: '350px' }}>
-                <div className="text-center">
-                  <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-500 border-r-transparent" role="status">
-                    <span className="sr-only">Loading map...</span>
-                  </div>
-                  <p className="mt-2 text-sm text-gray-600">Loading map...</p>
-                </div>
-          </div>
-            }>
-              <DashboardMap jobs={jobs} className="mt-2" />
+          <div className="relative mt-2 sm:mt-3 rounded-xl overflow-hidden shadow-sm border border-gray-100" style={{ height: '350px' }}>
+            <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white to-transparent z-10 pointer-events-none"></div>
+            <Suspense fallback={<div id="map-loading" className="flex items-center justify-center h-full"><p>Loading map...</p></div>}>
+              <MapErrorBoundary>
+                <DashboardMap jobs={jobs} />
+              </MapErrorBoundary>
             </Suspense>
-          </MapErrorBoundary>
+          </div>
         </div>
         
         {/* Mobile Dashboard Sections */}
