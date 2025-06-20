@@ -19,7 +19,6 @@ import {
 import { employeesApi } from "@/lib/api/employees";
 import { CreatePerformanceReviewInput, PerformanceRating, Employee } from "@/types/employee";
 import AppLayout from "@/components/AppLayout";
-import PageHeader from "@/components/ui/PageHeader";
 
 const CreatePerformanceReview = () => {
   const navigate = useNavigate();
@@ -239,11 +238,23 @@ const CreatePerformanceReview = () => {
     <AppLayout>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <PageHeader
-          title="Create Performance Review"
-          onBackClick={() => window.history.back()}
-          rightElement={<Award className="w-8 h-8 text-pulse-600" />}
-        />
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <Link
+              to="/performance"
+              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+            <div>
+              <h1 className="text-3xl font-display font-bold text-gray-900 flex items-center gap-3">
+                <Award className="w-8 h-8 text-pulse-600" />
+                Create Performance Review
+              </h1>
+              <p className="mt-1 text-gray-600">Evaluate employee performance and provide feedback</p>
+            </div>
+          </div>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Basic Information */}
