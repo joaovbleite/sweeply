@@ -259,8 +259,8 @@ const Dashboard = () => {
               View Calendar <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
             </Link>
           </div>
-          <div className="relative mt-2 sm:mt-3 rounded-xl overflow-hidden shadow-sm border border-gray-100" style={{ height: '350px' }}>
-            <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white to-transparent z-10 pointer-events-none"></div>
+          <div className="relative mt-2 sm:mt-3 overflow-hidden" style={{ height: '350px' }}>
+            <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white to-transparent z-10 pointer-events-none"></div>
             <Suspense fallback={<div id="map-loading" className="flex items-center justify-center h-full"><p>Loading map...</p></div>}>
               <MapErrorBoundary>
                 <DashboardMap jobs={jobs} />
