@@ -71,6 +71,14 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
 
   // Set the background color of the document elements on mount
   useEffect(() => {
+    // Set the background color of HTML and body
+    document.documentElement.style.backgroundColor = "#FFFFFF";
+    document.body.style.backgroundColor = "#FFFFFF";
+    
+    // Add a class to handle the safe area insets and ensure no transparency
+    document.documentElement.classList.add('h-full', 'bg-white');
+    document.body.classList.add('h-full', 'bg-white');
+    
     // Add meta tag to control status bar appearance on iOS
     const metaTag = document.createElement('meta');
     metaTag.name = 'apple-mobile-web-app-status-bar-style';
@@ -79,6 +87,10 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
     
     return () => {
       // Cleanup when component unmounts
+      document.documentElement.style.backgroundColor = "";
+      document.body.style.backgroundColor = "";
+      document.documentElement.classList.remove('h-full', 'bg-white');
+      document.body.classList.remove('h-full', 'bg-white');
       if (metaTag.parentNode) {
         document.head.removeChild(metaTag);
       }
