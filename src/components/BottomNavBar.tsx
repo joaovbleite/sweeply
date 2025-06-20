@@ -199,7 +199,7 @@ const BottomNavBar: React.FC = () => {
       {/* Bottom Nav Bar - Always visible */}
       <nav 
         ref={navRef}
-        className="bg-black text-white rounded-full flex items-center justify-between px-5 py-3 max-w-md mx-auto shadow-xl relative overflow-hidden"
+        className="bg-yellow-400 text-black rounded-full flex items-center justify-between px-5 py-3 max-w-md mx-auto shadow-xl relative overflow-hidden"
         style={{
           position: 'fixed',
           bottom: '80px',
@@ -247,7 +247,7 @@ const BottomNavBar: React.FC = () => {
               }}
             >
               <Icon 
-                className={`w-4 h-4 ${isActive ? 'text-white' : 'text-white/60'}`} 
+                className={`w-4 h-4 ${isActive ? 'text-black' : 'text-black/60'}`} 
               />
             </Link>
           );
