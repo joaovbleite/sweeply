@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { 
   Calendar, 
@@ -183,6 +183,10 @@ const Dashboard = () => {
       .slice(0, 5); // Show only next 5 jobs
   }, [jobs]);
 
+  const todaysJobsOnMapCount = useMemo(() => {
+    return jobs.filter(job => job.address && isToday(new Date(job.scheduled_date))).length;
+  }, [jobs]);
+
   if (error) {
     return (
       <AppLayout>
@@ -251,9 +255,8 @@ const Dashboard = () => {
         {/* Today's Job Map */}
         <div className="mt-3 sm:mt-5 md:mt-6">
           <div className="mb-2 sm:mb-3 flex justify-between items-center">
-            <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
-              <Globe className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-              Today's Jobs Map
+            <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">
+              {todaysJobsOnMapCount} {todaysJobsOnMapCount === 1 ? 'job' : 'jobs'} on map
             </h3>
             <Link to="/calendar" className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium flex items-center gap-1">
               View Calendar <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
