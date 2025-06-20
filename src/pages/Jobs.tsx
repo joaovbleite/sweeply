@@ -23,7 +23,8 @@ import {
   Repeat,
   CalendarCheck,
   CalendarX,
-  ChevronRight
+  ChevronRight,
+  Briefcase
 } from "lucide-react";
 import { toast } from "sonner";
 import { jobsApi } from "@/lib/api/jobs";
@@ -35,6 +36,16 @@ import { useLocale } from "@/hooks/useLocale";
 import AppLayout from "@/components/AppLayout";
 import RecurringJobManager from "@/components/RecurringJobManager";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button";
 
 const Jobs = () => {
   const { user } = useAuth();
@@ -43,7 +54,7 @@ const Jobs = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState<JobFilters & { is_recurring?: boolean }>({});
+  const [statusFilter, setStatusFilter] = useState<JobStatus | 'all'>('all');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedJobs, setSelectedJobs] = useState<Set<string>>(new Set());
   const [showBulkActions, setShowBulkActions] = useState(false);
@@ -54,6 +65,10 @@ const Jobs = () => {
   const loadJobs = async () => {
     try {
       setLoading(true);
+      const filters: JobFilters = {};
+      if (statusFilter !== 'all') {
+        filters.status = [statusFilter];
+      }
       const data = await jobsApi.getAll(filters);
       setJobs(data);
     } catch (error) {
@@ -66,7 +81,7 @@ const Jobs = () => {
 
   useEffect(() => {
     loadJobs();
-  }, [filters]);
+  }, [statusFilter]);
 
   // Handle status update
   const handleStatusUpdate = async (jobId: string, newStatus: JobStatus) => {
@@ -406,124 +421,42 @@ const Jobs = () => {
         )}
 
         {/* Search and Filters */}
-        <div className="bg-white rounded-xl shadow-sm p-3 sm:p-6 mb-4 sm:mb-6">
-          <div className="flex flex-col lg:flex-row gap-3 sm:gap-4">
-            {/* Search */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex-1 mr-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search jobs..."
+                placeholder="Search by job, client, or address..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-9 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 focus:border-transparent text-sm"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
               />
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm("")}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  <XCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
-              )}
-            </div>
-
-            {/* Quick Filters - Scrollable on mobile */}
-            <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-1 no-scrollbar">
-              <select
-                value={filters.status?.[0] || ''}
-                onChange={(e) => setFilters(prev => ({
-                  ...prev,
-                  status: e.target.value ? [e.target.value as JobStatus] : undefined
-                }))}
-                className="px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 text-xs sm:text-sm"
-              >
-                <option value="">All Statuses</option>
-                <option value="scheduled">Scheduled</option>
-                <option value="in_progress">In Progress</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-
-              <select
-                value={filters.service_type?.[0] || ''}
-                onChange={(e) => setFilters(prev => ({
-                  ...prev,
-                  service_type: e.target.value ? [e.target.value as ServiceType] : undefined
-                }))}
-                className="px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 text-xs sm:text-sm"
-              >
-                <option value="">All Services</option>
-                <option value="regular">Regular Cleaning</option>
-                <option value="deep_clean">Deep Clean</option>
-                <option value="move_in">Move-in Clean</option>
-                <option value="move_out">Move-out Clean</option>
-                <option value="post_construction">Post-Construction</option>
-                <option value="one_time">One-time Clean</option>
-              </select>
-
-              <select
-                value={filters.is_recurring === undefined ? '' : filters.is_recurring.toString()}
-                onChange={(e) => setFilters(prev => ({
-                  ...prev,
-                  is_recurring: e.target.value === '' ? undefined : e.target.value === 'true'
-                }))}
-                className="px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 text-xs sm:text-sm whitespace-nowrap"
-              >
-                <option value="">All Jobs</option>
-                <option value="true">Recurring Series</option>
-                <option value="false">One-time Jobs</option>
-              </select>
-
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2 text-xs sm:text-sm whitespace-nowrap"
-              >
-                <Filter className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden xs:inline">More</span> Filters
-              </button>
             </div>
           </div>
 
-          {/* Advanced Filter Panel */}
-          {showFilters && (
-            <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">From Date</label>
-                <input
-                  type="date"
-                  value={filters.date_from || ''}
-                  onChange={(e) => setFilters(prev => ({
-                    ...prev,
-                    date_from: e.target.value || undefined
-                  }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 text-xs sm:text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">To Date</label>
-                <input
-                  type="date"
-                  value={filters.date_to || ''}
-                  onChange={(e) => setFilters(prev => ({
-                    ...prev,
-                    date_to: e.target.value || undefined
-                  }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pulse-500 text-xs sm:text-sm"
-                />
-              </div>
-
-              <div className="flex items-end">
-                <button
-                  onClick={() => setFilters({})}
-                  className="px-3 py-2 text-xs sm:text-sm text-gray-600 hover:text-gray-800 transition-colors"
-                >
-                  Clear All Filters
-                </button>
-              </div>
-            </div>
-          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <Filter className="mr-2 h-4 w-4" />
+                Filter
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+              <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuRadioGroup 
+                value={statusFilter}
+                onValueChange={(value) => setStatusFilter(value as JobStatus | 'all')}
+              >
+                <DropdownMenuRadioItem value="all">All</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="scheduled">Scheduled</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="in_progress">In Progress</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="completed">Completed</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="cancelled">Cancelled</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Jobs List */}
