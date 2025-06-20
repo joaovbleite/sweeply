@@ -131,7 +131,7 @@ const Navbar = () => {
   return (
     <header className={cn(
     "fixed top-0 left-0 right-0 z-50 mt-0 py-0 transition-all duration-300", 
-      isScrolled ? "bg-white/90 backdrop-blur-md shadow-sm" : "bg-transparent"
+      isScrolled ? "bg-yellow-400/90 backdrop-blur-md shadow-sm" : "bg-transparent"
   )}>
       <div className="container flex items-center justify-between sm:px-6 lg:px-8 px-3 py-3 my-0 rounded-none">
         <a href="/" className="flex items-center space-x-1 sm:space-x-1" onClick={e => {
