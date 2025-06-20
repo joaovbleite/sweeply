@@ -77,7 +77,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
     
     // Add a class to handle the safe area insets and ensure no transparency
     document.documentElement.classList.add('h-full', 'bg-white');
-    document.body.classList.add('h-full', 'bg-white');
+    document.body.classList.add('h-full', 'bg-white', 'overscroll-y-contain');
     
     // Add meta tag to control status bar appearance on iOS
     const metaTag = document.createElement('meta');
@@ -90,7 +90,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
       document.documentElement.style.backgroundColor = "";
       document.body.style.backgroundColor = "";
       document.documentElement.classList.remove('h-full', 'bg-white');
-      document.body.classList.remove('h-full', 'bg-white');
+      document.body.classList.remove('h-full', 'bg-white', 'overscroll-y-contain');
       if (metaTag.parentNode) {
         document.head.removeChild(metaTag);
       }
