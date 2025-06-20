@@ -43,6 +43,19 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import AppLayout from "@/components/AppLayout";
 import PageHeader from "@/components/ui/PageHeader";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuCheckboxItem
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 const Clients = () => {
   const { user } = useAuth();
@@ -539,66 +552,63 @@ const Clients = () => {
           </button>
           </div>
 
-        {/* Search Bar */}
-        <div className="mb-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-              placeholder={`Search ${getTitle().toLowerCase()}...`}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b82f6] focus:border-transparent"
-              />
-              {searchQuery && (
-                <button 
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+        {/* Search and Filters */}
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search clients..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+          />
+          <div className="absolute right-2 top-1/2 -translate-y-1/2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <Filter className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                <DropdownMenuLabel>Filter & Sort</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Client Type</DropdownMenuLabel>
+                  <DropdownMenuRadioGroup value={selectedType} onValueChange={(value) => setSelectedType(value as 'all' | 'residential' | 'commercial')}>
+                    <DropdownMenuRadioItem value="all">All Types</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="residential">Residential</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="commercial">Commercial</DropdownMenuRadioItem>
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+                  <DropdownMenuRadioGroup value={`${sortBy}-${sortOrder}`} onValueChange={(value) => {
+                    const [field, order] = value.split('-');
+                    setSortBy(field as 'name' | 'created_at' | 'updated_at');
+                    setSortOrder(order as 'asc' | 'desc');
+                  }}>
+                    <DropdownMenuRadioItem value="name-asc">Name A-Z</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="name-desc">Name Z-A</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="created_at-desc">Newest</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="created_at-asc">Oldest</DropdownMenuRadioItem>
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuCheckboxItem
+                  checked={showInactive}
+                  onCheckedChange={setShowInactive}
                 >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
+                  Show Inactive
+                </DropdownMenuCheckboxItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-            </div>
+        </div>
 
         {/* Quick Filters - Only show relevant filters based on active tab */}
         {activeTab === 'clients' && (
           <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
-              <select
-                value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value as 'all' | 'residential' | 'commercial')}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b82f6] text-sm"
-              >
-              <option value="all">{t('common:allTypes')}</option>
-                <option value="residential">{t('clients:residential')}</option>
-                <option value="commercial">{t('clients:commercial')}</option>
-              </select>
-
-              <select
-                value={`${sortBy}-${sortOrder}`}
-                onChange={(e) => {
-                  const [field, order] = e.target.value.split('-');
-                  setSortBy(field as 'name' | 'created_at' | 'updated_at');
-                  setSortOrder(order as 'asc' | 'desc');
-                }}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b82f6] text-sm whitespace-nowrap"
-              >
-                <option value="name-asc">{t('common:name')} A-Z</option>
-                <option value="name-desc">{t('common:name')} Z-A</option>
-                <option value="created_at-desc">{t('common:newest')}</option>
-                <option value="created_at-asc">{t('common:oldest')}</option>
-              </select>
-
-            <label className="flex items-center gap-2 cursor-pointer px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm whitespace-nowrap">
-                <input
-                  type="checkbox"
-                  checked={showInactive}
-                  onChange={(e) => setShowInactive(e.target.checked)}
-                className="rounded border-gray-300 text-[#3b82f6] focus:ring-[#3b82f6]"
-                />
-                <span className="text-gray-700">{t('common:showInactive')}</span>
-              </label>
-
             <button
               onClick={exportClients}
               className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 transition-colors text-sm ml-auto"
@@ -606,7 +616,7 @@ const Clients = () => {
               <Download className="w-4 h-4" />
               <span>{t('common:export')}</span>
             </button>
-            </div>
+          </div>
         )}
 
         {/* Bulk Actions - Only show for clients tab */}
