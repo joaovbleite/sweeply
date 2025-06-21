@@ -1,0 +1,15 @@
+/* Dashboard-specific style adjustments */
+.dashboard-welcome-widget {
+  padding-top: 0 !important; /* Removed padding to eliminate transparent space */
+  padding-bottom: 3px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  background-color: white;
+}
+
+/* Only for mobile welcome widget */
+@media (max-width: 768px) {
+  .dashboard-welcome-widget {
+    padding-top: 0 !important;
+  }
+} 
