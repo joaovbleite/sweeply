@@ -52,6 +52,8 @@ import Tasks from "./pages/Tasks";
 import AddTask from "./pages/AddTask";
 import Refer from "./pages/Refer";
 import Subscription from "./pages/Subscription";
+import AddTestClient from "./pages/AddTestClient";
+import AddTestJob from "./pages/AddTestJob";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -74,6 +76,8 @@ const AppRoutes = () => {
       <Route path="/signup" element={<Signup />} />
       <Route path="/terms-of-service" element={<TermsOfService />} />
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+      <Route path="/add-test-client" element={<AddTestClient />} />
+      <Route path="/add-test-job" element={<AddTestJob />} />
       <Route 
         path="/dashboard" 
         element={
