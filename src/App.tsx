@@ -54,6 +54,7 @@ import Refer from "./pages/Refer";
 import Subscription from "./pages/Subscription";
 import AddTestClient from "./pages/AddTestClient";
 import AddTestJob from "./pages/AddTestJob";
+import AIChatPage from "./pages/AIChatPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -78,6 +79,14 @@ const AppRoutes = () => {
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       <Route path="/add-test-client" element={<AddTestClient />} />
       <Route path="/add-test-job" element={<AddTestJob />} />
+      <Route 
+        path="/ai-chat"
+        element={
+          <ProtectedRoute>
+            <AIChatPage />
+          </ProtectedRoute>
+        }
+      />
       <Route 
         path="/dashboard" 
         element={

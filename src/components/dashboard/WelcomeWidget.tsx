@@ -82,9 +82,9 @@ const WelcomeWidget = () => {
           
           <div className="flex items-center gap-4">
             {/* Star Icon */}
-            <button className="bg-transparent">
+            <Link to="/ai-chat" className="bg-transparent">
               <Sparkles className="w-5 h-5 text-[#0d3547]" />
-            </button>
+            </Link>
             
             {/* Notifications Bell */}
             <Link 
