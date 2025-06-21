@@ -273,27 +273,47 @@ const Jobs = () => {
       <div className="p-4 md:p-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-          <div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-gray-900">Jobs</h1>
-            <p className="mt-1 text-sm sm:text-base text-gray-600">Manage your cleaning appointments and services</p>
-          </div>
-          <div className="mt-3 sm:mt-0 flex gap-2 sm:gap-3">
-            {selectedJobs.size > 0 && (
-              <button
-                onClick={() => setShowBulkActions(!showBulkActions)}
-                className="px-3 sm:px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 transition-colors text-xs sm:text-sm"
-              >
-                <MoreVertical className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden xs:inline">Bulk Actions</span> ({selectedJobs.size})
-              </button>
-            )}
-            <Link
-              to="/jobs/new"
-              className="px-3 sm:px-4 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 flex items-center gap-2 transition-colors text-xs sm:text-sm"
-            >
-              <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="hidden xs:inline">New</span> Job
+          <h1 className="text-2xl font-bold text-gray-900">Jobs</h1>
+          <div className="flex items-center gap-2 mt-4 md:mt-0">
+            <Link to="/jobs/new" className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+              <Plus className="-ml-1 mr-2 h-4 w-4" />
+              Add Job
             </Link>
+          </div>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search by job, client, or address..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-24 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+          />
+          <div className="absolute right-2 top-1/2 -translate-y-1/2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="bg-gray-100 hover:bg-gray-200">
+                  <Filter className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuRadioGroup
+                  value={statusFilter}
+                  onValueChange={(value) => setStatusFilter(value as JobStatus | 'all')}
+                >
+                  <DropdownMenuRadioItem value="all">All</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="scheduled">Scheduled</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="in_progress">In Progress</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="completed">Completed</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="cancelled">Cancelled</DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
@@ -419,45 +439,6 @@ const Jobs = () => {
             </div>
           </div>
         )}
-
-        {/* Search and Filters */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex-1 mr-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search by job, client, or address..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-          </div>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                <Filter className="mr-2 h-4 w-4" />
-                Filter
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
-              <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuRadioGroup 
-                value={statusFilter}
-                onValueChange={(value) => setStatusFilter(value as JobStatus | 'all')}
-              >
-                <DropdownMenuRadioItem value="all">All</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="scheduled">Scheduled</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="in_progress">In Progress</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="completed">Completed</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="cancelled">Cancelled</DropdownMenuRadioItem>
-              </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
 
         {/* Jobs List */}
         <div className="bg-white rounded-xl shadow-sm">
