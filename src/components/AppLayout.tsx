@@ -234,9 +234,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
       </aside>
 
       {/* Main Content - Separate from bottom navigation */}
-      <div className={`flex-1 flex flex-col min-h-screen ${hideBottomNav ? '' : 'pb-16'}`}>
+      <div className="flex-1 flex flex-col min-h-screen max-h-screen overflow-hidden bg-white">
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto bg-white overscroll-y-contain">
+        <main className={`flex-1 overflow-y-auto bg-white overscroll-y-contain ${hideBottomNav ? 'pb-safe' : 'pb-24'}`}>
           <div 
             className="page-content-wrapper"
             style={{ 
@@ -250,20 +250,31 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
             {children}
           </div>
         </main>
-        
-        {/* Bottom Navigation */}
-        {!hideBottomNav && (
-          <div className="lg:hidden">
-            <BottomNavBar />
-          </div>
-        )}
       </div>
+      
+      {/* Bottom Navigation Bar - Completely separate from page content and transitions */}
+      {!hideBottomNav && isMobile && (
+        <div className="bottom-nav-wrapper fixed left-0 right-0 z-50 pointer-events-auto" style={{ 
+          isolation: 'isolate', 
+          position: 'fixed', 
+          bottom: 0, 
+          left: 0, 
+          right: 0,
+          zIndex: 9999,
+          transform: 'translateZ(0)',
+          contain: 'layout style'
+        }}>
+          <BottomNavBar />
+        </div>
+      )}
 
+      {/* Mobile sidebar overlay */}
       {isSidebarOpen && (
         <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setIsSidebarOpen(false)} 
-          className="fixed inset-0 bg-black bg-opacity-30 z-40 lg:hidden"
-        ></div>
+          aria-hidden="true"
+        />
       )}
     </div>
   );
