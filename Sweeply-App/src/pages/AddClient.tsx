@@ -138,221 +138,225 @@ const AddClient = () => {
         onBackClick={() => navigate(-1)}
       />
 
-      <div className="pt-12 px-4 pb-24 bg-white">
-        {/* Add From Contacts button */}
-        <div className="mb-6">
-          <button 
-            className="w-full flex items-center justify-center gap-2 p-4 rounded-lg border border-gray-200 text-blue-500 font-medium"
-            onClick={() => toast.info("Contacts access feature coming soon")}
-          >
-            <User className="w-5 h-5 text-blue-500" />
-            Add From Contacts
-          </button>
-        </div>
+      <div className="flex flex-col h-full">
+        <div className="overflow-y-auto pb-24 px-4 pt-12">
+          {/* Add From Contacts button */}
+          <div className="mb-6">
+            <button 
+              className="w-full flex items-center justify-center gap-2 p-4 rounded-lg border border-gray-200 text-blue-500 font-medium"
+              onClick={() => toast.info("Contacts access feature coming soon")}
+            >
+              <User className="w-5 h-5 text-blue-500" />
+              Add From Contacts
+            </button>
+          </div>
 
-        {/* Form fields */}
-        <div className="space-y-6 mb-16">
-          {/* Name fields - always shown as inputs */}
-          <div className="flex items-start gap-3">
-            <User className="w-5 h-5 text-gray-500 mt-5" />
-            <div className="flex-1 space-y-4">
+          {/* Form fields */}
+          <div className="space-y-6 mb-16">
+            {/* Name fields - always shown as inputs */}
+            <div className="flex items-start gap-3">
+              <User className="w-5 h-5 text-gray-500 mt-5" />
+              <div className="flex-1 space-y-4">
+                <input
+                  type="text"
+                  placeholder="First name"
+                  value={firstName}
+                  onChange={(e) => handleInputChange("firstName", e.target.value)}
+                  className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-900"
+                />
+                <input
+                  type="text"
+                  placeholder="Last name"
+                  value={lastName}
+                  onChange={(e) => handleInputChange("lastName", e.target.value)}
+                  className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-900"
+                />
+              </div>
+            </div>
+
+            {/* Company Name section */}
+            <div className="flex items-start gap-3">
+              <Building className="w-5 h-5 text-gray-500 mt-5" />
+              {companyExpanded ? (
+                <div className="flex-1 flex flex-col space-y-4">
+                  <input
+                    type="text"
+                    placeholder="Company name"
+                    value={companyName}
+                    onChange={(e) => handleInputChange("companyName", e.target.value)}
+                    className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-900"
+                    autoFocus
+                  />
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-700">Use company name as client name</span>
+                    <button 
+                      onClick={toggleUseCompanyAsName}
+                      className="relative inline-flex h-6 w-12 items-center rounded-full bg-gray-300"
+                    >
+                      <span 
+                        className={`absolute h-5 w-5 transform rounded-full bg-white transition-transform ${useCompanyAsName ? 'translate-x-6' : 'translate-x-1'}`}
+                      />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button 
+                  onClick={() => setCompanyExpanded(true)}
+                  className="text-blue-500 font-medium text-left w-full py-2"
+                >
+                  Add Company Name
+                </button>
+              )}
+            </div>
+
+            {/* Phone Number section */}
+            <div className="flex items-start gap-3">
+              <Phone className="w-5 h-5 text-gray-500 mt-5" />
+              {phoneExpanded ? (
+                <div className="flex-1 flex flex-col space-y-4">
+                  <input
+                    type="tel"
+                    placeholder="Phone number"
+                    value={formData.phone || ""}
+                    onChange={(e) => handleInputChange("phone", e.target.value)}
+                    className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-900"
+                    autoFocus
+                  />
+                  
+                  {/* Phone Label Dropdown */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowLabelDropdown(!showLabelDropdown)}
+                      className="w-full p-4 bg-white border border-gray-200 rounded-lg flex items-center justify-between text-gray-900"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-500">Label</span>
+                        <span>{phoneLabel}</span>
+                      </div>
+                      <ChevronDown className="w-5 h-5 text-gray-500" />
+                    </button>
+                    
+                    {showLabelDropdown && (
+                      <div className="absolute z-10 w-full mt-1 bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                        {phoneLabels.map((label) => (
+                          <button
+                            key={label}
+                            onClick={() => selectPhoneLabel(label)}
+                            className="w-full p-4 text-left text-white hover:bg-gray-700 flex items-center"
+                          >
+                            {label === phoneLabel && (
+                              <span className="mr-2">✓</span>
+                            )}
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Receives text messages toggle */}
+                  <div className="flex items-center justify-between px-2">
+                    <span className="text-gray-700">Receives text messages</span>
+                    <button 
+                      onClick={toggleReceivesSMS}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${receivesSMS ? 'bg-blue-600' : 'bg-gray-300'}`}
+                    >
+                      <span 
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${receivesSMS ? 'translate-x-6' : 'translate-x-1'}`}
+                      />
+                    </button>
+                  </div>
+                  
+                  {/* Add another phone number button */}
+                  <button 
+                    className="text-blue-500 font-medium text-left w-full py-2"
+                    onClick={() => toast.info("Multiple phone numbers coming soon")}
+                  >
+                    Add Another Phone Number
+                  </button>
+                </div>
+              ) : (
+                <button 
+                  onClick={() => setPhoneExpanded(true)}
+                  className="text-blue-500 font-medium text-left w-full py-2"
+                >
+                  Add Phone Number
+                </button>
+              )}
+            </div>
+
+            {/* Email - blue text only, no box until expanded */}
+            <div className="flex items-center gap-3">
+              <Mail className="w-5 h-5 text-gray-500" />
+              {emailExpanded ? (
+                <input
+                  type="email"
+                  placeholder="Email address"
+                  value={formData.email || ""}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
+                  className="w-full p-4 bg-white border border-blue-500 rounded-lg focus:outline-none text-gray-900"
+                  autoFocus
+                />
+              ) : (
+                <button 
+                  onClick={() => setEmailExpanded(true)}
+                  className="text-blue-500 font-medium text-left w-full py-2"
+                >
+                  Add Email
+                </button>
+              )}
+            </div>
+
+            {/* Lead Source - blue text only, no box until expanded */}
+            <div className="flex items-center gap-3">
+              <List className="w-5 h-5 text-gray-500" />
+              {leadSourceExpanded ? (
+                <input
+                  type="text"
+                  placeholder="Lead source"
+                  value={formData.preferences || ""}
+                  onChange={(e) => handleInputChange("leadSource", e.target.value)}
+                  className="w-full p-4 bg-white border border-blue-500 rounded-lg focus:outline-none text-gray-900"
+                  autoFocus
+                />
+              ) : (
+                <button 
+                  onClick={() => setLeadSourceExpanded(true)}
+                  className="text-blue-500 font-medium text-left w-full py-2"
+                >
+                  Add Lead Source
+                </button>
+              )}
+            </div>
+
+            {/* Property Address - always shown as input */}
+            <div className="flex items-center gap-3">
+              <MapPin className="w-5 h-5 text-gray-500" />
               <input
                 type="text"
-                placeholder="First name"
-                value={firstName}
-                onChange={(e) => handleInputChange("firstName", e.target.value)}
-                className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-900"
-              />
-              <input
-                type="text"
-                placeholder="Last name"
-                value={lastName}
-                onChange={(e) => handleInputChange("lastName", e.target.value)}
+                placeholder="Property address"
+                value={formData.address || ""}
+                onChange={(e) => handleInputChange("address", e.target.value)}
                 className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-900"
               />
             </div>
           </div>
-
-          {/* Company Name section */}
-          <div className="flex items-start gap-3">
-            <Building className="w-5 h-5 text-gray-500 mt-5" />
-            {companyExpanded ? (
-              <div className="flex-1 flex flex-col space-y-4">
-                <input
-                  type="text"
-                  placeholder="Company name"
-                  value={companyName}
-                  onChange={(e) => handleInputChange("companyName", e.target.value)}
-                  className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-900"
-                  autoFocus
-                />
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-700">Use company name as client name</span>
-                  <button 
-                    onClick={toggleUseCompanyAsName}
-                    className="relative inline-flex h-6 w-12 items-center rounded-full bg-gray-300"
-                  >
-                    <span 
-                      className={`absolute h-5 w-5 transform rounded-full bg-white transition-transform ${useCompanyAsName ? 'translate-x-6' : 'translate-x-1'}`}
-                    />
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button 
-                onClick={() => setCompanyExpanded(true)}
-                className="text-blue-500 font-medium text-left w-full py-2"
-              >
-                Add Company Name
-              </button>
-            )}
-          </div>
-
-          {/* Phone Number section */}
-          <div className="flex items-start gap-3">
-            <Phone className="w-5 h-5 text-gray-500 mt-5" />
-            {phoneExpanded ? (
-              <div className="flex-1 flex flex-col space-y-4">
-                <input
-                  type="tel"
-                  placeholder="Phone number"
-                  value={formData.phone || ""}
-                  onChange={(e) => handleInputChange("phone", e.target.value)}
-                  className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-900"
-                  autoFocus
-                />
-                
-                {/* Phone Label Dropdown */}
-                <div className="relative">
-                  <button
-                    onClick={() => setShowLabelDropdown(!showLabelDropdown)}
-                    className="w-full p-4 bg-white border border-gray-200 rounded-lg flex items-center justify-between text-gray-900"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-500">Label</span>
-                      <span>{phoneLabel}</span>
-                    </div>
-                    <ChevronDown className="w-5 h-5 text-gray-500" />
-                  </button>
-                  
-                  {showLabelDropdown && (
-                    <div className="absolute z-10 w-full mt-1 bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-                      {phoneLabels.map((label) => (
-                        <button
-                          key={label}
-                          onClick={() => selectPhoneLabel(label)}
-                          className="w-full p-4 text-left text-white hover:bg-gray-700 flex items-center"
-                        >
-                          {label === phoneLabel && (
-                            <span className="mr-2">✓</span>
-                          )}
-                          {label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                
-                {/* Receives text messages toggle */}
-                <div className="flex items-center justify-between px-2">
-                  <span className="text-gray-700">Receives text messages</span>
-                  <button 
-                    onClick={toggleReceivesSMS}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${receivesSMS ? 'bg-blue-600' : 'bg-gray-300'}`}
-                  >
-                    <span 
-                      className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${receivesSMS ? 'translate-x-6' : 'translate-x-1'}`}
-                    />
-                  </button>
-                </div>
-                
-                {/* Add another phone number button */}
-                <button 
-                  className="text-blue-500 font-medium text-left w-full py-2"
-                  onClick={() => toast.info("Multiple phone numbers coming soon")}
-                >
-                  Add Another Phone Number
-                </button>
-              </div>
-            ) : (
-              <button 
-                onClick={() => setPhoneExpanded(true)}
-                className="text-blue-500 font-medium text-left w-full py-2"
-              >
-                Add Phone Number
-              </button>
-            )}
-          </div>
-
-          {/* Email - blue text only, no box until expanded */}
-          <div className="flex items-center gap-3">
-            <Mail className="w-5 h-5 text-gray-500" />
-            {emailExpanded ? (
-              <input
-                type="email"
-                placeholder="Email address"
-                value={formData.email || ""}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-                className="w-full p-4 bg-white border border-blue-500 rounded-lg focus:outline-none text-gray-900"
-                autoFocus
-              />
-            ) : (
-              <button 
-                onClick={() => setEmailExpanded(true)}
-                className="text-blue-500 font-medium text-left w-full py-2"
-              >
-                Add Email
-              </button>
-            )}
-          </div>
-
-          {/* Lead Source - blue text only, no box until expanded */}
-          <div className="flex items-center gap-3">
-            <List className="w-5 h-5 text-gray-500" />
-            {leadSourceExpanded ? (
-              <input
-                type="text"
-                placeholder="Lead source"
-                value={formData.preferences || ""}
-                onChange={(e) => handleInputChange("leadSource", e.target.value)}
-                className="w-full p-4 bg-white border border-blue-500 rounded-lg focus:outline-none text-gray-900"
-                autoFocus
-              />
-            ) : (
-              <button 
-                onClick={() => setLeadSourceExpanded(true)}
-                className="text-blue-500 font-medium text-left w-full py-2"
-              >
-                Add Lead Source
-              </button>
-            )}
-          </div>
-
-          {/* Property Address - always shown as input */}
-          <div className="flex items-center gap-3">
-            <MapPin className="w-5 h-5 text-gray-500" />
-            <input
-              type="text"
-              placeholder="Property address"
-              value={formData.address || ""}
-              onChange={(e) => handleInputChange("address", e.target.value)}
-              className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-900"
-            />
-          </div>
         </div>
 
         {/* Save Button */}
-        <button
-          onClick={handleSubmit}
-          disabled={loading || !formData.name.trim()}
-          className="w-full py-4 bg-blue-600 text-white font-medium rounded-lg disabled:opacity-70 flex items-center justify-center"
-        >
-          {loading ? (
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-          ) : (
-            "Save"
-          )}
-        </button>
+        <div className="px-4 pb-4 pt-2 mt-auto">
+          <button
+            onClick={handleSubmit}
+            disabled={loading || !formData.name.trim()}
+            className="w-full py-4 bg-blue-600 text-white font-medium rounded-lg disabled:opacity-70 flex items-center justify-center"
+          >
+            {loading ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+            ) : (
+              "Save"
+            )}
+          </button>
+        </div>
       </div>
     </AppLayout>
   );
