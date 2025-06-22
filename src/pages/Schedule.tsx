@@ -394,113 +394,63 @@ const Schedule = () => {
   
   return (
     <AppLayout>
-      <div className="flex flex-col h-full bg-gray-50 pt-8">
-        {/* Header with month selector */}
-        <div className="flex justify-between items-center px-4 py-4 relative z-30 bg-white shadow-sm border-b border-gray-200">
-          <div className="flex items-center">
+      <div className="flex flex-col h-screen bg-white">
+        {/* Header section */}
+        <div className="sticky top-0 z-20 bg-white shadow-sm px-4 pt-4 pb-2">
+          <div className="flex justify-between items-center mb-4">
             <MonthSelector 
               currentDate={currentDate} 
-              onDateChange={(date) => {
-                const direction = date > currentDate ? 'right' : 'left';
-                setWeekDirection(direction);
-                setAnimatingWeekChange(true);
-                setTimeout(() => {
-                  setCurrentDate(date);
-                  setAnimatingWeekChange(false);
-                }, 300);
-              }}
-              userName={user?.user_metadata?.name || user?.email}
-              jobCount={dayJobs.length}
+              onDateChange={(date) => setCurrentDate(date)} 
             />
-          </div>
-          <div className="flex items-center gap-5">
-            <motion.button 
-              className="p-2" 
-              onClick={goToToday}
-              whileTap={{ scale: 0.9 }}
-              whileHover={{ scale: 1.1 }}
-            >
-              <CalendarIcon className="w-6 h-6 text-gray-800" />
-            </motion.button>
-            <motion.button 
-              className="p-2" 
-              onClick={openViewOptionsModal}
-              whileTap={{ scale: 0.9 }}
-              whileHover={{ scale: 1.1 }}
-            >
-              <Settings className="w-6 h-6 text-gray-800" />
-            </motion.button>
-          </div>
-        </div>
-        
-        {/* View selector tabs */}
-        <div className="bg-gray-100 rounded-lg mx-4 p-1.5 flex relative z-10">
-          <motion.button 
-            className={`flex-1 py-3 rounded-md text-center font-medium ${viewOptions.view === 'Day' ? 'bg-white shadow text-gray-800' : 'text-gray-600'}`}
-            onClick={() => setViewOptions(prev => ({ ...prev, view: 'Day' }))}
-            whileTap={{ scale: 0.95 }}
-          >
-            Day
-          </motion.button>
-          <motion.button 
-            className={`flex-1 py-3 rounded-md text-center font-medium ${viewOptions.view === 'List' ? 'bg-white shadow text-gray-800' : 'text-gray-600'}`}
-            onClick={() => setViewOptions(prev => ({ ...prev, view: 'List' }))}
-            whileTap={{ scale: 0.95 }}
-          >
-            List
-          </motion.button>
-          <motion.button 
-            className={`flex-1 py-3 rounded-md text-center font-medium ${viewOptions.view === 'Map' ? 'bg-white shadow text-gray-800' : 'text-gray-600'}`}
-            onClick={() => setViewOptions(prev => ({ ...prev, view: 'Map' }))}
-            whileTap={{ scale: 0.95 }}
-          >
-            Map
-          </motion.button>
-        </div>
-        
-        {/* Week day selector with smooth animations */}
-        {renderWeekDaySelector()}
-        
-        {/* Client filter/search */}
-        <div className="mx-4 mt-6 border-t border-gray-200 pt-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <span className="text-gray-800 font-medium text-lg">
-                {user ? (user.email?.split('@')[0] || 'All clients') : 'All clients'}
-              </span>
-            </div>
-            <div className="bg-gray-200 rounded-lg px-3 py-1 text-gray-800 font-medium">
-              {dayJobs.length} {dayJobs.length === 1 ? 'job' : 'jobs'}
+            <div className="flex items-center space-x-3">
+              <button onClick={goToToday} className="p-2 rounded-full hover:bg-gray-100">
+                <CalendarIcon className="w-6 h-6 text-gray-600" />
+              </button>
+              <motion.button 
+                className="p-2" 
+                onClick={openViewOptionsModal}
+                whileTap={{ scale: 0.9 }}
+                whileHover={{ scale: 1.1 }}
+              >
+                <Settings className="w-6 h-6 text-gray-800" />
+              </motion.button>
             </div>
           </div>
-          
-          <div className="relative mt-4">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search clients..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-            />
-          </div>
         </div>
-        
-        {/* Content based on selected view */}
-        <div className="flex-1 overflow-y-auto pb-20 mt-4">
-          {viewOptions.view === 'Day' && renderDayView()}
-          {viewOptions.view === 'List' && renderListView()}
-          {viewOptions.view === 'Map' && renderMapView()}
-        </div>
-      </div>
 
-      {/* View Options Modal */}
-      <ViewOptionsModal
-        isOpen={isViewOptionsModalOpen}
-        onClose={closeViewOptionsModal}
-        onApply={applyViewOptions}
-        initialOptions={viewOptions}
-      />
+        {/* Week day selector and main content */}
+        <div className="flex-1 overflow-y-auto">
+          {viewOptions.view === 'Day' && renderWeekDaySelector()}
+          
+          <div 
+            className="pb-24" // Add padding to bottom to avoid being hidden by nav bar
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onWheel={handleWheel}
+          >
+            {loading ? (
+              <div className="flex justify-center items-center h-full pt-16">
+                <p>Loading schedule...</p>
+              </div>
+            ) : (
+              <>
+                {viewOptions.view === 'Day' && renderDayView()}
+                {viewOptions.view === 'List' && renderListView()}
+                {viewOptions.view === 'Map' && renderMapView()}
+              </>
+            )}
+          </div>
+        </div>
+        
+        {/* View Options Modal */}
+        <ViewOptionsModal
+          isOpen={isViewOptionsModalOpen}
+          onClose={closeViewOptionsModal}
+          onApply={applyViewOptions}
+          initialOptions={viewOptions}
+        />
+      </div>
     </AppLayout>
   );
 };
