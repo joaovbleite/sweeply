@@ -24,7 +24,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { useProfile } from "@/hooks/useProfile";
 import { useIsMobile } from "@/hooks/use-mobile";
-import BottomNavBar from "./BottomNavBar";
+import BottomNavBar from "@/components/BottomNavBar";
 
 interface AppLayoutProps {
   children: React.ReactNode;
