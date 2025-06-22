@@ -2,13 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ChevronDown, Calendar as CalendarIcon, Search, Settings, Plus, ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react';
 import { format, addDays, startOfWeek, isSameDay, addWeeks, subWeeks, addMonths, subMonths, isToday } from 'date-fns';
 import { Link } from 'react-router-dom';
-import AppLayout from '@/components/AppLayout';
-import { jobsApi } from '@/lib/api/jobs';
-import { Job } from '@/types/job';
+import AppLayout from '../components/AppLayout';
+import { jobsApi } from '../lib/api/jobs';
+import { Job } from '../types/job';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '@/contexts/AuthContext';
-import ViewOptionsModal, { ViewOptionsState } from '@/components/schedule/ViewOptionsModal';
-import MonthSelector from '@/components/Calendar/MonthSelector';
+import { useAuth } from '../contexts/AuthContext';
+import ViewOptionsModal, { ViewOptionsState } from '../components/schedule/ViewOptionsModal';
+import MonthSelector from '../components/Calendar/MonthSelector';
 import { AnimatePresence, motion } from 'framer-motion';
 
 // Add an interface for the HTMLDivElement with scrollTimeout
