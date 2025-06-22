@@ -125,7 +125,7 @@ const Dashboard = () => {
     {
       title: "New Feature: Route Optimization",
       subtitle: "Save time and fuel with our new route planning tool.",
-      imageSrc: "/placeholder.svg",
+      imageSrc: "https://i.postimg.cc/nLrhd0xY/image.png",
       actionText: "Learn More",
       actionLink: "#",
     },
