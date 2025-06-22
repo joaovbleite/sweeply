@@ -406,18 +406,18 @@ const Schedule = () => {
               <button onClick={goToToday} className="p-2 rounded-full hover:bg-gray-100">
                 <CalendarIcon className="w-6 h-6 text-gray-600" />
               </button>
-              <motion.button 
-                className="p-2" 
-                onClick={openViewOptionsModal}
-                whileTap={{ scale: 0.9 }}
-                whileHover={{ scale: 1.1 }}
-              >
-                <Settings className="w-6 h-6 text-gray-800" />
-              </motion.button>
-            </div>
+            <motion.button 
+              className="p-2" 
+              onClick={openViewOptionsModal}
+              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: 1.1 }}
+            >
+              <Settings className="w-6 h-6 text-gray-800" />
+            </motion.button>
           </div>
         </div>
-
+        </div>
+        
         {/* Week day selector and main content */}
         <div className="flex-1 overflow-y-auto">
           {viewOptions.view === 'Day' && renderWeekDaySelector()}
@@ -435,21 +435,21 @@ const Schedule = () => {
               </div>
             ) : (
               <>
-                {viewOptions.view === 'Day' && renderDayView()}
-                {viewOptions.view === 'List' && renderListView()}
-                {viewOptions.view === 'Map' && renderMapView()}
+          {viewOptions.view === 'Day' && renderDayView()}
+          {viewOptions.view === 'List' && renderListView()}
+          {viewOptions.view === 'Map' && renderMapView()}
               </>
             )}
-          </div>
         </div>
-        
-        {/* View Options Modal */}
-        <ViewOptionsModal
-          isOpen={isViewOptionsModalOpen}
-          onClose={closeViewOptionsModal}
-          onApply={applyViewOptions}
-          initialOptions={viewOptions}
-        />
+      </div>
+
+      {/* View Options Modal */}
+      <ViewOptionsModal
+        isOpen={isViewOptionsModalOpen}
+        onClose={closeViewOptionsModal}
+        onApply={applyViewOptions}
+        initialOptions={viewOptions}
+      />
       </div>
     </AppLayout>
   );
