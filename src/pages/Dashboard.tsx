@@ -41,6 +41,7 @@ import BusinessHealth from "@/components/dashboard/BusinessHealth";
 import TodayScheduleSlider from "@/components/dashboard/TodayScheduleSlider";
 import GettingStartedTodo from "@/components/dashboard/GettingStartedTodo";
 import { useIsMobile } from "@/hooks/use-mobile";
+import DiscoverCard from "@/components/dashboard/DiscoverCard";
 // Import the map component with React.lazy for code splitting
 const DashboardMap = React.lazy(() => import("@/components/maps/DashboardMap"));
 
@@ -119,6 +120,37 @@ const Dashboard = () => {
       setLoading(false);
     }
   };
+
+  const discoverItems = [
+    {
+      title: "New Feature: Route Optimization",
+      subtitle: "Save time and fuel with our new route planning tool.",
+      imageSrc: "/placeholder.svg",
+      actionText: "Learn More",
+      actionLink: "#",
+    },
+    {
+      title: "Tips for Growing Your Business",
+      subtitle: "Read our latest blog post on client acquisition.",
+      imageSrc: "/placeholder.svg",
+      actionText: "Read Now",
+      actionLink: "#",
+    },
+    {
+      title: "Refer a Friend, Get $50",
+      subtitle: "Share Sweeply with other pros and get rewarded.",
+      imageSrc: "/placeholder.svg",
+      actionText: "Get Referral Link",
+      actionLink: "#",
+    },
+    {
+      title: "Automate Your Invoicing",
+      subtitle: "Set up recurring invoices and get paid on time.",
+      imageSrc: "/placeholder.svg",
+      actionText: "Set Up",
+      actionLink: "#",
+    },
+  ];
 
   useEffect(() => {
     loadDashboardData();
