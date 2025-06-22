@@ -319,23 +319,18 @@ const Dashboard = () => {
             {/* Discover Section */}
             <div className="mt-6 mb-4">
               <h3 className="text-lg font-bold text-gray-900 mb-3 px-1">Discover</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
-                  <Calendar className="w-6 h-6 text-blue-500 mb-2" />
-                  <p className="text-sm font-medium text-gray-800">Smart Scheduling</p>
-                </div>
-                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
-                  <FileCheck className="w-6 h-6 text-blue-500 mb-2" />
-                  <p className="text-sm font-medium text-gray-800">Invoice Generator</p>
-                </div>
-                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
-                  <BarChart3 className="w-6 h-6 text-blue-500 mb-2" />
-                  <p className="text-sm font-medium text-gray-800">Business Analytics</p>
-                </div>
-                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
-                  <UserCheck className="w-6 h-6 text-blue-500 mb-2" />
-                  <p className="text-sm font-medium text-gray-800">Client Management</p>
-                </div>
+              <div className="flex overflow-x-auto space-x-4 -mx-3 sm:-mx-4 px-3 sm:px-4 pb-4">
+                {discoverItems.map((item, index) => (
+                  <div key={index} className="flex-shrink-0 w-[70vw] sm:w-[280px]">
+                    <DiscoverCard 
+                      imageSrc={item.imageSrc}
+                      title={item.title}
+                      subtitle={item.subtitle}
+                      actionText={item.actionText}
+                      actionLink={item.actionLink}
+                    />
+                  </div>
+                ))}
               </div>
             </div>
             
