@@ -200,14 +200,7 @@ const Schedule = () => {
   const renderHorizontalDayScroller = () => {
     return (
       <div className="px-4 pb-4 border-b border-gray-200">
-        {/* Month display */}
-        <div className="mb-3 text-center">
-          <h2 className="text-lg font-medium text-gray-800">
-            {format(currentDate, 'MMMM yyyy')}
-          </h2>
-        </div>
-        
-        {/* Day/Week/Month headers - Horizontal scrollable area */}
+        {/* Day numbers - Horizontally scrollable */}
         <div 
           className="overflow-x-auto scrollbar-hide pb-2"
           onTouchStart={handleTouchStart}
@@ -216,25 +209,10 @@ const Schedule = () => {
           ref={weekDaysRef}
         >
           <div className="flex min-w-max">
-            {/* Day initials */}
-            <div className="grid grid-cols-7 text-center mb-2 min-w-full">
-              <div className="text-sm text-gray-700 font-semibold">S</div>
-              <div className="text-sm text-gray-700 font-semibold">M</div>
-              <div className="text-sm text-gray-700 font-semibold">T</div>
-              <div className="text-sm text-gray-700 font-semibold">W</div>
-              <div className="text-sm text-gray-700 font-semibold">T</div>
-              <div className="text-sm text-gray-700 font-semibold">F</div>
-              <div className="text-sm text-gray-700 font-semibold">S</div>
-            </div>
-          </div>
-          
-          {/* Day numbers - Horizontally scrollable */}
-          <div className="flex min-w-max">
             {allWeekDays.map((day, index) => {
               const isSelected = isSameDay(day, currentDate);
               const isDayToday = isToday(day);
               const dayNumber = format(day, 'd');
-              
               return (
                 <div key={index} className="flex-1 min-w-[50px] text-center">
                   <button
@@ -402,9 +380,9 @@ const Schedule = () => {
 
   return (
     <AppLayout>
-      {/* Page Header with Month Selector */}
+      {/* Page Header with Month as title */}
       <PageHeader
-        title={t('calendar:schedule')}
+        title={format(currentDate, 'MMMM')}
         rightElement={
           <div className="flex items-center gap-2">
             <button
@@ -446,7 +424,13 @@ const Schedule = () => {
 
       {/* Calendar View */}
       <div className="flex-1 flex flex-col">
-        {/* Render the horizontal day scroller */}
+        {/* Fixed day initials above the scroller */}
+        <div className="grid grid-cols-7 text-center mb-2 px-4">
+          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => (
+            <div key={idx} className="text-sm text-gray-700 font-semibold">{day}</div>
+          ))}
+        </div>
+        {/* Render the horizontal day scroller (without initials) */}
         {renderHorizontalDayScroller()}
 
         {/* Render the appropriate view based on viewOptions */}
