@@ -406,7 +406,12 @@ const Schedule = () => {
     
     // Initialize map when component mounts
     useEffect(() => {
-      if (!mapContainerRef.current) return;
+      // Ensure the map container has proper dimensions
+      if (mapContainerRef.current) {
+        mapContainerRef.current.style.width = '100%';
+        mapContainerRef.current.style.height = '100%';
+        mapContainerRef.current.style.minHeight = '500px';
+      }
       
       // Load Mapbox script if it's not already loaded
       if (!(window as any).mapboxgl) {
@@ -444,6 +449,13 @@ const Schedule = () => {
         const MAPBOX_TOKEN = 'pk.eyJ1IjoianZsZWl0ZTE1MiIsImEiOiJjbWJzbTRyMGgwbXQ1MmtweHFsOXA1aHZsIn0.6mkwBGmb0wnelPMyIjZNpQ';
         mapboxgl.accessToken = MAPBOX_TOKEN;
         
+        // Force map container to have proper dimensions
+        if (mapContainerRef.current) {
+          mapContainerRef.current.style.width = '100%';
+          mapContainerRef.current.style.height = '100%';
+          mapContainerRef.current.style.minHeight = '500px';
+        }
+        
         // Initialize the map
         const map = new mapboxgl.Map({
           container: mapContainerRef.current,
@@ -461,6 +473,9 @@ const Schedule = () => {
         map.on('load', () => {
           console.log('Map loaded successfully');
           setMapInitialized(true);
+          
+          // Force resize to ensure proper rendering
+          setTimeout(() => map.resize(), 0);
           
           // Get user's location and center map
           if (navigator.geolocation) {
@@ -574,10 +589,10 @@ const Schedule = () => {
     };
     
     return (
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full" style={{ minHeight: '500px' }}>
         <div className="p-4 bg-white border-b">
           <h2 className="text-lg font-semibold text-gray-800">
-            {format(currentDate, 'EEEE, MMMM d')} - Map View
+            {format(currentDate, 'EEEE, MMMM d')}
           </h2>
           <p className="text-sm text-gray-600 mt-1">
             {dayJobs.length} {dayJobs.length === 1 ? 'job' : 'jobs'} scheduled
@@ -586,11 +601,16 @@ const Schedule = () => {
         
         <div 
           ref={mapContainerRef} 
-          className="flex-1 min-h-[400px]"
-          style={{ width: '100%', height: '100%' }}
+          className="flex-1"
+          style={{ 
+            width: '100%', 
+            height: '100%', 
+            minHeight: '500px',
+            position: 'relative'
+          }}
         >
           {!mapInitialized && (
-            <div className="flex justify-center items-center h-full bg-gray-100">
+            <div className="absolute inset-0 flex justify-center items-center bg-gray-100">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
             </div>
           )}
@@ -606,12 +626,6 @@ const Schedule = () => {
         title={t('calendar:schedule')}
         rightElement={
           <div className="flex items-center gap-2">
-            <button 
-              onClick={goToToday}
-              className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-            >
-              {t('calendar:today')}
-            </button>
             <button
               onClick={openViewOptionsModal}
               className="p-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
