@@ -324,32 +324,59 @@ const Schedule = () => {
 
   // Render List View with updated styling
   const renderListView = () => {
+    if (loading) {
+      return (
+        <div className="flex justify-center items-center h-40">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        </div>
+      );
+    }
+
     if (dayJobs.length === 0) {
       return (
-        <div className="text-center py-16">
-          <p className="text-gray-500">{t('noJobsScheduled')}</p>
+        <div className="flex flex-col items-center justify-center h-64 bg-[#f8f8f6]">
+          <p className="text-gray-600 font-medium">No visits scheduled today</p>
         </div>
       );
     }
 
     return (
-      <div className="border-t border-gray-200">
-        <div className="flex border-b border-gray-200">
-          <div className="w-24 p-4 border-r border-gray-200">
-            <h3 className="font-semibold text-gray-800">{user?.user_metadata.full_name || 'Me'}</h3>
-            <p className="text-sm text-gray-500 mt-1">{dayJobs.length} appointments</p>
+      <div className="bg-[#f8f8f6] p-4 flex-1">
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-lg font-semibold text-gray-800">
+            {user?.user_metadata?.full_name || 'Joao'}
           </div>
-          <div className="flex-1 relative">
-            {/* This would be a timeline, for now, just list jobs */}
-            {dayJobs.map(job => (
-              <div key={job.id} className="p-4 border-b border-gray-100">
-                 <p className="font-medium">{job.title}</p>
-                 <p className="text-sm text-gray-600">{job.client?.name}</p>
-                 <p className="text-xs text-gray-500 mt-1">{format(new Date(job.scheduled_date), 'p')}</p>
-              </div>
-            ))}
+          <div className="text-sm font-medium text-gray-500">
+            {`0/${dayJobs.length}`}
           </div>
         </div>
+        
+        {dayJobs.map(job => (
+          <Link 
+            key={job.id} 
+            to={`/jobs/${job.id}`}
+            className="block bg-white rounded-lg shadow-sm mb-4 overflow-hidden"
+          >
+            <div className="flex">
+              {/* Green vertical line */}
+              <div className="w-1.5 bg-green-600 self-stretch"></div>
+              
+              <div className="p-4 flex-1">
+                <h3 className="text-lg font-bold text-gray-900">{job.title || 'Untitled Job'}</h3>
+                <p className="text-base text-gray-800 mt-1">{job.client?.name || 'Unknown Client'}</p>
+                <p className="text-base text-gray-700 mt-2">
+                  {job.scheduled_time 
+                    ? `${format(new Date(`2000-01-01T${job.scheduled_time}`), 'h:mm a')} - ${format(new Date(`2000-01-01T${job.scheduled_time}`).setHours(new Date(`2000-01-01T${job.scheduled_time}`).getHours() + 2), 'h:mm a')}`
+                    : 'No time specified'}
+                </p>
+                <p className="text-base text-gray-700 mt-1">{job.address || 'No address'}</p>
+                {job.description && (
+                  <p className="text-base text-gray-700 mt-2">{job.description}</p>
+                )}
+              </div>
+            </div>
+          </Link>
+        ))}
       </div>
     );
   };
