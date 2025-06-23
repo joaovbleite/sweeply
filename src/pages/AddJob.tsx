@@ -10,6 +10,7 @@ import AppLayout from "@/components/AppLayout";
 import PageHeader from "@/components/ui/PageHeader";
 import { useLocale } from "@/hooks/useLocale";
 import LineItemModal from "@/components/jobs/LineItemModal";
+import { teamManagementApi, TeamMember } from "@/lib/api/team-management";
 
 interface LineItem {
   description: string;
@@ -30,6 +31,7 @@ const AddJob = () => {
   const [showLineItemModal, setShowLineItemModal] = useState(false);
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
 
   const [formData, setFormData] = useState({
     clientId: "",
@@ -59,6 +61,18 @@ const AddJob = () => {
     };
 
     loadClients();
+  }, []);
+
+  useEffect(() => {
+    const fetchTeamMembers = async () => {
+      try {
+        const members = await teamManagementApi.getActiveTeamMembers();
+        setTeamMembers(members);
+      } catch (error) {
+        console.error('Failed to load team members', error);
+      }
+    };
+    fetchTeamMembers();
   }, []);
 
   const handleClientSelect = (client: Client) => {
@@ -382,9 +396,11 @@ const AddJob = () => {
                 className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
               >
                 <option value="">Please select</option>
-                <option value="victor leite">victor leite</option>
-                <option value="john doe">John Doe</option>
-                <option value="jane smith">Jane Smith</option>
+                {teamMembers.map((member) => (
+                  <option key={member.id} value={member.member_name || member.member_email || member.id}>
+                    {member.member_name || member.member_email || 'Team Member'}
+                  </option>
+                ))}
               </select>
               <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
                 <ChevronDown className="w-5 h-5 text-gray-700" />
