@@ -199,7 +199,7 @@ const BottomNavBar: React.FC = () => {
       {/* Bottom Nav Bar - Always visible */}
       <nav 
         ref={navRef}
-        className="bg-black text-white rounded-full flex items-center justify-between px-5 py-3 max-w-md mx-auto shadow-xl relative overflow-hidden"
+        className="bg-yellow-400 text-black rounded-full flex items-center justify-between px-5 py-3 max-w-md mx-auto shadow-xl relative overflow-hidden"
         style={{
           position: 'fixed',
           bottom: '80px',
@@ -225,7 +225,7 @@ const BottomNavBar: React.FC = () => {
               return (
                 <button
                   key={item.id}
-                  className={`fab-button relative flex items-center justify-center z-10 bg-[#1a2e35] w-11 h-11 rounded-full shadow-lg ${isMenuOpen ? 'rotate-45' : ''}`}
+                  className={`fab-button relative flex items-center justify-center z-10 bg-black w-11 h-11 rounded-full shadow-lg ${isMenuOpen ? 'rotate-45' : ''}`}
                   aria-label="Create new"
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
                 >
@@ -247,7 +247,7 @@ const BottomNavBar: React.FC = () => {
               }}
             >
               <Icon 
-                className={`w-4 h-4 ${isActive ? 'text-white' : 'text-white/60'}`} 
+                className={`w-4 h-4 ${isActive ? 'text-black' : 'text-black/60'}`} 
               />
             </Link>
           );
