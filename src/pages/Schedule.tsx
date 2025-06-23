@@ -654,7 +654,7 @@ const Schedule = () => {
       {/* View selector tabs */}
       <div className="px-4 py-2">
         <div className="w-full bg-gray-100 p-1 rounded-full flex">
-          {['Day', 'List', 'Map'].map(view => (
+          {['Day', 'List'].map(view => (
             <button 
               key={view}
               className={`flex-1 py-2 text-sm font-medium rounded-full transition-colors ${
@@ -662,7 +662,7 @@ const Schedule = () => {
                   ? 'bg-white text-blue-600 shadow' 
                   : 'text-gray-600'
               }`}
-              onClick={() => setViewOptions(prev => ({ ...prev, view: view as 'Day' | 'List' | 'Map' }))}
+              onClick={() => setViewOptions(prev => ({ ...prev, view: view as 'Day' | 'List' }))}
             >
               {view}
             </button>
@@ -679,7 +679,6 @@ const Schedule = () => {
         <div className="flex-1 overflow-y-auto">
           {viewOptions.view === 'Day' && renderDayView()}
           {viewOptions.view === 'List' && renderListView()}
-          {viewOptions.view === 'Map' && renderMapView()}
         </div>
       </div>
 

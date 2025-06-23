@@ -9,7 +9,7 @@ interface ViewOptionsModalProps {
 }
 
 export interface ViewOptionsState {
-  view: 'Day' | 'List' | 'Map';
+  view: 'Day' | 'List';
   showUnscheduledAppointments: boolean;
   showWeekends: boolean;
   selectedTeamMembers: string[];
@@ -98,7 +98,7 @@ const ViewOptionsModal: React.FC<ViewOptionsModalProps> = ({
         <div className="mt-4">
           <h2 className="text-lg font-bold text-gray-800 mb-3">View</h2>
           <div className="bg-gray-100 rounded-lg p-1 flex">
-            {['Day', 'List', 'Map'].map((view) => (
+            {['Day', 'List'].map((view) => (
               <button
                 key={view}
                 className={`flex-1 py-2 rounded-lg text-center text-sm ${
@@ -116,24 +116,6 @@ const ViewOptionsModal: React.FC<ViewOptionsModalProps> = ({
 
         {/* Toggle Options */}
         <div className="mt-6">
-          <div className="flex items-center justify-between py-3">
-            <p className="text-base text-gray-800">
-              Show unscheduled appointments on map view
-            </p>
-            <button
-              onClick={toggleUnscheduledAppointments}
-              className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out ${
-                options.showUnscheduledAppointments ? 'bg-blue-500' : 'bg-gray-300'
-              }`}
-            >
-              <div
-                className={`bg-white w-5 h-5 rounded-full shadow-md transform transition-transform duration-200 ease-in-out ${
-                  options.showUnscheduledAppointments ? 'translate-x-7' : 'translate-x-0'
-                }`}
-              />
-            </button>
-          </div>
-
           <div className="flex items-center justify-between py-3 border-t">
             <p className="text-base text-gray-800">
               Show weekends on calendar
