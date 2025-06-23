@@ -3,7 +3,7 @@ import { ChevronRight, Clipboard, Monitor, UserPlus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '@/hooks/use-mobile';
-import DesktopPromoModal from './DesktopPromoModal';
+import DesktopPromoModal from './DesktopPromoModal.tsx';
 
 const GettingStartedTodo = () => {
   const { t } = useTranslation(['dashboard', 'common']);
@@ -75,10 +75,9 @@ const GettingStartedTodo = () => {
       </div>
 
       {/* Desktop Promo Modal */}
-      <DesktopPromoModal 
-        isOpen={isDesktopPromoOpen} 
-        onClose={() => setIsDesktopPromoOpen(false)} 
-      />
+      {isDesktopPromoOpen && (
+        <DesktopPromoModal onClose={() => setIsDesktopPromoOpen(false)} />
+      )}
     </div>
   );
 };
