@@ -254,15 +254,26 @@ const Schedule = () => {
 
   // Render Day View with updated styling
   const renderDayView = () => {
-    // Generate hours from 7 AM to 10 PM
-    const hours = Array.from({ length: 16 }, (_, i) => i + 7);
+    // Generate hours from 12 AM to 11 PM
+    const hours = Array.from({ length: 24 }, (_, i) => i);
     const now = new Date();
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
-    
+
+    // Ref for the scrollable container
+    const hoursContainerRef = useRef<HTMLDivElement>(null);
+    // Scroll to current time on mount or when currentDate changes to today
+    useEffect(() => {
+      if (isToday(currentDate) && hoursContainerRef.current) {
+        // Each hour row is about 80px tall
+        const scrollTo = currentHour * 80 + (currentMinute / 60) * 80 - 120; // Offset for header
+        hoursContainerRef.current.scrollTo({ top: Math.max(scrollTo, 0), behavior: 'smooth' });
+      }
+    }, [currentDate]);
+
     // Calculate position for current time indicator
-    const currentTimePosition = ((currentHour * 60 + currentMinute) - (7 * 60)) / (16 * 60) * 100;
-    
+    const currentTimePosition = ((currentHour * 60 + currentMinute) / (24 * 60)) * 100;
+
     return (
       <div className="flex flex-col h-full">
         {/* User row */}
@@ -274,13 +285,12 @@ const Schedule = () => {
             0/1
           </div>
         </div>
-        
         {/* Scrollable hours container */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto" ref={hoursContainerRef}>
           <div className="relative">
             {/* Current time indicator */}
             {isToday(currentDate) && (
-              <div 
+              <div
                 className="absolute left-0 right-0 z-10 flex items-center pointer-events-none"
                 style={{ top: `${currentTimePosition}%` }}
               >
@@ -288,15 +298,13 @@ const Schedule = () => {
                 <div className="h-0.5 bg-blue-500 flex-1"></div>
               </div>
             )}
-            
             {/* Hours */}
             {hours.map((hour) => (
               <div key={hour} className="flex border-t border-gray-200 first:border-t-0">
                 {/* Time column */}
                 <div className="w-16 py-6 px-2 text-right text-gray-600 font-medium">
-                  {hour === 12 ? '12 PM' : hour > 12 ? `${hour - 12} PM` : `${hour} AM`}
+                  {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
                 </div>
-                
                 {/* Content column */}
                 <div className="flex-1 min-h-[80px]">
                   {dayJobs.filter(job => {
@@ -304,8 +312,8 @@ const Schedule = () => {
                     const jobDate = new Date(job.scheduled_date);
                     return jobDate.getHours() === hour;
                   }).map((job) => (
-                    <Link 
-                      key={job.id} 
+                    <Link
+                      key={job.id}
                       to={`/jobs/${job.id}`}
                       className="block bg-blue-100 border-l-4 border-blue-500 p-2 m-1 rounded"
                     >
