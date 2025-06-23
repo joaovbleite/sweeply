@@ -89,16 +89,16 @@ const BottomNavBar: React.FC = () => {
         </div>
       </div>
 
-      {/* Bottom Navigation Bar - Fixed at bottom but moved up significantly */}
+      {/* Bottom Navigation Bar - Fixed at bottom with proper padding */}
       <nav 
         className="fixed left-0 right-0 h-[72px] bg-white border-t border-gray-200 flex items-center justify-around px-4 z-30"
         style={{
-          bottom: '160px' // Moved up significantly
+          bottom: '20px' // Moved down with proper padding for iPhone's action button
         }}
       >
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = location.pathname.startsWith(item.path || '___');
+          const isActive = location.pathname.startsWith(item.path);
           
           if (item.id === "add") {
             return (
