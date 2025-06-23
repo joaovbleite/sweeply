@@ -48,26 +48,31 @@ const GettingStartedTodo = () => {
     <div className="mb-8 px-1">
       <h2 className="text-xl font-bold text-gray-900 mb-3">{t('dashboard:todo')}</h2>
       
-      {todoItems.map((item, index) => (
-        <React.Fragment key={item.id}>
-          <Link 
-            to={item.link}
-            className="flex items-center justify-between p-4 bg-white hover:bg-gray-50 transition-colors rounded-lg shadow-sm mb-1.5"
-            onClick={(e) => handleItemClick(item.id, e)}
-          >
-            <div className="flex items-start space-x-3">
-              <div className={`p-2 rounded-full ${item.color}`}>
-                <item.icon className="w-5 h-5" />
+      <div>
+        {todoItems.map((item, index) => (
+          <React.Fragment key={item.id}>
+            <Link 
+              to={item.link}
+              className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+              onClick={(e) => handleItemClick(item.id, e)}
+            >
+              <div className="flex items-start space-x-3">
+                <div className={`p-2 rounded-full ${item.color}`}>
+                  <item.icon className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-medium text-gray-900">{item.title}</h3>
+                  <p className="text-xs text-gray-600">{item.description}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-base font-medium text-gray-900">{item.title}</h3>
-                <p className="text-xs text-gray-600">{item.description}</p>
-              </div>
-            </div>
-            <ChevronRight className="w-4 h-4 text-blue-600 flex-shrink-0" />
-          </Link>
-        </React.Fragment>
-      ))}
+              <ChevronRight className="w-4 h-4 text-blue-600 flex-shrink-0" />
+            </Link>
+            {index < todoItems.length - 1 && (
+              <div className="h-px bg-gray-200 mx-4" />
+            )}
+          </React.Fragment>
+        ))}
+      </div>
 
       {/* Desktop Promo Modal */}
       <DesktopPromoModal 

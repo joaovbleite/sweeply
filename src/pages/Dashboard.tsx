@@ -300,7 +300,9 @@ const Dashboard = () => {
 
             {/* Mobile Dashboard Sections */}
             <div className="pb-24">
-              <TodayScheduleSlider hasJobs={upcomingJobs.length > 0} />
+              <div className="relative -mt-16 z-10">
+                <TodayScheduleSlider hasJobs={upcomingJobs.length > 0} />
+              </div>
               <GettingStartedTodo />
               <BusinessHealth />
               <div className="mt-6 mb-4">
