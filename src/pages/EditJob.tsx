@@ -320,10 +320,10 @@ const EditJob = () => {
 
   return (
     <AppLayout>
-      <div className="p-4 md:p-6 bg-gray-50 min-h-full">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        {/* Header */}
+        <div className="sticky top-0 z-20 bg-white">
+          <div className="flex items-center justify-between px-4 pt-2 pb-2 border-b border-gray-200">
             <div className="flex items-center gap-3">
               <Link
                 to="/jobs"
@@ -349,11 +349,15 @@ const EditJob = () => {
               <span>Save Changes</span>
             </button>
           </div>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Job Details Section */}
-            <FormSection title="Job Details" icon={Briefcase}>
-              <FormField label="Job Title">
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col px-4 pb-20 space-y-8">
+          {/* Job Details Section */}
+          <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2"><Briefcase className="w-5 h-5 text-gray-500" /> Job Details</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Job Title</label>
                 <input
                   type="text"
                   name="title"
@@ -363,8 +367,9 @@ const EditJob = () => {
                   placeholder="e.g., Regular House Cleaning"
                   required
                 />
-              </FormField>
-              <FormField label="Service Type">
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Service Type</label>
                 <select
                   name="service_type"
                   value={formData.service_type}
@@ -375,165 +380,175 @@ const EditJob = () => {
                     <option key={type} value={type}>{getServiceTypeDisplay(type)}</option>
                   ))}
                 </select>
-              </FormField>
-              <FormField label="Description">
-                <textarea
-                  name="description"
-                  value={formData.description}
+              </div>
+            </div>
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
+                placeholder="Any specific details about the job..."
+              />
+            </div>
+          </section>
+
+          {/* Client Section */}
+          <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2"><User className="w-5 h-5 text-gray-500" /> Client</h2>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Select Client</label>
+              <select
+                value={selectedClient?.id || ""}
+                onChange={(e) => {
+                  const client = clients.find(c => c.id === e.target.value);
+                  setSelectedClient(client || null);
+                }}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500 bg-white"
+              >
+                <option value="">Select a client</option>
+                {clients.map(client => (
+                  <option key={client.id} value={client.id}>{client.name}</option>
+                ))}
+              </select>
+            </div>
+          </section>
+
+          {/* Schedule & Pricing Section */}
+          <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2"><Calendar className="w-5 h-5 text-gray-500" /> Schedule & Pricing</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Scheduled Date</label>
+                <input
+                  type="date"
+                  name="scheduled_date"
+                  value={formData.scheduled_date}
                   onChange={handleChange}
-                  rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
-                  placeholder="Any specific details about the job..."
+                  required
                 />
-              </FormField>
-            </FormSection>
-
-            {/* Client Section */}
-            <FormSection title="Client" icon={User}>
-              <FormField label="Select Client">
-                <select
-                  value={selectedClient?.id || ""}
-                  onChange={(e) => {
-                    const client = clients.find(c => c.id === e.target.value);
-                    setSelectedClient(client || null);
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500 bg-white"
-                  disabled
-                >
-                  {loadingClients ? (
-                    <option>Loading clients...</option>
-                  ) : (
-                    <>
-                      <option value="" disabled>Select a client</option>
-                      {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                    </>
-                  )}
-                </select>
-              </FormField>
-            </FormSection>
-
-            {/* Schedule & Pricing Section */}
-            <FormSection title="Schedule & Pricing" icon={Calendar}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormField label="Scheduled Date">
-                  <input
-                    type="date"
-                    name="scheduled_date"
-                    value={formData.scheduled_date}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
-                    required
-                  />
-                </FormField>
-                <FormField label="Scheduled Time">
-                  <input
-                    type="time"
-                    name="scheduled_time"
-                    value={formData.scheduled_time}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
-                  />
-                </FormField>
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Scheduled Time</label>
+                <input
+                  type="time"
+                  name="scheduled_time"
+                  value={formData.scheduled_time}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Estimated Duration (minutes)</label>
+                <input
+                  type="number"
+                  name="estimated_duration"
+                  value={formData.estimated_duration}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Estimated Price ($)</label>
+                <input
+                  type="number"
+                  name="estimated_price"
+                  value={formData.estimated_price}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Property Details Section */}
+          <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2"><MapPin className="w-5 h-5 text-gray-500" /> Property Details</h2>
+            <div className="flex items-center gap-2 p-1 bg-gray-100 rounded-lg">
+              <button
+                type="button"
+                onClick={() => setFormData(prev => ({ ...prev, property_type: 'residential' }))}
+                className={`w-full py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  formData.property_type === 'residential' ? 'bg-white shadow-sm text-pulse-600' : 'text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                <Home className="w-4 h-4 inline-block mr-1.5" />
+                Residential
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormData(prev => ({ ...prev, property_type: 'commercial' }))}
+                className={`w-full py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  formData.property_type === 'commercial' ? 'bg-white shadow-sm text-pulse-600' : 'text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                <Building2 className="w-4 h-4 inline-block mr-1.5" />
+                Commercial
+              </button>
+            </div>
+
+            {formData.property_type === 'residential' && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormField label="Estimated Duration (minutes)">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Bedrooms</label>
                   <input
                     type="number"
-                    name="estimated_duration"
-                    value={formData.estimated_duration}
+                    name="number_of_bedrooms"
+                    value={formData.number_of_bedrooms || ""}
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
                   />
-                </FormField>
-                <FormField label="Estimated Price ($)">
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Bathrooms</label>
                   <input
                     type="number"
-                    name="estimated_price"
-                    value={formData.estimated_price}
+                    name="number_of_bathrooms"
+                    value={formData.number_of_bathrooms || ""}
                     onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
                   />
-                </FormField>
+                </div>
               </div>
-            </FormSection>
+            )}
 
-            {/* Property Details Section */}
-            <FormSection title="Property Details" icon={MapPin}>
-              <FormField label="Property Type">
-                <div className="flex items-center gap-2 p-1 bg-gray-100 rounded-lg">
-                  <button
-                    type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, property_type: 'residential' }))}
-                    className={`w-full py-1.5 rounded-md text-sm font-medium transition-colors ${
-                      formData.property_type === 'residential' ? 'bg-white shadow-sm text-pulse-600' : 'text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    <Home className="w-4 h-4 inline-block mr-1.5" />
-                    Residential
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, property_type: 'commercial' }))}
-                    className={`w-full py-1.5 rounded-md text-sm font-medium transition-colors ${
-                      formData.property_type === 'commercial' ? 'bg-white shadow-sm text-pulse-600' : 'text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    <Building2 className="w-4 h-4 inline-block mr-1.5" />
-                    Commercial
-                  </button>
+            {formData.property_type === 'commercial' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Square Footage</label>
+                  <input
+                    type="number"
+                    name="square_footage"
+                    value={formData.square_footage || ""}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
+                  />
                 </div>
-              </FormField>
-
-              {formData.property_type === 'residential' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <FormField label="Bedrooms">
-                    <input
-                      type="number"
-                      name="number_of_bedrooms"
-                      value={formData.number_of_bedrooms || ""}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
-                    />
-                  </FormField>
-                  <FormField label="Bathrooms">
-                    <input
-                      type="number"
-                      name="number_of_bathrooms"
-                      value={formData.number_of_bathrooms || ""}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
-                    />
-                  </FormField>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Floors</label>
+                  <input
+                    type="number"
+                    name="number_of_floors"
+                    value={formData.number_of_floors || ""}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
+                  />
                 </div>
-              )}
+              </div>
+            )}
+          </section>
 
-              {formData.property_type === 'commercial' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <FormField label="Square Footage">
-                    <input
-                      type="number"
-                      name="square_footage"
-                      value={formData.square_footage || ""}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
-                    />
-                  </FormField>
-                  <FormField label="Floors">
-                    <input
-                      type="number"
-                      name="number_of_floors"
-                      value={formData.number_of_floors || ""}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
-                    />
-                  </FormField>
-                </div>
-              )}
-            </FormSection>
-
-            {/* Instructions Section */}
-            <FormSection title="Instructions" icon={FileText}>
-              <FormField label="Address">
+          {/* Instructions Section */}
+          <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2"><FileText className="w-5 h-5 text-gray-500" /> Instructions</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Address</label>
                 <textarea
                   name="address"
                   value={formData.address}
@@ -542,8 +557,9 @@ const EditJob = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
                   placeholder="Enter the full address for the job"
                 />
-              </FormField>
-              <FormField label="Access Instructions">
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Access Instructions</label>
                 <textarea
                   name="access_instructions"
                   value={formData.access_instructions}
@@ -552,32 +568,34 @@ const EditJob = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
                   placeholder="e.g., Key under the mat, gate code #1234"
                 />
-              </FormField>
-              <FormField label="Special Instructions">
-                <textarea
-                  name="special_instructions"
-                  value={formData.special_instructions}
-                  onChange={handleChange}
-                  rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
-                  placeholder="e.g., Pet-friendly cleaning products, focus on kitchen"
-                />
-              </FormField>
-            </FormSection>
-            
-            {/* Recurring Job Section */}
-            <FormSection title="Recurring Job" icon={Repeat}>
-              <RecurringJobPattern
-                pattern={recurringPattern}
-                isRecurring={recurringPattern.is_recurring}
-                frequency={recurringPattern.recurring_frequency}
-                endDate={recurringPattern.recurring_end_date}
-                startDate={formData.scheduled_date}
-                onChange={handleRecurringPatternChange}
+              </div>
+            </div>
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Special Instructions</label>
+              <textarea
+                name="special_instructions"
+                value={formData.special_instructions}
+                onChange={handleChange}
+                rows={2}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
+                placeholder="e.g., Pet-friendly cleaning products, focus on kitchen"
               />
-            </FormSection>
-          </form>
-        </div>
+            </div>
+          </section>
+          
+          {/* Recurring Job Section */}
+          <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2"><Repeat className="w-5 h-5 text-gray-500" /> Recurring Job</h2>
+            <RecurringJobPattern
+              pattern={recurringPattern}
+              isRecurring={recurringPattern.is_recurring}
+              frequency={recurringPattern.recurring_frequency}
+              endDate={recurringPattern.recurring_end_date}
+              startDate={formData.scheduled_date}
+              onChange={handleRecurringPatternChange}
+            />
+          </section>
+        </form>
       </div>
     </AppLayout>
   );
