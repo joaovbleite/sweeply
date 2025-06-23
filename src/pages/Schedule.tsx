@@ -10,6 +10,7 @@ import { useAuth } from '../contexts/AuthContext';
 import ViewOptionsModal, { ViewOptionsState } from '../components/schedule/ViewOptionsModal';
 import MonthSelector from '../components/Calendar/MonthSelector';
 import { AnimatePresence, motion } from 'framer-motion';
+import PageHeader from '../components/ui/PageHeader';
 
 // Add an interface for the HTMLDivElement with scrollTimeout
 interface DivWithScrollTimeout extends HTMLDivElement {
@@ -195,79 +196,36 @@ const Schedule = () => {
     setViewOptions(options);
   };
 
-  // Render week day selector with smooth animations
-  const renderWeekDaySelector = () => {
-    const weekVariants = {
-      enter: (direction: 'left' | 'right') => ({
-        x: direction === 'left' ? '-100%' : '100%',
-        opacity: 0
-      }),
-      center: {
-        x: 0,
-        opacity: 1
-      },
-      exit: (direction: 'left' | 'right') => ({
-        x: direction === 'left' ? '100%' : '-100%',
-        opacity: 0
-      })
-    };
-
+  // Render week day selector with the new design
+  const renderHorizontalDayScroller = () => {
     return (
-      <div className="relative mx-4 mt-4 overflow-hidden">
-        <AnimatePresence initial={false} custom={weekDirection} mode="wait">
-          <motion.div
-            key={format(weekStart, 'yyyy-MM-dd')}
-            custom={weekDirection}
-            variants={weekVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{
-              x: { type: "spring", stiffness: 300, damping: 30 },
-              opacity: { duration: 0.2 }
-            }}
-            className="flex py-2"
-          >
-            {/* Map current week days */}
-            {weekDays.map((day, index) => {
-              const isCurrentDay = isToday(day);
-              const isSelected = isSameDay(day, currentDate);
-              const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-              
-              // Skip weekends if not showing them
-              if (isWeekend && !viewOptions.showWeekends) {
-                return null;
-              }
-              
-              return (
-                <motion.button
-                  key={index}
-                  className={`w-[calc(100%/7)] flex-shrink-0 flex flex-col items-center py-2`}
-                  onClick={() => handleDateSelect(day)}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ duration: 0.1 }}
-                >
-                  <div className="text-sm text-gray-500 uppercase font-medium">
-                    {format(day, 'EEE').charAt(0)}
-                  </div>
-                  <motion.div 
-                    className={`w-10 h-10 flex items-center justify-center rounded-full mt-1 text-lg
-                      ${isSelected ? 'bg-blue-500 text-white' : isCurrentDay ? 'text-blue-500 border-2 border-blue-500' : 'text-gray-800'}`}
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  >
-                    {format(day, 'd')}
-                  </motion.div>
-                </motion.button>
-              );
-            })}
-          </motion.div>
-        </AnimatePresence>
+      <div className="px-4 pb-4 border-b border-gray-200">
+        <div className="flex space-x-2 overflow-x-auto scrollbar-hide">
+          {allWeekDays.map((day, index) => {
+            const isSelected = isSameDay(day, currentDate);
+            return (
+              <button
+                key={index}
+                onClick={() => handleDateSelect(day)}
+                className={`flex flex-col items-center justify-center w-12 h-16 rounded-lg transition-colors flex-shrink-0 ${
+                  isSelected ? 'bg-blue-600 text-white' : 'hover:bg-gray-100'
+                }`}
+              >
+                <span className="text-xs font-medium uppercase">
+                  {format(day, 'EEE')}
+                </span>
+                <span className="text-lg font-bold mt-1">
+                  {format(day, 'd')}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     );
   };
 
-  // Render day view content
+  // Render Day View with updated styling
   const renderDayView = () => {
     if (loading) {
       return (
@@ -325,58 +283,34 @@ const Schedule = () => {
     );
   };
 
-  // Render list view content
+  // Render List View with updated styling
   const renderListView = () => {
-    if (loading) {
-      return (
-        <div className="flex justify-center items-center h-40">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-        </div>
-      );
-    }
-
     if (dayJobs.length === 0) {
       return (
-        <div className="flex flex-col items-center justify-center h-64">
-          <div className="text-dark-900 mb-4">
-            <CalendarIcon className="w-16 h-16 mx-auto" />
-          </div>
-          <p className="text-gray-700 text-lg mb-2 font-medium">No scheduled appointments</p>
-          <Link
-            to="/jobs/new"
-            className="text-blue-500 font-medium flex items-center"
-          >
-            <Plus className="w-4 h-4 mr-1" />
-            Schedule a job
-          </Link>
+        <div className="text-center py-16">
+          <p className="text-gray-500">{t('noJobsScheduled')}</p>
         </div>
       );
     }
 
     return (
-      <div className="px-4">
-        {dayJobs.map(job => (
-          <Link
-            key={job.id}
-            to={`/jobs/${job.id}`}
-            className="block bg-white rounded-lg shadow mb-3 overflow-hidden"
-          >
-            <div className="border-l-4 border-green-600 p-4">
-              <h3 className="font-bold text-gray-900 text-lg">{job.title || 'Untitled Job'}</h3>
-              <p className="text-gray-700 mt-1">{job.service_type || 'Test'}</p>
-              
-              <div className="flex items-center text-gray-600 mt-2">
-                <Clock className="w-4 h-4 mr-1" />
-                <span className="text-sm">{job.scheduled_time ? `${format(new Date(`2000-01-01T${job.scheduled_time}`), 'h:mm a')} - 8:30 PM` : '6:30 PM - 8:30 PM'}</span>
+      <div className="border-t border-gray-200">
+        <div className="flex border-b border-gray-200">
+          <div className="w-24 p-4 border-r border-gray-200">
+            <h3 className="font-semibold text-gray-800">{user?.user_metadata.full_name || 'Me'}</h3>
+            <p className="text-sm text-gray-500 mt-1">{dayJobs.length} appointments</p>
+          </div>
+          <div className="flex-1 relative">
+            {/* This would be a timeline, for now, just list jobs */}
+            {dayJobs.map(job => (
+              <div key={job.id} className="p-4 border-b border-gray-100">
+                 <p className="font-medium">{job.title}</p>
+                 <p className="text-sm text-gray-600">{job.client?.name}</p>
+                 <p className="text-xs text-gray-500 mt-1">{format(new Date(job.scheduled_date), 'p')}</p>
               </div>
-              
-              <div className="flex items-center text-gray-600 mt-1">
-                <MapPin className="w-4 h-4 mr-1" />
-                <span className="text-sm">{job.address || '704 Fairlane Drive'}</span>
-              </div>
-            </div>
-          </Link>
-        ))}
+            ))}
+          </div>
+        </div>
       </div>
     );
   };
@@ -394,52 +328,60 @@ const Schedule = () => {
   
   return (
     <AppLayout>
-      <div className="flex flex-col h-screen bg-white">
-        {/* Header section */}
-        <div className="sticky top-0 z-20 bg-white shadow-sm px-4 pt-4 pb-2">
-          <div className="flex justify-between items-center mb-4">
-            <MonthSelector 
-              currentDate={currentDate} 
-              onDateChange={(date) => setCurrentDate(date)} 
-            />
-            <div className="flex items-center space-x-3">
-              <button onClick={goToToday} className="p-2 rounded-full hover:bg-gray-100">
-                <CalendarIcon className="w-6 h-6 text-gray-600" />
+      <div className="flex flex-col h-full bg-white">
+        <PageHeader
+          title={format(currentDate, 'MMMM yyyy')}
+          rightElement={
+            <div className="flex items-center space-x-2">
+              <button onClick={goToToday} className="p-2">
+                <CalendarIcon className="w-5 h-5 text-gray-600" />
               </button>
-            <motion.button 
-              className="p-2" 
-              onClick={openViewOptionsModal}
-              whileTap={{ scale: 0.9 }}
-              whileHover={{ scale: 1.1 }}
-            >
-              <Settings className="w-6 h-6 text-gray-800" />
-            </motion.button>
+              <button onClick={openViewOptionsModal} className="p-2">
+                <Settings className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+          }
+        />
+        
+        <div className="p-4">
+          {/* Segmented Control Placeholder */}
+          <div className="w-full bg-gray-200 p-1 rounded-lg flex">
+            {['Day', 'List', 'Map'].map(view => (
+              <button 
+                key={view}
+                className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
+                  viewOptions.view === view 
+                    ? 'bg-white text-blue-600 shadow' 
+                    : 'text-gray-600'
+                }`}
+                onClick={() => setViewOptions(prev => ({ ...prev, view: view as 'Day' | 'List' | 'Map' }))}
+              >
+                {view}
+              </button>
+            ))}
           </div>
         </div>
-        </div>
         
-        {/* Week day selector and main content */}
-        <div className="flex-1 overflow-y-auto">
-          {viewOptions.view === 'Day' && renderWeekDaySelector()}
-          
-          <div 
-            className="pb-24" // Add padding to bottom to avoid being hidden by nav bar
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            onWheel={handleWheel}
-          >
-            {loading ? (
-              <div className="flex justify-center items-center h-full pt-16">
-                <p>Loading schedule...</p>
-              </div>
-            ) : (
-              <>
-          {viewOptions.view === 'Day' && renderDayView()}
-          {viewOptions.view === 'List' && renderListView()}
-          {viewOptions.view === 'Map' && renderMapView()}
-              </>
-            )}
+        {renderHorizontalDayScroller()}
+        
+        <div 
+          className="pb-24" // Add padding to bottom to avoid being hidden by nav bar
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onWheel={handleWheel}
+        >
+          {loading ? (
+            <div className="flex justify-center items-center h-full pt-16">
+              <p>Loading schedule...</p>
+            </div>
+          ) : (
+            <div className="flex-1 overflow-y-auto">
+              {viewOptions.view === 'Day' && renderDayView()}
+              {viewOptions.view === 'List' && renderListView()}
+              {viewOptions.view === 'Map' && renderMapView()}
+            </div>
+          )}
         </div>
       </div>
 
@@ -450,7 +392,6 @@ const Schedule = () => {
         onApply={applyViewOptions}
         initialOptions={viewOptions}
       />
-      </div>
     </AppLayout>
   );
 };
