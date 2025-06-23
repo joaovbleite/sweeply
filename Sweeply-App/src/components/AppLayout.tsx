@@ -113,7 +113,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
   ];
 
   return (
-    <div className="h-full min-h-screen bg-white flex flex-col lg:flex-row pt-safe">
+    <div className="h-full min-h-screen bg-white flex flex-col lg:flex-row">
       {/* White background that extends to the top edge of the screen */}
       <div className="fixed inset-0 bg-white -z-10"></div>
       
@@ -234,9 +234,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
       </aside>
 
       {/* Main Content - Separate from bottom navigation */}
-      <div className={`flex-1 flex flex-col min-h-screen max-h-screen overflow-hidden bg-white ${hideBottomNav ? 'pb-safe' : 'pb-24'}`}>
+      <div className={`flex-1 flex flex-col min-h-0 max-h-screen overflow-hidden bg-white ${hideBottomNav ? '' : 'pb-24'}`}>
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto bg-white overscroll-y-contain">
+        <main className="flex-1 overflow-y-auto bg-white overscroll-y-contain pt-safe">
           <div 
             className="page-content-wrapper"
             style={{ 
