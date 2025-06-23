@@ -221,41 +221,86 @@ const Schedule = () => {
       if (isRightSwipe) navigateWeek('prev');
     };
 
+    // Animation direction for Framer Motion
+    const variants = {
+      enter: (direction: 'left' | 'right' | null) => ({
+        x: direction === 'left' ? -60 : direction === 'right' ? 60 : 0,
+        opacity: 0,
+      }),
+      center: {
+        x: 0,
+        opacity: 1,
+        transition: { x: { type: 'spring', stiffness: 300, damping: 30 }, opacity: { duration: 0.2 } },
+      },
+      exit: (direction: 'left' | 'right' | null) => ({
+        x: direction === 'left' ? 60 : direction === 'right' ? -60 : 0,
+        opacity: 0,
+      }),
+    };
+
     return (
-      <div className="px-0 pb-4 border-b border-gray-200">
-        <div
-          className="flex min-w-full overflow-x-auto scrollbar-hide"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          ref={weekRef}
-        >
-          {weekDays.map((day, index) => {
-            const isSelected = isSameDay(day, currentDate);
-            const isDayToday = isToday(day);
-            const dayNumber = format(day, 'd');
-            return (
-              <div key={index} className="flex-1 min-w-[48px] text-center">
-                <button
-                  onClick={() => handleDateSelect(day)}
-                  className={`flex flex-col items-center justify-center w-full transition-colors
-                    ${isSelected
-                      ? 'bg-pulse-600 text-white'
-                      : isDayToday
-                        ? 'border-b-2 border-pulse-600 text-pulse-600 bg-blue-50'
-                        : 'text-gray-800 hover:bg-blue-100'}
-                  `}
-                  style={{ borderRadius: '9999px', height: 48 }}
-                >
-                  <span className={`text-xl font-semibold ${isDayToday && !isSelected ? 'text-pulse-600' : ''}`}>{dayNumber}</span>
-                  {isDayToday && !isSelected && (
-                    <div className="w-1 h-1 bg-pulse-600 rounded-full mt-1"></div>
-                  )}
-                </button>
-              </div>
-            );
-          })}
-        </div>
+      <div className="px-0 pb-4 border-b border-gray-200 relative min-h-[48px]">
+        <AnimatePresence initial={false} custom={weekDirection}>
+          <motion.div
+            key={format(weekDays[0], 'yyyy-MM-dd') + format(weekDays[6], 'yyyy-MM-dd')}
+            className="flex min-w-full overflow-x-auto scrollbar-hide relative"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            ref={weekRef}
+            custom={weekDirection}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.32, ease: [0.4, 0, 0.2, 1] }}
+            style={{ minHeight: 48 }}
+          >
+            {weekDays.map((day, index) => {
+              const isSelected = isSameDay(day, currentDate);
+              const isDayToday = isToday(day);
+              const dayNumber = format(day, 'd');
+              return (
+                <div key={index} className="flex-1 min-w-[40px] text-center">
+                  <button
+                    onClick={() => handleDateSelect(day)}
+                    className={`flex flex-col items-center justify-center w-full transition-colors select-none focus:outline-none"
+                      ${isSelected
+                        ? 'bg-blue-600 text-white'
+                        : isDayToday
+                          ? 'border-b-2 border-blue-600 text-blue-600 bg-blue-50'
+                          : 'text-gray-800 hover:bg-blue-100'}
+                    `}
+                    style={{ borderRadius: '9999px', height: 40, padding: 0 }}
+                  >
+                    {/* Day number with smaller circle */}
+                    <span
+                      className={`inline-flex items-center justify-center font-semibold mb-0.5 ${isSelected ? 'bg-blue-600 text-white' : isDayToday ? 'bg-blue-100 text-blue-600' : 'bg-transparent text-gray-800'}"
+                        ${isSelected || isDayToday ? 'shadow-sm' : ''}`}
+                      style={{
+                        fontSize: 15,
+                        width: 28,
+                        height: 28,
+                        borderRadius: '50%',
+                        marginBottom: 2,
+                        marginTop: 2,
+                        background: isSelected ? '#2563eb' : isDayToday ? '#e0edff' : 'transparent',
+                        color: isSelected ? '#fff' : isDayToday ? '#2563eb' : '#222',
+                        transition: 'background 0.2s, color 0.2s',
+                      }}
+                    >
+                      {dayNumber}
+                    </span>
+                    {/* Today dot indicator, only if not selected */}
+                    {isDayToday && !isSelected && (
+                      <div className="w-1 h-1 bg-blue-600 rounded-full mt-0.5"></div>
+                    )}
+                  </button>
+                </div>
+              );
+            })}
+          </motion.div>
+        </AnimatePresence>
       </div>
     );
   };
@@ -360,17 +405,17 @@ const Schedule = () => {
     }
 
     return (
-      <div className="bg-[#f8f8f6] p-4 flex-1">
+      <div className="bg-[#f8f8f6] p-4 flex-1 min-h-0 min-h-full">
         <div className="flex items-center justify-between mb-2">
           <div className="text-lg font-semibold text-gray-800">
             {user?.user_metadata?.full_name || 'Joao'}
           </div>
           <div className="text-sm font-medium text-gray-500">
-            {`0/${dayJobs.length}`}
+            {`0/${dayJobs?.length || 0}`}
           </div>
         </div>
         
-        {dayJobs.map(job => (
+        {(dayJobs || []).map(job => (
           <Link 
             key={job.id} 
             to={`/jobs/${job.id}`}
