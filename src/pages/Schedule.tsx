@@ -330,64 +330,58 @@ const Schedule = () => {
   
   return (
     <AppLayout>
-      <div className="flex flex-col h-full bg-white">
-        <PageHeader
-          title={format(currentDate, 'MMMM yyyy')}
-          rightElement={
-            <div className="flex items-center space-x-2">
-              <button onClick={goToToday} className="p-2">
-                <CalendarIcon className="w-5 h-5 text-gray-600" />
-              </button>
-              <button onClick={openViewOptionsModal} className="p-2">
-                <Settings className="w-5 h-5 text-gray-600" />
-              </button>
-            </div>
-          }
-          compact
-        />
-        
-        <div className="p-4">
-          {/* Segmented Control Placeholder */}
-          <div className="w-full bg-gray-200 p-1 rounded-lg flex">
-            {['Day', 'List', 'Map'].map(view => (
-              <button 
-                key={view}
-                className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
-                  viewOptions.view === view 
-                    ? 'bg-white text-blue-600 shadow' 
-                    : 'text-gray-600'
-                }`}
-                onClick={() => setViewOptions(prev => ({ ...prev, view: view as 'Day' | 'List' | 'Map' }))}
-              >
-                {view}
-              </button>
-            ))}
+      <PageHeader
+        title={format(currentDate, 'MMMM yyyy')}
+        rightElement={
+          <div className="flex items-center space-x-2">
+            <button onClick={goToToday} className="p-2">
+              <CalendarIcon className="w-5 h-5 text-gray-600" />
+            </button>
+            <button onClick={openViewOptionsModal} className="p-2">
+              <Settings className="w-5 h-5 text-gray-600" />
+            </button>
           </div>
-        </div>
-        
-        {renderHorizontalDayScroller()}
-        
-        <div 
-          className="pb-24" // Add padding to bottom to avoid being hidden by nav bar
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          onWheel={handleWheel}
-        >
-          {loading ? (
-            <div className="flex justify-center items-center h-full pt-16">
-              <p>Loading schedule...</p>
-            </div>
-          ) : (
-            <div className="flex-1 overflow-y-auto">
-              {viewOptions.view === 'Day' && renderDayView()}
-              {viewOptions.view === 'List' && renderListView()}
-              {viewOptions.view === 'Map' && renderMapView()}
-            </div>
-          )}
+        }
+        compact
+      />
+      <div className="p-4">
+        {/* Segmented Control Placeholder */}
+        <div className="w-full bg-gray-200 p-1 rounded-lg flex">
+          {['Day', 'List', 'Map'].map(view => (
+            <button 
+              key={view}
+              className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
+                viewOptions.view === view 
+                  ? 'bg-white text-blue-600 shadow' 
+                  : 'text-gray-600'
+              }`}
+              onClick={() => setViewOptions(prev => ({ ...prev, view: view as 'Day' | 'List' | 'Map' }))}
+            >
+              {view}
+            </button>
+          ))}
         </div>
       </div>
-
+      {renderHorizontalDayScroller()}
+      <div 
+        className="pb-24"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onWheel={handleWheel}
+      >
+        {loading ? (
+          <div className="flex justify-center items-center h-full pt-16">
+            <p>Loading schedule...</p>
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto">
+            {viewOptions.view === 'Day' && renderDayView()}
+            {viewOptions.view === 'List' && renderListView()}
+            {viewOptions.view === 'Map' && renderMapView()}
+          </div>
+        )}
+      </div>
       {/* View Options Modal */}
       <ViewOptionsModal
         isOpen={isViewOptionsModalOpen}
