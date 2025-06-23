@@ -12,8 +12,8 @@ const TodayScheduleSlider: React.FC<TodayScheduleSliderProps> = ({ hasJobs }) =>
   const sliderRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="mb-6">
-      <div className="flex justify-between items-center mb-4">
+    <div className="-mt-12">
+      <div className="flex justify-between items-center mb-4 px-4">
         <h3 className="text-xl font-bold text-gray-900 pt-1.5">{t('dashboard:todaysSchedule')}</h3>
         <Link 
           to="/calendar" 
