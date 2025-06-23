@@ -208,10 +208,12 @@ const Schedule = () => {
                 key={index}
                 onClick={() => handleDateSelect(day)}
                 className={`flex flex-col items-center justify-center w-12 h-16 rounded-lg transition-colors flex-shrink-0 ${
-                  isSelected ? 'bg-blue-600 text-white' : 'hover:bg-gray-100'
+                  isSelected 
+                    ? 'bg-blue-600 text-white' 
+                    : 'hover:bg-gray-100 text-gray-800 font-semibold'
                 }`}
               >
-                <span className="text-xs font-medium uppercase">
+                <span className="text-xs font-semibold uppercase">
                   {format(day, 'EEE')}
                 </span>
                 <span className="text-lg font-bold mt-1">
@@ -341,6 +343,7 @@ const Schedule = () => {
               </button>
             </div>
           }
+          compact
         />
         
         <div className="p-4">
