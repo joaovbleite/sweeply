@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, Mail, Phone, MapPin, Building, List, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
-import { clientsApi } from "@/lib/api/clients";
-import { CreateClientInput } from "@/types/client";
-import AppLayout from "@/components/AppLayout";
-import PageHeader from "@/components/ui/PageHeader";
+import { clientsApi } from "../../../src/lib/api/clients";
+import { CreateClientInput } from "../../../src/types/client";
+import AppLayout from "../components/AppLayout";
+import PageHeader from "../../../src/components/ui/PageHeader";
+import AddressFormSection from "../components/forms/AddressFormSection";
 
 const AddClient = () => {
   const navigate = useNavigate();
@@ -29,11 +30,17 @@ const AddClient = () => {
   const [showLabelDropdown, setShowLabelDropdown] = useState(false);
   const phoneLabels = ["Main", "Work", "Mobile", "Home", "Fax", "Other"];
   
+  // Address form fields
+  const [addressLine2, setAddressLine2] = useState("");
+  const [country, setCountry] = useState("United States");
+  const [billingMatchesProperty, setBillingMatchesProperty] = useState(true);
+  
   // Track which fields are currently being edited
   const [companyExpanded, setCompanyExpanded] = useState<boolean>(false);
   const [phoneExpanded, setPhoneExpanded] = useState<boolean>(false);
   const [emailExpanded, setEmailExpanded] = useState<boolean>(false);
   const [leadSourceExpanded, setLeadSourceExpanded] = useState<boolean>(false);
+  const [addressFormExpanded, setAddressFormExpanded] = useState<boolean>(false);
 
   const handleInputChange = (field: string, value: string) => {
     if (field === "firstName") {
@@ -75,6 +82,33 @@ const AddClient = () => {
         ...prev,
         preferences: value
       }));
+    } else if (field === "addressLine2") {
+      setAddressLine2(value);
+    } else if (field === "zipCode") {
+      setFormData(prev => ({
+        ...prev,
+        zip: value
+      }));
+    } else if (field === "country") {
+      setCountry(value);
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    }
+  };
+
+  const handleAddressChange = (field: string, value: string) => {
+    if (field === "addressLine2") {
+      setAddressLine2(value);
+    } else if (field === "zipCode") {
+      setFormData(prev => ({
+        ...prev,
+        zip: value
+      }));
+    } else if (field === "country") {
+      setCountry(value);
     } else {
       setFormData(prev => ({
         ...prev,
@@ -329,16 +363,32 @@ const AddClient = () => {
               )}
             </div>
 
-            {/* Property Address - always shown as input */}
-            <div className="flex items-center gap-3">
-              <MapPin className="w-5 h-5 text-gray-500" />
-              <input
-                type="text"
-                placeholder="Property address"
-                value={formData.address || ""}
-                onChange={(e) => handleInputChange("address", e.target.value)}
-                className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-900"
-              />
+            {/* Property Address section */}
+            <div className="flex items-start gap-3">
+              <MapPin className="w-5 h-5 text-gray-500 mt-5" />
+              <div className="flex-1">
+                {addressFormExpanded ? (
+                  <AddressFormSection 
+                    address={formData.address}
+                    addressLine2={addressLine2}
+                    city={formData.city}
+                    state={formData.state}
+                    zipCode={formData.zip}
+                    country={country}
+                    onAddressChange={handleAddressChange}
+                    billingMatchesProperty={billingMatchesProperty}
+                    onBillingMatchesPropertyChange={setBillingMatchesProperty}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    placeholder="Property address"
+                    value={formData.address}
+                    onClick={() => setAddressFormExpanded(true)}
+                    className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-900"
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>
