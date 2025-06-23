@@ -43,7 +43,11 @@ const AddJob = () => {
     jobTitle: "",
     instructions: "",
     salesperson: "victor leite",
-    subtotal: 0
+    subtotal: 0,
+    startTime: '',
+    endTime: '',
+    arrivalWindow: '',
+    repeating: 'none',
   });
 
   // Load clients on component mount
@@ -524,10 +528,10 @@ const AddJob = () => {
           </div>
 
           {/* Calendar grid */}
-          <div className="grid grid-cols-7 gap-y-4 text-center">
+          <div className="grid grid-cols-7 gap-y-4 text-center mb-4">
             {generateCalendarDays().map((day, index) => (
               <div key={index} className="relative">
-            <button 
+                <button 
                   onClick={() => day.currentMonth && handleDaySelect(day.day)}
                   className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto ${
                     day.currentMonth 
@@ -537,12 +541,64 @@ const AddJob = () => {
                       : 'text-gray-500 bg-gray-100'
                   } ${!day.currentMonth && !day.prevMonth ? 'bg-gray-100' : ''}`}
                   disabled={!day.currentMonth}
-            >
+                >
                   {day.day}
-            </button>
+                </button>
               </div>
             ))}
           </div>
+
+          {/* Show time and repeat fields only if a date is selected */}
+          {selectedDate && (
+            <div className="space-y-4 mb-8">
+              {/* Start time and End time */}
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <label className="block text-gray-700 font-medium mb-1">Start time</label>
+                  <input
+                    type="time"
+                    value={formData.startTime}
+                    onChange={e => handleInputChange('startTime', e.target.value)}
+                    className="w-full border rounded-lg px-3 py-2"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-gray-700 font-medium mb-1">End time</label>
+                  <input
+                    type="time"
+                    value={formData.endTime}
+                    onChange={e => handleInputChange('endTime', e.target.value)}
+                    className="w-full border rounded-lg px-3 py-2"
+                  />
+                </div>
+              </div>
+              {/* Arrival window */}
+              <div>
+                <label className="block text-gray-700 font-medium mb-1">Arrival window</label>
+                <input
+                  type="text"
+                  value={formData.arrivalWindow || ''}
+                  onChange={e => handleInputChange('arrivalWindow', e.target.value)}
+                  className="w-full border rounded-lg px-3 py-2"
+                  placeholder="e.g. 30 min"
+                />
+              </div>
+              {/* Repeating */}
+              <div>
+                <label className="block text-gray-700 font-medium mb-1">Repeating</label>
+                <select
+                  value={formData.repeating || 'none'}
+                  onChange={e => handleInputChange('repeating', e.target.value)}
+                  className="w-full border rounded-lg px-3 py-2"
+                >
+                  <option value="none">Does not repeat</option>
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Separator */}
