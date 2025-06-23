@@ -49,24 +49,30 @@ const GettingStartedTodo = () => {
       <h2 className="text-xl font-bold text-gray-900 mb-3">{t('dashboard:todo')}</h2>
       
       <div className="space-y-1.5 rounded-lg overflow-hidden shadow-sm">
-        {todoItems.map((item) => (
-          <Link 
-            key={item.id}
-            to={item.link}
-            className="flex items-center justify-between p-4 bg-white hover:bg-gray-50 transition-colors"
-            onClick={(e) => handleItemClick(item.id, e)}
-          >
-            <div className="flex items-start space-x-3">
-              <div className={`p-2 rounded-full ${item.color}`}>
-                <item.icon className="w-5 h-5" />
+        {todoItems.map((item, index) => (
+          <React.Fragment key={item.id}>
+            <Link 
+              to={item.link}
+              className="flex items-center justify-between p-4 bg-white hover:bg-gray-50 transition-colors"
+              onClick={(e) => handleItemClick(item.id, e)}
+            >
+              <div className="flex items-start space-x-3">
+                <div className={`p-2 rounded-full ${item.color}`}>
+                  <item.icon className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-medium text-gray-900">{item.title}</h3>
+                  <p className="text-xs text-gray-600">{item.description}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-base font-medium text-gray-900">{item.title}</h3>
-                <p className="text-xs text-gray-600">{item.description}</p>
+              <ChevronRight className="w-4 h-4 text-blue-600 flex-shrink-0" />
+            </Link>
+            {(item.id === 'create-quote' || item.id === 'add-client') && (
+              <div className="bg-white px-4">
+                <div className="h-px bg-gray-200"></div>
               </div>
-            </div>
-            <ChevronRight className="w-4 h-4 text-blue-600 flex-shrink-0" />
-          </Link>
+            )}
+          </React.Fragment>
         ))}
       </div>
 
