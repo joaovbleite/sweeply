@@ -182,7 +182,7 @@ const BottomNavBar: React.FC = () => {
       <nav 
         className="fixed left-0 right-0 h-[72px] bg-[#F8F7F3] border-t border-[#EAEAEA] flex items-center justify-around px-4 z-30 shadow-sm"
         style={{
-          bottom: '32px',
+          bottom: '64px',
           paddingBottom: '8px',
           borderRadius: '12px',
           margin: '0 16px',
