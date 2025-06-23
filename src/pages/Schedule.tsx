@@ -200,44 +200,62 @@ const Schedule = () => {
   const renderHorizontalDayScroller = () => {
     return (
       <div className="px-4 pb-4 border-b border-gray-200">
-        {/* Day/Week/Month headers */}
-        <div className="grid grid-cols-7 text-center mb-2">
-          <div className="text-sm text-gray-500 font-medium">S</div>
-          <div className="text-sm text-gray-500 font-medium">M</div>
-          <div className="text-sm text-gray-500 font-medium">T</div>
-          <div className="text-sm text-gray-500 font-medium">W</div>
-          <div className="text-sm text-gray-500 font-medium">T</div>
-          <div className="text-sm text-gray-500 font-medium">F</div>
-          <div className="text-sm text-gray-500 font-medium">S</div>
-        </div>
-        
-        {/* Day numbers */}
-        <div className="grid grid-cols-7 text-center">
-          {weekDays.map((day, index) => {
-            const isSelected = isSameDay(day, currentDate);
-            const isToday = isSameDay(day, new Date());
-            return (
-              <button
-                key={index}
-                onClick={() => handleDateSelect(day)}
-                className={`flex flex-col items-center justify-center h-12`}
-              >
-                <div 
-                  className={`flex items-center justify-center w-10 h-10 rounded-full ${
-                    isSelected 
-                      ? 'bg-green-600 text-white' 
-                      : isToday
-                        ? 'bg-gray-200 text-gray-800'
-                        : 'text-gray-800'
-                  }`}
-                >
-                  <span className={`text-xl font-medium`}>
-                    {format(day, 'd')}
-                  </span>
+        {/* Day/Week/Month headers - Horizontal scrollable area */}
+        <div 
+          className="overflow-x-auto scrollbar-hide pb-2"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          ref={weekDaysRef}
+        >
+          <div className="flex min-w-max">
+            {/* Day initials */}
+            <div className="grid grid-cols-7 text-center mb-2 min-w-full">
+              <div className="text-sm text-gray-500 font-medium">S</div>
+              <div className="text-sm text-gray-500 font-medium">M</div>
+              <div className="text-sm text-gray-500 font-medium">T</div>
+              <div className="text-sm text-gray-500 font-medium">W</div>
+              <div className="text-sm text-gray-500 font-medium">T</div>
+              <div className="text-sm text-gray-500 font-medium">F</div>
+              <div className="text-sm text-gray-500 font-medium">S</div>
+            </div>
+          </div>
+          
+          {/* Day numbers - Horizontally scrollable */}
+          <div className="flex min-w-max">
+            {allWeekDays.map((day, index) => {
+              const isSelected = isSameDay(day, currentDate);
+              const isDayToday = isToday(day);
+              const dayNumber = format(day, 'd');
+              
+              return (
+                <div key={index} className="flex-1 min-w-[50px] text-center">
+                  <button
+                    onClick={() => handleDateSelect(day, index)}
+                    className="flex flex-col items-center justify-center w-full"
+                  >
+                    <div 
+                      className={`flex items-center justify-center w-10 h-10 rounded-full 
+                        ${isSelected 
+                          ? 'bg-green-600 text-white' 
+                          : isDayToday
+                            ? 'border-b-2 border-green-600 text-gray-800'
+                            : 'text-gray-800'
+                        }
+                      `}
+                    >
+                      <span className={`text-xl font-medium ${isDayToday && !isSelected ? 'text-green-600' : ''}`}>
+                        {dayNumber}
+                      </span>
+                    </div>
+                    {isDayToday && !isSelected && (
+                      <div className="w-1 h-1 bg-green-600 rounded-full mt-1"></div>
+                    )}
+                  </button>
                 </div>
-              </button>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     );
@@ -394,21 +412,37 @@ const Schedule = () => {
   
   return (
     <AppLayout>
+      {/* Page Header */}
       <PageHeader
-        title="Schedule"
+        title={t('calendar:schedule')}
         rightElement={
-          <div className="flex items-center space-x-2">
-            <button onClick={goToToday} className="p-2">
-              <CalendarIcon className="w-5 h-5 text-gray-600" />
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={goToToday}
+              className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+            >
+              {t('calendar:today')}
             </button>
-            <button onClick={openViewOptionsModal} className="p-2">
-              <Settings className="w-5 h-5 text-gray-600" />
+            <button
+              onClick={openViewOptionsModal}
+              className="p-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+              aria-label={t('calendar:settings')}
+            >
+              <Settings className="w-4 h-4" />
             </button>
           </div>
         }
       />
-      <div className="p-4">
-        {/* Segmented Control */}
+
+      {/* Month/Year display */}
+      <div className="px-4 py-2 text-center">
+        <h2 className="text-lg font-medium text-gray-700">
+          {format(currentDate, 'MMMM yyyy')}
+        </h2>
+      </div>
+
+      {/* View selector tabs */}
+      <div className="px-4 py-2">
         <div className="w-full bg-gray-100 p-1 rounded-full flex">
           {['Day', 'List', 'Map'].map(view => (
             <button 
@@ -425,26 +459,20 @@ const Schedule = () => {
           ))}
         </div>
       </div>
-      {renderHorizontalDayScroller()}
-      <div 
-        className="pb-24 flex flex-col flex-1"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onWheel={handleWheel}
-      >
-        {loading ? (
-          <div className="flex justify-center items-center h-full pt-16">
-            <p>Loading schedule...</p>
-          </div>
-        ) : (
-          <div className="flex-1 h-full overflow-hidden">
-            {viewOptions.view === 'Day' && renderDayView()}
-            {viewOptions.view === 'List' && renderListView()}
-            {viewOptions.view === 'Map' && renderMapView()}
-          </div>
-        )}
+
+      {/* Calendar View */}
+      <div className="flex-1 flex flex-col">
+        {/* Render the horizontal day scroller */}
+        {renderHorizontalDayScroller()}
+
+        {/* Render the appropriate view based on viewOptions */}
+        <div className="flex-1 overflow-y-auto">
+          {viewOptions.view === 'Day' && renderDayView()}
+          {viewOptions.view === 'List' && renderListView()}
+          {viewOptions.view === 'Map' && renderMapView()}
+        </div>
       </div>
+
       {/* View Options Modal */}
       <ViewOptionsModal
         isOpen={isViewOptionsModalOpen}
