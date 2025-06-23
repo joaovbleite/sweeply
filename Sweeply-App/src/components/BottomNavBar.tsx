@@ -25,7 +25,7 @@ const BottomNavBar: React.FC = () => {
   const navItems = [
     { id: "home", label: "Home", icon: Home, path: "/dashboard" },
     { id: "schedule", label: "Schedule", icon: Calendar, path: "/schedule" },
-    { id: "timesheet", label: "Timesheet", icon: Clock, path: "/timesheet" },
+    { id: "add", label: "", icon: Plus, path: "#", action: () => setIsMenuOpen(!isMenuOpen) },
     { id: "search", label: "Search", icon: Search, path: "/search" },
     { id: "more", label: "More", icon: MoreHorizontal, path: "/more" }
   ];
@@ -89,20 +89,53 @@ const BottomNavBar: React.FC = () => {
         </div>
       </div>
 
-      {/* Flat Bottom Nav Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex items-center justify-around z-50 px-2 py-2">
-        {navItems.map(item => {
+      {/* Bottom Navigation Bar - Fixed at bottom */}
+      <nav 
+        className="fixed left-0 right-0 h-[72px] bg-[#F8F7F3] border-t border-[#EAEAEA] flex items-center justify-around px-4 z-30 shadow-sm"
+        style={{
+          bottom: '32px',
+          paddingBottom: '8px',
+          borderRadius: '12px',
+          margin: '0 16px',
+          width: 'calc(100% - 32px)'
+        }}
+      >
+        {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname.startsWith(item.path || '___');
+          
+          if (item.id === "add") {
+            return (
+              <button
+                key={item.id}
+                onClick={item.action}
+                className="flex flex-col items-center justify-center bg-[#0F2B28] w-12 h-12 rounded-full -mt-4"
+              >
+                <Icon 
+                  className="w-6 h-6 text-white" 
+                  strokeWidth={2}
+                  fill="none"
+                />
+              </button>
+            );
+          }
           
           return (
             <Link
               key={item.id}
               to={item.path || '#'}
-              className="flex flex-col items-center justify-center text-xs font-medium transition-colors"
+              className="flex flex-col items-center justify-center"
             >
-              <Icon className={`w-6 h-6 mb-1 ${isActive ? 'text-blue-600' : 'text-gray-700'}`} />
-              <span className={`${isActive ? 'text-blue-600' : 'text-gray-700'}`}>{item.label}</span>
+              <Icon 
+                className={`w-6 h-6 mb-1 ${isActive ? 'text-[#0F2B28]' : 'text-[#4A5D5A]'}`} 
+                strokeWidth={2}
+                fill="none"
+              />
+              <span 
+                className={`text-xs font-medium ${isActive ? 'text-[#0F2B28]' : 'text-[#4A5D5A]'}`}
+              >
+                {item.label}
+              </span>
             </Link>
           );
         })}

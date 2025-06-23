@@ -200,25 +200,41 @@ const Schedule = () => {
   const renderHorizontalDayScroller = () => {
     return (
       <div className="px-4 pb-4 border-b border-gray-200">
-        <div className="flex space-x-2 overflow-x-auto scrollbar-hide">
-          {allWeekDays.map((day, index) => {
+        {/* Day/Week/Month headers */}
+        <div className="grid grid-cols-7 text-center mb-2">
+          <div className="text-sm text-gray-500 font-medium">S</div>
+          <div className="text-sm text-gray-500 font-medium">M</div>
+          <div className="text-sm text-gray-500 font-medium">T</div>
+          <div className="text-sm text-gray-500 font-medium">W</div>
+          <div className="text-sm text-gray-500 font-medium">T</div>
+          <div className="text-sm text-gray-500 font-medium">F</div>
+          <div className="text-sm text-gray-500 font-medium">S</div>
+        </div>
+        
+        {/* Day numbers */}
+        <div className="grid grid-cols-7 text-center">
+          {weekDays.map((day, index) => {
             const isSelected = isSameDay(day, currentDate);
+            const isToday = isSameDay(day, new Date());
             return (
               <button
                 key={index}
                 onClick={() => handleDateSelect(day)}
-                className={`flex flex-col items-center justify-center w-12 h-16 rounded-lg transition-colors flex-shrink-0 ${
-                  isSelected 
-                    ? 'bg-blue-600 text-white' 
-                    : 'hover:bg-gray-100 text-gray-800 font-semibold'
-                }`}
+                className={`flex flex-col items-center justify-center h-12`}
               >
-                <span className="text-xs font-semibold uppercase">
-                  {format(day, 'EEE')}
-                </span>
-                <span className="text-lg font-bold mt-1">
-                  {format(day, 'd')}
-                </span>
+                <div 
+                  className={`flex items-center justify-center w-10 h-10 rounded-full ${
+                    isSelected 
+                      ? 'bg-green-600 text-white' 
+                      : isToday
+                        ? 'bg-gray-200 text-gray-800'
+                        : 'text-gray-800'
+                  }`}
+                >
+                  <span className={`text-xl font-medium`}>
+                    {format(day, 'd')}
+                  </span>
+                </div>
               </button>
             );
           })}
@@ -229,58 +245,79 @@ const Schedule = () => {
 
   // Render Day View with updated styling
   const renderDayView = () => {
-    if (loading) {
-      return (
-        <div className="flex justify-center items-center h-40">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-        </div>
-      );
-    }
-
-    if (dayJobs.length === 0) {
-      return (
-        <div className="flex flex-col items-center justify-center h-64">
-          <div className="text-dark-900 mb-4">
-            <CalendarIcon className="w-16 h-16 mx-auto" />
-          </div>
-          <p className="text-gray-700 text-lg mb-2 font-medium">No scheduled appointments</p>
-          <Link
-            to="/jobs/new"
-            className="text-blue-500 font-medium flex items-center"
-          >
-            <Plus className="w-4 h-4 mr-1" />
-            Schedule a job
-          </Link>
-        </div>
-      );
-    }
-
+    // Generate hours from 7 AM to 10 PM
+    const hours = Array.from({ length: 16 }, (_, i) => i + 7);
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    
+    // Calculate position for current time indicator
+    const currentTimePosition = ((currentHour * 60 + currentMinute) - (7 * 60)) / (16 * 60) * 100;
+    
     return (
-      <div className="px-4">
-        {dayJobs.map(job => (
-          <Link
-            key={job.id}
-            to={`/jobs/${job.id}`}
-            className="block bg-white rounded-lg shadow mb-3 overflow-hidden"
-          >
-            <div className="border-l-4 border-blue-500 p-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="font-bold text-gray-900">{job.client?.name || 'Unknown Client'}</h3>
-                  <p className="text-sm text-gray-600 mt-1">{job.address || 'No address'}</p>
+      <div className="flex flex-col h-full">
+        {/* User row */}
+        <div className="flex items-center p-4 border-b border-gray-200 bg-white sticky top-0 z-10">
+          <div className="text-lg font-semibold text-gray-800">
+            {user?.user_metadata?.full_name || 'Joao'}
+          </div>
+          <div className="ml-auto text-sm font-medium text-gray-500">
+            0/1
+          </div>
+        </div>
+        
+        {/* Scrollable hours container */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="relative">
+            {/* Current time indicator */}
+            {isToday(currentDate) && (
+              <div 
+                className="absolute left-0 right-0 z-10 flex items-center pointer-events-none"
+                style={{ top: `${currentTimePosition}%` }}
+              >
+                <div className="w-2 h-2 rounded-full bg-blue-500 ml-4"></div>
+                <div className="h-0.5 bg-blue-500 flex-1"></div>
+              </div>
+            )}
+            
+            {/* Hours */}
+            {hours.map((hour) => (
+              <div key={hour} className="flex border-t border-gray-200 first:border-t-0">
+                {/* Time column */}
+                <div className="w-16 py-6 px-2 text-right text-gray-600 font-medium">
+                  {hour === 12 ? '12 PM' : hour > 12 ? `${hour - 12} PM` : `${hour} AM`}
                 </div>
-                <div className="text-right">
-                  <div className="text-sm font-medium">
-                    {job.scheduled_time ? format(new Date(`2000-01-01T${job.scheduled_time}`), 'h:mm a') : 'No time'}
-                  </div>
-                  <div className="text-sm text-blue-500 font-medium mt-1">
-                    ${job.estimated_price || 0}
-                  </div>
+                
+                {/* Content column */}
+                <div className="flex-1 min-h-[80px]">
+                  {dayJobs.filter(job => {
+                    if (!job.scheduled_date) return false;
+                    const jobDate = new Date(job.scheduled_date);
+                    return jobDate.getHours() === hour;
+                  }).map((job) => (
+                    <Link 
+                      key={job.id} 
+                      to={`/jobs/${job.id}`}
+                      className="block bg-blue-100 border-l-4 border-blue-500 p-2 m-1 rounded"
+                    >
+                      <div className="font-medium text-blue-800">{job.client?.name}</div>
+                      <div className="text-sm text-gray-600 flex items-center mt-1">
+                        <Clock className="w-3 h-3 mr-1" />
+                        {format(new Date(job.scheduled_date), 'h:mm a')}
+                      </div>
+                      {job.address && (
+                        <div className="text-sm text-gray-600 flex items-center mt-1">
+                          <MapPin className="w-3 h-3 mr-1" />
+                          {job.address.split(',')[0]}
+                        </div>
+                      )}
+                    </Link>
+                  ))}
                 </div>
               </div>
-            </div>
-          </Link>
-        ))}
+            ))}
+          </div>
+        </div>
       </div>
     );
   };
@@ -331,7 +368,7 @@ const Schedule = () => {
   return (
     <AppLayout>
       <PageHeader
-        title={format(currentDate, 'MMMM yyyy')}
+        title="Schedule"
         rightElement={
           <div className="flex items-center space-x-2">
             <button onClick={goToToday} className="p-2">
@@ -342,15 +379,14 @@ const Schedule = () => {
             </button>
           </div>
         }
-        compact
       />
       <div className="p-4">
-        {/* Segmented Control Placeholder */}
-        <div className="w-full bg-gray-200 p-1 rounded-lg flex">
+        {/* Segmented Control */}
+        <div className="w-full bg-gray-100 p-1 rounded-full flex">
           {['Day', 'List', 'Map'].map(view => (
             <button 
               key={view}
-              className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${
+              className={`flex-1 py-2 text-sm font-medium rounded-full transition-colors ${
                 viewOptions.view === view 
                   ? 'bg-white text-blue-600 shadow' 
                   : 'text-gray-600'
@@ -364,7 +400,7 @@ const Schedule = () => {
       </div>
       {renderHorizontalDayScroller()}
       <div 
-        className="pb-24"
+        className="pb-24 flex flex-col flex-1"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -375,7 +411,7 @@ const Schedule = () => {
             <p>Loading schedule...</p>
           </div>
         ) : (
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 h-full overflow-hidden">
             {viewOptions.view === 'Day' && renderDayView()}
             {viewOptions.view === 'List' && renderListView()}
             {viewOptions.view === 'Map' && renderMapView()}
