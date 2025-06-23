@@ -188,10 +188,10 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
           attributionControl: false,
           preserveDrawingBuffer: true,
           antialias: true,
-          dragPan: false,
+          dragPan: true,
           dragRotate: false,
-          touchZoomRotate: false,
-          doubleClickZoom: true,
+          touchZoomRotate: true,
+          doubleClickZoom: false,
           scrollZoom: true,
           boxZoom: true,
           keyboard: false
