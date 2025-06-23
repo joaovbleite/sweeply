@@ -204,13 +204,6 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
           mapContainer.current.style.display = 'block';
         }
         
-        // Add navigation controls (only zoom, no compass)
-        const navControl = new mapboxgl.NavigationControl({
-          showCompass: false,
-          showZoom: true
-        });
-        mapInstance.current.addControl(navControl, 'top-right');
-        
         // Add map load event handler
         mapInstance.current.on('load', () => {
           console.log('Map loaded successfully');
@@ -388,13 +381,6 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
               Reload
             </button>
           </div>
-        </div>
-      )}
-      
-      {/* Job count badge */}
-      {geocodedJobs.length > 0 && isMapLoaded && (
-        <div className="absolute top-2 left-2 bg-white rounded-full px-3 py-1 text-xs font-medium shadow-sm border border-gray-100 z-20">
-          {geocodedJobs.length} {geocodedJobs.length === 1 ? 'job' : 'jobs'} on map
         </div>
       )}
     </div>

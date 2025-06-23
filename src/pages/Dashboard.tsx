@@ -288,15 +288,7 @@ const Dashboard = () => {
           <>
             {/* Today's Job Map for Mobile */}
             <div className="mt-3 sm:mt-5 md:mt-6 -mx-3 sm:-mx-4 md:-mx-6">
-              <div className="mb-2 sm:mb-3 flex justify-between items-center px-3 sm:px-4 md:px-6">
-                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">
-                  {todaysJobsOnMapCount} {todaysJobsOnMapCount === 1 ? 'job' : 'jobs'} on map
-                </h3>
-                <Link to="/calendar" className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium flex items-center gap-1">
-                  View Calendar <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
-                </Link>
-              </div>
-              <div className="relative mt-2 sm:mt-3 overflow-hidden" style={{ height: '350px' }}>
+              <div className="relative overflow-hidden" style={{ height: '350px' }}>
                 <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white to-transparent z-10 pointer-events-none"></div>
                 <Suspense fallback={<div id="map-loading" className="flex items-center justify-center h-full"><p>Loading map...</p></div>}>
                   <MapErrorBoundary>
