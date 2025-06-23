@@ -121,10 +121,7 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
         mapInstance.current._markers.push(marker);
       });
       // Center logic
-      const nextJob = getNextJob();
-      if (nextJob && nextJob.coordinates) {
-        mapInstance.current.flyTo({ center: nextJob.coordinates, zoom: 14, essential: true });
-      } else if (navigator.geolocation) {
+      if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
             const { longitude, latitude } = position.coords;
@@ -188,7 +185,7 @@ const DashboardMap: React.FC<DashboardMapProps> = ({ className = '', jobs = [] }
           attributionControl: false,
           preserveDrawingBuffer: true,
           antialias: true,
-          dragPan: true,
+          dragPan: false,
           dragRotate: false,
           touchZoomRotate: true,
           doubleClickZoom: false,
