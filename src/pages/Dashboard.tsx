@@ -284,131 +284,139 @@ const Dashboard = () => {
           ))}
         </div>
         
-        {/* Today's Job Map */}
-        <div className="mt-3 sm:mt-5 md:mt-6 -mx-3 sm:-mx-4 md:-mx-6">
-          <div className="mb-2 sm:mb-3 flex justify-between items-center px-3 sm:px-4 md:px-6">
-            <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">
-              {todaysJobsOnMapCount} {todaysJobsOnMapCount === 1 ? 'job' : 'jobs'} on map
-            </h3>
-            <Link to="/calendar" className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium flex items-center gap-1">
-              View Calendar <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
-            </Link>
-          </div>
-          <div className="relative mt-2 sm:mt-3 overflow-hidden" style={{ height: '350px' }}>
-            <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white to-transparent z-10 pointer-events-none"></div>
-            <Suspense fallback={<div id="map-loading" className="flex items-center justify-center h-full"><p>Loading map...</p></div>}>
-              <MapErrorBoundary>
-                <DashboardMap jobs={jobs} />
-              </MapErrorBoundary>
-            </Suspense>
-          </div>
-        </div>
-        
-        {/* Mobile Dashboard Sections */}
         {isMobile ? (
-          <div className="pb-16">
-            {/* Today's Schedule */}
-            <TodayScheduleSlider hasJobs={upcomingJobs.length > 0} />
-            
-            {/* Getting Started Todo Section */}
-            <GettingStartedTodo />
-            
-            {/* Business Health section */}
-            <BusinessHealth />
-            
-            {/* Discover Section */}
-            <div className="mt-6 mb-4">
-              <h3 className="text-lg font-bold text-gray-900 mb-3 px-1">Discover</h3>
-              <div className="flex overflow-x-auto space-x-4 -mx-3 sm:-mx-4 px-3 sm:px-4 pb-4">
-                {discoverItems.map((item, index) => (
-                  <div key={index} className="flex-shrink-0 w-[70vw] sm:w-[280px]">
-                    <DiscoverCard 
-                      imageSrc={item.imageSrc}
-                      title={item.title}
-                      subtitle={item.subtitle}
-                      actionText={item.actionText}
-                      actionLink={item.actionLink}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            {/* Need Help? button - positioned higher above the bottom toolbar */}
-            <div className="px-1 mt-4 mb-48">
-              <Link 
-                to="/support" 
-                className="flex justify-center items-center py-3.5 bg-white rounded-lg shadow-md border border-gray-100 text-blue-600 font-medium"
-              >
-                <HelpCircle className="w-5 h-5 mr-2" />
-                Need Help?
-              </Link>
-            </div>
-          </div>
-        ) : (
           <>
-            {/* Desktop Today's Schedule */}
-            <div className="bg-white p-3 sm:p-4 md:p-5 rounded-xl shadow-sm border border-gray-100 mt-6 sm:mt-8 md:mt-10">
-              <div className="flex justify-between items-center mb-3 sm:mb-4">
-                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 pt-1.5">Today's Schedule</h3>
+            {/* Today's Job Map for Mobile */}
+            <div className="mt-3 sm:mt-5 md:mt-6 -mx-3 sm:-mx-4 md:-mx-6">
+              <div className="mb-2 sm:mb-3 flex justify-between items-center px-3 sm:px-4 md:px-6">
+                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900">
+                  {todaysJobsOnMapCount} {todaysJobsOnMapCount === 1 ? 'job' : 'jobs'} on map
+                </h3>
                 <Link to="/calendar" className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium flex items-center gap-1">
-                  View all <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
+                  View Calendar <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
                 </Link>
               </div>
-              
-              {upcomingJobs.length > 0 ? (
-                <div className="space-y-2 sm:space-y-3">
-                  {upcomingJobs.map((job) => (
-                    <Link
-                      to={`/jobs/${job.id}`}
-                      key={job.id}
-                      className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 hover:bg-gray-50 rounded-lg transition-colors"
-                    >
-                      <div className="bg-blue-100 text-blue-600 p-1.5 sm:p-2 rounded-lg">
-                        <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm sm:text-base text-gray-900 truncate">
-                          {job.title || 'Cleaning Service'}
-                        </p>
-                        <div className="flex items-center mt-0.5">
-                          <Clock className="w-3 h-3 text-gray-400 mr-1" />
-                          <p className="text-xs text-gray-500">
-                            {new Date(job.scheduled_date).toLocaleTimeString('en-US', { 
-                              hour: '2-digit', 
-                              minute: '2-digit' 
-                            })}
-                          </p>
-                          {job.address && (
-                            <>
-                              <span className="mx-1 text-gray-300">•</span>
-                              <MapPin className="w-3 h-3 text-gray-400 mr-1" />
-                              <p className="text-xs text-gray-500 truncate">
-                                {job.address}
-                              </p>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                      <div className="bg-gray-100 rounded-lg px-2 py-1">
-                        <p className="text-xs text-gray-600">
-                          {formatCurrency(job.estimated_price || 0)}
-                        </p>
-                      </div>
-                    </Link>
+              <div className="relative mt-2 sm:mt-3 overflow-hidden" style={{ height: '350px' }}>
+                <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white to-transparent z-10 pointer-events-none"></div>
+                <Suspense fallback={<div id="map-loading" className="flex items-center justify-center h-full"><p>Loading map...</p></div>}>
+                  <MapErrorBoundary>
+                    <DashboardMap jobs={jobs} />
+                  </MapErrorBoundary>
+                </Suspense>
+              </div>
+            </div>
+
+            {/* Mobile Dashboard Sections */}
+            <div className="pb-16">
+              <TodayScheduleSlider hasJobs={upcomingJobs.length > 0} />
+              <GettingStartedTodo />
+              <BusinessHealth />
+              <div className="mt-6 mb-4">
+                <h3 className="text-lg font-bold text-gray-900 mb-3 px-1">Discover</h3>
+                <div className="flex overflow-x-auto space-x-4 -mx-3 sm:-mx-4 px-3 sm:px-4 pb-4">
+                  {discoverItems.map((item, index) => (
+                    <div key={index} className="flex-shrink-0 w-[70vw] sm:w-[280px]">
+                      <DiscoverCard 
+                        imageSrc={item.imageSrc}
+                        title={item.title}
+                        subtitle={item.subtitle}
+                        actionText={item.actionText}
+                        actionLink={item.actionLink}
+                      />
+                    </div>
                   ))}
                 </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-6 sm:py-8 text-center">
-                  <div className="bg-gray-100 p-3 sm:p-4 rounded-full mb-2 sm:mb-3">
-                    <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" />
-                  </div>
-                  <p className="text-gray-600 text-sm sm:text-base mb-1">No jobs scheduled for today</p>
-                  <Link to="/jobs/new" className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium">
-                    Schedule a job
+              </div>
+              <div className="px-1 mt-4 mb-48">
+                <Link 
+                  to="/support" 
+                  className="flex justify-center items-center py-3.5 bg-white rounded-lg shadow-md border border-gray-100 text-blue-600 font-medium"
+                >
+                  <HelpCircle className="w-5 h-5 mr-2" />
+                  Need Help?
+                </Link>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Desktop Map with Schedule Overlay */}
+            <div className="relative mt-6 sm:mt-8 md:mt-10 rounded-xl overflow-hidden shadow-sm border border-gray-100">
+              {/* Map */}
+              <div className="relative" style={{ height: '350px' }}>
+                <Suspense fallback={<div id="map-loading" className="flex items-center justify-center h-full"><p>Loading map...</p></div>}>
+                  <MapErrorBoundary>
+                    <DashboardMap jobs={jobs} />
+                  </MapErrorBoundary>
+                </Suspense>
+              </div>
+              
+              {/* Schedule Header Overlay */}
+              <div className="absolute top-0 left-0 right-0 p-3 sm:p-4 md:p-5 bg-gradient-to-b from-black/50 to-transparent">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-white pt-1.5">Today's Schedule</h3>
+                  <Link to="/calendar" className="text-white hover:text-gray-200 text-xs sm:text-sm font-medium flex items-center gap-1">
+                    View all <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
                   </Link>
                 </div>
-              )}
+              </div>
+
+              {/* Schedule List */}
+              <div className="bg-white p-3 sm:p-4 md:p-5">
+                {upcomingJobs.length > 0 ? (
+                  <div className="space-y-2 sm:space-y-3">
+                    {upcomingJobs.map((job) => (
+                      <Link
+                        to={`/jobs/${job.id}`}
+                        key={job.id}
+                        className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 hover:bg-gray-50 rounded-lg transition-colors"
+                      >
+                        <div className="bg-blue-100 text-blue-600 p-1.5 sm:p-2 rounded-lg">
+                          <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm sm:text-base text-gray-900 truncate">
+                            {job.title || 'Cleaning Service'}
+                          </p>
+                          <div className="flex items-center mt-0.5">
+                            <Clock className="w-3 h-3 text-gray-400 mr-1" />
+                            <p className="text-xs text-gray-500">
+                              {new Date(job.scheduled_date).toLocaleTimeString('en-US', { 
+                                hour: '2-digit', 
+                                minute: '2-digit' 
+                              })}
+                            </p>
+                            {job.address && (
+                              <>
+                                <span className="mx-1 text-gray-300">•</span>
+                                <MapPin className="w-3 h-3 text-gray-400 mr-1" />
+                                <p className="text-xs text-gray-500 truncate">
+                                  {job.address}
+                                </p>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <div className="bg-gray-100 rounded-lg px-2 py-1">
+                          <p className="text-xs text-gray-600">
+                            {formatCurrency(job.estimated_price || 0)}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-6 sm:py-8 text-center">
+                    <div className="bg-gray-100 p-3 sm:p-4 rounded-full mb-2 sm:mb-3">
+                      <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" />
+                    </div>
+                    <p className="text-gray-600 text-sm sm:text-base mb-1">No jobs scheduled for today</p>
+                    <Link to="/jobs/new" className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-medium">
+                      Schedule a job
+                    </Link>
+                  </div>
+                )}
+              </div>
             </div>
           </>
         )}
