@@ -401,10 +401,199 @@ const Schedule = () => {
 
   // Render map view content
   const renderMapView = () => {
+    const mapContainerRef = useRef<HTMLDivElement>(null);
+    const [mapInitialized, setMapInitialized] = useState(false);
+    
+    // Initialize map when component mounts
+    useEffect(() => {
+      if (!mapContainerRef.current) return;
+      
+      // Load Mapbox script if it's not already loaded
+      if (!(window as any).mapboxgl) {
+        const script = document.createElement('script');
+        script.src = 'https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js';
+        script.async = true;
+        script.onload = initializeMap;
+        document.head.appendChild(script);
+        
+        const link = document.createElement('link');
+        link.href = 'https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css';
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+      } else {
+        initializeMap();
+      }
+      
+      // Cleanup function
+      return () => {
+        if ((window as any).map) {
+          (window as any).map.remove();
+        }
+      };
+    }, [viewOptions.view === 'Map']);
+    
+    // Initialize the map
+    const initializeMap = () => {
+      if (!mapContainerRef.current || mapInitialized) return;
+      
+      try {
+        const mapboxgl = (window as any).mapboxgl;
+        if (!mapboxgl) return;
+        
+        // Define the Mapbox token - using public token (pk) for client-side usage
+        const MAPBOX_TOKEN = 'pk.eyJ1IjoianZsZWl0ZTE1MiIsImEiOiJjbWJzbTRyMGgwbXQ1MmtweHFsOXA1aHZsIn0.6mkwBGmb0wnelPMyIjZNpQ';
+        mapboxgl.accessToken = MAPBOX_TOKEN;
+        
+        // Initialize the map
+        const map = new mapboxgl.Map({
+          container: mapContainerRef.current,
+          style: 'mapbox://styles/mapbox/streets-v12',
+          center: [-96.7, 39.8], // Default center (US)
+          zoom: 10,
+          attributionControl: false,
+          preserveDrawingBuffer: true
+        });
+        
+        // Store map instance on window for cleanup
+        (window as any).map = map;
+        
+        // Add map load event handler
+        map.on('load', () => {
+          console.log('Map loaded successfully');
+          setMapInitialized(true);
+          
+          // Get user's location and center map
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const { longitude, latitude } = position.coords;
+                
+                // Move map to user's location
+                map.flyTo({
+                  center: [longitude, latitude],
+                  zoom: 12,
+                  essential: true
+                });
+                
+                // Add a marker for user's location
+                new mapboxgl.Marker({ color: '#3b82f6' })
+                  .setLngLat([longitude, latitude])
+                  .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML('<p style="margin: 0; font-weight: 500;">Your Location</p>'))
+                  .addTo(map);
+                
+                // Add markers for jobs
+                addJobMarkers(map);
+              },
+              (error) => {
+                console.error('Error getting location:', error);
+                // If we can't get user location, just add job markers
+                addJobMarkers(map);
+              },
+              { enableHighAccuracy: true, timeout: 10000 }
+            );
+          } else {
+            // If geolocation is not available, just add job markers
+            addJobMarkers(map);
+          }
+        });
+      } catch (error) {
+        console.error('Error initializing map:', error);
+      }
+    };
+    
+    // Add markers for jobs
+    const addJobMarkers = async (map: any) => {
+      const mapboxgl = (window as any).mapboxgl;
+      if (!mapboxgl || !map) return;
+      
+      // Filter jobs for the selected day
+      const selectedDayJobs = jobs.filter(job => {
+        if (!job.scheduled_date) return false;
+        return isSameDay(new Date(job.scheduled_date), currentDate);
+      });
+      
+      // Geocode and add markers for each job
+      for (const job of selectedDayJobs) {
+        if (!job.address) continue;
+        
+        try {
+          // Geocode the address
+          const coordinates = await geocodeAddress(job.address);
+          if (!coordinates) continue;
+          
+          // Create popup content
+          const popupContent = `
+            <div style="padding: 8px;">
+              <h3 style="margin: 0 0 5px 0; font-weight: 600;">${job.title || 'Untitled Job'}</h3>
+              <p style="margin: 0; font-size: 12px;">${job.address}</p>
+              <p style="margin: 5px 0 0 0; font-size: 11px; color: #666;">
+                ${format(new Date(job.scheduled_date), 'h:mm a')}
+              </p>
+            </div>
+          `;
+          
+          // Create and add the marker
+          const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupContent);
+          new mapboxgl.Marker({ color: '#10b981' })
+            .setLngLat(coordinates)
+            .setPopup(popup)
+            .addTo(map);
+        } catch (error) {
+          console.error('Error adding marker for job:', error);
+        }
+      }
+    };
+    
+    // Function to geocode addresses to coordinates
+    const geocodeAddress = async (address: string): Promise<[number, number] | null> => {
+      if (!address) return null;
+      
+      try {
+        // Use Mapbox Geocoding API
+        const encodedAddress = encodeURIComponent(address);
+        const response = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodedAddress}.json?access_token=${(window as any).mapboxgl.accessToken}`
+        );
+        
+        if (!response.ok) {
+          throw new Error(`Geocoding error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.features && data.features.length > 0) {
+          // Return the first result's coordinates [longitude, latitude]
+          return data.features[0].center as [number, number];
+        }
+        
+        return null;
+      } catch (error) {
+        console.error('Error geocoding address:', error);
+        return null;
+      }
+    };
+    
     return (
-      <div className="flex justify-center items-center h-64 px-4">
-        <div className="text-center">
-          <p className="text-gray-700 mb-2">Map view coming soon</p>
+      <div className="flex flex-col h-full">
+        <div className="p-4 bg-white border-b">
+          <h2 className="text-lg font-semibold text-gray-800">
+            {format(currentDate, 'EEEE, MMMM d')} - Map View
+          </h2>
+          <p className="text-sm text-gray-600 mt-1">
+            {dayJobs.length} {dayJobs.length === 1 ? 'job' : 'jobs'} scheduled
+          </p>
+        </div>
+        
+        <div 
+          ref={mapContainerRef} 
+          className="flex-1 min-h-[400px]"
+          style={{ width: '100%', height: '100%' }}
+        >
+          {!mapInitialized && (
+            <div className="flex justify-center items-center h-full bg-gray-100">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            </div>
+          )}
         </div>
       </div>
     );
