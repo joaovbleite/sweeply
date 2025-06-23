@@ -196,52 +196,58 @@ const Schedule = () => {
     setViewOptions(options);
   };
 
-  // Render week day selector with the new design
+  // Render week day selector with new design: only one week at a time, left/right navigation
   const renderHorizontalDayScroller = () => {
     return (
-      <div className="px-4 pb-4 border-b border-gray-200">
-        {/* Day numbers - Horizontally scrollable */}
-        <div 
-          className="overflow-x-auto scrollbar-hide pb-2"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          ref={weekDaysRef}
+      <div className="px-4 pb-4 border-b border-gray-200 flex items-center justify-between">
+        {/* Left arrow */}
+        <button
+          onClick={() => navigateWeek('prev')}
+          className="p-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+          aria-label="Previous week"
         >
-          <div className="flex min-w-max">
-            {allWeekDays.map((day, index) => {
-              const isSelected = isSameDay(day, currentDate);
-              const isDayToday = isToday(day);
-              const dayNumber = format(day, 'd');
-              return (
-                <div key={index} className="flex-1 min-w-[50px] text-center">
-                  <button
-                    onClick={() => handleDateSelect(day, index)}
-                    className="flex flex-col items-center justify-center w-full"
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+        {/* Week days */}
+        <div className="flex flex-1 justify-center">
+          {weekDays.map((day, index) => {
+            const isSelected = isSameDay(day, currentDate);
+            const isDayToday = isToday(day);
+            const dayNumber = format(day, 'd');
+            return (
+              <div key={index} className="flex-1 min-w-[40px] text-center">
+                <button
+                  onClick={() => handleDateSelect(day)}
+                  className="flex flex-col items-center justify-center w-full"
+                >
+                  <div
+                    className={`flex items-center justify-center w-10 h-10 rounded-full
+                      ${isSelected
+                        ? 'bg-green-600 text-white'
+                        : isDayToday
+                          ? 'border-b-2 border-green-600 text-gray-800'
+                          : 'text-gray-800'
+                      }
+                    `}
                   >
-                    <div 
-                      className={`flex items-center justify-center w-10 h-10 rounded-full 
-                        ${isSelected 
-                          ? 'bg-green-600 text-white' 
-                          : isDayToday
-                            ? 'border-b-2 border-green-600 text-gray-800'
-                            : 'text-gray-800'
-                        }
-                      `}
-                    >
-                      <span className={`text-xl font-semibold ${isDayToday && !isSelected ? 'text-green-600' : ''}`}>
-                        {dayNumber}
-                      </span>
-                    </div>
-                    {isDayToday && !isSelected && (
-                      <div className="w-1 h-1 bg-green-600 rounded-full mt-1"></div>
-                    )}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+                    <span className={`text-xl font-semibold ${isDayToday && !isSelected ? 'text-green-600' : ''}`}>{dayNumber}</span>
+                  </div>
+                  {isDayToday && !isSelected && (
+                    <div className="w-1 h-1 bg-green-600 rounded-full mt-1"></div>
+                  )}
+                </button>
+              </div>
+            );
+          })}
         </div>
+        {/* Right arrow */}
+        <button
+          onClick={() => navigateWeek('next')}
+          className="p-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+          aria-label="Next week"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
       </div>
     );
   };
