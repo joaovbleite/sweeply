@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   Home,
@@ -21,6 +21,7 @@ const BottomNavBar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const navRef = useRef<HTMLElement>(null);
 
   const navItems = [
     { id: "home", label: "Home", icon: Home, path: "/dashboard" },
@@ -89,8 +90,25 @@ const BottomNavBar: React.FC = () => {
         </div>
       </div>
 
-      {/* New Bottom Nav Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 h-20 bg-white border-t border-gray-200 flex items-center justify-around z-50">
+      {/* Black Rounded Bottom Nav Bar */}
+      <nav 
+        ref={navRef}
+        className="bg-black text-white rounded-full flex items-center justify-between px-5 py-3 max-w-md mx-auto shadow-xl relative overflow-hidden"
+        style={{
+          position: 'fixed',
+          bottom: '80px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: 'calc(100% - 64px)',
+          maxWidth: '360px',
+          zIndex: 100,
+          willChange: 'transform',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
+          isolation: 'isolate',
+          transformStyle: 'preserve-3d'
+        }}
+      >
         {navItems.map(item => {
           const Icon = item.icon;
           const isActive = location.pathname.startsWith(item.path || '___');
@@ -99,10 +117,10 @@ const BottomNavBar: React.FC = () => {
             return (
               <button
                 key={item.id}
-                className="fab-button w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-lg -mt-8 transform transition-transform duration-300 hover:scale-110"
+                className="fab-button w-12 h-12 bg-white rounded-full flex items-center justify-center text-black shadow-lg transform transition-transform duration-300 hover:scale-110"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
               >
-                <Icon className={`w-8 h-8 transition-transform duration-300 ${isMenuOpen ? 'rotate-45' : ''}`} />
+                <Icon className={`w-6 h-6 transition-transform duration-300 ${isMenuOpen ? 'rotate-45' : ''}`} />
               </button>
             );
           }
@@ -111,10 +129,9 @@ const BottomNavBar: React.FC = () => {
             <Link
               key={item.id}
               to={item.path || '#'}
-              className={`flex flex-col items-center justify-center text-xs font-medium transition-colors ${isActive ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'}`}
+              className={`flex flex-col items-center justify-center transition-colors ${isActive ? 'text-white' : 'text-gray-400 hover:text-white'}`}
             >
-              <Icon className="w-6 h-6 mb-1" />
-              {item.label}
+              <Icon className="w-5 h-5" />
             </Link>
           );
         })}
