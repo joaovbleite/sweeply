@@ -234,9 +234,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
       </aside>
 
       {/* Main Content - Separate from bottom navigation */}
-      <div className="flex-1 flex flex-col min-h-screen max-h-screen overflow-hidden bg-white">
+      <div className={`flex-1 flex flex-col min-h-0 max-h-screen overflow-hidden bg-white ${hideBottomNav ? '' : 'pb-[72px]'}`}>
         {/* Page Content */}
-        <main className={`flex-1 overflow-y-auto bg-white overscroll-y-contain ${hideBottomNav ? 'pb-safe' : 'pb-24'}`}>
+        <main className="flex-1 overflow-y-auto bg-white overscroll-y-contain pt-safe">
           <div 
             className="page-content-wrapper"
             style={{ 

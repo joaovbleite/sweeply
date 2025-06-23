@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   Home,
-  LayoutGrid,
-  BarChart3,
-  Users,
+  Clock,
   MoreHorizontal,
   Calendar,
   DollarSign,
@@ -15,7 +13,8 @@ import {
   FileEdit, 
   Briefcase,
   User,
-  X
+  X,
+  Search
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion } from "framer-motion";
@@ -24,19 +23,15 @@ const BottomNavBar: React.FC = () => {
   const { t } = useTranslation(['navigation', 'common']);
   const location = useLocation();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<string>("");
-  const navRef = useRef<HTMLDivElement>(null);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-  const [previousTab, setPreviousTab] = useState<string>("");
-  const [direction, setDirection] = useState<number>(0);
   
-  // Define the navigation items with the Plus button in the middle (3rd position)
+  // Define the navigation items
   const navItems = [
-    { id: "home", icon: Home, path: "/dashboard" },
-    { id: "schedule", icon: Calendar, path: "/schedule" },
-    { id: "add", icon: isMenuOpen ? X : Plus, path: "#", isAction: true },
-    { id: "clients", icon: Users, path: "/clients" },
-    { id: "more", icon: MoreHorizontal, path: "/more" }
+    { id: "home", label: "Home", icon: Home, path: "/dashboard" },
+    { id: "schedule", label: "Schedule", icon: Calendar, path: "/schedule" },
+    { id: "timesheet", label: "Timesheet", icon: Clock, path: "/timesheet" },
+    { id: "search", label: "Search", icon: Search, path: "/search" },
+    { id: "more", label: "More", icon: MoreHorizontal, path: "/more" }
   ];
 
   // Original FloatingActionMenu items
@@ -99,32 +94,6 @@ const BottomNavBar: React.FC = () => {
     }
   ];
 
-  // Update active tab based on location
-  useEffect(() => {
-    const currentPath = location.pathname;
-    const activeItem = navItems.find(
-      item => !item.isAction && (currentPath === item.path || 
-      (item.id === "clients" && currentPath.includes("/client")))
-    );
-    
-    if (activeItem) {
-      // Determine direction of navigation
-      if (previousTab) {
-        const prevIndex = navItems.findIndex(item => item.id === previousTab);
-        const currentIndex = navItems.findIndex(item => item.id === activeItem.id);
-        
-        // Skip the action button in the middle when calculating direction
-        const adjustedPrevIndex = prevIndex > 2 ? prevIndex - 1 : prevIndex;
-        const adjustedCurrentIndex = currentIndex > 2 ? currentIndex - 1 : currentIndex;
-        
-        setDirection(adjustedCurrentIndex - adjustedPrevIndex);
-      }
-      
-      setPreviousTab(activeTab);
-      setActiveTab(activeItem.id);
-    }
-  }, [location.pathname]);
-  
   // Close menu when route changes
   useEffect(() => {
     setIsMenuOpen(false);
@@ -196,59 +165,46 @@ const BottomNavBar: React.FC = () => {
         </div>
       </div>
       
-      {/* Bottom Nav Bar - Always visible */}
+      {/* Floating Action Button - Top Right */}
+      <button
+        className="fab-button fixed right-4 top-4 z-50 w-16 h-16 bg-[#0F2B28] rounded-full flex items-center justify-center text-white shadow-md hover:scale-105 transition-transform"
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        aria-label="Create new"
+      >
+        {isMenuOpen ? (
+          <X className="w-6 h-6" strokeWidth={2} />
+        ) : (
+          <Plus className="w-6 h-6" strokeWidth={2} />
+        )}
+      </button>
+      
+      {/* Bottom Navigation Bar - Fixed at bottom */}
       <nav 
-        ref={navRef}
-        className="bg-yellow-400 text-black rounded-full flex items-center justify-between px-5 py-3 max-w-md mx-auto shadow-xl relative overflow-hidden"
+        className="fixed bottom-0 left-0 right-0 h-[72px] bg-[#F8F7F3] border-t border-[#EAEAEA] flex items-center justify-around px-4 z-30 shadow-sm"
         style={{
-          position: 'fixed',
-          bottom: '80px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: 'calc(100% - 64px)',
-          maxWidth: '360px',
-          zIndex: 100,
-          willChange: 'transform',
-          backfaceVisibility: 'hidden',
-          WebkitBackfaceVisibility: 'hidden',
-          isolation: 'isolate',
-          transformStyle: 'preserve-3d'
+          paddingBottom: 'calc(8px + env(safe-area-inset-bottom, 0))'
         }}
       >
-        {navItems.map((item, index) => {
+        {navItems.map((item) => {
           const Icon = item.icon;
-            const isActive = !item.isAction && (location.pathname === item.path || 
-                            (item.id === "clients" && location.pathname.includes("/client")));
-            
-            if (item.isAction) {
-              // Floating action button in the middle - preserving original styles and appearance
-              return (
-                <button
-                  key={item.id}
-                  className={`fab-button relative flex items-center justify-center z-10 bg-black w-11 h-11 rounded-full shadow-lg ${isMenuOpen ? 'rotate-45' : ''}`}
-                  aria-label="Create new"
-                  onClick={() => setIsMenuOpen(!isMenuOpen)}
-                >
-                  <Icon className="w-5 h-5 text-white" />
-                </button>
-              );
-            }
+          const isActive = location.pathname.startsWith(item.path);
           
           return (
             <Link
               key={item.id}
               to={item.path}
-              data-id={item.id}
-              className="relative flex items-center justify-center z-10 w-9 h-9"
-              aria-label={item.id}
-              onClick={() => {
-                setPreviousTab(activeTab);
-                setActiveTab(item.id);
-              }}
+              className="flex flex-col items-center justify-center"
             >
               <Icon 
-                className={`w-4 h-4 ${isActive ? 'text-black' : 'text-black/60'}`} 
+                className={`w-6 h-6 mb-1 ${isActive ? 'text-[#0F2B28]' : 'text-[#4A5D5A]'}`} 
+                strokeWidth={2}
+                fill="none"
               />
+              <span 
+                className={`text-xs font-medium ${isActive ? 'text-[#0F2B28]' : 'text-[#4A5D5A]'}`}
+              >
+                {item.label}
+              </span>
             </Link>
           );
         })}
