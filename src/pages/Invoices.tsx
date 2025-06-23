@@ -313,6 +313,7 @@ const Invoices = () => {
         <PageHeader
           title={t('navigation:invoices')}
           rightElement={headerRightElement}
+          compact
         />
         
         {/* Search and Filters */}

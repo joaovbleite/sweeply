@@ -187,6 +187,7 @@ const ClientDashboard = () => {
               {clientTier.tier}
             </div>
           )}
+          compact
         />
 
         {/* Quick Stats */}

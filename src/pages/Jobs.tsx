@@ -289,6 +289,7 @@ const Jobs = () => {
         <PageHeader 
           title={t('navigation:jobs')}
           rightElement={headerRightElement}
+          compact
         />
         
         {/* Search and Filters */}
