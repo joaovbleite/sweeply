@@ -200,6 +200,13 @@ const Schedule = () => {
   const renderHorizontalDayScroller = () => {
     return (
       <div className="px-4 pb-4 border-b border-gray-200">
+        {/* Month display */}
+        <div className="mb-3 text-center">
+          <h2 className="text-lg font-medium text-gray-800">
+            {format(currentDate, 'MMMM yyyy')}
+          </h2>
+        </div>
+        
         {/* Day/Week/Month headers - Horizontal scrollable area */}
         <div 
           className="overflow-x-auto scrollbar-hide pb-2"
@@ -211,13 +218,13 @@ const Schedule = () => {
           <div className="flex min-w-max">
             {/* Day initials */}
             <div className="grid grid-cols-7 text-center mb-2 min-w-full">
-              <div className="text-sm text-gray-500 font-medium">S</div>
-              <div className="text-sm text-gray-500 font-medium">M</div>
-              <div className="text-sm text-gray-500 font-medium">T</div>
-              <div className="text-sm text-gray-500 font-medium">W</div>
-              <div className="text-sm text-gray-500 font-medium">T</div>
-              <div className="text-sm text-gray-500 font-medium">F</div>
-              <div className="text-sm text-gray-500 font-medium">S</div>
+              <div className="text-sm text-gray-700 font-semibold">S</div>
+              <div className="text-sm text-gray-700 font-semibold">M</div>
+              <div className="text-sm text-gray-700 font-semibold">T</div>
+              <div className="text-sm text-gray-700 font-semibold">W</div>
+              <div className="text-sm text-gray-700 font-semibold">T</div>
+              <div className="text-sm text-gray-700 font-semibold">F</div>
+              <div className="text-sm text-gray-700 font-semibold">S</div>
             </div>
           </div>
           
@@ -244,7 +251,7 @@ const Schedule = () => {
                         }
                       `}
                     >
-                      <span className={`text-xl font-medium ${isDayToday && !isSelected ? 'text-green-600' : ''}`}>
+                      <span className={`text-xl font-semibold ${isDayToday && !isSelected ? 'text-green-600' : ''}`}>
                         {dayNumber}
                       </span>
                     </div>
@@ -621,11 +628,18 @@ const Schedule = () => {
   
   return (
     <AppLayout>
-      {/* Page Header */}
+      {/* Page Header with Month Selector */}
       <PageHeader
         title={t('calendar:schedule')}
         rightElement={
           <div className="flex items-center gap-2">
+            <button
+              onClick={goToToday}
+              className="p-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+              aria-label="Calendar"
+            >
+              <CalendarIcon className="w-4 h-4" />
+            </button>
             <button
               onClick={openViewOptionsModal}
               className="p-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
@@ -636,13 +650,6 @@ const Schedule = () => {
           </div>
         }
       />
-
-      {/* Month/Year display */}
-      <div className="px-4 py-2 text-center">
-        <h2 className="text-lg font-medium text-gray-700">
-          {format(currentDate, 'MMMM yyyy')}
-        </h2>
-      </div>
 
       {/* View selector tabs */}
       <div className="px-4 py-2">
