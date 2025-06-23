@@ -308,7 +308,7 @@ const Jobs = () => {
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline">
+                <Button variant="default" className="bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500">
                   <Filter className="w-4 h-4 mr-2" />
                   {statusFilter === 'all' ? 'Status' : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1).replace('_', ' ')}
                 </Button>
