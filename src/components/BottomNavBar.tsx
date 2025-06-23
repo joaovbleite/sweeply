@@ -30,7 +30,7 @@ const BottomNavBar: React.FC = () => {
     { id: "home", label: "Home", icon: Home, path: "/dashboard" },
     { id: "schedule", label: "Schedule", icon: Calendar, path: "/schedule" },
     { id: "add", label: "", icon: Plus, path: "#", action: () => setIsMenuOpen(!isMenuOpen) },
-    { id: "search", label: "Search", icon: Search, path: "/search" },
+    { id: "clients", label: "Clients", icon: User, path: "/clients" },
     { id: "more", label: "More", icon: MoreHorizontal, path: "/more" }
   ];
 
