@@ -299,7 +299,7 @@ const Dashboard = () => {
             </div>
 
             {/* Mobile Dashboard Sections */}
-            <div className="pb-16">
+            <div className="pb-24">
               <TodayScheduleSlider hasJobs={upcomingJobs.length > 0} />
               <GettingStartedTodo />
               <BusinessHealth />
@@ -319,7 +319,7 @@ const Dashboard = () => {
                   ))}
                 </div>
               </div>
-              <div className="px-1 mt-4 mb-48">
+              <div className="px-1 mt-4">
                 <Link 
                   to="/support" 
                   className="flex justify-center items-center py-3.5 bg-white rounded-lg shadow-md border border-gray-100 text-blue-600 font-medium"
