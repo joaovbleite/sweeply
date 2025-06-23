@@ -55,7 +55,7 @@ const Refer: React.FC = () => {
   };
 
   return (
-    <AppLayout>
+    <AppLayout hideBottomNav>
       <div className="bg-white flex flex-col min-h-screen">
         {/* Use the PageHeader component */}
         <PageHeader

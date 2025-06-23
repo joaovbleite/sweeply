@@ -60,7 +60,7 @@ const Company: React.FC = () => {
   };
 
   return (
-    <AppLayout>
+    <AppLayout hideBottomNav>
       <div className="min-h-screen bg-white flex flex-col">
         {/* Use the PageHeader component */}
         <PageHeader

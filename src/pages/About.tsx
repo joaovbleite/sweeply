@@ -37,7 +37,7 @@ const About: React.FC = () => {
   const appVersion = "v1.0.0 (2000000123)";
 
   return (
-    <AppLayout>
+    <AppLayout hideBottomNav>
       <div className="bg-white flex flex-col">
         {/* Use the new PageHeader component */}
         <PageHeader

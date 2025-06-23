@@ -189,7 +189,7 @@ const Preferences: React.FC = () => {
   };
 
   return (
-    <AppLayout>
+    <AppLayout hideBottomNav>
       <div className="min-h-screen bg-white flex flex-col">
         {/* Use the PageHeader component with Apply button */}
         <PageHeader
