@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   Home,
-  Users,
+  Clock,
   MoreHorizontal,
   Calendar,
   DollarSign,
@@ -21,12 +21,11 @@ const BottomNavBar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-  const navRef = useRef<HTMLElement>(null);
 
   const navItems = [
     { id: "home", label: "Home", icon: Home, path: "/dashboard" },
     { id: "schedule", label: "Schedule", icon: Calendar, path: "/schedule" },
-    { id: "add", label: "Add", icon: Plus, isAction: true },
+    { id: "timesheet", label: "Timesheet", icon: Clock, path: "/timesheet" },
     { id: "search", label: "Search", icon: Search, path: "/search" },
     { id: "more", label: "More", icon: MoreHorizontal, path: "/more" }
   ];
@@ -90,48 +89,20 @@ const BottomNavBar: React.FC = () => {
         </div>
       </div>
 
-      {/* Black Rounded Bottom Nav Bar */}
-      <nav 
-        ref={navRef}
-        className="bg-black text-white rounded-full flex items-center justify-between px-5 py-3 max-w-md mx-auto shadow-xl relative overflow-hidden"
-        style={{
-          position: 'fixed',
-          bottom: '80px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: 'calc(100% - 64px)',
-          maxWidth: '360px',
-          zIndex: 100,
-          willChange: 'transform',
-          backfaceVisibility: 'hidden',
-          WebkitBackfaceVisibility: 'hidden',
-          isolation: 'isolate',
-          transformStyle: 'preserve-3d'
-        }}
-      >
+      {/* Flat Bottom Nav Bar */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex items-center justify-around z-50 px-2 py-2">
         {navItems.map(item => {
           const Icon = item.icon;
           const isActive = location.pathname.startsWith(item.path || '___');
           
-          if (item.isAction) {
-            return (
-              <button
-                key={item.id}
-                className="fab-button w-12 h-12 bg-white rounded-full flex items-center justify-center text-black shadow-lg transform transition-transform duration-300 hover:scale-110"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-              >
-                <Icon className={`w-6 h-6 transition-transform duration-300 ${isMenuOpen ? 'rotate-45' : ''}`} />
-              </button>
-            );
-          }
-
           return (
             <Link
               key={item.id}
               to={item.path || '#'}
-              className={`flex flex-col items-center justify-center transition-colors ${isActive ? 'text-white' : 'text-gray-400 hover:text-white'}`}
+              className="flex flex-col items-center justify-center text-xs font-medium transition-colors"
             >
-              <Icon className="w-5 h-5" />
+              <Icon className={`w-6 h-6 mb-1 ${isActive ? 'text-blue-600' : 'text-gray-700'}`} />
+              <span className={`${isActive ? 'text-blue-600' : 'text-gray-700'}`}>{item.label}</span>
             </Link>
           );
         })}
