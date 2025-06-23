@@ -119,7 +119,7 @@ const AddTask = () => {
   );
 
   return (
-    <AppLayout>
+    <AppLayout hideBottomNav>
       <PageHeader 
         title="New Task" 
         onBackClick={() => navigate(-1)}

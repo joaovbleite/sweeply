@@ -7,6 +7,7 @@ import { clientsApi } from "@/lib/api/clients";
 import { Client } from "@/types/client";
 import { useLocale } from "@/hooks/useLocale";
 import PageHeader from "@/components/ui/PageHeader";
+import AppLayout from "@/components/AppLayout";
 
 const NewQuote = () => {
   const { t } = useTranslation(['common', 'quotes']);
@@ -101,7 +102,7 @@ const NewQuote = () => {
   );
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-20">
+    <AppLayout hideBottomNav>
       {/* Use the new PageHeader component with right element */}
       <PageHeader
         title="New Quote"
@@ -111,7 +112,7 @@ const NewQuote = () => {
       />
 
       {/* Main content - with top padding to account for fixed header */}
-      <div className="pt-28">
+      <div className="pt-7 pb-20 bg-gray-50">
         {/* Client section */}
         <div className="p-4">
           <h2 className="text-lg text-gray-600 mb-4">Service for</h2>
@@ -343,7 +344,7 @@ const NewQuote = () => {
           </button>
         </div>
       </div>
-    </div>
+    </AppLayout>
   );
 };
 

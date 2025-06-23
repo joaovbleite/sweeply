@@ -31,7 +31,7 @@ const AddTestClient = () => {
   }, [navigate]);
 
   return (
-    <AppLayout>
+    <AppLayout hideBottomNav>
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin text-pulse-500 mx-auto" />

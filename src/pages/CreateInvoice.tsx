@@ -10,7 +10,6 @@ import AppLayout from "@/components/AppLayout";
 import PageHeader from "@/components/ui/PageHeader";
 import { format, addDays } from "date-fns";
 import { useLocale } from "@/hooks/useLocale";
-import BottomNavBar from "@/components/BottomNavBar";
 
 const CreateInvoice = () => {
   const navigate = useNavigate();
@@ -146,7 +145,7 @@ const CreateInvoice = () => {
   );
 
   return (
-    <AppLayout>
+    <AppLayout hideBottomNav>
       {/* Page Header with Send button on the right */}
       <PageHeader 
         title="New Invoice" 
@@ -375,9 +374,6 @@ const CreateInvoice = () => {
             </button>
           </div>
       </div>
-
-      {/* Bottom Navigation */}
-      <BottomNavBar />
     </AppLayout>
   );
 };

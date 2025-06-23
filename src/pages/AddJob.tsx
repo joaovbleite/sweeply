@@ -314,7 +314,7 @@ const AddJob = () => {
   );
 
   return (
-    <AppLayout>
+    <AppLayout hideBottomNav>
       {/* Page Header with Save button on the right */}
       <PageHeader 
         title="New job" 

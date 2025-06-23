@@ -166,7 +166,7 @@ const AddClient = () => {
   };
 
   return (
-    <AppLayout>
+    <AppLayout hideBottomNav>
       <PageHeader
         title="New Client"
         onBackClick={() => navigate(-1)}

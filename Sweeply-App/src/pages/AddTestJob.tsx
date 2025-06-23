@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { clientsApi } from '@/lib/api/clients';
-import { jobsApi } from '@/lib/api/jobs';
+import { clientsApi } from '../../../src/lib/api/clients';
+import { jobsApi } from '../../../src/lib/api/jobs';
 import { toast } from 'sonner';
-import AppLayout from '@/components/AppLayout';
+import AppLayout from '../components/AppLayout';
 import { Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -48,7 +48,7 @@ const AddTestJob = () => {
   }, [navigate]);
 
   return (
-    <AppLayout>
+    <AppLayout hideBottomNav>
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin text-pulse-500 mx-auto" />
