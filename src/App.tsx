@@ -41,6 +41,7 @@ import Company from "./pages/Company";
 import Preferences from "./pages/Preferences";
 import Team from "./pages/Team";
 import AddTeamMember from "./pages/AddTeamMember";
+import TeamMemberDetail from "./pages/TeamMemberDetail";
 import Profile from "./pages/Profile";
 import PricingAssistant from "./pages/PricingAssistant";
 import NewQuote from "./pages/NewQuote";
@@ -402,10 +403,18 @@ const AppRoutes = () => {
         } 
       />
       <Route 
-        path="/team/new" 
+        path="/team/add" 
         element={
           <ProtectedRoute>
             <AddTeamMember />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/team/member/:memberId" 
+        element={
+          <ProtectedRoute>
+            <TeamMemberDetail />
           </ProtectedRoute>
         } 
       />
