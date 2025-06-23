@@ -89,9 +89,12 @@ const BottomNavBar: React.FC = () => {
         </div>
       </div>
 
-      {/* Bottom Navigation Bar - Fixed at bottom */}
+      {/* Bottom Navigation Bar - Fixed at bottom but moved up significantly */}
       <nav 
-        className="fixed left-0 right-0 bottom-0 h-[72px] bg-white border-t border-gray-200 flex items-center justify-around px-4 z-30"
+        className="fixed left-0 right-0 h-[72px] bg-white border-t border-gray-200 flex items-center justify-around px-4 z-30"
+        style={{
+          bottom: '160px' // Moved up significantly
+        }}
       >
         {navItems.map((item) => {
           const Icon = item.icon;

@@ -165,22 +165,12 @@ const BottomNavBar: React.FC = () => {
         </div>
       </div>
       
-      {/* Floating Action Button - Top Right */}
-      <button
-        className="fab-button fixed right-4 top-4 z-50 w-16 h-16 bg-[#0F2B28] rounded-full flex items-center justify-center text-white shadow-md hover:scale-105 transition-transform"
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-        aria-label="Create new"
-      >
-        {isMenuOpen ? (
-          <X className="w-6 h-6" strokeWidth={2} />
-        ) : (
-          <Plus className="w-6 h-6" strokeWidth={2} />
-        )}
-      </button>
-      
-      {/* Bottom Navigation Bar - Fixed at bottom */}
+      {/* Bottom Navigation Bar - Fixed at bottom but moved up significantly */}
       <nav 
-        className="fixed left-0 right-0 bottom-0 h-[72px] bg-white border-t border-gray-200 flex items-center justify-around px-4 z-30"
+        className="fixed left-0 right-0 h-[72px] bg-white border-t border-gray-200 flex items-center justify-around px-4 z-30"
+        style={{
+          bottom: '160px' // Moved up significantly
+        }}
       >
         {navItems.map((item) => {
           const Icon = item.icon;
