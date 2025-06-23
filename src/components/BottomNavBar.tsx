@@ -169,7 +169,7 @@ const BottomNavBar: React.FC = () => {
       <nav 
         className="fixed left-0 right-0 h-[72px] bg-white border-t border-gray-200 flex items-center justify-around px-4 z-30"
         style={{
-          bottom: '20px' // Moved down with proper padding for iPhone's action button
+          bottom: '0px' // Position at the very bottom of the screen
         }}
       >
         {navItems.map((item) => {
