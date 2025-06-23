@@ -180,9 +180,13 @@ const BottomNavBar: React.FC = () => {
       
       {/* Bottom Navigation Bar - Fixed at bottom */}
       <nav 
-        className="fixed bottom-0 left-0 right-0 h-[72px] bg-[#F8F7F3] border-t border-[#EAEAEA] flex items-center justify-around px-4 z-30 shadow-sm"
+        className="fixed left-0 right-0 h-[72px] bg-[#F8F7F3] border-t border-[#EAEAEA] flex items-center justify-around px-4 z-30 shadow-sm"
         style={{
-          paddingBottom: 'calc(8px + env(safe-area-inset-bottom, 0))'
+          bottom: '16px',
+          paddingBottom: '8px',
+          borderRadius: '12px',
+          margin: '0 16px',
+          width: 'calc(100% - 32px)'
         }}
       >
         {navItems.map((item) => {
