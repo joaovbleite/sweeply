@@ -25,13 +25,16 @@ const AddJob = () => {
   const [loadingClients, setLoadingClients] = useState(true);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [scheduleForLater, setScheduleForLater] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<number | null>(null);
+  const [selectedDates, setSelectedDates] = useState<number[]>([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [remindToInvoice, setRemindToInvoice] = useState(false);
   const [showLineItemModal, setShowLineItemModal] = useState(false);
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [endTime, setEndTime] = useState<string>("");
+  const [showStartTimePicker, setShowStartTimePicker] = useState(false);
+  const [showEndTimePicker, setShowEndTimePicker] = useState(false);
 
   const [formData, setFormData] = useState({
     clientId: "",
@@ -120,7 +123,7 @@ const AddJob = () => {
       return;
     }
 
-    if (!selectedDate) {
+    if (!selectedDates.length) {
       toast.error("Please select a scheduled date");
       return;
     }
@@ -128,12 +131,10 @@ const AddJob = () => {
     try {
       setIsSubmitting(true);
 
-      // Format the date for the API
-      const scheduledDate = new Date(
-        currentMonth.getFullYear(),
-        currentMonth.getMonth(),
-        selectedDate
-      ).toISOString().split('T')[0];
+      // Format the date for the API (use the first selected date)
+      const scheduledDate = selectedDates.length
+        ? new Date(currentMonth.getFullYear(), currentMonth.getMonth(), selectedDates[0]).toISOString().split('T')[0]
+        : undefined;
 
       // Prepare line items data
       const lineItemsData = lineItems.map(item => ({
@@ -173,13 +174,7 @@ const AddJob = () => {
       setIsSubmitting(true);
 
       // Format the date for the API (use current date if none selected)
-      const scheduledDate = selectedDate 
-        ? new Date(
-            currentMonth.getFullYear(),
-            currentMonth.getMonth(),
-            selectedDate
-          ).toISOString().split('T')[0]
-        : new Date().toISOString().split('T')[0];
+      const scheduledDate = selectedDates.length > 0 ? new Date(currentMonth.getFullYear(), currentMonth.getMonth(), selectedDates[0]).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
 
       // Prepare line items data
       const lineItemsData = lineItems.map(item => ({
@@ -324,9 +319,11 @@ const AddJob = () => {
     return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   };
 
-  // Handle day selection
+  // Update handleDaySelect to toggle days
   const handleDaySelect = (day: number) => {
-    setSelectedDate(day);
+    setSelectedDates(prev =>
+      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
+    );
   };
 
   // Function to format time for display
@@ -630,39 +627,107 @@ const AddJob = () => {
         {/* Schedule Section */}
         <h2 className="text-xl text-gray-700 font-medium mb-4">Schedule</h2>
         
-        {/* Calendar */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <button onClick={goToPrevMonth} className="p-1 rounded-full hover:bg-gray-100">
-              <ChevronLeft className="w-6 h-6 text-gray-600" />
-            </button>
-            <h3 className="text-lg font-medium text-gray-800">{formatMonthYear(currentMonth)}</h3>
-            <button onClick={goToNextMonth} className="p-1 rounded-full hover:bg-gray-100">
-              <ChevronRight className="w-6 h-6 text-gray-600" />
-            </button>
-          </div>
-          
-          <div className="grid grid-cols-7 gap-1">
-            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-              <div key={day} className="text-center text-sm text-gray-500 font-medium py-1">
-                {day}
-              </div>
-            ))}
-            
-            {generateCalendarDays().map((day, index) => (
-              <button
-                key={index}
-                onClick={() => day.currentMonth && handleDaySelect(day.day)}
-                className={`
-                  h-10 rounded-full flex items-center justify-center text-sm
-                  ${day.currentMonth ? 'hover:bg-gray-100 text-gray-900' : 'text-gray-500'}
-                  ${day.currentMonth && selectedDate === day.day ? 'bg-blue-600 text-white hover:bg-blue-700' : ''}
-                `}
-                disabled={!day.currentMonth}
-              >
-                {day.day}
+        {/* Schedule for later toggle */}
+        <div className="mb-4 flex items-center gap-3">
+          <input
+            type="checkbox"
+            id="scheduleForLater"
+            checked={scheduleForLater}
+            onChange={() => setScheduleForLater(v => !v)}
+            className="accent-[#1E6F42] w-5 h-5 rounded"
+          />
+          <label htmlFor="scheduleForLater" className="text-base font-medium text-gray-700 select-none">Schedule for later</label>
+        </div>
+
+        {/* Only show calendar if not scheduling for later */}
+        {!scheduleForLater && (
+          <div className="mb-4">
+            {/* Calendar */}
+            <div className="flex items-center justify-between mb-4">
+              <button onClick={goToPrevMonth} className="p-1 rounded-full hover:bg-gray-100">
+                <ChevronLeft className="w-6 h-6 text-gray-600" />
               </button>
-            ))}
+              <h3 className="text-lg font-medium text-gray-800">{formatMonthYear(currentMonth)}</h3>
+              <button onClick={goToNextMonth} className="p-1 rounded-full hover:bg-gray-100">
+                <ChevronRight className="w-6 h-6 text-gray-600" />
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-7 gap-1">
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                <div key={day} className="text-center text-sm text-gray-500 font-medium py-1">
+                  {day}
+                </div>
+              ))}
+              
+              {generateCalendarDays().map((day, index) => (
+                <button
+                  key={index}
+                  onClick={() => day.currentMonth && handleDaySelect(day.day)}
+                  className={
+                    `h-10 rounded-full flex items-center justify-center text-sm
+                    ${day.currentMonth ? 'hover:bg-gray-100 text-gray-900' : 'text-gray-500'}
+                    ${day.currentMonth && selectedDates.includes(day.day) ? 'bg-blue-600 text-white hover:bg-blue-700' : ''}`
+                  }
+                  disabled={!day.currentMonth}
+                >
+                  {day.day}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Start/End time boxes, always shown below calendar/agenda and above Arrival Time */}
+        <div className="flex gap-4 mb-6">
+          {/* Start time box */}
+          <div
+            className="flex-1 border border-gray-300 rounded-xl p-4 flex flex-col items-center cursor-pointer relative"
+            onClick={() => setShowStartTimePicker(true)}
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <svg width="28" height="28" fill="none" stroke="#5C6C74" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              <span className="text-lg font-medium text-[#5C6C74]">Start time</span>
+            </div>
+            <span className="text-2xl font-bold text-[#22343C]">{startTime ? formatTimeDisplay(startTime) : '--:--'}</span>
+            {showStartTimePicker && (
+              <input
+                type="time"
+                value={startTime}
+                onChange={e => { setStartTime(e.target.value); setShowStartTimePicker(false); }}
+                onBlur={() => setShowStartTimePicker(false)}
+                className="absolute left-0 top-0 w-full h-full opacity-0 cursor-pointer"
+                autoFocus
+              />
+            )}
+          </div>
+          {/* End time box */}
+          <div
+            className="flex-1 border border-gray-300 rounded-xl p-4 flex flex-col items-center cursor-pointer relative"
+            onClick={() => setShowEndTimePicker(true)}
+          >
+            <div className="flex items-center gap-2 mb-1 w-full justify-between">
+              <span className="text-lg font-medium text-[#5C6C74]">End time</span>
+              {endTime && (
+                <button
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F5F5F5] hover:bg-[#EDEDED]"
+                  onClick={e => { e.stopPropagation(); setEndTime(""); }}
+                >
+                  <X className="w-5 h-5 text-[#5C6C74]" />
+                </button>
+              )}
+            </div>
+            <span className="text-2xl font-bold text-[#22343C]">{endTime ? formatTimeDisplay(endTime) : '--:--'}</span>
+            {showEndTimePicker && (
+              <input
+                type="time"
+                value={endTime}
+                onChange={e => { setEndTime(e.target.value); setShowEndTimePicker(false); }}
+                onBlur={() => setShowEndTimePicker(false)}
+                className="absolute left-0 top-0 w-full h-full opacity-0 cursor-pointer"
+                autoFocus
+              />
+            )}
           </div>
         </div>
 
@@ -688,17 +753,19 @@ const AddJob = () => {
         </div>
 
         {/* Recurring Job Option */}
-        <div className="mb-8">
-          <label className="text-sm text-gray-700 font-medium mb-1 block">Recurring</label>
-          <select
-            value={formData.repeating}
-            onChange={e => handleInputChange('repeating', e.target.value)}
-            className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
-          >
-            <option value="none">One-time job</option>
-            <option value="recurring">Recurring job</option>
-          </select>
-        </div>
+        {selectedDates.length === 1 && (
+          <div className="mb-8">
+            <label className="text-sm text-gray-700 font-medium mb-1 block">Recurring</label>
+            <select
+              value={formData.repeating}
+              onChange={e => handleInputChange('repeating', e.target.value)}
+              className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
+            >
+              <option value="none">One-time job</option>
+              <option value="recurring">Recurring job</option>
+            </select>
+          </div>
+        )}
 
         {/* Invoicing Section - No divider before this */}
         <h2 className="text-xl text-gray-700 font-medium mb-4">Invoicing</h2>

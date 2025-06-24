@@ -27,7 +27,7 @@ const EditJob = () => {
   const [loadingJob, setLoadingJob] = useState(true);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [scheduleForLater, setScheduleForLater] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<number | null>(null);
+  const [selectedDates, setSelectedDates] = useState<number[]>([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [remindToInvoice, setRemindToInvoice] = useState(false);
   const [showLineItemModal, setShowLineItemModal] = useState(false);
@@ -101,7 +101,7 @@ const EditJob = () => {
         if (jobData.scheduled_date) {
           const scheduledDate = new Date(jobData.scheduled_date);
           setCurrentMonth(scheduledDate);
-          setSelectedDate(scheduledDate.getDate());
+          setSelectedDates([scheduledDate.getDate()]);
         }
         
         // Set form data from job
@@ -172,7 +172,7 @@ const EditJob = () => {
       return;
     }
 
-    if (!selectedDate) {
+    if (!selectedDates.length) {
       toast.error("Please select a scheduled date");
       return;
     }
@@ -186,11 +186,9 @@ const EditJob = () => {
       setIsSubmitting(true);
 
       // Format the date for the API
-      const scheduledDate = new Date(
-        currentMonth.getFullYear(),
-        currentMonth.getMonth(),
-        selectedDate
-      ).toISOString().split('T')[0];
+      const scheduledDate = selectedDates.length
+        ? new Date(currentMonth.getFullYear(), currentMonth.getMonth(), selectedDates[0]).toISOString().split('T')[0]
+        : undefined;
 
       // Prepare line items data
       const lineItemsData = lineItems.map(item => ({
@@ -336,7 +334,9 @@ const EditJob = () => {
 
   // Handle day selection
   const handleDaySelect = (day: number) => {
-    setSelectedDate(day);
+    setSelectedDates(prev =>
+      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
+    );
   };
 
   // Function to format time for display
@@ -676,11 +676,11 @@ const EditJob = () => {
               <button
                 key={index}
                 onClick={() => day.currentMonth && handleDaySelect(day.day)}
-                className={`
-                  h-10 rounded-full flex items-center justify-center text-sm
+                className={
+                  `h-10 rounded-full flex items-center justify-center text-sm
                   ${day.currentMonth ? 'hover:bg-gray-100 text-gray-900' : 'text-gray-500'}
-                  ${day.currentMonth && selectedDate === day.day ? 'bg-blue-600 text-white hover:bg-blue-700' : ''}
-                `}
+                  ${day.currentMonth && selectedDates.includes(day.day) ? 'bg-blue-600 text-white hover:bg-blue-700' : ''}`
+                }
                 disabled={!day.currentMonth}
               >
                 {day.day}
@@ -711,17 +711,19 @@ const EditJob = () => {
         </div>
 
         {/* Recurring Job Option */}
-        <div className="mb-8">
-          <label className="text-sm text-gray-700 font-medium mb-1 block">Recurring</label>
-          <select
-            value={formData.repeating}
-            onChange={(e) => handleInputChange('repeating', e.target.value)}
-            className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
-          >
-            <option value="none">One-time job</option>
-            <option value="recurring">Recurring job</option>
-          </select>
-        </div>
+        {selectedDates.length === 1 && (
+          <div className="mb-8">
+            <label className="text-sm text-gray-700 font-medium mb-1 block">Recurring</label>
+            <select
+              value={formData.repeating}
+              onChange={e => handleInputChange('repeating', e.target.value)}
+              className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
+            >
+              <option value="none">One-time job</option>
+              <option value="recurring">Recurring job</option>
+            </select>
+          </div>
+        )}
 
         {/* Invoicing Section - No divider before this */}
         <h2 className="text-xl text-gray-700 font-medium mb-4">Invoicing</h2>
