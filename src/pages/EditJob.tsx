@@ -599,8 +599,25 @@ const EditJob = () => {
           </div>
         </div>
         
-        {/* Recurring Job Option */}
+        {/* Arrival Time Section - Moved above Recurring */}
         <div className="mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <label className="text-sm text-gray-700 font-medium mb-1 block">Arrival Time</label>
+            <button 
+              className="text-blue-600"
+              onClick={() => {
+                // Show time selection UI when clicked
+                // For now we'll keep the functionality minimal
+              }}
+            >
+              <Plus className="w-5 h-5" />
+            </button>
+          </div>
+          {/* Time input boxes are hidden now */}
+        </div>
+
+        {/* Recurring Job Option */}
+        <div className="mb-8">
           <label className="text-sm text-gray-700 font-medium mb-1 block">Recurring</label>
           <select
             value={formData.repeating}
@@ -612,34 +629,20 @@ const EditJob = () => {
           </select>
         </div>
 
-        {/* Arrival Time Section - Replace Team Section */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <label className="text-sm text-gray-700 font-medium mb-1 block">Arrival Time</label>
-            <button 
-              className="text-blue-600"
-              onClick={() => {/* Add functionality later */}}
-            >
-              <Plus className="w-5 h-5" />
-            </button>
+        {/* Invoicing Section - No divider before this */}
+        <h2 className="text-xl text-gray-700 font-medium mb-4">Invoicing</h2>
+        
+        <div className="flex items-center justify-between mb-8">
+          <div className="w-3/4 pr-4">
+            <h3 className="text-xl font-medium text-gray-800">Remind me to invoice when I close the job</h3>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="relative">
-              <input
-                type="time"
-                value={formData.startTime}
-                onChange={(e) => handleInputChange('startTime', e.target.value)}
-                className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
-              />
-            </div>
-            <div className="relative">
-              <input
-                type="time"
-                value={formData.endTime}
-                onChange={(e) => handleInputChange('endTime', e.target.value)}
-                className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
-              />
-            </div>
+          <div 
+            className={`w-14 h-8 rounded-full p-1 transition-colors duration-200 ease-in-out ${remindToInvoice ? 'bg-blue-600' : 'bg-gray-300'}`}
+            onClick={() => setRemindToInvoice(!remindToInvoice)}
+          >
+            <div 
+              className={`bg-white w-6 h-6 rounded-full shadow-md transform transition-transform duration-200 ease-in-out ${remindToInvoice ? 'translate-x-6' : 'translate-x-0'}`}
+            />
           </div>
         </div>
       </div>

@@ -577,8 +577,25 @@ const AddJob = () => {
           </div>
         </div>
 
-        {/* Recurring Job Option */}
+        {/* Arrival Time Section - Moved above Recurring */}
         <div className="mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <label className="text-sm text-gray-700 font-medium mb-1 block">Arrival Time</label>
+            <button 
+              className="text-blue-600"
+              onClick={() => {
+                // Show time selection UI when clicked
+                // For now we'll keep the functionality minimal
+              }}
+            >
+              <Plus className="w-5 h-5" />
+            </button>
+          </div>
+          {/* Time input boxes are hidden now */}
+        </div>
+
+        {/* Recurring Job Option */}
+        <div className="mb-8">
           <label className="text-sm text-gray-700 font-medium mb-1 block">Recurring</label>
           <select
             value={formData.repeating}
@@ -590,41 +607,7 @@ const AddJob = () => {
           </select>
         </div>
 
-        {/* Arrival Time Section - Replace Team Section */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <label className="text-sm text-gray-700 font-medium mb-1 block">Arrival Time</label>
-            <button 
-              className="text-blue-600"
-              onClick={() => {/* Add functionality later */}}
-            >
-              <Plus className="w-5 h-5" />
-            </button>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="relative">
-              <input
-                type="time"
-                value={formData.startTime}
-                onChange={e => handleInputChange('startTime', e.target.value)}
-                className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
-              />
-            </div>
-            <div className="relative">
-              <input
-                type="time"
-                value={formData.endTime}
-                onChange={e => handleInputChange('endTime', e.target.value)}
-                className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Separator */}
-        <div className="w-full h-3 bg-gray-100 -mx-4 px-4 mb-8"></div>
-        
-        {/* Invoicing Section */}
+        {/* Invoicing Section - No divider before this */}
         <h2 className="text-xl text-gray-700 font-medium mb-4">Invoicing</h2>
           
         <div className="flex items-center justify-between mb-8">
