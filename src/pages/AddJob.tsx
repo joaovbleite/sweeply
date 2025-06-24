@@ -430,33 +430,54 @@ const AddJob = () => {
         </div>
 
         {/* Service Type */}
-        <div className="mb-4">
+        <div className="mb-4 relative">
           <label className="text-sm text-gray-700 font-medium mb-1 block">Service Type</label>
-          <select
-            value={formData.service_type}
-            onChange={(e) => handleInputChange('service_type', e.target.value as ServiceType)}
-            className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
-          >
-            <option value="regular">Regular Service</option>
-            <option value="deep_clean">Deep Clean</option>
-            <option value="move_in_out">Move In/Out</option>
-            <option value="other">Other</option>
-          </select>
+          <div className="relative">
+            <select
+              value={formData.service_type}
+              onChange={(e) => {
+                handleInputChange('service_type', e.target.value as ServiceType);
+                // Add a default line item based on the selected service type
+                if (e.target.value === 'regular') {
+                  handleAddLineItem({ description: "Regular Service", price: 120 });
+                } else if (e.target.value === 'deep_clean') {
+                  handleAddLineItem({ description: "Deep Clean", price: 200 });
+                } else if (e.target.value === 'move_in_out') {
+                  handleAddLineItem({ description: "Move In/Out Clean", price: 250 });
+                }
+              }}
+              className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
+              style={{ position: 'relative', zIndex: 10 }}
+            >
+              <option value="regular">Regular Service - $120</option>
+              <option value="deep_clean">Deep Clean - $200</option>
+              <option value="move_in_out">Move In/Out - $250</option>
+              <option value="other">Other</option>
+            </select>
+            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+              <ChevronDown className="w-5 h-5 text-gray-700" />
+            </div>
+          </div>
         </div>
 
         {/* Property Type */}
-        <div className="mb-4">
+        <div className="mb-4 relative">
           <label className="text-sm text-gray-700 font-medium mb-1 block">Property Type</label>
-          <select
-            value={formData.property_type}
-            onChange={(e) => handleInputChange('property_type', e.target.value as PropertyType)}
-            className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
-          >
-            <option value="residential">Residential</option>
-            <option value="commercial">Commercial</option>
-            <option value="industrial">Industrial</option>
-            <option value="other">Other</option>
-          </select>
+          <div className="relative">
+            <select
+              value={formData.property_type}
+              onChange={(e) => handleInputChange('property_type', e.target.value as PropertyType)}
+              className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
+            >
+              <option value="residential">Residential</option>
+              <option value="commercial">Commercial</option>
+              <option value="industrial">Industrial</option>
+              <option value="other">Other</option>
+            </select>
+            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+              <ChevronDown className="w-5 h-5 text-gray-700" />
+            </div>
+          </div>
         </div>
 
         {/* Display Line Items */}
