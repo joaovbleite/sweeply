@@ -23,8 +23,6 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
     { id: 2, description: "Standard Cleaning", price: 150.00 },
     { id: 3, description: "Deep Cleaning", price: 250.00 },
     { id: 4, description: "Move-in/Move-out Cleaning", price: 300.00 },
-    { id: 5, description: "Window Cleaning", price: 120.00 },
-    { id: 6, description: "Carpet Cleaning", price: 180.00 },
   ];
 
   // Filter items based on search term
