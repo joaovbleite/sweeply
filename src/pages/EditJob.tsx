@@ -411,33 +411,26 @@ const EditJob = () => {
           )}
         </div>
 
-        {/* Worker Section (formerly Salesperson) - Replace with Arrival Time */}
+        {/* Worker Section (formerly Salesperson) - Restore original */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <label className="text-sm text-gray-700 font-medium mb-1 block">Arrival Time</label>
-            <button 
-              className="text-blue-600"
-              onClick={() => {/* Add functionality later */}}
-            >
-              <Plus className="w-5 h-5" />
-            </button>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="relative mb-4">
+            <label className="text-sm text-gray-700 font-medium mb-1 block">Worker</label>
             <div className="relative">
-              <input
-                type="time"
-                value={formData.startTime}
-                onChange={(e) => handleInputChange('startTime', e.target.value)}
+              <select
+                value={formData.salesperson}
+                onChange={(e) => handleInputChange('salesperson', e.target.value)}
                 className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
-              />
-            </div>
-            <div className="relative">
-              <input
-                type="time"
-                value={formData.endTime}
-                onChange={(e) => handleInputChange('endTime', e.target.value)}
-                className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
-              />
+              >
+                <option value="">Please select</option>
+                {teamMembers.map((member) => (
+                  <option key={member.id} value={member.member_name || member.member_email || member.id}>
+                    {member.member_name || member.member_email || 'Team Member'}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <ChevronDown className="w-5 h-5 text-gray-700" />
+              </div>
             </div>
           </div>
         </div>
@@ -592,6 +585,37 @@ const EditJob = () => {
             <option value="none">One-time job</option>
             <option value="recurring">Recurring job</option>
           </select>
+        </div>
+
+        {/* Arrival Time Section - Replace Team Section */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <label className="text-sm text-gray-700 font-medium mb-1 block">Arrival Time</label>
+            <button 
+              className="text-blue-600"
+              onClick={() => {/* Add functionality later */}}
+            >
+              <Plus className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="relative">
+              <input
+                type="time"
+                value={formData.startTime}
+                onChange={(e) => handleInputChange('startTime', e.target.value)}
+                className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
+              />
+            </div>
+            <div className="relative">
+              <input
+                type="time"
+                value={formData.endTime}
+                onChange={(e) => handleInputChange('endTime', e.target.value)}
+                className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
