@@ -479,12 +479,9 @@ const EditJob = () => {
           </select>
         </div>
         
-        {/* Line items Section */}
-        <div className="flex items-center justify-between border-t border-b py-4 mb-4">
-          <h3 className="text-xl font-medium text-gray-800">Line items</h3>
-        </div>
-
         {/* Display Line Items */}
+        <div className="border-t pt-4 mb-4"></div>
+
         {lineItems.length > 0 ? (
           <div className="mb-4 space-y-3">
             {lineItems.map((item, index) => (
@@ -531,7 +528,7 @@ const EditJob = () => {
           </div>
         ) : (
           <div className="p-4 text-center text-gray-500 border border-dashed border-gray-300 rounded-lg mb-4">
-            No line items added yet. Click the + button to add items.
+            No services added yet. Click the + button to add services.
           </div>
         )}
 
