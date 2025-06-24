@@ -457,12 +457,10 @@ const EditJob = () => {
             onChange={(e) => handleInputChange('service_type', e.target.value as ServiceType)}
             className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
           >
-            <option value="regular">Regular Cleaning</option>
+            <option value="regular">Regular Service</option>
             <option value="deep_clean">Deep Clean</option>
-            <option value="move_in">Move-in Clean</option>
-            <option value="move_out">Move-out Clean</option>
-            <option value="post_construction">Post-Construction</option>
-            <option value="one_time">One-time Clean</option>
+            <option value="move_in_out">Move In/Out</option>
+            <option value="other">Other</option>
           </select>
         </div>
         
@@ -476,6 +474,8 @@ const EditJob = () => {
           >
             <option value="residential">Residential</option>
             <option value="commercial">Commercial</option>
+            <option value="industrial">Industrial</option>
+            <option value="other">Other</option>
           </select>
         </div>
         
@@ -500,7 +500,7 @@ const EditJob = () => {
                       min="1" 
                       value={item.quantity || 1} 
                       onChange={(e) => handleQuantityChange(index, parseInt(e.target.value) || 1)}
-                      className="w-12 h-8 border-y border-gray-300 text-center"
+                      className="w-12 h-8 text-center border-t border-b border-gray-300 text-sm" 
                     />
                     <button 
                       onClick={() => handleQuantityChange(index, (item.quantity || 1) + 1)}
@@ -510,8 +510,10 @@ const EditJob = () => {
                     </button>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-gray-900 font-medium">{formatCurrency(item.price * (item.quantity || 1))}</div>
+                <div className="flex flex-col items-end">
+                  <span className="font-medium text-gray-900">
+                    {formatCurrency(item.price * (item.quantity || 1))}
+                  </span>
                   <button 
                     onClick={() => handleRemoveLineItem(index)}
                     className="text-red-500 text-sm mt-1"
@@ -527,7 +529,7 @@ const EditJob = () => {
             </div>
           </div>
         ) : (
-          <div className="p-4 text-center text-gray-500 border border-dashed border-gray-300 rounded-lg mb-4">
+          <div className="mb-4 p-6 bg-gray-50 rounded-lg text-center text-gray-500">
             No services added yet. Click the + button to add services.
           </div>
         )}

@@ -48,6 +48,8 @@ const AddJob = () => {
     endTime: '',
     arrivalWindow: '',
     repeating: 'none',
+    service_type: 'regular' as ServiceType,
+    property_type: 'residential' as PropertyType,
   });
 
   // Load clients on component mount
@@ -139,8 +141,8 @@ const AddJob = () => {
         title: formData.jobTitle,
         description: formData.instructions,
         special_instructions: formData.instructions,
-        service_type: 'regular' as ServiceType,
-        property_type: 'residential' as PropertyType,
+        service_type: formData.service_type,
+        property_type: formData.property_type,
         scheduled_date: scheduledDate,
         estimated_price: formData.subtotal,
         line_items: lineItemsData, // This is custom data that will be stored as JSON
@@ -185,8 +187,8 @@ const AddJob = () => {
         title: formData.jobTitle || 'Draft Job',
         description: formData.instructions,
         special_instructions: formData.instructions,
-        service_type: 'regular' as ServiceType,
-        property_type: 'residential' as PropertyType,
+        service_type: formData.service_type,
+        property_type: formData.property_type,
         scheduled_date: scheduledDate,
         estimated_price: formData.subtotal,
         line_items: lineItemsData, // This is custom data that will be stored as JSON
@@ -417,17 +419,44 @@ const AddJob = () => {
         <div className="w-full h-3 bg-gray-100 -mx-4 px-4 mb-8"></div>
         
         {/* Service Section (renamed from Product / Service) */}
-        <h2 className="text-xl text-gray-700 font-medium mb-4">Service</h2>
-        
-        {/* Line items Section */}
-        <div className="flex items-center justify-between border-t border-b py-4 mb-4">
-          <h3 className="text-xl font-medium text-gray-800">Line items</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl text-gray-700 font-medium">Service</h2>
           <button 
             className="text-blue-600"
             onClick={() => setShowLineItemModal(true)}
           >
             <Plus className="w-6 h-6" />
           </button>
+        </div>
+
+        {/* Service Type */}
+        <div className="mb-4">
+          <label className="text-sm text-gray-700 font-medium mb-1 block">Service Type</label>
+          <select
+            value={formData.service_type}
+            onChange={(e) => handleInputChange('service_type', e.target.value as ServiceType)}
+            className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
+          >
+            <option value="regular">Regular Service</option>
+            <option value="deep_clean">Deep Clean</option>
+            <option value="move_in_out">Move In/Out</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        {/* Property Type */}
+        <div className="mb-4">
+          <label className="text-sm text-gray-700 font-medium mb-1 block">Property Type</label>
+          <select
+            value={formData.property_type}
+            onChange={(e) => handleInputChange('property_type', e.target.value as PropertyType)}
+            className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
+          >
+            <option value="residential">Residential</option>
+            <option value="commercial">Commercial</option>
+            <option value="industrial">Industrial</option>
+            <option value="other">Other</option>
+          </select>
         </div>
 
         {/* Display Line Items */}
@@ -475,7 +504,7 @@ const AddJob = () => {
           </div>
         ) : (
           <div className="mb-4 p-6 bg-gray-50 rounded-lg text-center text-gray-500">
-            No items added yet. Click the + button to add line items.
+            No services added yet. Click the + button to add services.
           </div>
         )}
 
