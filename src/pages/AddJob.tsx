@@ -598,6 +598,21 @@ const AddJob = () => {
     }
   };
 
+  // Add state to track if modal is open to control body scroll
+  useEffect(() => {
+    // Prevent body scrolling when modal is open
+    if (showArrivalTimeModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    
+    // Cleanup function to restore scrolling when component unmounts
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [showArrivalTimeModal]);
+
   // Save button component for the header
   const SaveButton = (
     <button
@@ -997,7 +1012,11 @@ const AddJob = () => {
               maxHeight: '80vh',
               overflowY: 'auto',
               paddingBottom: 'env(safe-area-inset-bottom, 24px)',
-              zIndex: 51 // Higher than the overlay
+              zIndex: 51, // Higher than the overlay
+              position: 'fixed', // Ensure it's fixed regardless of parent
+              bottom: 0, // Always at the bottom of the viewport
+              left: 0,
+              right: 0
             }}
           >
             <div className="p-4">
