@@ -164,6 +164,22 @@ const AddJob = () => {
     setInitialFormData(initialData);
   }, [startTime]); // Add startTime as a dependency
 
+  // Auto-set end time when start time changes
+  useEffect(() => {
+    if (startTime) {
+      // Calculate end time 1 hour after start time
+      const [hours, minutes] = startTime.split(':').map(Number);
+      let newHours = (hours + 1) % 24;
+      const newEndTime = `${newHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+      
+      setEndTime(newEndTime);
+      setFormData(prev => ({
+        ...prev,
+        endTime: newEndTime
+      }));
+    }
+  }, [startTime]);
+
   const handleClientSelect = (client: Client) => {
     setSelectedClient(client);
     setFormData({
@@ -864,14 +880,14 @@ const AddJob = () => {
         <div className="flex gap-3 mb-4">
           {/* Start time box */}
           <div
-            className="flex-1 border border-gray-300 rounded-lg p-3 flex flex-col items-center cursor-pointer relative"
+            className="flex-1 border border-gray-300 rounded-lg p-2 flex flex-col items-center cursor-pointer relative"
             onClick={() => setShowStartTimePicker(true)}
           >
-            <div className="flex items-center gap-1 mb-0.5">
-              <svg width="20" height="20" fill="none" stroke="#5C6C74" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-              <span className="text-base font-medium text-[#5C6C74]">Start time</span>
+            <div className="flex items-center gap-1">
+              <svg width="16" height="16" fill="none" stroke="#5C6C74" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              <span className="text-sm font-medium text-[#5C6C74]">Start time</span>
             </div>
-            <span className="text-xl font-bold text-[#22343C]">{startTime ? formatTimeDisplay(startTime) : '--:--'}</span>
+            <span className="text-lg font-bold text-[#22343C]">{startTime ? formatTimeDisplay(startTime) : '--:--'}</span>
             {showStartTimePicker && (
               <input
                 type="time"
@@ -885,21 +901,21 @@ const AddJob = () => {
           </div>
           {/* End time box */}
           <div
-            className="flex-1 border border-gray-300 rounded-lg p-3 flex flex-col items-center cursor-pointer relative"
+            className="flex-1 border border-gray-300 rounded-lg p-2 flex flex-col items-center cursor-pointer relative"
             onClick={() => setShowEndTimePicker(true)}
           >
-            <div className="flex items-center gap-1 mb-0.5 w-full justify-between">
-              <span className="text-base font-medium text-[#5C6C74]">End time</span>
+            <div className="flex items-center gap-1 w-full justify-between px-1">
+              <span className="text-sm font-medium text-[#5C6C74]">End time</span>
               {endTime && (
                 <button
-                  className="w-6 h-6 flex items-center justify-center rounded-full bg-[#F5F5F5] hover:bg-[#EDEDED]"
+                  className="w-5 h-5 flex items-center justify-center rounded-full bg-[#F5F5F5] hover:bg-[#EDEDED]"
                   onClick={e => { e.stopPropagation(); setEndTime(""); }}
                 >
-                  <X className="w-4 h-4 text-[#5C6C74]" />
+                  <X className="w-3 h-3 text-[#5C6C74]" />
                 </button>
               )}
             </div>
-            <span className="text-xl font-bold text-[#22343C]">{endTime ? formatTimeDisplay(endTime) : '--:--'}</span>
+            <span className="text-lg font-bold text-[#22343C]">{endTime ? formatTimeDisplay(endTime) : '--:--'}</span>
             {showEndTimePicker && (
               <input
                 type="time"
@@ -924,7 +940,7 @@ const AddJob = () => {
               <Plus className="w-5 h-5" />
             </button>
           </div>
-          {formData.startTime && (
+          {formData.startTime && formData.arrivalWindow && formData.arrivalWindow !== "none" && (
             <div className="bg-gray-50 p-3 rounded-lg">
               <p className="text-gray-900">
                 {formatTimeDisplay(formData.startTime)} - {formatTimeDisplay(formData.endTime || calculateEndTime())}
@@ -1059,7 +1075,7 @@ const AddJob = () => {
                         : 'border-[#CCCCCC] bg-white'
                     }`}>
                       {arrivalWindowStyle === "after" && (
-                        <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />
+                        <div className="w-3 h-3 rounded-full bg-blue-600" />
                       )}
                     </div>
                   </div>
@@ -1070,11 +1086,11 @@ const AddJob = () => {
                   >
                     <div className="flex items-center">
                       <div className="mr-3 text-[#0C1B1F]">
-                        <span className="inline-block w-5 h-5 text-center">⟷</span>
+                        <span className="inline-block w-5 h-5 text-center">↔</span>
                       </div>
                       <div>
                         <p className="font-medium text-sm text-[#0C1B1F]">Center window on start time</p>
-                        <p className="text-xs text-[#5C6C74]">6:00 PM – 7:00 PM</p>
+                        <p className="text-xs text-[#5C6C74]">{formatTimeDisplay(startTime)} – {formatTimeDisplay(calculateEndTime())}</p>
                       </div>
                     </div>
                     <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
@@ -1083,43 +1099,18 @@ const AddJob = () => {
                         : 'border-[#CCCCCC] bg-white'
                     }`}>
                       {arrivalWindowStyle === "center" && (
-                        <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />
+                        <div className="w-3 h-3 rounded-full bg-blue-600" />
                       )}
                     </div>
                   </div>
                 </div>
               </div>
               
-              <div className="mb-4">
-                <div 
-                  className="flex items-center justify-between p-3"
-                  onClick={() => setApplyToAllJobs(!applyToAllJobs)}
-                >
-                  <p className="font-medium text-sm text-[#0C1B1F]">Apply to all current and future jobs</p>
-                  <div className={`w-5 h-5 rounded flex items-center justify-center ${
-                    applyToAllJobs ? 'bg-blue-600' : 'bg-[#D9D9D9]'
-                  }`}>
-                    {applyToAllJobs && (
-                      <svg width="12" height="8" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M1 5L5 9L13 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    )}
-                  </div>
-                </div>
-              </div>
-              
               <button
+                className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium mt-4"
                 onClick={handleSaveArrivalWindow}
-                className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold text-base mb-2"
               >
-                Next
-              </button>
-              
-              <button
-                onClick={() => setShowArrivalTimeModal(false)}
-                className="w-full py-3 text-[#0C1B1F] font-medium text-base"
-              >
-                Cancel
+                Save
               </button>
             </div>
           </div>
