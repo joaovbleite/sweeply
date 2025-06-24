@@ -118,7 +118,7 @@ const Schedule = () => {
       const newDate = direction === 'next' ? addWeeks(currentDate, 1) : subWeeks(currentDate, 1);
       setCurrentDate(newDate);
       setAnimatingWeekChange(false);
-    }, 300); // Match this with the animation duration
+    }, 150); // Reduced from 300ms to 150ms for faster transitions
   };
 
   // Go to today
@@ -137,7 +137,7 @@ const Schedule = () => {
       // Then update the actual data
       setCurrentDate(today);
       setAnimatingWeekChange(false);
-    }, 300);
+    }, 150); // Reduced from 300ms to 150ms to match other animations
   };
 
   // Handling touch events for swipe detection
@@ -213,19 +213,23 @@ const Schedule = () => {
         x: 0,
         opacity: 1,
         transition: { 
-          x: { type: 'spring', stiffness: 300, damping: 30 }, 
-          opacity: { duration: 0.2 } 
+          x: { type: 'spring', stiffness: 400, damping: 25, duration: 0.15 }, 
+          opacity: { duration: 0.1 } 
         },
       },
       exit: (direction: 'left' | 'right' | null) => ({
         x: direction === 'left' ? '100%' : direction === 'right' ? '-100%' : 0,
         opacity: 0,
         transition: { 
-          x: { type: 'spring', stiffness: 300, damping: 30 }, 
-          opacity: { duration: 0.2 } 
+          x: { type: 'spring', stiffness: 400, damping: 25, duration: 0.15 }, 
+          opacity: { duration: 0.1 } 
         },
       }),
     };
+
+    // Preload next and previous week data to avoid white flash
+    const prevWeekDays = Array.from({ length: 7 }, (_, i) => addDays(subWeeks(weekStart, 1), i));
+    const nextWeekDays = Array.from({ length: 7 }, (_, i) => addDays(addWeeks(weekStart, 1), i));
 
     return (
       <div 
@@ -274,6 +278,16 @@ const Schedule = () => {
             })}
           </motion.div>
         </AnimatePresence>
+
+        {/* Hidden preload elements to ensure next/prev weeks are ready */}
+        <div className="hidden">
+          {prevWeekDays.map((day, index) => (
+            <span key={`prev-${index}`}>{format(day, 'EEE d')}</span>
+          ))}
+          {nextWeekDays.map((day, index) => (
+            <span key={`next-${index}`}>{format(day, 'EEE d')}</span>
+          ))}
+        </div>
       </div>
     );
   };
