@@ -114,11 +114,11 @@ const Schedule = () => {
     
     // First animate visually, then update the actual data
     setTimeout(() => {
-      // Then update the actual data
+      // Then update the actual data - always move exactly one week
       const newDate = direction === 'next' ? addWeeks(currentDate, 1) : subWeeks(currentDate, 1);
       setCurrentDate(newDate);
       setAnimatingWeekChange(false);
-    }, 400); // Match this with the animation duration
+    }, 300); // Match this with the animation duration
   };
 
   // Go to today
@@ -142,15 +142,18 @@ const Schedule = () => {
 
   // Handling touch events for swipe detection
   const handleTouchStart = (e: React.TouchEvent) => {
+    if (animatingWeekChange) return; // Prevent interaction during animation
     setTouchEnd(null);
     setTouchStart(e.targetTouches[0].clientX);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
+    if (animatingWeekChange) return; // Prevent interaction during animation
     setTouchEnd(e.targetTouches[0].clientX);
   };
 
   const handleTouchEnd = () => {
+    if (animatingWeekChange) return; // Prevent interaction during animation
     if (!touchStart || !touchEnd) return;
     
     const distance = touchStart - touchEnd;
@@ -168,6 +171,8 @@ const Schedule = () => {
 
   // Handle wheel event handler for desktop scrolling
   const handleWheel = (e: React.WheelEvent) => {
+    if (animatingWeekChange) return; // Prevent interaction during animation
+    
     // Prevent default browser scroll behavior
     e.preventDefault();
     
@@ -223,27 +228,13 @@ const Schedule = () => {
     };
 
     return (
-      <div className="px-0 pb-4 border-b border-gray-200 relative overflow-hidden">
-        {/* Navigation buttons */}
-        <div className="absolute left-0 top-0 bottom-0 z-10 flex items-center">
-          <button 
-            onClick={() => navigateWeek('prev')}
-            className="p-2 rounded-full bg-white shadow-md hover:bg-gray-50"
-            disabled={animatingWeekChange}
-          >
-            <ChevronLeft className="w-4 h-4 text-gray-600" />
-          </button>
-        </div>
-        <div className="absolute right-0 top-0 bottom-0 z-10 flex items-center">
-          <button 
-            onClick={() => navigateWeek('next')}
-            className="p-2 rounded-full bg-white shadow-md hover:bg-gray-50"
-            disabled={animatingWeekChange}
-          >
-            <ChevronRight className="w-4 h-4 text-gray-600" />
-          </button>
-        </div>
-
+      <div 
+        className="px-0 pb-4 border-b border-gray-200 relative overflow-hidden"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onWheel={handleWheel}
+      >
         {/* Week days carousel */}
         <AnimatePresence initial={false} custom={weekDirection} mode="wait">
           <motion.div
@@ -253,7 +244,7 @@ const Schedule = () => {
             initial="enter"
             animate="center"
             exit="exit"
-            className="flex justify-between px-10"
+            className="flex justify-between px-4"
           >
             {weekDays.map((day, index) => {
               const isSelectedDay = isSameDay(day, currentDate);
