@@ -380,13 +380,13 @@ const AddClient = () => {
                     onBillingMatchesPropertyChange={setBillingMatchesProperty}
                   />
                 ) : (
-                  <input
-                    type="text"
-                    placeholder="Property address"
+              <input
+                type="text"
+                placeholder="Property address"
                     value={formData.address}
                     onClick={() => setAddressFormExpanded(true)}
-                    className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-900"
-                  />
+                className="w-full p-4 bg-white border border-gray-200 rounded-lg focus:outline-none text-gray-900"
+              />
                 )}
               </div>
             </div>

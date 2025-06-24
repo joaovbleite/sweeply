@@ -93,7 +93,7 @@ const BottomNavBar: React.FC = () => {
       iconColor: "text-amber-600"
     }
   ];
-
+  
   // Close menu when route changes
   useEffect(() => {
     setIsMenuOpen(false);
@@ -178,22 +178,22 @@ const BottomNavBar: React.FC = () => {
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname.startsWith(item.path);
-          
+            
           if (item.id === "add") {
-            return (
-              <button
-                key={item.id}
+              return (
+                <button
+                  key={item.id}
                 onClick={item.action}
                 className="flex flex-col items-center justify-center bg-[#0F2B28] w-12 h-12 rounded-full -mt-4"
-              >
+                >
                 <Icon 
                   className="w-6 h-6 text-white" 
                   strokeWidth={2}
                   fill="none"
                 />
-              </button>
-            );
-          }
+                </button>
+              );
+            }
           
           return (
             <Link

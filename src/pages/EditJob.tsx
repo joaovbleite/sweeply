@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Search, User, MapPin, Phone, Mail, Plus, ChevronDown, ChevronLeft, ChevronRight, Users, Loader2 } from "lucide-react";
+import { Search, User, MapPin, Phone, Mail, Plus, ChevronDown, ChevronLeft, ChevronRight, Users, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { clientsApi } from "@/lib/api/clients";
 import { jobsApi } from "@/lib/api/jobs";
@@ -54,6 +54,13 @@ const EditJob = () => {
     service_type: 'regular' as ServiceType,
     property_type: 'residential' as PropertyType,
   });
+
+  // Add new state for arrival time
+  const [showArrivalTimeModal, setShowArrivalTimeModal] = useState(false);
+  const [arrivalWindowDuration, setArrivalWindowDuration] = useState<string>("1 hr");
+  const [arrivalWindowStyle, setArrivalWindowStyle] = useState<"after" | "center">("after");
+  const [startTime, setStartTime] = useState("18:30");
+  const [applyToAllJobs, setApplyToAllJobs] = useState(false);
 
   // Load job, clients, and team members on component mount
   useEffect(() => {
@@ -332,6 +339,89 @@ const EditJob = () => {
     setSelectedDate(day);
   };
 
+  // Function to format time for display
+  const formatTimeDisplay = (time: string) => {
+    if (!time) return "";
+    const [hours, minutes] = time.split(':').map(Number);
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12;
+    return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+  };
+
+  // Calculate end time based on start time and window style
+  const calculateEndTime = () => {
+    const [hours, minutes] = startTime.split(':').map(Number);
+    let durationInMinutes = 0;
+    
+    if (arrivalWindowDuration === "15 min") durationInMinutes = 15;
+    else if (arrivalWindowDuration === "30 min") durationInMinutes = 30;
+    else if (arrivalWindowDuration === "1 hr") durationInMinutes = 60;
+    else if (arrivalWindowDuration === "2 hr") durationInMinutes = 120;
+    else if (arrivalWindowDuration === "3 hr") durationInMinutes = 180;
+    
+    let newHours = hours;
+    let newMinutes = minutes;
+    
+    if (arrivalWindowStyle === "after") {
+      newMinutes += durationInMinutes;
+      while (newMinutes >= 60) {
+        newHours += 1;
+        newMinutes -= 60;
+      }
+      newHours = newHours % 24;
+    } else if (arrivalWindowStyle === "center") {
+      // For centered window, subtract half the duration from start time
+      const halfDuration = Math.floor(durationInMinutes / 2);
+      let adjustedHours = hours;
+      let adjustedMinutes = minutes - halfDuration;
+      
+      while (adjustedMinutes < 0) {
+        adjustedHours -= 1;
+        adjustedMinutes += 60;
+      }
+      if (adjustedHours < 0) adjustedHours += 24;
+      
+      setStartTime(`${adjustedHours.toString().padStart(2, '0')}:${adjustedMinutes.toString().padStart(2, '0')}`);
+      
+      // Calculate end time (start time + full duration)
+      newMinutes = adjustedMinutes + durationInMinutes;
+      newHours = adjustedHours;
+      while (newMinutes >= 60) {
+        newHours += 1;
+        newMinutes -= 60;
+      }
+      newHours = newHours % 24;
+    }
+    
+    return `${newHours.toString().padStart(2, '0')}:${newMinutes.toString().padStart(2, '0')}`;
+  };
+
+  // Handle saving arrival window settings
+  const handleSaveArrivalWindow = () => {
+    const endTime = calculateEndTime();
+    setFormData(prev => ({
+      ...prev,
+      startTime,
+      endTime,
+      arrivalWindow: arrivalWindowDuration
+    }));
+    setShowArrivalTimeModal(false);
+  };
+
+  // Handle opening the arrival time modal
+  const handleOpenArrivalTimeModal = () => {
+    // Initialize with current form data values if they exist
+    if (formData.startTime) {
+      setStartTime(formData.startTime);
+    }
+    
+    if (formData.arrivalWindow) {
+      setArrivalWindowDuration(formData.arrivalWindow);
+    }
+    
+    setShowArrivalTimeModal(true);
+  };
+
   if (loadingJob) {
     return (
       <AppLayout>
@@ -605,15 +695,19 @@ const EditJob = () => {
             <label className="text-sm text-gray-700 font-medium mb-1 block">Arrival Time</label>
             <button 
               className="text-blue-600"
-              onClick={() => {
-                // Show time selection UI when clicked
-                // For now we'll keep the functionality minimal
-              }}
+              onClick={handleOpenArrivalTimeModal}
             >
               <Plus className="w-5 h-5" />
             </button>
           </div>
-          {/* Time input boxes are hidden now */}
+          {formData.startTime && (
+            <div className="bg-gray-50 p-3 rounded-lg">
+              <p className="text-gray-900">
+                {formatTimeDisplay(formData.startTime)} - {formatTimeDisplay(formData.endTime || calculateEndTime())}
+                {formData.arrivalWindow && formData.arrivalWindow !== "none" && ` (${formData.arrivalWindow} window)`}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Recurring Job Option */}
@@ -654,6 +748,152 @@ const EditJob = () => {
           onClose={() => setShowLineItemModal(false)}
           onAddItem={handleAddLineItem}
         />
+      )}
+
+      {/* Arrival Time Modal */}
+      {showArrivalTimeModal && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-end justify-center">
+          <div 
+            className="bg-white w-full rounded-t-[20px] shadow-lg transform transition-transform duration-300 ease-in-out animate-slide-up"
+            style={{
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              paddingBottom: 'env(safe-area-inset-bottom, 24px)'
+            }}
+          >
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-[#0C1B1F]">Arrival window</h2>
+                <button 
+                  onClick={() => setShowArrivalTimeModal(false)}
+                  className="p-2"
+                >
+                  <X className="w-6 h-6 text-[#0C1B1F]" />
+                </button>
+              </div>
+              
+              <div className="mb-8">
+                <p className="text-2xl font-bold text-center text-[#0C1B1F]">
+                  {formatTimeDisplay(startTime)} – {formatTimeDisplay(calculateEndTime())}
+                </p>
+                
+                {/* Time Picker */}
+                <div className="mt-4 flex justify-center">
+                  <input
+                    type="time"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                    className="p-2 border border-[#DADADA] rounded-lg text-center"
+                  />
+                </div>
+              </div>
+              
+              <div className="mb-6">
+                <div className="flex flex-wrap gap-3 justify-center">
+                  {["None", "15 min", "30 min", "1 hr", "2 hr", "3 hr"].map((duration) => (
+                    <button
+                      key={duration}
+                      onClick={() => setArrivalWindowDuration(duration.toLowerCase())}
+                      className={`py-2 px-4 rounded-full text-sm font-medium ${
+                        arrivalWindowDuration === duration.toLowerCase() 
+                          ? 'bg-[#002E3D] text-white' 
+                          : 'bg-[#EDEDED] text-[#0C1B1F]'
+                      }`}
+                    >
+                      {duration}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="mb-6">
+                <h3 className="text-lg font-medium mb-4 text-[#0C1B1F]">Arrival window style</h3>
+                
+                <div className="space-y-4">
+                  <div 
+                    className="flex items-center justify-between p-4 rounded-lg border border-[#DADADA]"
+                    onClick={() => setArrivalWindowStyle("after")}
+                  >
+                    <div className="flex items-center">
+                      <div className="mr-4 text-[#0C1B1F]">
+                        <span className="inline-block w-6 h-6 text-center">↦</span>
+                      </div>
+                      <div>
+                        <p className="font-medium text-[#0C1B1F]">Add window after start time</p>
+                        <p className="text-sm text-[#5C6C74]">{formatTimeDisplay(startTime)} – {formatTimeDisplay(calculateEndTime())}</p>
+                      </div>
+                    </div>
+                    <div className={`w-6 h-6 rounded-full border flex items-center justify-center ${
+                      arrivalWindowStyle === "after" 
+                        ? 'border-[#1E6F42] bg-white' 
+                        : 'border-[#CCCCCC] bg-white'
+                    }`}>
+                      {arrivalWindowStyle === "after" && (
+                        <div className="w-3 h-3 rounded-full bg-[#1E6F42]" />
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div 
+                    className="flex items-center justify-between p-4 rounded-lg border border-[#DADADA]"
+                    onClick={() => setArrivalWindowStyle("center")}
+                  >
+                    <div className="flex items-center">
+                      <div className="mr-4 text-[#0C1B1F]">
+                        <span className="inline-block w-6 h-6 text-center">⟷</span>
+                      </div>
+                      <div>
+                        <p className="font-medium text-[#0C1B1F]">Center window on start time</p>
+                        <p className="text-sm text-[#5C6C74]">6:00 PM – 7:00 PM</p>
+                      </div>
+                    </div>
+                    <div className={`w-6 h-6 rounded-full border flex items-center justify-center ${
+                      arrivalWindowStyle === "center" 
+                        ? 'border-[#1E6F42] bg-white' 
+                        : 'border-[#CCCCCC] bg-white'
+                    }`}>
+                      {arrivalWindowStyle === "center" && (
+                        <div className="w-3 h-3 rounded-full bg-[#1E6F42]" />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mb-8">
+                <div 
+                  className="flex items-center justify-between p-4"
+                  onClick={() => setApplyToAllJobs(!applyToAllJobs)}
+                >
+                  <p className="font-medium text-[#0C1B1F]">Apply to all current and future jobs</p>
+                  <div className={`w-6 h-6 rounded flex items-center justify-center ${
+                    applyToAllJobs ? 'bg-[#1E6F42]' : 'bg-[#D9D9D9]'
+                  }`}>
+                    {applyToAllJobs && (
+                      <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 5L5 9L13 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              <button
+                onClick={handleSaveArrivalWindow}
+                className="w-full py-4 bg-[#1E6F42] text-white rounded-xl font-bold text-base mb-4"
+              >
+                Next
+              </button>
+              
+              <button
+                onClick={() => setShowArrivalTimeModal(false)}
+                className="w-full py-4 text-[#0C1B1F] font-medium text-base"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </AppLayout>
   );

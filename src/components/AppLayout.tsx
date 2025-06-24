@@ -259,7 +259,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
       
       {/* Bottom Navigation Bar - Completely separate from page content and transitions */}
       {!hideBottomNav && isMobile && (
-        <BottomNavBar />
+          <BottomNavBar />
       )}
 
       {/* Mobile sidebar overlay */}

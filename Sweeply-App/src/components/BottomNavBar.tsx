@@ -21,7 +21,7 @@ const BottomNavBar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-
+  
   const navItems = [
     { id: "home", label: "Home", icon: Home, path: "/dashboard" },
     { id: "schedule", label: "Schedule", icon: Calendar, path: "/schedule" },
@@ -88,7 +88,7 @@ const BottomNavBar: React.FC = () => {
           ))}
         </div>
       </div>
-
+      
       {/* Bottom Navigation Bar - Fixed at bottom with proper padding */}
       <nav 
         className="fixed left-0 right-0 h-[72px] bg-white border-t border-gray-200 flex items-center justify-around px-4 z-40"
@@ -102,22 +102,22 @@ const BottomNavBar: React.FC = () => {
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname.startsWith(item.path);
-          
+            
           if (item.id === "add") {
-            return (
-              <button
-                key={item.id}
+              return (
+                <button
+                  key={item.id}
                 onClick={item.action}
                 className="flex flex-col items-center justify-center bg-[#0F2B28] w-12 h-12 rounded-full -mt-4"
-              >
+                >
                 <Icon 
                   className="w-6 h-6 text-white" 
                   strokeWidth={2}
                   fill="none"
                 />
-              </button>
-            );
-          }
+                </button>
+              );
+            }
           
           return (
             <Link

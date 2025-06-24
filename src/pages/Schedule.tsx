@@ -257,13 +257,13 @@ const Schedule = () => {
             style={{ minHeight: 48 }}
           >
             {weekDays.map((day, index) => {
-              const isSelected = isSameDay(day, currentDate);
+            const isSelected = isSameDay(day, currentDate);
               const isDayToday = isToday(day);
               const dayNumber = format(day, 'd');
-              return (
+            return (
                 <div key={index} className="flex-1 min-w-[40px] text-center">
-                  <button
-                    onClick={() => handleDateSelect(day)}
+              <button
+                onClick={() => handleDateSelect(day)}
                     className={`flex flex-col items-center justify-center w-full transition-colors select-none focus:outline-none"
                       ${isSelected
                         ? 'bg-blue-600 text-white'
@@ -290,15 +290,15 @@ const Schedule = () => {
                       }}
                     >
                       {dayNumber}
-                    </span>
+                </span>
                     {/* Today dot indicator, only if not selected */}
                     {isDayToday && !isSelected && (
                       <div className="w-1 h-1 bg-blue-600 rounded-full mt-0.5"></div>
                     )}
-                  </button>
+              </button>
                 </div>
-              );
-            })}
+            );
+          })}
           </motion.div>
         </AnimatePresence>
       </div>
@@ -416,8 +416,8 @@ const Schedule = () => {
         </div>
         
         {(dayJobs || []).map(job => (
-          <Link 
-            key={job.id} 
+          <Link
+            key={job.id}
             to={`/jobs/${job.id}`}
             className="block bg-white rounded-lg shadow-sm mb-4 overflow-hidden"
           >
@@ -444,13 +444,13 @@ const Schedule = () => {
       </div>
     );
   };
-
+  
   return (
     <AppLayout>
       {/* Page Header with Month as title */}
-      <PageHeader
+        <PageHeader
         title={format(currentDate, 'MMMM')}
-        rightElement={
+          rightElement={
           <div className="flex items-center gap-2">
             <button
               onClick={goToToday}
@@ -458,37 +458,37 @@ const Schedule = () => {
               aria-label="Calendar"
             >
               <CalendarIcon className="w-4 h-4" />
-            </button>
+              </button>
             <button
               onClick={openViewOptionsModal}
               className="p-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
               aria-label={t('calendar:settings')}
             >
               <Settings className="w-4 h-4" />
-            </button>
-          </div>
-        }
-      />
-
+              </button>
+            </div>
+          }
+        />
+        
       {/* View selector tabs */}
       <div className="px-4 py-2">
         <div className="w-full bg-gray-100 p-1 rounded-full flex">
           {['Day', 'List'].map(view => (
-            <button 
-              key={view}
+              <button 
+                key={view}
               className={`flex-1 py-2 text-sm font-medium rounded-full transition-colors ${
-                viewOptions.view === view 
-                  ? 'bg-white text-blue-600 shadow' 
-                  : 'text-gray-600'
-              }`}
+                  viewOptions.view === view 
+                    ? 'bg-white text-blue-600 shadow' 
+                    : 'text-gray-600'
+                }`}
               onClick={() => setViewOptions(prev => ({ ...prev, view: view as 'Day' | 'List' }))}
-            >
-              {view}
-            </button>
-          ))}
+              >
+                {view}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
-
+        
       {/* Calendar View */}
       <div className="flex-1 flex flex-col">
         {/* Fixed day initials above the scroller */}
@@ -499,11 +499,11 @@ const Schedule = () => {
         </div>
         {/* Render the horizontal day scroller (without initials) */}
         {renderHorizontalDayScroller()}
-
+        
         {/* Render the appropriate view based on viewOptions */}
-        <div className="flex-1 overflow-y-auto">
-          {viewOptions.view === 'Day' && renderDayView()}
-          {viewOptions.view === 'List' && renderListView()}
+            <div className="flex-1 overflow-y-auto">
+              {viewOptions.view === 'Day' && renderDayView()}
+              {viewOptions.view === 'List' && renderListView()}
         </div>
       </div>
 

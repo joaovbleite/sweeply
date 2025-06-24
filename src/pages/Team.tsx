@@ -99,23 +99,23 @@ const Team: React.FC = () => {
             {teamMembers.length > 0 ? (
               teamMembers.map(member => (
                 <Link 
-                  key={member.id} 
+                key={member.id} 
                   to={`/team/member/${member.id}`}
                   className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm block"
-                >
-                  <div className="flex items-center">
+              >
+                <div className="flex items-center">
                     <div className="w-12 h-12 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center font-semibold text-lg mr-3">
                       {getInitials(member.member_name)}
-                    </div>
-                    <div className="flex-1">
+                  </div>
+                  <div className="flex-1">
                       <h3 className="font-semibold text-lg text-[#1a2e35]">{member.member_name || 'Team Member'}</h3>
                       <p className="text-gray-500 text-sm capitalize">{member.role}</p>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-gray-400" />
                   </div>
-                  <div className="mt-3 pt-3 border-t border-gray-100 grid grid-cols-2 gap-2">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Mail className="w-4 h-4 mr-1 text-gray-400" />
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                </div>
+                <div className="mt-3 pt-3 border-t border-gray-100 grid grid-cols-2 gap-2">
+                  <div className="flex items-center text-sm text-gray-600">
+                    <Mail className="w-4 h-4 mr-1 text-gray-400" />
                       <span className="truncate">{member.member_email || 'No email'}</span>
                     </div>
                     <div className="flex items-center text-sm text-gray-600">
@@ -327,13 +327,13 @@ const Team: React.FC = () => {
                   <span className="font-medium">Job Assignments</span>
                   <ChevronRight className="w-5 h-5 text-gray-400" />
                 </Link>
-                <Link 
+              <Link 
                   to="/settings" 
                   className="w-full py-3 px-4 bg-gray-50 text-gray-700 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-colors"
-                >
+              >
                   <span className="font-medium">Schedule Settings</span>
                   <ChevronRight className="w-5 h-5 text-gray-400" />
-                </Link>
+              </Link>
               </div>
             </div>
           </div>

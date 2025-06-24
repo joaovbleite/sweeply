@@ -176,7 +176,11 @@ export default {
 				'slide-exit-right': {
 					'0%': { transform: 'translateX(0)', opacity: '1' },
 					'100%': { transform: 'translateX(20px)', opacity: '0' }
-				}
+				},
+				'slide-up': {
+					'0%': { transform: 'translateY(100%)' },
+					'100%': { transform: 'translateY(0)' }
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -198,7 +202,8 @@ export default {
 				'exit-slide-down-fast': 'exit-slide-down-fast 0.2s cubic-bezier(0.25, 0.1, 0.25, 1) forwards',
 				'exit-slide-up-fast': 'exit-slide-up-fast 0.2s cubic-bezier(0.25, 0.1, 0.25, 1) forwards',
 				'fade-slide-down-fast': 'fade-slide-down-fast 0.25s cubic-bezier(0.25, 0.1, 0.25, 1) forwards',
-				'fade-slide-up-fast': 'fade-slide-up-fast 0.25s cubic-bezier(0.25, 0.1, 0.25, 1) forwards'
+				'fade-slide-up-fast': 'fade-slide-up-fast 0.25s cubic-bezier(0.25, 0.1, 0.25, 1) forwards',
+				'slide-up': 'slide-up 0.3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards',
 			},
 			backgroundImage: {
 				'hero-gradient': 'linear-gradient(90deg, hsla(24, 100%, 83%, 1) 0%, hsla(341, 91%, 68%, 1) 100%)',
