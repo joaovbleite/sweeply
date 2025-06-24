@@ -125,7 +125,8 @@ const AddJob = () => {
   useEffect(() => {
     const loadCustomServiceTypes = async () => {
       try {
-        const serviceTypes = await serviceTypesApi.getActiveServiceTypes();
+        // Get all service types, not just active ones
+        const serviceTypes = await serviceTypesApi.getServiceTypes();
         setCustomServiceTypes(serviceTypes);
       } catch (error) {
         console.error('Error loading service types:', error);
@@ -569,7 +570,17 @@ const AddJob = () => {
   const handleServiceTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     
-    // Check if it's a custom service type (format: "custom_ID")
+    // Clear existing line items when changing service type
+    setLineItems([]);
+    
+    if (!value) {
+      // Handle empty selection
+      handleInputChange('service_type', 'custom' as ServiceType);
+      handleInputChange('custom_service_type_id', '');
+      return;
+    }
+    
+    // All service types are now custom (format: "custom_ID")
     if (value.startsWith('custom_')) {
       const serviceTypeId = value.replace('custom_', '');
       const customType = customServiceTypes.find(type => type.id === serviceTypeId);
@@ -583,19 +594,6 @@ const AddJob = () => {
           description: customType.name, 
           price: customType.default_price 
         });
-      }
-    } else {
-      // Handle standard service types
-      handleInputChange('service_type', value as ServiceType);
-      handleInputChange('custom_service_type_id', '');
-      
-      // Add default line items based on the selected service type
-      if (value === 'regular') {
-        handleAddLineItem({ description: "Regular Service", price: 120 });
-      } else if (value === 'deep_clean') {
-        handleAddLineItem({ description: "Deep Clean", price: 200 });
-      } else if (value === 'move_in_out') {
-        handleAddLineItem({ description: "Move In/Out Clean", price: 250 });
       }
     }
   };
@@ -712,27 +710,18 @@ const AddJob = () => {
           <label className="text-sm text-gray-700 font-medium mb-1 block">Service Type</label>
           <div className="relative">
             <select
-              value={formData.custom_service_type_id ? `custom_${formData.custom_service_type_id}` : formData.service_type}
+              value={formData.custom_service_type_id ? `custom_${formData.custom_service_type_id}` : ''}
               onChange={handleServiceTypeChange}
               className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
               style={{ position: 'relative', zIndex: 10 }}
               disabled={loadingServiceTypes}
             >
-              <option value="regular">Regular Service - $120</option>
-              <option value="deep_clean">Deep Clean - $200</option>
-              <option value="move_in_out">Move In/Out - $250</option>
-              
-              {/* Custom Service Types */}
-              {customServiceTypes.length > 0 && (
-                <>
-                  <option disabled>──────────</option>
-                  {customServiceTypes.map(type => (
-                    <option key={type.id} value={`custom_${type.id}`}>
-                      {type.name} - {formatCurrency(type.default_price)}
-                    </option>
-                  ))}
-                </>
-              )}
+              <option value="">Select a service</option>
+              {customServiceTypes.map(type => (
+                <option key={type.id} value={`custom_${type.id}`}>
+                  {type.name} - {formatCurrency(type.default_price)}
+                </option>
+              ))}
             </select>
             <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
               {loadingServiceTypes ? (
