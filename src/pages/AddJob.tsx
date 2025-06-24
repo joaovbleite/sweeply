@@ -389,26 +389,33 @@ const AddJob = () => {
           )}
         </div>
 
-        {/* Worker Section (formerly Salesperson) */}
+        {/* Worker Section (formerly Salesperson) - Replace with Arrival Time */}
         <div className="mb-8">
-          <div className="relative mb-4">
-            <label className="text-sm text-gray-700 font-medium mb-1 block">Worker</label>
+          <div className="flex items-center justify-between mb-4">
+            <label className="text-sm text-gray-700 font-medium mb-1 block">Arrival Time</label>
+            <button 
+              className="text-blue-600"
+              onClick={() => {/* Add functionality later */}}
+            >
+              <Plus className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
             <div className="relative">
-              <select
-                value={formData.salesperson}
-                onChange={(e) => handleInputChange('salesperson', e.target.value)}
+              <input
+                type="time"
+                value={formData.startTime}
+                onChange={e => handleInputChange('startTime', e.target.value)}
                 className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
-              >
-                <option value="">Please select</option>
-                {teamMembers.map((member) => (
-                  <option key={member.id} value={member.member_name || member.member_email || member.id}>
-                    {member.member_name || member.member_email || 'Team Member'}
-                  </option>
-                ))}
-              </select>
-              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                <ChevronDown className="w-5 h-5 text-gray-700" />
-              </div>
+              />
+            </div>
+            <div className="relative">
+              <input
+                type="time"
+                value={formData.endTime}
+                onChange={e => handleInputChange('endTime', e.target.value)}
+                className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
+              />
             </div>
           </div>
         </div>
@@ -491,114 +498,53 @@ const AddJob = () => {
         {/* Schedule Section */}
         <h2 className="text-xl text-gray-700 font-medium mb-4">Schedule</h2>
         
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-medium text-gray-800">Schedule later</h3>
-          <div 
-            className={`w-14 h-8 rounded-full p-1 transition-colors duration-200 ease-in-out ${scheduleForLater ? 'bg-blue-600' : 'bg-gray-300'}`}
-            onClick={() => setScheduleForLater(!scheduleForLater)}
-          >
-            <div 
-              className={`bg-white w-6 h-6 rounded-full shadow-md transform transition-transform duration-200 ease-in-out ${scheduleForLater ? 'translate-x-6' : 'translate-x-0'}`}
-            />
-          </div>
-        </div>
-
         {/* Calendar */}
-        <div className="mb-8">
-          {/* Month and Year with navigation */}
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-2xl font-bold text-[#1a2e35]">{formatMonthYear(currentMonth)}</h3>
-            <div className="flex space-x-4">
-              <button onClick={goToPrevMonth} className="text-blue-600">
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-              <button onClick={goToNextMonth} className="text-blue-600">
-                <ChevronRight className="w-6 h-6" />
-              </button>
-            </div>
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <button onClick={goToPrevMonth} className="p-1 rounded-full hover:bg-gray-100">
+              <ChevronLeft className="w-6 h-6 text-gray-600" />
+            </button>
+            <h3 className="text-lg font-medium text-gray-800">{formatMonthYear(currentMonth)}</h3>
+            <button onClick={goToNextMonth} className="p-1 rounded-full hover:bg-gray-100">
+              <ChevronRight className="w-6 h-6 text-gray-600" />
+            </button>
           </div>
-
-          {/* Day headers */}
-          <div className="grid grid-cols-7 text-center mb-2">
-            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
-              <div key={index} className="text-lg font-medium text-gray-700">
+          
+          <div className="grid grid-cols-7 gap-1">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+              <div key={day} className="text-center text-sm text-gray-500 font-medium py-1">
                 {day}
               </div>
             ))}
-          </div>
-
-          {/* Calendar grid */}
-          <div className="grid grid-cols-7 gap-y-4 text-center mb-4">
+            
             {generateCalendarDays().map((day, index) => (
-              <div key={index} className="relative">
-                <button 
-                  onClick={() => day.currentMonth && handleDaySelect(day.day)}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto ${
-                    day.currentMonth 
-                      ? selectedDate === day.day
-                        ? 'bg-blue-600 text-white'
-                        : 'hover:bg-gray-100 text-gray-900'
-                      : 'text-gray-500 bg-gray-100'
-                  } ${!day.currentMonth && !day.prevMonth ? 'bg-gray-100' : ''}`}
-                  disabled={!day.currentMonth}
-                >
-                  {day.day}
-                </button>
-              </div>
+              <button
+                key={index}
+                onClick={() => day.currentMonth && handleDaySelect(day.day)}
+                className={`
+                  h-10 rounded-full flex items-center justify-center text-sm
+                  ${day.currentMonth ? 'hover:bg-gray-100 text-gray-900' : 'text-gray-500'}
+                  ${day.currentMonth && selectedDate === day.day ? 'bg-blue-600 text-white hover:bg-blue-700' : ''}
+                `}
+                disabled={!day.currentMonth}
+              >
+                {day.day}
+              </button>
             ))}
           </div>
+        </div>
 
-          {/* Show time and repeat fields only if a date is selected */}
-          {selectedDate && (
-            <div className="space-y-4 mb-8">
-              {/* Start time and End time */}
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <label className="block text-gray-700 font-medium mb-1">Start time</label>
-                  <input
-                    type="time"
-                    value={formData.startTime}
-                    onChange={e => handleInputChange('startTime', e.target.value)}
-                    className="w-full border rounded-lg px-3 py-2"
-                  />
-                </div>
-                <div className="flex-1">
-                  <label className="block text-gray-700 font-medium mb-1">End time</label>
-                  <input
-                    type="time"
-                    value={formData.endTime}
-                    onChange={e => handleInputChange('endTime', e.target.value)}
-                    className="w-full border rounded-lg px-3 py-2"
-                  />
-                </div>
-              </div>
-              {/* Arrival window */}
-              <div>
-                <label className="block text-gray-700 font-medium mb-1">Arrival window</label>
-                <input
-                  type="text"
-                  value={formData.arrivalWindow || ''}
-                  onChange={e => handleInputChange('arrivalWindow', e.target.value)}
-                  className="w-full border rounded-lg px-3 py-2"
-                  placeholder="e.g. 30 min"
-                />
-              </div>
-              {/* Repeating */}
-              <div>
-                <label className="block text-gray-700 font-medium mb-1">Repeating</label>
-                <select
-                  value={formData.repeating || 'none'}
-                  onChange={e => handleInputChange('repeating', e.target.value)}
-                  className="w-full border rounded-lg px-3 py-2"
-                >
-                  <option value="none">Does not repeat</option>
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly</option>
-                  <option value="monthly">Monthly</option>
-                </select>
-              </div>
-            </div>
-          )}
+        {/* Recurring Job Option */}
+        <div className="mb-4">
+          <label className="text-sm text-gray-700 font-medium mb-1 block">Recurring</label>
+          <select
+            value={formData.repeating}
+            onChange={e => handleInputChange('repeating', e.target.value)}
+            className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
+          >
+            <option value="none">One-time job</option>
+            <option value="recurring">Recurring job</option>
+          </select>
         </div>
 
         {/* Separator */}
