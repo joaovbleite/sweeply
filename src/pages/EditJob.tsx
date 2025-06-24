@@ -90,7 +90,7 @@ const EditJob = () => {
           return;
         }
         setJob(jobData);
-
+        
         // Load clients
         const clientsData = await clientsApi.getAll();
         setClients(clientsData);
@@ -508,13 +508,17 @@ const EditJob = () => {
 
   // Handle saving arrival window settings
   const handleSaveArrivalWindow = () => {
-    const endTime = calculateEndTime();
+    // Use the time values from the start/end time boxes if they exist
+    // Otherwise use the calculated values
+    const windowEndTime = formData.endTime || calculateEndTime();
+    
     setFormData(prev => ({
       ...prev,
       startTime,
-      endTime,
+      endTime: windowEndTime,
       arrivalWindow: arrivalWindowDuration
     }));
+    
     setShowArrivalTimeModal(false);
   };
 
@@ -542,8 +546,8 @@ const EditJob = () => {
       const customType = customServiceTypes.find(type => type.id === serviceTypeId);
       
       if (customType) {
-        setFormData(prev => ({
-          ...prev,
+    setFormData(prev => ({
+      ...prev,
           service_type: 'custom' as ServiceType,
           custom_service_type_id: serviceTypeId
         }));
@@ -672,9 +676,9 @@ const EditJob = () => {
               <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
                 <ChevronDown className="w-5 h-5 text-gray-700" />
               </div>
-            </div>
-          </div>
-        </div>
+              </div>
+              </div>
+              </div>
 
         {/* Separator */}
         <div className="w-full h-3 bg-gray-100 -mx-4 px-4 mb-8"></div>
@@ -764,7 +768,7 @@ const EditJob = () => {
                       -
                     </button>
                   <input
-                      type="number" 
+                    type="number"
                       min="1" 
                       value={item.quantity || 1} 
                       onChange={(e) => handleQuantityChange(index, parseInt(e.target.value) || 1)}
@@ -776,8 +780,8 @@ const EditJob = () => {
                     >
                       +
                     </button>
-                  </div>
-                </div>
+              </div>
+            </div>
                 <div className="flex flex-col items-end">
                   <span className="font-medium text-gray-900">
                     {formatCurrency(item.price * (item.quantity || 1))}
@@ -828,7 +832,7 @@ const EditJob = () => {
             ))}
             
             {generateCalendarDays().map((day, index) => (
-              <button
+                  <button
                 key={index}
                 onClick={() => day.currentMonth && handleDaySelect(day.day)}
                 className={
@@ -839,7 +843,7 @@ const EditJob = () => {
                 disabled={!day.currentMonth}
               >
                 {day.day}
-              </button>
+                  </button>
             ))}
           </div>
         </div>
@@ -848,12 +852,12 @@ const EditJob = () => {
         <div className="mb-4">
           <div className="flex items-center justify-between mb-4">
             <label className="text-sm text-gray-700 font-medium mb-1 block">Arrival Time</label>
-            <button 
+                  <button
               className="text-blue-600"
               onClick={handleOpenArrivalTimeModal}
             >
               <Plus className="w-5 h-5" />
-            </button>
+                  </button>
           </div>
           {formData.startTime && (
             <div className="bg-gray-50 p-3 rounded-lg">
@@ -863,7 +867,7 @@ const EditJob = () => {
               </p>
             </div>
           )}
-        </div>
+                </div>
 
         {/* Recurring Job Option */}
         {selectedDates.length === 1 && (
@@ -877,7 +881,7 @@ const EditJob = () => {
               <option value="none">One-time job</option>
               <option value="recurring">Recurring job</option>
             </select>
-          </div>
+                </div>
         )}
 
         {/* Invoicing Section - No divider before this */}
@@ -893,9 +897,9 @@ const EditJob = () => {
           >
             <div 
               className={`bg-white w-6 h-6 rounded-full shadow-md transform transition-transform duration-200 ease-in-out ${remindToInvoice ? 'translate-x-6' : 'translate-x-0'}`}
-            />
-          </div>
-        </div>
+                    />
+                </div>
+                </div>
       </div>
 
       {/* Line Item Modal */}
@@ -913,13 +917,13 @@ const EditJob = () => {
           <div 
             className="bg-white w-full rounded-t-[20px] shadow-lg transform transition-transform duration-300 ease-in-out animate-slide-up"
             style={{
-              maxHeight: '90vh',
+              maxHeight: '80vh',
               overflowY: 'auto',
               paddingBottom: 'env(safe-area-inset-bottom, 24px)'
             }}
           >
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
+            <div className="p-4">
+              <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-[#0C1B1F]">Arrival window</h2>
                 <button 
                   onClick={() => setShowArrivalTimeModal(false)}
@@ -929,23 +933,13 @@ const EditJob = () => {
                 </button>
               </div>
               
-              <div className="mb-8">
-                <p className="text-2xl font-bold text-center text-[#0C1B1F]">
+              <div className="mb-4">
+                <p className="text-lg font-bold text-center text-[#0C1B1F]">
                   {formatTimeDisplay(startTime)} – {formatTimeDisplay(calculateEndTime())}
                 </p>
-                
-                {/* Time Picker */}
-                <div className="mt-4 flex justify-center">
-                  <input
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    className="p-1 border border-[#DADADA] rounded-lg text-center text-sm w-32"
-                  />
               </div>
-            </div>
               
-              <div className="mb-6">
+              <div className="mb-4">
                 {/* Horizontal scrollable carousel for duration tabs */}
                 <div className="overflow-x-auto pb-2 -mx-2 px-2 relative">
                   {/* Fade gradient on the right to indicate scrollability */}
@@ -953,7 +947,7 @@ const EditJob = () => {
                   
                   <div className="flex space-x-3 min-w-max px-1">
                     {["None", "15 min", "30 min", "1 hr", "2 hr", "3 hr"].map((duration) => (
-                  <button
+                      <button
                         key={duration}
                         onClick={() => setArrivalWindowDuration(duration.toLowerCase())}
                         className={`py-2 px-4 rounded-full text-sm font-medium whitespace-nowrap ${
@@ -963,77 +957,77 @@ const EditJob = () => {
                         }`}
                       >
                         {duration}
-                  </button>
+                      </button>
                     ))}
                   </div>
                 </div>
               </div>
               
-              <div className="mb-6">
-                <h3 className="text-lg font-medium mb-4 text-[#0C1B1F]">Arrival window style</h3>
+              <div className="mb-4">
+                <h3 className="text-base font-medium mb-2 text-[#0C1B1F]">Arrival window style</h3>
                 
-                <div className="space-y-4">
+                <div className="space-y-2">
                   <div 
-                    className="flex items-center justify-between p-4 rounded-lg border border-[#DADADA]"
+                    className="flex items-center justify-between p-3 rounded-lg border border-[#DADADA]"
                     onClick={() => setArrivalWindowStyle("after")}
                   >
                     <div className="flex items-center">
-                      <div className="mr-4 text-[#0C1B1F]">
-                        <span className="inline-block w-6 h-6 text-center">↦</span>
-                </div>
-                <div>
-                        <p className="font-medium text-[#0C1B1F]">Add window after start time</p>
-                        <p className="text-sm text-[#5C6C74]">{formatTimeDisplay(startTime)} – {formatTimeDisplay(calculateEndTime())}</p>
-                </div>
-                </div>
-                    <div className={`w-6 h-6 rounded-full border flex items-center justify-center ${
+                      <div className="mr-3 text-[#0C1B1F]">
+                        <span className="inline-block w-5 h-5 text-center">↦</span>
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm text-[#0C1B1F]">Add window after start time</p>
+                        <p className="text-xs text-[#5C6C74]">{formatTimeDisplay(startTime)} – {formatTimeDisplay(calculateEndTime())}</p>
+                      </div>
+                    </div>
+                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
                       arrivalWindowStyle === "after" 
-                        ? 'border-[#1E6F42] bg-white' 
+                        ? 'border-blue-600 bg-white' 
                         : 'border-[#CCCCCC] bg-white'
                     }`}>
                       {arrivalWindowStyle === "after" && (
-                        <div className="w-3 h-3 rounded-full bg-[#1E6F42]" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />
                       )}
                     </div>
                   </div>
                   
                   <div 
-                    className="flex items-center justify-between p-4 rounded-lg border border-[#DADADA]"
+                    className="flex items-center justify-between p-3 rounded-lg border border-[#DADADA]"
                     onClick={() => setArrivalWindowStyle("center")}
                   >
                     <div className="flex items-center">
-                      <div className="mr-4 text-[#0C1B1F]">
-                        <span className="inline-block w-6 h-6 text-center">⟷</span>
-                </div>
-                <div>
-                        <p className="font-medium text-[#0C1B1F]">Center window on start time</p>
-                        <p className="text-sm text-[#5C6C74]">6:00 PM – 7:00 PM</p>
+                      <div className="mr-3 text-[#0C1B1F]">
+                        <span className="inline-block w-5 h-5 text-center">⟷</span>
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm text-[#0C1B1F]">Center window on start time</p>
+                        <p className="text-xs text-[#5C6C74]">6:00 PM – 7:00 PM</p>
                       </div>
                     </div>
-                    <div className={`w-6 h-6 rounded-full border flex items-center justify-center ${
+                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
                       arrivalWindowStyle === "center" 
-                        ? 'border-[#1E6F42] bg-white' 
+                        ? 'border-blue-600 bg-white' 
                         : 'border-[#CCCCCC] bg-white'
                     }`}>
                       {arrivalWindowStyle === "center" && (
-                        <div className="w-3 h-3 rounded-full bg-[#1E6F42]" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />
                       )}
                     </div>
-                </div>
+                  </div>
                 </div>
               </div>
               
-              <div className="mb-8">
+              <div className="mb-4">
                 <div 
-                  className="flex items-center justify-between p-4"
+                  className="flex items-center justify-between p-3"
                   onClick={() => setApplyToAllJobs(!applyToAllJobs)}
                 >
-                  <p className="font-medium text-[#0C1B1F]">Apply to all current and future jobs</p>
-                  <div className={`w-6 h-6 rounded flex items-center justify-center ${
-                    applyToAllJobs ? 'bg-[#1E6F42]' : 'bg-[#D9D9D9]'
+                  <p className="font-medium text-sm text-[#0C1B1F]">Apply to all current and future jobs</p>
+                  <div className={`w-5 h-5 rounded flex items-center justify-center ${
+                    applyToAllJobs ? 'bg-blue-600' : 'bg-[#D9D9D9]'
                   }`}>
                     {applyToAllJobs && (
-                      <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg width="12" height="8" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M1 5L5 9L13 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                     )}
@@ -1043,14 +1037,14 @@ const EditJob = () => {
               
               <button
                 onClick={handleSaveArrivalWindow}
-                className="w-full py-4 bg-[#1E6F42] text-white rounded-xl font-bold text-base mb-4"
+                className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold text-base mb-2"
               >
                 Next
               </button>
               
               <button
                 onClick={() => setShowArrivalTimeModal(false)}
-                className="w-full py-4 text-[#0C1B1F] font-medium text-base"
+                className="w-full py-3 text-[#0C1B1F] font-medium text-base"
               >
                 Cancel
               </button>
