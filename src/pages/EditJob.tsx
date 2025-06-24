@@ -11,6 +11,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import { useLocale } from "@/hooks/useLocale";
 import LineItemModal from "@/components/jobs/LineItemModal";
 import { teamManagementApi, TeamMember } from "@/lib/api/team-management";
+import { serviceTypesApi, ServiceType as CustomServiceType } from "@/lib/api/service-types";
 
 interface LineItem {
   description: string;
@@ -36,6 +37,8 @@ const EditJob = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [job, setJob] = useState<Job | null>(null);
+  const [customServiceTypes, setCustomServiceTypes] = useState<CustomServiceType[]>([]);
+  const [loadingServiceTypes, setLoadingServiceTypes] = useState(true);
 
   const [formData, setFormData] = useState({
     clientId: "",
@@ -54,6 +57,7 @@ const EditJob = () => {
     repeating: 'none',
     service_type: 'regular' as ServiceType,
     property_type: 'residential' as PropertyType,
+    custom_service_type_id: '',
   });
 
   // Add new state for arrival time
@@ -76,7 +80,7 @@ const EditJob = () => {
         navigate("/jobs");
         return;
       }
-      
+
       try {
         // Load job data
         const jobData = await jobsApi.getById(id);
@@ -86,7 +90,7 @@ const EditJob = () => {
           return;
         }
         setJob(jobData);
-        
+
         // Load clients
         const clientsData = await clientsApi.getAll();
         setClients(clientsData);
@@ -129,11 +133,31 @@ const EditJob = () => {
           repeating: jobData.is_recurring ? 'recurring' : 'none',
           service_type: jobData.service_type || 'regular',
           property_type: jobData.property_type || 'residential',
+          custom_service_type_id: '',
         });
         
         // Load team members
         const members = await teamManagementApi.getActiveTeamMembers();
         setTeamMembers(members);
+
+        // Load custom service types
+        const serviceTypes = await serviceTypesApi.getActiveServiceTypes();
+        setCustomServiceTypes(serviceTypes);
+        
+        // Check if the job has a custom service type
+        if (job && job.service_type === 'custom' && job.line_items && job.line_items.length > 0) {
+          // Try to find matching custom service type by name
+          const customType = serviceTypes.find(type => 
+            job.line_items && job.line_items.some(item => item.description === type.name)
+          );
+          
+          if (customType) {
+            setFormData(prev => ({
+              ...prev,
+              custom_service_type_id: customType.id
+            }));
+          }
+        }
       } catch (error) {
         console.error('Error loading data:', error);
         toast.error("Failed to load job data");
@@ -141,6 +165,7 @@ const EditJob = () => {
       } finally {
         setLoadingJob(false);
         setLoadingClients(false);
+        setLoadingServiceTypes(false);
       }
     };
 
@@ -275,14 +300,14 @@ const EditJob = () => {
       };
 
       await jobsApi.update(id, updateData);
-
+      
       // Reset form dirty state after successful submission
       setIsFormDirty(false);
       
       if (formData.repeating === 'recurring' && job.is_recurring !== true) {
         toast.success("Job updated and converted to recurring job!");
       } else {
-        toast.success("Job updated successfully!");
+      toast.success("Job updated successfully!");
       }
       
       navigate("/jobs");
@@ -507,6 +532,47 @@ const EditJob = () => {
     setShowArrivalTimeModal(true);
   };
 
+  // Handle service type selection including custom types
+  const handleServiceTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    
+    // Check if it's a custom service type (format: "custom_ID")
+    if (value.startsWith('custom_')) {
+      const serviceTypeId = value.replace('custom_', '');
+      const customType = customServiceTypes.find(type => type.id === serviceTypeId);
+      
+      if (customType) {
+        setFormData(prev => ({
+          ...prev,
+          service_type: 'custom' as ServiceType,
+          custom_service_type_id: serviceTypeId
+        }));
+        
+        // Add a line item for this custom service type
+        handleAddLineItem({ 
+          description: customType.name, 
+          price: customType.default_price 
+        });
+      }
+    } else {
+      // Handle standard service types
+      setFormData(prev => ({
+        ...prev,
+        service_type: value as ServiceType,
+        custom_service_type_id: ''
+      }));
+      
+      // Add default line items based on the selected service type
+      if (value === 'regular') {
+        handleAddLineItem({ description: "Regular Service", price: 120 });
+      } else if (value === 'deep_clean') {
+        handleAddLineItem({ description: "Deep Clean", price: 200 });
+      } else if (value === 'move_in_out') {
+        handleAddLineItem({ description: "Move In/Out Clean", price: 250 });
+      }
+    }
+  };
+
   if (loadingJob) {
     return (
       <AppLayout>
@@ -519,13 +585,13 @@ const EditJob = () => {
 
   // Save button component for the header
   const SaveButton = (
-    <button
-      onClick={handleSubmit}
+            <button
+              onClick={handleSubmit}
       className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-medium"
       disabled={isSubmitting}
     >
       {isSubmitting ? 'Saving...' : 'Save'}
-    </button>
+            </button>
   );
 
   return (
@@ -542,22 +608,22 @@ const EditJob = () => {
         <h2 className="text-xl text-gray-700 font-medium mb-4">Overview</h2>
         
         <div className="space-y-4 mb-8">
-              <input
-                type="text"
+                <input
+                  type="text"
                 value={formData.jobTitle}
                 onChange={(e) => handleInputChange('jobTitle', e.target.value)}
                 placeholder="Job title"
                 className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               />
           
-          <textarea
+                <textarea
             value={formData.instructions}
             onChange={(e) => handleInputChange('instructions', e.target.value)}
             placeholder="Instructions"
                 className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             rows={4}
-              />
-        </div>
+                />
+            </div>
 
         {/* Client Selection Section */}
         <div className="mb-8">
@@ -567,19 +633,19 @@ const EditJob = () => {
             <div className="p-4 text-center text-gray-500">Loading clients...</div>
           ) : clients.length > 0 ? (
             <div className="border rounded-xl overflow-hidden">
-              <select
+                <select
                 value={formData.clientId}
-                onChange={(e) => {
-                  const client = clients.find(c => c.id === e.target.value);
+                  onChange={(e) => {
+                    const client = clients.find(c => c.id === e.target.value);
                   if (client) handleClientSelect(client);
-                }}
+                  }}
                 className="w-full p-4 border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
               >
                 <option value="">Select a client</option>
                 {clients.map(client => (
                   <option key={client.id} value={client.id}>{client.name}</option>
                 ))}
-              </select>
+                </select>
             </div>
           ) : (
             <div className="p-4 text-center text-gray-500">No clients found.</div>
@@ -629,30 +695,34 @@ const EditJob = () => {
           <label className="text-sm text-gray-700 font-medium mb-1 block">Service Type</label>
           <div className="relative">
             <select
-              value={formData.service_type}
-              onChange={(e) => {
-                handleInputChange('service_type', e.target.value as ServiceType);
-                // Add a default line item based on the selected service type if no line items exist
-                if (lineItems.length === 0) {
-                  if (e.target.value === 'regular') {
-                    handleAddLineItem({ description: "Regular Service", price: 120 });
-                  } else if (e.target.value === 'deep_clean') {
-                    handleAddLineItem({ description: "Deep Clean", price: 200 });
-                  } else if (e.target.value === 'move_in_out') {
-                    handleAddLineItem({ description: "Move In/Out Clean", price: 250 });
-                  }
-                }
-              }}
+              value={formData.custom_service_type_id ? `custom_${formData.custom_service_type_id}` : formData.service_type}
+              onChange={handleServiceTypeChange}
               className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
               style={{ position: 'relative', zIndex: 10 }}
+              disabled={loadingServiceTypes}
             >
               <option value="regular">Regular Service - $120</option>
               <option value="deep_clean">Deep Clean - $200</option>
               <option value="move_in_out">Move In/Out - $250</option>
-              <option value="other">Other</option>
+              
+              {/* Custom Service Types */}
+              {customServiceTypes.length > 0 && (
+                <>
+                  <option disabled>──────────</option>
+                  {customServiceTypes.map(type => (
+                    <option key={type.id} value={`custom_${type.id}`}>
+                      {type.name} - {formatCurrency(type.default_price)}
+                    </option>
+                  ))}
+                </>
+              )}
             </select>
             <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-              <ChevronDown className="w-5 h-5 text-gray-700" />
+              {loadingServiceTypes ? (
+                <Loader2 className="w-5 h-5 text-gray-700 animate-spin" />
+              ) : (
+                <ChevronDown className="w-5 h-5 text-gray-700" />
+              )}
             </div>
           </div>
         </div>
@@ -693,7 +763,7 @@ const EditJob = () => {
                     >
                       -
                     </button>
-                    <input 
+                  <input
                       type="number" 
                       min="1" 
                       value={item.quantity || 1} 
@@ -872,8 +942,8 @@ const EditJob = () => {
                     onChange={(e) => setStartTime(e.target.value)}
                     className="p-1 border border-[#DADADA] rounded-lg text-center text-sm w-32"
                   />
-                </div>
               </div>
+            </div>
               
               <div className="mb-6">
                 {/* Horizontal scrollable carousel for duration tabs */}
@@ -883,7 +953,7 @@ const EditJob = () => {
                   
                   <div className="flex space-x-3 min-w-max px-1">
                     {["None", "15 min", "30 min", "1 hr", "2 hr", "3 hr"].map((duration) => (
-                      <button
+                  <button
                         key={duration}
                         onClick={() => setArrivalWindowDuration(duration.toLowerCase())}
                         className={`py-2 px-4 rounded-full text-sm font-medium whitespace-nowrap ${
@@ -893,7 +963,7 @@ const EditJob = () => {
                         }`}
                       >
                         {duration}
-                      </button>
+                  </button>
                     ))}
                   </div>
                 </div>
@@ -910,12 +980,12 @@ const EditJob = () => {
                     <div className="flex items-center">
                       <div className="mr-4 text-[#0C1B1F]">
                         <span className="inline-block w-6 h-6 text-center">↦</span>
-                      </div>
-                      <div>
+                </div>
+                <div>
                         <p className="font-medium text-[#0C1B1F]">Add window after start time</p>
                         <p className="text-sm text-[#5C6C74]">{formatTimeDisplay(startTime)} – {formatTimeDisplay(calculateEndTime())}</p>
-                      </div>
-                    </div>
+                </div>
+                </div>
                     <div className={`w-6 h-6 rounded-full border flex items-center justify-center ${
                       arrivalWindowStyle === "after" 
                         ? 'border-[#1E6F42] bg-white' 
@@ -934,8 +1004,8 @@ const EditJob = () => {
                     <div className="flex items-center">
                       <div className="mr-4 text-[#0C1B1F]">
                         <span className="inline-block w-6 h-6 text-center">⟷</span>
-                      </div>
-                      <div>
+                </div>
+                <div>
                         <p className="font-medium text-[#0C1B1F]">Center window on start time</p>
                         <p className="text-sm text-[#5C6C74]">6:00 PM – 7:00 PM</p>
                       </div>
@@ -949,7 +1019,7 @@ const EditJob = () => {
                         <div className="w-3 h-3 rounded-full bg-[#1E6F42]" />
                       )}
                     </div>
-                  </div>
+                </div>
                 </div>
               </div>
               
@@ -1022,7 +1092,7 @@ const EditJob = () => {
               </button>
             </div>
           </div>
-        </div>
+      </div>
       )}
     </AppLayout>
   );

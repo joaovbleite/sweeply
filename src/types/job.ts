@@ -4,7 +4,8 @@ export type ServiceType =
   | 'move_in' 
   | 'move_out' 
   | 'post_construction' 
-  | 'one_time';
+  | 'one_time'
+  | 'custom';
 
 export type JobStatus = 
   | 'scheduled' 
