@@ -503,6 +503,7 @@ const AddJob = () => {
     let newMinutes = minutes;
     
     if (arrivalWindowStyle === "after") {
+      // Simply add the duration to the start time
       newMinutes += durationInMinutes;
       while (newMinutes >= 60) {
         newHours += 1;
@@ -510,22 +511,10 @@ const AddJob = () => {
       }
       newHours = newHours % 24;
     } else if (arrivalWindowStyle === "center") {
-      // For centered window, subtract half the duration from start time
+      // For centered window, add half the duration to start time
+      // We don't modify the start time here, only calculate the end time
       const halfDuration = Math.floor(durationInMinutes / 2);
-      let adjustedHours = hours;
-      let adjustedMinutes = minutes - halfDuration;
-      
-      while (adjustedMinutes < 0) {
-        adjustedHours -= 1;
-        adjustedMinutes += 60;
-      }
-      if (adjustedHours < 0) adjustedHours += 24;
-      
-      setStartTime(`${adjustedHours.toString().padStart(2, '0')}:${adjustedMinutes.toString().padStart(2, '0')}`);
-      
-      // Calculate end time (start time + full duration)
-      newMinutes = adjustedMinutes + durationInMinutes;
-      newHours = adjustedHours;
+      newMinutes = minutes + halfDuration;
       while (newMinutes >= 60) {
         newHours += 1;
         newMinutes -= 60;
@@ -538,14 +527,50 @@ const AddJob = () => {
 
   // Handle saving arrival window settings
   const handleSaveArrivalWindow = () => {
-    // Use the time values from the start/end time boxes if they exist
-    // Otherwise use the calculated values
-    const windowEndTime = formData.endTime || calculateEndTime();
+    let finalStartTime = startTime;
+    let finalEndTime = calculateEndTime();
+    
+    // If center window style is selected, adjust the start time
+    if (arrivalWindowStyle === "center" && arrivalWindowDuration !== "none") {
+      const [hours, minutes] = startTime.split(':').map(Number);
+      let durationInMinutes = 0;
+      
+      if (arrivalWindowDuration === "15 min") durationInMinutes = 15;
+      else if (arrivalWindowDuration === "30 min") durationInMinutes = 30;
+      else if (arrivalWindowDuration === "1 hr") durationInMinutes = 60;
+      else if (arrivalWindowDuration === "2 hr") durationInMinutes = 120;
+      else if (arrivalWindowDuration === "3 hr") durationInMinutes = 180;
+      
+      // Subtract half the duration from start time
+      const halfDuration = Math.floor(durationInMinutes / 2);
+      let adjustedHours = hours;
+      let adjustedMinutes = minutes - halfDuration;
+      
+      while (adjustedMinutes < 0) {
+        adjustedHours -= 1;
+        adjustedMinutes += 60;
+      }
+      if (adjustedHours < 0) adjustedHours += 24;
+      
+      finalStartTime = `${adjustedHours.toString().padStart(2, '0')}:${adjustedMinutes.toString().padStart(2, '0')}`;
+      
+      // Calculate end time (adjusted start time + full duration)
+      let endHours = adjustedHours;
+      let endMinutes = adjustedMinutes + durationInMinutes;
+      
+      while (endMinutes >= 60) {
+        endHours += 1;
+        endMinutes -= 60;
+      }
+      endHours = endHours % 24;
+      
+      finalEndTime = `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
+    }
     
     setFormData(prev => ({
       ...prev,
-      startTime,
-      endTime: windowEndTime,
+      startTime: finalStartTime,
+      endTime: finalEndTime,
       arrivalWindow: arrivalWindowDuration
     }));
     
@@ -598,18 +623,52 @@ const AddJob = () => {
     }
   };
 
-  // Add state to track if modal is open to control body scroll
+  // Control body scroll when modal is open
   useEffect(() => {
+    const handleScroll = (e: Event) => {
+      if (showArrivalTimeModal) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+      return true;
+    };
+
     // Prevent body scrolling when modal is open
     if (showArrivalTimeModal) {
       document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.top = `-${window.scrollY}px`;
+      
+      // Add event listeners to prevent all scrolling
+      document.addEventListener('wheel', handleScroll, { passive: false });
+      document.addEventListener('touchmove', handleScroll, { passive: false });
     } else {
+      const scrollY = document.body.style.top;
       document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
+      
+      // Restore scroll position
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0', 10) * -1);
+      }
+      
+      // Remove event listeners
+      document.removeEventListener('wheel', handleScroll);
+      document.removeEventListener('touchmove', handleScroll);
     }
     
     // Cleanup function to restore scrolling when component unmounts
     return () => {
       document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
+      document.removeEventListener('wheel', handleScroll);
+      document.removeEventListener('touchmove', handleScroll);
     };
   }, [showArrivalTimeModal]);
 
@@ -1005,21 +1064,22 @@ const AddJob = () => {
 
       {/* Arrival Time Modal */}
       {showArrivalTimeModal && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-end justify-center">
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-end justify-center" onClick={(e) => e.target === e.currentTarget && setShowArrivalTimeModal(false)}>
           <div 
             className="bg-white w-full rounded-t-[20px] shadow-lg transform transition-transform duration-300 ease-in-out animate-slide-up fixed bottom-0 left-0 right-0"
             style={{
-              maxHeight: '80vh',
+              maxHeight: '70vh',
               overflowY: 'auto',
-              paddingBottom: 'env(safe-area-inset-bottom, 24px)',
-              zIndex: 51, // Higher than the overlay
-              position: 'fixed', // Ensure it's fixed regardless of parent
-              bottom: 0, // Always at the bottom of the viewport
+              paddingBottom: '16px',
+              zIndex: 51,
+              position: 'fixed',
+              bottom: 0,
               left: 0,
               right: 0
             }}
+            onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-4">
+            <div className="p-4 pb-2">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-[#0C1B1F]">Arrival window</h2>
                 <button 
@@ -1090,7 +1150,10 @@ const AddJob = () => {
                   
                   <div 
                     className="flex items-center justify-between p-3 rounded-lg border border-[#DADADA]"
-                    onClick={() => setArrivalWindowStyle("center")}
+                    onClick={() => {
+                      // Simply set the style without immediately calculating new times
+                      setArrivalWindowStyle("center");
+                    }}
                   >
                     <div className="flex items-center">
                       <div className="mr-3 text-[#0C1B1F]">
@@ -1115,7 +1178,7 @@ const AddJob = () => {
               </div>
               
               <button
-                className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium mt-4"
+                className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium mt-2"
                 onClick={handleSaveArrivalWindow}
               >
                 Save
