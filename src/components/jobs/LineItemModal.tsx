@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, Plus, Search, Edit2 } from "lucide-react";
+import { X, Plus, Search, Edit2, Trash2 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { useLocale } from "@/hooks/useLocale";
 
@@ -20,7 +20,6 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
 
   // Predefined items - in a real implementation, these would come from an API
   const predefinedItems = [
-    { id: 1, description: "Free Assessment", price: 0.00 },
     { id: 2, description: "Standard Cleaning", price: 150.00 },
     { id: 3, description: "Deep Cleaning", price: 250.00 },
     { id: 4, description: "Move-in/Move-out Cleaning", price: 300.00 },
@@ -66,6 +65,12 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
   const handleToggleCustomForm = () => {
     setShowCustomForm(!showCustomForm);
     setSelectedItem(null); // Clear selected item when toggling forms
+  };
+
+  // Handle discarding a service
+  const handleDiscardService = () => {
+    setSelectedItem(null);
+    setCustomizedPrice("");
   };
 
   // Create the Add button for the header
@@ -117,7 +122,7 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
               <X className="w-6 h-6" />
             </button>
             <h1 className="text-xl font-bold text-gray-900">
-              {showCustomForm ? "Add custom item" : selectedItem ? "Customize price" : "Add line item"}
+              {showCustomForm ? "Add custom item" : selectedItem ? "Customize service" : "Services"}
             </h1>
           </div>
           {AddButton}
@@ -158,7 +163,7 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
           </div>
         </div>
       ) : selectedItem ? (
-        // Customize price form for selected item
+        // Customize service form for selected item
         <div className="p-4 flex-1 overflow-y-auto pt-2 pb-safe" style={{ maxHeight: 'calc(100vh - 70px)' }}>
           <div className="space-y-4">
             <div>
@@ -174,16 +179,29 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Price
               </label>
-              <input
-                type="number"
-                value={customizedPrice}
-                onChange={(e) => setCustomizedPrice(e.target.value)}
-                placeholder={selectedItem.price.toString()}
-                step="0.01"
-                min="0"
-                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <span className="text-gray-900 font-medium">$</span>
+                </div>
+                <input
+                  type="number"
+                  value={customizedPrice}
+                  onChange={(e) => setCustomizedPrice(e.target.value)}
+                  placeholder={selectedItem.price.toString()}
+                  step="0.01"
+                  min="0"
+                  className="w-full p-4 pl-8 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg font-medium text-gray-900"
+                />
+              </div>
             </div>
+            
+            <button
+              onClick={handleDiscardService}
+              className="w-full mt-4 p-4 border border-red-500 text-red-500 rounded-lg flex items-center justify-center"
+            >
+              <Trash2 className="w-5 h-5 mr-2" />
+              Delete Service
+            </button>
           </div>
         </div>
       ) : (
@@ -196,7 +214,7 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
               </div>
               <input
                 type="text"
-                placeholder="Search line items"
+                placeholder="Search services"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -215,9 +233,7 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
                 >
                   <div>
                     <h3 className="text-lg font-medium text-gray-900">{item.description}</h3>
-                    <p className="text-gray-500">{item.description === "Free Assessment" ? 
-                      "Our experts will come to assess your property" : 
-                      "Click to add this service"}</p>
+                    <p className="text-gray-500">Click to add this service</p>
                   </div>
                   <div className="flex items-center">
                     <span className="text-lg font-semibold text-gray-900 mr-2">
@@ -229,7 +245,7 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
               ))
             ) : (
               <div className="p-4 text-center text-gray-500">
-                No items found. Try a different search or add a custom item.
+                No services found. Try a different search or add a custom item.
               </div>
             )}
             
@@ -240,7 +256,7 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
             >
               <div>
                 <h3 className="text-lg font-medium text-blue-600">Add custom item</h3>
-                <p className="text-gray-500">Create a new line item</p>
+                <p className="text-gray-500">Create a new service</p>
               </div>
               <Plus className="w-5 h-5 text-blue-600" />
             </div>
