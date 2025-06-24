@@ -112,13 +112,13 @@ const Schedule = () => {
     setAnimatingWeekChange(true);
     setWeekDirection(direction === 'prev' ? 'left' : 'right');
     
-    // First animate visually
+    // First animate visually, then update the actual data
     setTimeout(() => {
       // Then update the actual data
       const newDate = direction === 'next' ? addWeeks(currentDate, 1) : subWeeks(currentDate, 1);
       setCurrentDate(newDate);
       setAnimatingWeekChange(false);
-    }, 300); // Match this with the animation duration
+    }, 400); // Match this with the animation duration
   };
 
   // Go to today
@@ -196,109 +196,91 @@ const Schedule = () => {
     setViewOptions(options);
   };
 
-  // Render week day selector with new design: full-width, swipeable, brand colors, no arrows
+  // Render week day selector with improved horizontal sliding animation
   const renderHorizontalDayScroller = () => {
-    // Touch handling for swipe detection
-    const [touchStart, setTouchStart] = useState<number | null>(null);
-    const [touchEnd, setTouchEnd] = useState<number | null>(null);
-    const weekRef = useRef<HTMLDivElement>(null);
-
-    const handleTouchStart = (e: React.TouchEvent) => {
-      setTouchEnd(null);
-      setTouchStart(e.targetTouches[0].clientX);
-    };
-
-    const handleTouchMove = (e: React.TouchEvent) => {
-      setTouchEnd(e.targetTouches[0].clientX);
-    };
-
-    const handleTouchEnd = () => {
-      if (!touchStart || !touchEnd) return;
-      const distance = touchStart - touchEnd;
-      const isLeftSwipe = distance > 50;
-      const isRightSwipe = distance < -50;
-      if (isLeftSwipe) navigateWeek('next');
-      if (isRightSwipe) navigateWeek('prev');
-    };
-
     // Animation direction for Framer Motion
     const variants = {
       enter: (direction: 'left' | 'right' | null) => ({
-        x: direction === 'left' ? -60 : direction === 'right' ? 60 : 0,
+        x: direction === 'left' ? '-100%' : direction === 'right' ? '100%' : 0,
         opacity: 0,
       }),
       center: {
         x: 0,
         opacity: 1,
-        transition: { x: { type: 'spring', stiffness: 300, damping: 30 }, opacity: { duration: 0.2 } },
+        transition: { 
+          x: { type: 'spring', stiffness: 300, damping: 30 }, 
+          opacity: { duration: 0.2 } 
+        },
       },
       exit: (direction: 'left' | 'right' | null) => ({
-        x: direction === 'left' ? 60 : direction === 'right' ? -60 : 0,
+        x: direction === 'left' ? '100%' : direction === 'right' ? '-100%' : 0,
         opacity: 0,
+        transition: { 
+          x: { type: 'spring', stiffness: 300, damping: 30 }, 
+          opacity: { duration: 0.2 } 
+        },
       }),
     };
 
     return (
-      <div className="px-0 pb-4 border-b border-gray-200 relative min-h-[48px]">
-        <AnimatePresence initial={false} custom={weekDirection}>
+      <div className="px-0 pb-4 border-b border-gray-200 relative overflow-hidden">
+        {/* Navigation buttons */}
+        <div className="absolute left-0 top-0 bottom-0 z-10 flex items-center">
+          <button 
+            onClick={() => navigateWeek('prev')}
+            className="p-2 rounded-full bg-white shadow-md hover:bg-gray-50"
+            disabled={animatingWeekChange}
+          >
+            <ChevronLeft className="w-4 h-4 text-gray-600" />
+          </button>
+        </div>
+        <div className="absolute right-0 top-0 bottom-0 z-10 flex items-center">
+          <button 
+            onClick={() => navigateWeek('next')}
+            className="p-2 rounded-full bg-white shadow-md hover:bg-gray-50"
+            disabled={animatingWeekChange}
+          >
+            <ChevronRight className="w-4 h-4 text-gray-600" />
+          </button>
+        </div>
+
+        {/* Week days carousel */}
+        <AnimatePresence initial={false} custom={weekDirection} mode="wait">
           <motion.div
-            key={format(weekDays[0], 'yyyy-MM-dd') + format(weekDays[6], 'yyyy-MM-dd')}
-            className="flex min-w-full overflow-x-auto scrollbar-hide relative"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            ref={weekRef}
+            key={format(weekStart, 'yyyy-MM-dd')}
             custom={weekDirection}
             variants={variants}
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{ duration: 0.32, ease: [0.4, 0, 0.2, 1] }}
-            style={{ minHeight: 48 }}
+            className="flex justify-between px-10"
           >
             {weekDays.map((day, index) => {
-            const isSelected = isSameDay(day, currentDate);
+              const isSelectedDay = isSameDay(day, currentDate);
               const isDayToday = isToday(day);
-              const dayNumber = format(day, 'd');
-            return (
-                <div key={index} className="flex-1 min-w-[40px] text-center">
-              <button
-                onClick={() => handleDateSelect(day)}
-                    className={`flex flex-col items-center justify-center w-full transition-colors select-none focus:outline-none"
-                      ${isSelected
-                        ? 'bg-blue-600 text-white'
-                        : isDayToday
-                          ? 'border-b-2 border-blue-600 text-blue-600 bg-blue-50'
-                          : 'text-gray-800 hover:bg-blue-100'}
-                    `}
-                    style={{ borderRadius: '9999px', height: 40, padding: 0 }}
-                  >
-                    {/* Day number with smaller circle */}
-                    <span
-                      className={`inline-flex items-center justify-center font-semibold mb-0.5 ${isSelected ? 'bg-blue-600 text-white' : isDayToday ? 'bg-blue-100 text-blue-600' : 'bg-transparent text-gray-800'}"
-                        ${isSelected || isDayToday ? 'shadow-sm' : ''}`}
-                      style={{
-                        fontSize: 15,
-                        width: 28,
-                        height: 28,
-                        borderRadius: '50%',
-                        marginBottom: 2,
-                        marginTop: 2,
-                        background: isSelected ? '#2563eb' : isDayToday ? '#e0edff' : 'transparent',
-                        color: isSelected ? '#fff' : isDayToday ? '#2563eb' : '#222',
-                        transition: 'background 0.2s, color 0.2s',
-                      }}
-                    >
-                      {dayNumber}
-                </span>
-                    {/* Today dot indicator, only if not selected */}
-                    {isDayToday && !isSelected && (
-                      <div className="w-1 h-1 bg-blue-600 rounded-full mt-0.5"></div>
-                    )}
-              </button>
+              
+              return (
+                <div 
+                  key={index}
+                  onClick={() => handleDateSelect(day)}
+                  className="flex-1 flex flex-col items-center py-3 cursor-pointer"
+                >
+                  <div className="text-sm text-gray-500 font-medium">
+                    {format(day, 'EEE')}
+                  </div>
+                  <div className={`w-8 h-8 flex items-center justify-center rounded-full mt-1
+                    ${isSelectedDay 
+                      ? 'bg-[#307842] text-white' 
+                      : isDayToday 
+                        ? 'border-2 border-[#307842] text-[#307842]' 
+                        : 'text-gray-800'
+                    }
+                  `}>
+                    {format(day, 'd')}
+                  </div>
                 </div>
-            );
-          })}
+              );
+            })}
           </motion.div>
         </AnimatePresence>
       </div>

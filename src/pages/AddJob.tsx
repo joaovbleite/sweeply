@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate, useLocation, useBeforeUnload } from "react-router-dom";
 import { Search, User, MapPin, Phone, Mail, Plus, ChevronDown, ChevronLeft, ChevronRight, Users, X } from "lucide-react";
 import { toast } from "sonner";
 import { clientsApi } from "@/lib/api/clients";
@@ -20,6 +20,7 @@ interface LineItem {
 
 const AddJob = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { formatCurrency } = useLocale();
   const [clients, setClients] = useState<Client[]>([]);
   const [loadingClients, setLoadingClients] = useState(true);
@@ -61,6 +62,11 @@ const AddJob = () => {
   const [arrivalWindowStyle, setArrivalWindowStyle] = useState<"after" | "center">("after");
   const [startTime, setStartTime] = useState("18:30");
   const [applyToAllJobs, setApplyToAllJobs] = useState(false);
+
+  // Add state to track if form has been modified
+  const [isFormDirty, setIsFormDirty] = useState(false);
+  const [showUnsavedModal, setShowUnsavedModal] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
 
   // Load clients on component mount
   useEffect(() => {
@@ -104,11 +110,58 @@ const AddJob = () => {
     });
   };
 
+  // Function to check if form is dirty (modified)
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        [field]: value
+      };
+      setIsFormDirty(true);
+      return newData;
+    });
+  };
+
+  // Handle browser back/refresh with beforeunload event
+  useBeforeUnload(
+    useCallback((event) => {
+      if (isFormDirty) {
+        event.preventDefault();
+        return "You have unsaved changes. Are you sure you want to leave?";
+      }
+    }, [isFormDirty])
+  );
+
+  // Handle in-app navigation
+  useEffect(() => {
+    const handleBeforeNavigate = (to: string) => {
+      if (isFormDirty) {
+        setShowUnsavedModal(true);
+        setPendingNavigation(to);
+        return false;
+      }
+      return true;
+    };
+
+    // Clean up function to reset form dirty state when component unmounts
+    return () => {
+      setIsFormDirty(false);
+    };
+  }, [isFormDirty, navigate]);
+
+  // Function to handle continuing navigation after prompt
+  const handleContinueNavigation = () => {
+    setIsFormDirty(false);
+    setShowUnsavedModal(false);
+    if (pendingNavigation) {
+      navigate(pendingNavigation);
+    }
+  };
+
+  // Function to cancel navigation and stay on page
+  const handleCancelNavigation = () => {
+    setShowUnsavedModal(false);
+    setPendingNavigation(null);
   };
 
   const handleSubmit = async () => {
@@ -158,6 +211,8 @@ const AddJob = () => {
 
       const createdJob = await jobsApi.create(jobData);
 
+      // Reset form dirty state after successful submission
+      setIsFormDirty(false);
       toast.success("Job created successfully!");
       navigate("/jobs");
     } catch (error) {
@@ -199,7 +254,9 @@ const AddJob = () => {
 
       const createdJob = await jobsApi.create(jobData);
 
-      toast.success("Job saved as draft");
+      // Reset form dirty state after successful draft save
+      setIsFormDirty(false);
+      toast.success("Draft saved successfully!");
       navigate("/jobs");
     } catch (error) {
       console.error('Error saving job as draft:', error);
@@ -209,19 +266,24 @@ const AddJob = () => {
     }
   };
 
+  // Mark form as dirty when line items change
   const handleAddLineItem = (item: { description: string; price: number }) => {
     const newLineItems = [...lineItems, { ...item, quantity: 1 }];
     setLineItems(newLineItems);
     
     // Update subtotal
     const newSubtotal = newLineItems.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-    setFormData(prev => ({
-      ...prev,
-      subtotal: newSubtotal
-    }));
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        subtotal: newSubtotal
+      };
+      setIsFormDirty(true);
+      return newData;
+    });
   };
 
-  // Add function to handle removing a line item
+  // Mark form as dirty when removing line items
   const handleRemoveLineItem = (index: number) => {
     const newLineItems = [...lineItems];
     newLineItems.splice(index, 1);
@@ -229,13 +291,17 @@ const AddJob = () => {
     
     // Update subtotal
     const newSubtotal = newLineItems.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-    setFormData(prev => ({
-      ...prev,
-      subtotal: newSubtotal
-    }));
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        subtotal: newSubtotal
+      };
+      setIsFormDirty(true);
+      return newData;
+    });
   };
 
-  // Add function to handle quantity changes
+  // Mark form as dirty when quantity changes
   const handleQuantityChange = (index: number, newQuantity: number) => {
     if (newQuantity < 1) return; // Don't allow quantities less than 1
     
@@ -248,10 +314,14 @@ const AddJob = () => {
     
     // Update subtotal
     const newSubtotal = newLineItems.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-    setFormData(prev => ({
-      ...prev,
-      subtotal: newSubtotal
-    }));
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        subtotal: newSubtotal
+      };
+      setIsFormDirty(true);
+      return newData;
+    });
   };
 
   // Generate calendar days for the current month
@@ -941,6 +1011,42 @@ const AddJob = () => {
                 className="w-full py-4 text-[#0C1B1F] font-medium text-base"
               >
                 Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Unsaved Changes Modal */}
+      {showUnsavedModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h2 className="text-xl font-bold mb-4">Unsaved Changes</h2>
+            <p className="mb-6">You have unsaved changes. Would you like to save your changes before leaving?</p>
+            <div className="flex justify-end gap-4">
+              <button 
+                className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                onClick={handleCancelNavigation}
+              >
+                Cancel
+              </button>
+              <button 
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                onClick={() => {
+                  setIsFormDirty(false);
+                  handleContinueNavigation();
+                }}
+              >
+                Discard Changes
+              </button>
+              <button 
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                onClick={() => {
+                  handleSubmit();
+                  setShowUnsavedModal(false);
+                }}
+              >
+                Save Changes
               </button>
             </div>
           </div>
