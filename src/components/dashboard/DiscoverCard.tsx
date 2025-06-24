@@ -15,17 +15,28 @@ const DiscoverCard: React.FC<DiscoverCardProps> = ({ imageSrc, title, subtitle, 
       href={actionLink}
       className="relative aspect-square rounded-2xl overflow-hidden block group transition-transform duration-200 ease-in-out hover:scale-105"
     >
-      <img src={imageSrc} alt={title} className="w-full h-full object-cover" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-      <div className="absolute bottom-0 left-0 p-4 w-full">
-        <h3 className="text-white text-base font-semibold">{title}</h3>
-        <p className="text-white/70 text-sm">{subtitle}</p>
-        <div className="absolute bottom-4 right-4">
-          <button className="bg-white/20 text-white text-sm font-medium px-3 py-1.5 rounded-full flex items-center gap-1 backdrop-blur-sm">
-            {actionText}
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
+      {/* Background image with subtle zoom effect on hover */}
+      <img 
+        src={imageSrc} 
+        alt={title} 
+        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" 
+      />
+      
+      {/* Dual gradient - from top and bottom for better text visibility */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/60"></div>
+      
+      {/* Title and subtitle at the top */}
+      <div className="absolute top-0 left-0 pt-5 px-4 w-full">
+        <h3 className="text-white text-sm font-bold leading-tight mb-1 drop-shadow-sm">{title}</h3>
+        <p className="text-white/90 text-xs leading-tight max-w-[90%] drop-shadow-sm">{subtitle}</p>
+      </div>
+      
+      {/* Action button at the bottom */}
+      <div className="absolute bottom-4 right-4">
+        <button className="bg-white/20 text-white text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1 backdrop-blur-sm group-hover:bg-white/30 transition-colors">
+          {actionText}
+          <ArrowRight className="w-3.5 h-3.5" />
+        </button>
       </div>
     </a>
   );
