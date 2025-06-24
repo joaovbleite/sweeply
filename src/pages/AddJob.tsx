@@ -904,26 +904,32 @@ const AddJob = () => {
                     type="time"
                     value={startTime}
                     onChange={(e) => setStartTime(e.target.value)}
-                    className="p-2 border border-[#DADADA] rounded-lg text-center"
+                    className="p-1 border border-[#DADADA] rounded-lg text-center text-sm w-32"
                   />
                 </div>
               </div>
               
               <div className="mb-6">
-                <div className="flex flex-wrap gap-3 justify-center">
-                  {["None", "15 min", "30 min", "1 hr", "2 hr", "3 hr"].map((duration) => (
-                    <button
-                      key={duration}
-                      onClick={() => setArrivalWindowDuration(duration.toLowerCase())}
-                      className={`py-2 px-4 rounded-full text-sm font-medium ${
-                        arrivalWindowDuration === duration.toLowerCase() 
-                          ? 'bg-[#002E3D] text-white' 
-                          : 'bg-[#EDEDED] text-[#0C1B1F]'
-                      }`}
-                    >
-                      {duration}
-                    </button>
-                  ))}
+                {/* Horizontal scrollable carousel for duration tabs */}
+                <div className="overflow-x-auto pb-2 -mx-2 px-2 relative">
+                  {/* Fade gradient on the right to indicate scrollability */}
+                  <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
+                  
+                  <div className="flex space-x-3 min-w-max px-1">
+                    {["None", "15 min", "30 min", "1 hr", "2 hr", "3 hr"].map((duration) => (
+                      <button
+                        key={duration}
+                        onClick={() => setArrivalWindowDuration(duration.toLowerCase())}
+                        className={`py-2 px-4 rounded-full text-sm font-medium whitespace-nowrap ${
+                          arrivalWindowDuration === duration.toLowerCase() 
+                            ? 'bg-[#002E3D] text-white' 
+                            : 'bg-[#EDEDED] text-[#0C1B1F]'
+                        }`}
+                      >
+                        {duration}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
               
