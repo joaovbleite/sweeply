@@ -1,116 +1,70 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
-import { 
-  ArrowLeft, 
-  Save, 
-  Briefcase, 
-  User, 
-  Calendar, 
-  Clock, 
-  DollarSign, 
-  MapPin, 
-  FileText,
-  Repeat,
-  Loader2,
-  Home,
-  Building2,
-  ToggleLeft,
-  ToggleRight
-} from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Search, User, MapPin, Phone, Mail, Plus, ChevronDown, ChevronLeft, ChevronRight, Users, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { jobsApi } from "@/lib/api/jobs";
 import { clientsApi } from "@/lib/api/clients";
-import { Job, UpdateJobInput, ServiceType, PropertyType, RecurringFrequency } from "@/types/job";
+import { jobsApi } from "@/lib/api/jobs";
 import { Client } from "@/types/client";
+import { Job, ServiceType, PropertyType, UpdateJobInput } from "@/types/job";
 import AppLayout from "@/components/AppLayout";
-import RecurringJobPattern, { RecurringPattern } from "@/components/RecurringJobPattern";
+import PageHeader from "@/components/ui/PageHeader";
+import { useLocale } from "@/hooks/useLocale";
+import LineItemModal from "@/components/jobs/LineItemModal";
+import { teamManagementApi, TeamMember } from "@/lib/api/team-management";
 
-const serviceTypes: ServiceType[] = [
-  'regular', 
-  'deep_clean', 
-  'move_in', 
-  'move_out', 
-  'post_construction', 
-  'one_time'
-];
-
-// Helper for form sections
-const FormSection: React.FC<{title: string; icon?: React.ElementType; children: React.ReactNode;}> = ({ title, icon: Icon, children }) => (
-  <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-    <div className="p-4 sm:p-5 border-b border-gray-200">
-      <h3 className="text-base sm:text-lg font-semibold text-gray-900 flex items-center gap-2">
-        {Icon && <Icon className="w-5 h-5 text-gray-500" />}
-        {title}
-      </h3>
-    </div>
-    <div className="p-4 sm:p-5 space-y-4">
-      {children}
-    </div>
-  </div>
-);
-
-// Helper for form fields
-const FormField: React.FC<{label: string; children: React.ReactNode;}> = ({ label, children }) => (
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>
-    {children}
-  </div>
-);
+interface LineItem {
+  description: string;
+  price: number;
+  quantity?: number;
+}
 
 const EditJob = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [loading, setLoading] = useState(false);
-  const [loadingJob, setLoadingJob] = useState(true);
-  const [job, setJob] = useState<Job | null>(null);
+  const { formatCurrency } = useLocale();
   const [clients, setClients] = useState<Client[]>([]);
   const [loadingClients, setLoadingClients] = useState(true);
+  const [loadingJob, setLoadingJob] = useState(true);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [scheduleForLater, setScheduleForLater] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<number | null>(null);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [remindToInvoice, setRemindToInvoice] = useState(false);
+  const [showLineItemModal, setShowLineItemModal] = useState(false);
+  const [lineItems, setLineItems] = useState<LineItem[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [job, setJob] = useState<Job | null>(null);
 
-  const [formData, setFormData] = useState<UpdateJobInput>({
-    title: "",
-    description: "",
-    service_type: "regular",
-    property_type: "residential",
-    scheduled_date: "",
-    scheduled_time: "",
-    estimated_duration: 120,
-    estimated_price: 0,
+  const [formData, setFormData] = useState({
+    clientId: "",
+    firstName: "",
+    lastName: "",
     address: "",
-    special_instructions: "",
-    access_instructions: "",
-    
-    // Residential fields
-    number_of_bedrooms: undefined,
-    number_of_bathrooms: undefined,
-    house_type: "",
-    
-    // Commercial fields
-    square_footage: undefined,
-    number_of_floors: undefined,
-    building_type: "",
-    
-    is_recurring: false,
-    recurring_frequency: undefined,
-    recurring_end_date: ""
+    phone: "",
+    email: "",
+    jobTitle: "",
+    instructions: "",
+    salesperson: "",
+    subtotal: 0,
+    startTime: '',
+    endTime: '',
+    arrivalWindow: '',
+    repeating: 'none',
+    service_type: 'regular' as ServiceType,
+    property_type: 'residential' as PropertyType,
   });
 
-  const [recurringPattern, setRecurringPattern] = useState<RecurringPattern>({
-    is_recurring: false,
-    frequency: 'weekly',
-    endType: 'never'
-  });
-
-  // Load job and clients on component mount
+  // Load job, clients, and team members on component mount
   useEffect(() => {
     const loadData = async () => {
       if (!id) {
         navigate("/jobs");
         return;
       }
-
+      
       try {
-        // Load job
+        // Load job data
         const jobData = await jobsApi.getById(id);
         if (!jobData) {
           toast.error("Job not found");
@@ -119,53 +73,53 @@ const EditJob = () => {
         }
         setJob(jobData);
         
-        // Set form data from job
-        setFormData({
-          title: jobData.title || "",
-          description: jobData.description || "",
-          service_type: jobData.service_type,
-          property_type: jobData.property_type || "residential",
-          scheduled_date: jobData.scheduled_date,
-          scheduled_time: jobData.scheduled_time || "",
-          estimated_duration: jobData.estimated_duration || 120,
-          estimated_price: jobData.estimated_price || 0,
-          address: jobData.address || "",
-          special_instructions: jobData.special_instructions || "",
-          access_instructions: jobData.access_instructions || "",
-          
-          // Residential fields
-          number_of_bedrooms: jobData.number_of_bedrooms,
-          number_of_bathrooms: jobData.number_of_bathrooms,
-          house_type: jobData.house_type || "",
-          
-          // Commercial fields
-          square_footage: jobData.square_footage,
-          number_of_floors: jobData.number_of_floors,
-          building_type: jobData.building_type || "",
-          
-          is_recurring: jobData.is_recurring || false,
-          recurring_frequency: jobData.recurring_frequency,
-          recurring_end_date: jobData.recurring_end_date || "",
-          status: jobData.status
-        });
-
-        // Set recurring pattern
-        setRecurringPattern({
-          is_recurring: jobData.is_recurring || false,
-          frequency: jobData.recurring_frequency || 'weekly',
-          endType: jobData.recurring_end_date ? 'date' : 'never',
-          recurring_frequency: jobData.recurring_frequency,
-          recurring_end_date: jobData.recurring_end_date,
-          recurring_end_type: jobData.recurring_end_date ? 'date' : 'never'
-        });
-
         // Load clients
         const clientsData = await clientsApi.getAll();
         setClients(clientsData);
         
-        // Set selected client
+        // Find the client for this job
         const client = clientsData.find(c => c.id === jobData.client_id);
         setSelectedClient(client || null);
+        
+        // Set up line items from job data
+        if (jobData.line_items && Array.isArray(jobData.line_items)) {
+          setLineItems(jobData.line_items.map(item => ({
+            description: item.description,
+            price: item.price,
+            quantity: item.quantity
+          })));
+        }
+        
+        // Set selected date from job's scheduled date
+        if (jobData.scheduled_date) {
+          const scheduledDate = new Date(jobData.scheduled_date);
+          setCurrentMonth(scheduledDate);
+          setSelectedDate(scheduledDate.getDate());
+        }
+        
+        // Set form data from job
+        setFormData({
+          clientId: jobData.client_id || "",
+          firstName: client?.name?.split(' ')[0] || '',
+          lastName: client?.name?.split(' ').slice(1).join(' ') || '',
+          address: client?.address || jobData.address || "",
+          phone: client?.phone || "",
+          email: client?.email || "",
+          jobTitle: jobData.title || "",
+          instructions: jobData.special_instructions || jobData.description || "",
+          salesperson: "",
+          subtotal: jobData.estimated_price || 0,
+          startTime: jobData.scheduled_time || '',
+          endTime: '',
+          arrivalWindow: '',
+          repeating: jobData.is_recurring ? 'recurring' : 'none',
+          service_type: jobData.service_type || 'regular',
+          property_type: jobData.property_type || 'residential',
+        });
+        
+        // Load team members
+        const members = await teamManagementApi.getActiveTeamMembers();
+        setTeamMembers(members);
       } catch (error) {
         console.error('Error loading data:', error);
         toast.error("Failed to load job data");
@@ -179,234 +133,272 @@ const EditJob = () => {
     loadData();
   }, [id, navigate]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    
-    if (type === 'checkbox') {
-      const checked = (e.target as HTMLInputElement).checked;
-      setFormData(prev => ({
-        ...prev,
-        [name]: checked
-      }));
-    } else if (name === 'estimated_price' || name === 'estimated_duration' || name === 'number_of_bedrooms' || name === 'number_of_bathrooms' || name === 'square_footage' || name === 'number_of_floors') {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value ? parseInt(value) : undefined
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
+  const handleClientSelect = (client: Client) => {
+    setSelectedClient(client);
+    setFormData({
+      ...formData,
+      clientId: client.id,
+      firstName: client.name.split(' ')[0] || '',
+      lastName: client.name.split(' ').slice(1).join(' ') || '',
+      address: client.address || '',
+      phone: client.phone || '',
+      email: client.email || ''
+    });
   };
 
-  const handlePropertyTypeToggle = () => {
-    const newPropertyType: PropertyType = formData.property_type === 'residential' ? 'commercial' : 'residential';
+  const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
-      property_type: newPropertyType,
-      // Clear property-specific fields when switching
-      number_of_bedrooms: undefined,
-      number_of_bathrooms: undefined,
-      house_type: "",
-      square_footage: undefined,
-      number_of_floors: undefined,
-      building_type: ""
+      [field]: value
     }));
   };
 
-  const handleRecurringPatternChange = (pattern: RecurringPattern) => {
-    setRecurringPattern(pattern);
-    setFormData(prev => ({
-      ...prev,
-      is_recurring: pattern.is_recurring,
-      recurring_frequency: pattern.recurring_frequency,
-      recurring_end_date: pattern.recurring_end_date
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!job || !id) return;
-
+  const handleSubmit = async () => {
     // Validation
-    if (!formData.title?.trim()) {
+    if (!formData.jobTitle) {
       toast.error("Job title is required");
       return;
     }
-    if (!formData.scheduled_date) {
-      toast.error("Scheduled date is required");
+
+    if (!formData.clientId) {
+      toast.error("Client selection is required");
       return;
     }
 
-    // Validate recurring job settings
-    if (recurringPattern.is_recurring && !recurringPattern.recurring_frequency) {
-      toast.error("Please select a recurring frequency");
+    if (!selectedDate) {
+      toast.error("Please select a scheduled date");
       return;
     }
 
-    setLoading(true);
+    if (!id || !job) {
+      toast.error("Job ID is missing");
+      return;
+    }
 
     try {
-      // Clean up the data before sending
+      setIsSubmitting(true);
+
+      // Format the date for the API
+      const scheduledDate = new Date(
+        currentMonth.getFullYear(),
+        currentMonth.getMonth(),
+        selectedDate
+      ).toISOString().split('T')[0];
+
+      // Prepare line items data
+      const lineItemsData = lineItems.map(item => ({
+        description: item.description,
+        quantity: item.quantity || 1,
+        price: item.price
+      }));
+
+      // Create update data object
       const updateData: UpdateJobInput = {
-        ...formData,
-        // Remove empty strings and convert to undefined
-        description: formData.description?.trim() || undefined,
-        scheduled_time: formData.scheduled_time || undefined,
-        address: formData.address?.trim() || undefined,
-        special_instructions: formData.special_instructions?.trim() || undefined,
-        access_instructions: formData.access_instructions?.trim() || undefined,
-        house_type: formData.house_type?.trim() || undefined,
-        building_type: formData.building_type?.trim() || undefined,
-        recurring_frequency: recurringPattern.is_recurring ? recurringPattern.recurring_frequency : undefined,
-        recurring_end_date: recurringPattern.is_recurring && recurringPattern.recurring_end_date ? recurringPattern.recurring_end_date : undefined,
+        title: formData.jobTitle,
+        description: formData.instructions,
+        special_instructions: formData.instructions,
+        service_type: formData.service_type,
+        property_type: formData.property_type,
+        scheduled_date: scheduledDate,
+        estimated_price: formData.subtotal,
+        line_items: lineItemsData, // This is custom data that will be stored as JSON
+        is_recurring: formData.repeating === 'recurring',
       };
 
       await jobsApi.update(id, updateData);
-      
-      if (recurringPattern.is_recurring && job.is_recurring !== recurringPattern.is_recurring) {
-        toast.success("Job updated and converted to recurring job!");
-      } else {
+
       toast.success("Job updated successfully!");
-      }
-      
       navigate("/jobs");
     } catch (error) {
       console.error('Error updating job:', error);
-      toast.error("Failed to update job");
+      toast.error("Failed to update job. Please try again.");
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  // Get service type display name
-  const getServiceTypeDisplay = (serviceType: ServiceType) => {
-    const types = {
-      regular: 'Regular Cleaning',
-      deep_clean: 'Deep Clean',
-      move_in: 'Move-in Clean',
-      move_out: 'Move-out Clean',
-      post_construction: 'Post-Construction',
-      one_time: 'One-time Clean'
-    };
-    return types[serviceType] || serviceType;
-  };
-
-  // Update price when service type changes
-  const handleServiceTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newServiceType = e.target.value as ServiceType;
+  const handleAddLineItem = (item: { description: string; price: number }) => {
+    const newLineItems = [...lineItems, { ...item, quantity: 1 }];
+    setLineItems(newLineItems);
+    
+    // Update subtotal
+    const newSubtotal = newLineItems.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
     setFormData(prev => ({
       ...prev,
-      service_type: newServiceType
+      subtotal: newSubtotal
     }));
+  };
+
+  // Add function to handle removing a line item
+  const handleRemoveLineItem = (index: number) => {
+    const newLineItems = [...lineItems];
+    newLineItems.splice(index, 1);
+    setLineItems(newLineItems);
+    
+    // Update subtotal
+    const newSubtotal = newLineItems.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+    setFormData(prev => ({
+      ...prev,
+      subtotal: newSubtotal
+    }));
+  };
+
+  // Add function to handle quantity changes
+  const handleQuantityChange = (index: number, newQuantity: number) => {
+    if (newQuantity < 1) return; // Don't allow quantities less than 1
+    
+    const newLineItems = [...lineItems];
+    newLineItems[index] = {
+      ...newLineItems[index],
+      quantity: newQuantity
+    };
+    setLineItems(newLineItems);
+    
+    // Update subtotal
+    const newSubtotal = newLineItems.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+    setFormData(prev => ({
+      ...prev,
+      subtotal: newSubtotal
+    }));
+  };
+
+  // Generate calendar days for the current month
+  const generateCalendarDays = () => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    
+    // Get days in month
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    // Get the day of the week for the first day of the month (0 = Sunday, 1 = Monday, etc.)
+    const firstDayOfMonth = new Date(year, month, 1).getDay();
+    
+    // Get days from previous month to fill the calendar
+    const daysFromPrevMonth = firstDayOfMonth === 0 ? 0 : firstDayOfMonth;
+    
+    // Get days from next month to fill the calendar
+    const totalSlots = Math.ceil((daysInMonth + daysFromPrevMonth) / 7) * 7;
+    const daysFromNextMonth = totalSlots - daysInMonth - daysFromPrevMonth;
+    
+    // Create array for all days to display
+    const calendarDays = [];
+    
+    // Add days from previous month
+    const prevMonth = new Date(year, month, 0);
+    const prevMonthDays = prevMonth.getDate();
+    
+    for (let i = prevMonthDays - daysFromPrevMonth + 1; i <= prevMonthDays; i++) {
+      calendarDays.push({ day: i, currentMonth: false, prevMonth: true });
+    }
+    
+    // Add days from current month
+    for (let i = 1; i <= daysInMonth; i++) {
+      calendarDays.push({ day: i, currentMonth: true, prevMonth: false });
+    }
+    
+    // Add days from next month
+    for (let i = 1; i <= daysFromNextMonth; i++) {
+      calendarDays.push({ day: i, currentMonth: false, prevMonth: false });
+    }
+    
+    return calendarDays;
+  };
+
+  // Navigate to previous month
+  const goToPrevMonth = () => {
+    setCurrentMonth(prevMonth => {
+      const newMonth = new Date(prevMonth);
+      newMonth.setMonth(prevMonth.getMonth() - 1);
+      return newMonth;
+    });
+  };
+
+  // Navigate to next month
+  const goToNextMonth = () => {
+    setCurrentMonth(prevMonth => {
+      const newMonth = new Date(prevMonth);
+      newMonth.setMonth(prevMonth.getMonth() + 1);
+      return newMonth;
+    });
+  };
+
+  // Format month and year for display
+  const formatMonthYear = (date: Date) => {
+    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  };
+
+  // Handle day selection
+  const handleDaySelect = (day: number) => {
+    setSelectedDate(day);
   };
 
   if (loadingJob) {
     return (
       <AppLayout>
         <div className="flex items-center justify-center h-full">
-          <Loader2 className="w-8 h-8 animate-spin text-pulse-500" />
+          <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
         </div>
       </AppLayout>
     );
   }
 
-  if (!job) {
-    return null;
-  }
+  // Save button component for the header
+  const SaveButton = (
+    <button
+      onClick={handleSubmit}
+      className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-medium"
+      disabled={isSubmitting}
+    >
+      {isSubmitting ? 'Saving...' : 'Save'}
+    </button>
+  );
 
   return (
-    <AppLayout>
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        {/* Header */}
-        <div className="sticky top-0 z-20 bg-white">
-          <div className="flex items-center justify-between px-4 pt-2 pb-2 border-b border-gray-200">
-            <div className="flex items-center gap-3">
-              <Link
-                to="/jobs"
-                className="p-2 rounded-full hover:bg-gray-200 transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5 text-gray-600" />
-              </Link>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Edit Job</h1>
-                <p className="text-sm text-gray-600 mt-0.5">Update details for job #{job?.id.substring(0, 8)}</p>
-              </div>
-            </div>
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="px-4 py-2 bg-pulse-500 text-white rounded-lg hover:bg-pulse-600 flex items-center gap-2 transition-colors disabled:bg-pulse-300"
-            >
-              {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Save className="w-4 h-4" />
-              )}
-              <span>Save Changes</span>
-            </button>
-          </div>
+    <AppLayout hideBottomNav>
+      {/* Page Header with Save button on the right */}
+      <PageHeader 
+        title="Edit job" 
+        onBackClick={() => navigate(-1)}
+        rightElement={SaveButton}
+      />
+
+      <div className="px-4 pt-7 pb-32 flex-1 overflow-y-auto min-h-screen bg-white">
+        {/* Overview Section */}
+        <h2 className="text-xl text-gray-700 font-medium mb-4">Overview</h2>
+        
+        <div className="space-y-4 mb-8">
+              <input
+                type="text"
+                value={formData.jobTitle}
+                onChange={(e) => handleInputChange('jobTitle', e.target.value)}
+                placeholder="Job title"
+                className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+              />
+          
+          <textarea
+            value={formData.instructions}
+            onChange={(e) => handleInputChange('instructions', e.target.value)}
+            placeholder="Instructions"
+                className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+            rows={4}
+              />
         </div>
 
-        <form onSubmit={handleSubmit} className="flex-1 flex flex-col px-4 pb-20 space-y-8">
-          {/* Job Details Section */}
-          <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2"><Briefcase className="w-5 h-5 text-gray-500" /> Job Details</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Job Title</label>
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
-                  placeholder="e.g., Regular House Cleaning"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Service Type</label>
-                <select
-                  name="service_type"
-                  value={formData.service_type}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500 bg-white"
-                >
-                  {serviceTypes.map((type) => (
-                    <option key={type} value={type}>{getServiceTypeDisplay(type)}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
-                placeholder="Any specific details about the job..."
-              />
-            </div>
-          </section>
-
-          {/* Client Section */}
-          <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2"><User className="w-5 h-5 text-gray-500" /> Client</h2>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Select Client</label>
+        {/* Client Selection Section */}
+        <div className="mb-8">
+          <h2 className="text-xl text-gray-700 font-medium mb-4">Client</h2>
+          
+          {loadingClients ? (
+            <div className="p-4 text-center text-gray-500">Loading clients...</div>
+          ) : clients.length > 0 ? (
+            <div className="border rounded-xl overflow-hidden">
               <select
-                value={selectedClient?.id || ""}
+                value={formData.clientId}
                 onChange={(e) => {
                   const client = clients.find(c => c.id === e.target.value);
-                  setSelectedClient(client || null);
+                  if (client) handleClientSelect(client);
                 }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500 bg-white"
+                className="w-full p-4 border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
               >
                 <option value="">Select a client</option>
                 {clients.map(client => (
@@ -414,189 +406,219 @@ const EditJob = () => {
                 ))}
               </select>
             </div>
-          </section>
+          ) : (
+            <div className="p-4 text-center text-gray-500">No clients found.</div>
+          )}
+        </div>
 
-          {/* Schedule & Pricing Section */}
-          <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2"><Calendar className="w-5 h-5 text-gray-500" /> Schedule & Pricing</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Scheduled Date</label>
-                <input
-                  type="date"
-                  name="scheduled_date"
-                  value={formData.scheduled_date}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Scheduled Time</label>
-                <input
-                  type="time"
-                  name="scheduled_time"
-                  value={formData.scheduled_time}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Estimated Duration (minutes)</label>
-                <input
-                  type="number"
-                  name="estimated_duration"
-                  value={formData.estimated_duration}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Estimated Price ($)</label>
-                <input
-                  type="number"
-                  name="estimated_price"
-                  value={formData.estimated_price}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
-                />
-              </div>
-            </div>
-          </section>
-
-          {/* Property Details Section */}
-          <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2"><MapPin className="w-5 h-5 text-gray-500" /> Property Details</h2>
-            <div className="flex items-center gap-2 p-1 bg-gray-100 rounded-lg">
-              <button
-                type="button"
-                onClick={() => setFormData(prev => ({ ...prev, property_type: 'residential' }))}
-                className={`w-full py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  formData.property_type === 'residential' ? 'bg-white shadow-sm text-pulse-600' : 'text-gray-600 hover:bg-gray-200'
-                }`}
+        {/* Worker Section (formerly Salesperson) */}
+        <div className="mb-8">
+          <div className="relative mb-4">
+            <label className="text-sm text-gray-700 font-medium mb-1 block">Worker</label>
+            <div className="relative">
+              <select
+                value={formData.salesperson}
+                onChange={(e) => handleInputChange('salesperson', e.target.value)}
+                className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
               >
-                <Home className="w-4 h-4 inline-block mr-1.5" />
-                Residential
-              </button>
-              <button
-                type="button"
-                onClick={() => setFormData(prev => ({ ...prev, property_type: 'commercial' }))}
-                className={`w-full py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  formData.property_type === 'commercial' ? 'bg-white shadow-sm text-pulse-600' : 'text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                <Building2 className="w-4 h-4 inline-block mr-1.5" />
-                Commercial
-              </button>
-            </div>
-
-            {formData.property_type === 'residential' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Bedrooms</label>
-                  <input
-                    type="number"
-                    name="number_of_bedrooms"
-                    value={formData.number_of_bedrooms || ""}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Bathrooms</label>
-                  <input
-                    type="number"
-                    name="number_of_bathrooms"
-                    value={formData.number_of_bathrooms || ""}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
-                  />
-                </div>
-              </div>
-            )}
-
-            {formData.property_type === 'commercial' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Square Footage</label>
-                  <input
-                    type="number"
-                    name="square_footage"
-                    value={formData.square_footage || ""}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Floors</label>
-                  <input
-                    type="number"
-                    name="number_of_floors"
-                    value={formData.number_of_floors || ""}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
-                  />
-                </div>
-              </div>
-            )}
-          </section>
-
-          {/* Instructions Section */}
-          <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2"><FileText className="w-5 h-5 text-gray-500" /> Instructions</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Address</label>
-                <textarea
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
-                  placeholder="Enter the full address for the job"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Access Instructions</label>
-                <textarea
-                  name="access_instructions"
-                  value={formData.access_instructions}
-                  onChange={handleChange}
-                  rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
-                  placeholder="e.g., Key under the mat, gate code #1234"
-                />
+                <option value="">Please select</option>
+                {teamMembers.map((member) => (
+                  <option key={member.id} value={member.member_name || member.member_email || member.id}>
+                    {member.member_name || member.member_email || 'Team Member'}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <ChevronDown className="w-5 h-5 text-gray-700" />
               </div>
             </div>
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Special Instructions</label>
-              <textarea
-                name="special_instructions"
-                value={formData.special_instructions}
-                onChange={handleChange}
-                rows={2}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-pulse-500 focus:border-pulse-500"
-                placeholder="e.g., Pet-friendly cleaning products, focus on kitchen"
-              />
+          </div>
+        </div>
+
+        {/* Separator */}
+        <div className="w-full h-3 bg-gray-100 -mx-4 px-4 mb-8"></div>
+        
+        {/* Service Section */}
+        <h2 className="text-xl text-gray-700 font-medium mb-4">Service</h2>
+        
+        {/* Service Type */}
+        <div className="mb-4">
+          <label className="text-sm text-gray-700 font-medium mb-1 block">Service Type</label>
+          <select
+            value={formData.service_type}
+            onChange={(e) => handleInputChange('service_type', e.target.value as ServiceType)}
+            className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
+          >
+            <option value="regular">Regular Cleaning</option>
+            <option value="deep_clean">Deep Clean</option>
+            <option value="move_in">Move-in Clean</option>
+            <option value="move_out">Move-out Clean</option>
+            <option value="post_construction">Post-Construction</option>
+            <option value="one_time">One-time Clean</option>
+          </select>
+        </div>
+        
+        {/* Property Type */}
+        <div className="mb-4">
+          <label className="text-sm text-gray-700 font-medium mb-1 block">Property Type</label>
+          <select
+            value={formData.property_type}
+            onChange={(e) => handleInputChange('property_type', e.target.value as PropertyType)}
+            className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
+          >
+            <option value="residential">Residential</option>
+            <option value="commercial">Commercial</option>
+          </select>
+        </div>
+        
+        {/* Line items Section */}
+        <div className="flex items-center justify-between border-t border-b py-4 mb-4">
+          <h3 className="text-xl font-medium text-gray-800">Line items</h3>
+          <button 
+            className="text-blue-600"
+            onClick={() => setShowLineItemModal(true)}
+          >
+            <Plus className="w-6 h-6" />
+          </button>
+        </div>
+
+        {/* Display Line Items */}
+        {lineItems.length > 0 ? (
+          <div className="mb-4 space-y-3">
+            {lineItems.map((item, index) => (
+              <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                <div className="flex-1">
+                  <h4 className="font-medium text-gray-900">{item.description}</h4>
+                  <div className="flex items-center mt-1">
+                    <button 
+                      onClick={() => handleQuantityChange(index, (item.quantity || 1) - 1)}
+                      className="w-8 h-8 flex items-center justify-center text-blue-600 border border-gray-300 rounded-l-lg"
+                    >
+                      -
+                    </button>
+                    <input 
+                      type="number" 
+                      min="1" 
+                      value={item.quantity || 1} 
+                      onChange={(e) => handleQuantityChange(index, parseInt(e.target.value) || 1)}
+                      className="w-12 h-8 border-y border-gray-300 text-center"
+                    />
+                    <button 
+                      onClick={() => handleQuantityChange(index, (item.quantity || 1) + 1)}
+                      className="w-8 h-8 flex items-center justify-center text-blue-600 border border-gray-300 rounded-r-lg"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-gray-900 font-medium">{formatCurrency(item.price * (item.quantity || 1))}</div>
+                  <button 
+                    onClick={() => handleRemoveLineItem(index)}
+                    className="text-red-500 text-sm mt-1"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+            <div className="flex justify-between items-center p-3 bg-gray-100 rounded-lg font-medium">
+              <span>Total</span>
+              <span>{formatCurrency(formData.subtotal)}</span>
             </div>
-          </section>
+          </div>
+        ) : (
+          <div className="p-4 text-center text-gray-500 border border-dashed border-gray-300 rounded-lg mb-4">
+            No line items added yet. Click the + button to add items.
+          </div>
+        )}
+
+        {/* Separator */}
+        <div className="w-full h-3 bg-gray-100 -mx-4 px-4 mb-8"></div>
+
+        {/* Schedule Section */}
+        <h2 className="text-xl text-gray-700 font-medium mb-4">Schedule</h2>
+        
+        {/* Calendar */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <button onClick={goToPrevMonth} className="p-1 rounded-full hover:bg-gray-100">
+              <ChevronLeft className="w-6 h-6 text-gray-600" />
+            </button>
+            <h3 className="text-lg font-medium text-gray-800">{formatMonthYear(currentMonth)}</h3>
+            <button onClick={goToNextMonth} className="p-1 rounded-full hover:bg-gray-100">
+              <ChevronRight className="w-6 h-6 text-gray-600" />
+            </button>
+          </div>
           
-          {/* Recurring Job Section */}
-          <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2"><Repeat className="w-5 h-5 text-gray-500" /> Recurring Job</h2>
-            <RecurringJobPattern
-              pattern={recurringPattern}
-              isRecurring={recurringPattern.is_recurring}
-              frequency={recurringPattern.recurring_frequency}
-              endDate={recurringPattern.recurring_end_date}
-              startDate={formData.scheduled_date}
-              onChange={handleRecurringPatternChange}
+          <div className="grid grid-cols-7 gap-1">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+              <div key={day} className="text-center text-sm text-gray-500 font-medium py-1">
+                {day}
+              </div>
+            ))}
+            
+            {generateCalendarDays().map((day, index) => (
+              <button
+                key={index}
+                onClick={() => day.currentMonth && handleDaySelect(day.day)}
+                className={`
+                  h-10 rounded-full flex items-center justify-center text-sm
+                  ${day.currentMonth ? 'hover:bg-gray-100' : 'text-gray-400'}
+                  ${day.currentMonth && selectedDate === day.day ? 'bg-blue-600 text-white hover:bg-blue-700' : ''}
+                `}
+                disabled={!day.currentMonth}
+              >
+                {day.day}
+              </button>
+            ))}
+          </div>
+        </div>
+        
+        {/* Time Selection */}
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="text-sm text-gray-700 font-medium mb-1 block">Start Time</label>
+            <input
+              type="time"
+              value={formData.startTime}
+              onChange={(e) => handleInputChange('startTime', e.target.value)}
+              className="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             />
-          </section>
-        </form>
+          </div>
+          <div>
+            <label className="text-sm text-gray-700 font-medium mb-1 block">End Time</label>
+            <input
+              type="time"
+              value={formData.endTime}
+              onChange={(e) => handleInputChange('endTime', e.target.value)}
+              className="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+            />
+          </div>
+        </div>
+        
+        {/* Recurring Job Option */}
+        <div className="mb-4">
+          <label className="text-sm text-gray-700 font-medium mb-1 block">Recurring</label>
+          <select
+            value={formData.repeating}
+            onChange={(e) => handleInputChange('repeating', e.target.value)}
+            className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
+          >
+            <option value="none">One-time job</option>
+            <option value="recurring">Recurring job</option>
+          </select>
+        </div>
       </div>
+
+      {/* Line Item Modal */}
+      {showLineItemModal && (
+        <LineItemModal
+          isOpen={showLineItemModal}
+          onClose={() => setShowLineItemModal(false)}
+          onAddItem={handleAddLineItem}
+        />
+      )}
     </AppLayout>
   );
 };
