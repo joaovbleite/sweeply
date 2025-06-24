@@ -814,17 +814,17 @@ const AddJob = () => {
         )}
 
         {/* Start/End time boxes, always shown below calendar/agenda and above Arrival Time */}
-        <div className="flex gap-4 mb-6">
+        <div className="flex gap-3 mb-4">
           {/* Start time box */}
           <div
-            className="flex-1 border border-gray-300 rounded-xl p-4 flex flex-col items-center cursor-pointer relative"
+            className="flex-1 border border-gray-300 rounded-lg p-3 flex flex-col items-center cursor-pointer relative"
             onClick={() => setShowStartTimePicker(true)}
           >
-            <div className="flex items-center gap-2 mb-1">
-              <svg width="28" height="28" fill="none" stroke="#5C6C74" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-              <span className="text-lg font-medium text-[#5C6C74]">Start time</span>
+            <div className="flex items-center gap-1 mb-0.5">
+              <svg width="20" height="20" fill="none" stroke="#5C6C74" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              <span className="text-base font-medium text-[#5C6C74]">Start time</span>
             </div>
-            <span className="text-2xl font-bold text-[#22343C]">{startTime ? formatTimeDisplay(startTime) : '--:--'}</span>
+            <span className="text-xl font-bold text-[#22343C]">{startTime ? formatTimeDisplay(startTime) : '--:--'}</span>
             {showStartTimePicker && (
               <input
                 type="time"
@@ -838,21 +838,21 @@ const AddJob = () => {
           </div>
           {/* End time box */}
           <div
-            className="flex-1 border border-gray-300 rounded-xl p-4 flex flex-col items-center cursor-pointer relative"
+            className="flex-1 border border-gray-300 rounded-lg p-3 flex flex-col items-center cursor-pointer relative"
             onClick={() => setShowEndTimePicker(true)}
           >
-            <div className="flex items-center gap-2 mb-1 w-full justify-between">
-              <span className="text-lg font-medium text-[#5C6C74]">End time</span>
+            <div className="flex items-center gap-1 mb-0.5 w-full justify-between">
+              <span className="text-base font-medium text-[#5C6C74]">End time</span>
               {endTime && (
                 <button
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F5F5F5] hover:bg-[#EDEDED]"
+                  className="w-6 h-6 flex items-center justify-center rounded-full bg-[#F5F5F5] hover:bg-[#EDEDED]"
                   onClick={e => { e.stopPropagation(); setEndTime(""); }}
                 >
-                  <X className="w-5 h-5 text-[#5C6C74]" />
+                  <X className="w-4 h-4 text-[#5C6C74]" />
                 </button>
               )}
             </div>
-            <span className="text-2xl font-bold text-[#22343C]">{endTime ? formatTimeDisplay(endTime) : '--:--'}</span>
+            <span className="text-xl font-bold text-[#22343C]">{endTime ? formatTimeDisplay(endTime) : '--:--'}</span>
             {showEndTimePicker && (
               <input
                 type="time"
@@ -940,11 +940,12 @@ const AddJob = () => {
       {showArrivalTimeModal && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-end justify-center">
           <div 
-            className="bg-white w-full rounded-t-[20px] shadow-lg transform transition-transform duration-300 ease-in-out animate-slide-up"
+            className="bg-white w-full rounded-t-[20px] shadow-lg transform transition-transform duration-300 ease-in-out animate-slide-up fixed bottom-0 left-0 right-0"
             style={{
               maxHeight: '80vh',
               overflowY: 'auto',
-              paddingBottom: 'env(safe-area-inset-bottom, 24px)'
+              paddingBottom: 'env(safe-area-inset-bottom, 24px)',
+              zIndex: 51 // Higher than the overlay
             }}
           >
             <div className="p-4">

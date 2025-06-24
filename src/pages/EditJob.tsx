@@ -73,6 +73,10 @@ const EditJob = () => {
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
   const [initialFormData, setInitialFormData] = useState<any>(null);
 
+  // Add new state for start time picker
+  const [showStartTimePicker, setShowStartTimePicker] = useState(false);
+  const [showEndTimePicker, setShowEndTimePicker] = useState(false);
+
   // Load job, clients, and team members on component mount
   useEffect(() => {
     const loadData = async () => {
@@ -90,7 +94,7 @@ const EditJob = () => {
           return;
         }
         setJob(jobData);
-        
+
         // Load clients
         const clientsData = await clientsApi.getAll();
         setClients(clientsData);
@@ -848,6 +852,59 @@ const EditJob = () => {
           </div>
         </div>
         
+        {/* Start/End time boxes, always shown below calendar/agenda and above Arrival Time */}
+        <div className="flex gap-3 mb-4">
+          {/* Start time box */}
+          <div
+            className="flex-1 border border-gray-300 rounded-lg p-3 flex flex-col items-center cursor-pointer relative"
+            onClick={() => setShowStartTimePicker(true)}
+          >
+            <div className="flex items-center gap-1 mb-0.5">
+              <svg width="20" height="20" fill="none" stroke="#5C6C74" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              <span className="text-base font-medium text-[#5C6C74]">Start time</span>
+            </div>
+            <span className="text-xl font-bold text-[#22343C]">{startTime ? formatTimeDisplay(startTime) : '--:--'}</span>
+            {showStartTimePicker && (
+              <input
+                type="time"
+                value={startTime}
+                onChange={e => { setStartTime(e.target.value); setShowStartTimePicker(false); }}
+                onBlur={() => setShowStartTimePicker(false)}
+                className="absolute left-0 top-0 w-full h-full opacity-0 cursor-pointer"
+                autoFocus
+              />
+            )}
+          </div>
+          {/* End time box */}
+          <div
+            className="flex-1 border border-gray-300 rounded-lg p-3 flex flex-col items-center cursor-pointer relative"
+            onClick={() => setShowEndTimePicker(true)}
+          >
+            <div className="flex items-center gap-1 mb-0.5 w-full justify-between">
+              <span className="text-base font-medium text-[#5C6C74]">End time</span>
+              {formData.endTime && (
+                <button
+                  className="w-6 h-6 flex items-center justify-center rounded-full bg-[#F5F5F5] hover:bg-[#EDEDED]"
+                  onClick={e => { e.stopPropagation(); setFormData(prev => ({ ...prev, endTime: '' })); }}
+                >
+                  <X className="w-4 h-4 text-[#5C6C74]" />
+                </button>
+              )}
+            </div>
+            <span className="text-xl font-bold text-[#22343C]">{formData.endTime ? formatTimeDisplay(formData.endTime) : '--:--'}</span>
+            {showEndTimePicker && (
+              <input
+                type="time"
+                value={formData.endTime}
+                onChange={e => { setFormData(prev => ({ ...prev, endTime: e.target.value })); setShowEndTimePicker(false); }}
+                onBlur={() => setShowEndTimePicker(false)}
+                className="absolute left-0 top-0 w-full h-full opacity-0 cursor-pointer"
+                autoFocus
+              />
+            )}
+          </div>
+        </div>
+        
         {/* Arrival Time Section - Moved above Recurring */}
         <div className="mb-4">
           <div className="flex items-center justify-between mb-4">
@@ -915,11 +972,12 @@ const EditJob = () => {
       {showArrivalTimeModal && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-end justify-center">
           <div 
-            className="bg-white w-full rounded-t-[20px] shadow-lg transform transition-transform duration-300 ease-in-out animate-slide-up"
+            className="bg-white w-full rounded-t-[20px] shadow-lg transform transition-transform duration-300 ease-in-out animate-slide-up fixed bottom-0 left-0 right-0"
             style={{
               maxHeight: '80vh',
               overflowY: 'auto',
-              paddingBottom: 'env(safe-area-inset-bottom, 24px)'
+              paddingBottom: 'env(safe-area-inset-bottom, 24px)',
+              zIndex: 51 // Higher than the overlay
             }}
           >
             <div className="p-4">
@@ -998,8 +1056,8 @@ const EditJob = () => {
                     <div className="flex items-center">
                       <div className="mr-3 text-[#0C1B1F]">
                         <span className="inline-block w-5 h-5 text-center">⟷</span>
-                      </div>
-                      <div>
+                </div>
+                <div>
                         <p className="font-medium text-sm text-[#0C1B1F]">Center window on start time</p>
                         <p className="text-xs text-[#5C6C74]">6:00 PM – 7:00 PM</p>
                       </div>
@@ -1013,7 +1071,7 @@ const EditJob = () => {
                         <div className="w-2.5 h-2.5 rounded-full bg-blue-600" />
                       )}
                     </div>
-                  </div>
+                </div>
                 </div>
               </div>
               
