@@ -439,7 +439,15 @@ const EditJob = () => {
         <div className="w-full h-3 bg-gray-100 -mx-4 px-4 mb-8"></div>
         
         {/* Service Section */}
-        <h2 className="text-xl text-gray-700 font-medium mb-4">Service</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl text-gray-700 font-medium">Service</h2>
+          <button 
+            className="text-blue-600"
+            onClick={() => setShowLineItemModal(true)}
+          >
+            <Plus className="w-6 h-6" />
+          </button>
+        </div>
         
         {/* Service Type */}
         <div className="mb-4">
@@ -474,12 +482,6 @@ const EditJob = () => {
         {/* Line items Section */}
         <div className="flex items-center justify-between border-t border-b py-4 mb-4">
           <h3 className="text-xl font-medium text-gray-800">Line items</h3>
-          <button 
-            className="text-blue-600"
-            onClick={() => setShowLineItemModal(true)}
-          >
-            <Plus className="w-6 h-6" />
-          </button>
         </div>
 
         {/* Display Line Items */}
@@ -564,7 +566,7 @@ const EditJob = () => {
                 onClick={() => day.currentMonth && handleDaySelect(day.day)}
                 className={`
                   h-10 rounded-full flex items-center justify-center text-sm
-                  ${day.currentMonth ? 'hover:bg-gray-100' : 'text-gray-400'}
+                  ${day.currentMonth ? 'hover:bg-gray-100 text-gray-900' : 'text-gray-500'}
                   ${day.currentMonth && selectedDate === day.day ? 'bg-blue-600 text-white hover:bg-blue-700' : ''}
                 `}
                 disabled={!day.currentMonth}
