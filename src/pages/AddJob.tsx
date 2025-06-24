@@ -64,13 +64,33 @@ const AddJob = () => {
   const [showArrivalTimeModal, setShowArrivalTimeModal] = useState(false);
   const [arrivalWindowDuration, setArrivalWindowDuration] = useState<string>("1 hr");
   const [arrivalWindowStyle, setArrivalWindowStyle] = useState<"after" | "center">("after");
-  const [startTime, setStartTime] = useState("18:30");
+  const [startTime, setStartTime] = useState(() => {
+    // Get current time rounded to the nearest hour or half-hour
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    
+    // Round to nearest half hour
+    let roundedHours = hours;
+    if (minutes >= 45) {
+      // Round up to next hour
+      roundedHours = (hours + 1) % 24;
+      return `${roundedHours.toString().padStart(2, '0')}:00`;
+    } else if (minutes >= 15 && minutes < 45) {
+      // Round to half hour
+      return `${hours.toString().padStart(2, '0')}:30`;
+    } else {
+      // Round down to current hour
+      return `${hours.toString().padStart(2, '0')}:00`;
+    }
+  });
   const [applyToAllJobs, setApplyToAllJobs] = useState(false);
 
   // Add state to track if form has been modified
   const [isFormDirty, setIsFormDirty] = useState(false);
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
+  const [initialFormData, setInitialFormData] = useState<any>(null);
 
   // Load clients on component mount
   useEffect(() => {
@@ -116,6 +136,33 @@ const AddJob = () => {
 
     loadCustomServiceTypes();
   }, []);
+
+  // Initialize form data
+  useEffect(() => {
+    // Set the initial form data to detect changes later
+    const initialData = {
+      clientId: "",
+      firstName: "",
+      lastName: "",
+      address: "",
+      phone: "",
+      email: "",
+      jobTitle: "",
+      instructions: "",
+      salesperson: "victor leite",
+      subtotal: 0,
+      startTime: startTime, // Use the rounded time
+      endTime: '',
+      arrivalWindow: '',
+      repeating: 'none',
+      service_type: 'regular' as ServiceType,
+      property_type: 'residential' as PropertyType,
+      custom_service_type_id: '',
+    };
+    
+    setFormData(initialData);
+    setInitialFormData(initialData);
+  }, [startTime]); // Add startTime as a dependency
 
   const handleClientSelect = (client: Client) => {
     setSelectedClient(client);
