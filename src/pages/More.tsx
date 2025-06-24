@@ -47,7 +47,7 @@ const More: React.FC = () => {
 
   return (
     <AppLayout>
-      <div className="bg-[#F7F8F5] flex flex-col">
+      <div className="bg-[#F5F7FA] flex flex-col">
         {/* Use PageHeader with custom right element */}
         <PageHeader
           title="More"
@@ -60,7 +60,7 @@ const More: React.FC = () => {
           <div className="grid grid-cols-2 gap-4 mb-6">
             <Link 
               to="/integrations" 
-              className="flex flex-col items-start justify-between p-5 bg-[#F2F3EE] rounded-lg"
+              className="flex flex-col items-start justify-between p-5 bg-[#EEF1F5] rounded-lg"
             >
               <div className="text-[#0d3547]">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -85,7 +85,7 @@ const More: React.FC = () => {
               href="https://sweeplypro.com" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex flex-col items-start justify-between p-5 bg-[#F2F3EE] rounded-lg"
+              className="flex flex-col items-start justify-between p-5 bg-[#EEF1F5] rounded-lg"
             >
               <div className="text-[#0d3547]">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
