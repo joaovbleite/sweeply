@@ -10,7 +10,7 @@ const Support: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <AppLayout>
+    <AppLayout hideBottomNav>
       <div className="bg-white flex flex-col">
         {/* Use the new PageHeader component */}
         <PageHeader

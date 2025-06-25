@@ -355,7 +355,7 @@ const Team: React.FC = () => {
   );
   
   return (
-    <AppLayout>
+    <AppLayout hideBottomNav>
       <div className="min-h-screen bg-gray-50 flex flex-col">
         {/* Use PageHeader component with add button */}
         <PageHeader
