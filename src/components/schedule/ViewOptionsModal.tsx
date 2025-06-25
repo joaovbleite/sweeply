@@ -30,9 +30,16 @@ const ViewOptionsModal: React.FC<ViewOptionsModalProps> = ({
   ];
 
   const handleViewSelect = (view: ViewOptionsState['view']) => {
-    setOptions(prev => ({ ...prev, view }));
-    // Auto-apply changes when selecting a view
-    onApply({...options, view});
+    try {
+      setOptions(prev => ({ ...prev, view }));
+      // Auto-apply changes when selecting a view
+      onApply({...options, view});
+    } catch (error) {
+      console.error("Error switching view:", error);
+      // If there's an error, default to Day view which is more stable
+      setOptions(prev => ({ ...prev, view: 'Day' }));
+      onApply({...options, view: 'Day'});
+    }
   };
 
   const toggleUnscheduledAppointments = () => {
