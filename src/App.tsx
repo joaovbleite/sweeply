@@ -24,6 +24,8 @@ import Schedule from "./pages/Schedule";
 import Finance from "./pages/Finance";
 import Invoices from "./pages/Invoices";
 import CreateInvoice from "./pages/CreateInvoice";
+import EditInvoice from "./pages/EditInvoice";
+import InvoiceDetails from "./pages/InvoiceDetails";
 import Employees from "./pages/Employees";
 import AddEmployee from "./pages/AddEmployee";
 import EmployeeDetail from "./pages/EmployeeDetail";
@@ -203,6 +205,22 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <CreateInvoice />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/invoices/:id" 
+        element={
+          <ProtectedRoute>
+            <InvoiceDetails />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/invoices/:id/edit" 
+        element={
+          <ProtectedRoute>
+            <EditInvoice />
           </ProtectedRoute>
         } 
       />
