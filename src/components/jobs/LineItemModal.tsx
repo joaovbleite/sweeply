@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import { X, Plus, Search, Edit2, Trash2 } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { X, Plus, Search, Edit2, Trash2, Loader2 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { useLocale } from "@/hooks/useLocale";
+import { serviceTypesApi, ServiceType } from "@/lib/api/service-types";
 
 interface LineItemModalProps {
   isOpen: boolean;
@@ -14,26 +15,44 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
   const [customName, setCustomName] = useState("");
   const [customPrice, setCustomPrice] = useState("");
   const [showCustomForm, setShowCustomForm] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<{ id: number; description: string; price: number } | null>(null);
+  const [selectedItem, setSelectedItem] = useState<{ id: string; description: string; price: number } | null>(null);
   const [customizedPrice, setCustomizedPrice] = useState("");
   const { formatCurrency } = useLocale();
+  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Predefined items - in a real implementation, these would come from an API
-  const predefinedItems = [
-    { id: 2, description: "Standard Cleaning", price: 150.00 },
-    { id: 3, description: "Deep Cleaning", price: 250.00 },
-    { id: 4, description: "Move-in/Move-out Cleaning", price: 300.00 },
-  ];
+  // Fetch service types from API
+  useEffect(() => {
+    const fetchServiceTypes = async () => {
+      if (isOpen) {
+        try {
+          setLoading(true);
+          const types = await serviceTypesApi.getServiceTypes();
+          setServiceTypes(types);
+        } catch (error) {
+          console.error('Error loading service types:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchServiceTypes();
+  }, [isOpen]);
 
   // Filter items based on search term
-  const filteredItems = predefinedItems.filter(item => 
-    item.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredItems = serviceTypes.filter(item => 
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Handle item selection
-  const handleItemSelect = (item: { id: number; description: string; price: number }) => {
-    setSelectedItem(item);
-    setCustomizedPrice(item.price.toString());
+  const handleItemSelect = (item: ServiceType) => {
+    setSelectedItem({
+      id: item.id,
+      description: item.name,
+      price: item.default_price
+    });
+    setCustomizedPrice(item.default_price.toString());
   };
 
   // Handle adding selected item with customized price
@@ -222,7 +241,11 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
           
           {/* Item list - with fixed height and proper scrolling */}
           <div className="flex-1 overflow-y-auto pb-safe" style={{ maxHeight: 'calc(100vh - 130px)' }}>
-            {filteredItems.length > 0 ? (
+            {loading ? (
+              <div className="p-8 flex justify-center items-center">
+                <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+              </div>
+            ) : filteredItems.length > 0 ? (
               filteredItems.map(item => (
                 <div 
                   key={item.id}
@@ -230,12 +253,12 @@ const LineItemModal: React.FC<LineItemModalProps> = ({ isOpen, onClose, onAddIte
                   onClick={() => handleItemSelect(item)}
                 >
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900">{item.description}</h3>
+                    <h3 className="text-lg font-medium text-gray-900">{item.name}</h3>
                     <p className="text-gray-500">Click to add this service</p>
                   </div>
                   <div className="flex items-center">
                     <span className="text-lg font-semibold text-gray-900 mr-2">
-                      {formatCurrency(item.price)}
+                      {formatCurrency(item.default_price)}
                     </span>
                     <Edit2 className="w-4 h-4 text-blue-600" />
                   </div>
