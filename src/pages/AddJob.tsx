@@ -779,6 +779,34 @@ const AddJob = () => {
           </button>
         </div>
 
+        {/* Service Type */}
+        <div className="mb-4 relative">
+          <label className="text-sm text-gray-700 font-medium mb-1 block">Service Type</label>
+          <div className="relative">
+            <select
+              value={formData.custom_service_type_id ? `custom_${formData.custom_service_type_id}` : ''}
+              onChange={handleServiceTypeChange}
+              className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
+              style={{ position: 'relative', zIndex: 10 }}
+              disabled={loadingServiceTypes}
+            >
+              <option value="">Select a service</option>
+              {customServiceTypes.map(type => (
+                <option key={type.id} value={`custom_${type.id}`}>
+                  {type.name} - {formatCurrency(type.default_price)}
+                </option>
+              ))}
+            </select>
+            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+              {loadingServiceTypes ? (
+                <Loader2 className="w-5 h-5 text-gray-700 animate-spin" />
+              ) : (
+                <ChevronDown className="w-5 h-5 text-gray-700" />
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* Property Type */}
         <div className="mb-4 relative">
           <label className="text-sm text-gray-700 font-medium mb-1 block">Property Type</label>
