@@ -1063,14 +1063,14 @@ const AddJob = () => {
 
       {/* Arrival Time Modal */}
       {showArrivalTimeModal && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-end justify-center" onClick={(e) => e.target === e.currentTarget && setShowArrivalTimeModal(false)}>
+        <div className="fixed inset-0 z-[100] bg-black bg-opacity-50 flex items-end justify-center" onClick={(e) => e.target === e.currentTarget && setShowArrivalTimeModal(false)}>
           <div 
-            className="bg-white w-full rounded-t-[20px] shadow-lg transform transition-transform duration-300 ease-in-out animate-slide-up fixed bottom-0 left-0 right-0"
+            className="bg-white w-full rounded-t-[20px] shadow-lg animate-slide-up"
             style={{
-              maxHeight: '70vh',
+              maxHeight: '80vh',
               overflowY: 'auto',
-              paddingBottom: '16px',
-              zIndex: 51,
+              paddingBottom: 'env(safe-area-inset-bottom, 16px)',
+              zIndex: 101,
               position: 'fixed',
               bottom: 0,
               left: 0,
