@@ -818,7 +818,6 @@ const AddJob = () => {
             >
               <option value="residential">Residential</option>
               <option value="commercial">Commercial</option>
-              <option value="industrial">Industrial</option>
               <option value="other">Other</option>
             </select>
             <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
