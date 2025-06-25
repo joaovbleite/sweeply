@@ -37,25 +37,16 @@ const More: React.FC = () => {
     }
   };
 
-  // Get user's email safely
-  const userEmail = user?.email || '';
-
-  // Custom right element for PageHeader
-  const headerRightElement = userEmail ? (
-    <p className="text-gray-600 text-sm">{userEmail}'s Company</p>
-  ) : null;
-
   return (
     <AppLayout>
       <div className="bg-[#F5F7FA] flex flex-col">
-        {/* Use PageHeader with custom right element */}
+        {/* Use PageHeader without the custom right element */}
         <PageHeader
           title="More"
-          rightElement={headerRightElement}
           compact
         />
 
-        <div className="px-4 pb-40 pt-2 flex-1 overflow-y-auto">
+        <div className="px-4 pb-20 pt-2 flex-1 overflow-y-auto">
           {/* Feature Boxes */}
           <div className="grid grid-cols-2 gap-4 mb-6">
             <Link 
@@ -102,32 +93,7 @@ const More: React.FC = () => {
           {/* Menu Lists */}
           <div className="mb-8">
             <div>
-              {/* Notifications Button */}
-              <button
-                className="flex items-center justify-between py-4 px-0 border-b border-gray-200 w-full bg-transparent"
-                onClick={async () => {
-                  try {
-                    // Send 5 notifications, one every 5 seconds
-                    const result = await notificationService.sendMultipleTestNotifications(5, 5000);
-                    if (result) {
-                      toast.success('Sending 5 test notifications (1 every 5 seconds)');
-                    } else {
-                      toast.error('Failed to send notifications. Check permissions.');
-                    }
-                  } catch (error) {
-                    console.error('Error sending notifications:', error);
-                    toast.error('Error sending notifications');
-                  }
-                }}
-              >
-                <div className="flex items-center">
-                  <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  <span className="text-[#0d3547] text-lg font-medium">Notifications</span>
-                </div>
-              </button>
+              {/* Removed Notifications Button */}
               <Link 
                 to="/support"
                 className="flex items-center justify-between py-4 px-0 border-b border-gray-200"
@@ -199,11 +165,10 @@ const More: React.FC = () => {
             </div>
           </div>
           
-          {/* Divider */}
-          <div className="h-px bg-gray-200 my-2"></div>
+          {/* Removed divider below About button */}
           
           {/* Second Menu List */}
-          <div className="mb-8">
+          <div className="mb-6">
             <div>
               <Link 
                 to="/profile"
