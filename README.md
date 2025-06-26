@@ -3,7 +3,7 @@
 This is the main repository for the Sweeply mobile app, a powerful cleaning business management solution.
 
 ## Latest Updates
-- Removed scrollable week plan feature for improved stability
+- Fixed authentication redirection to ensure users stay logged in when reopening the app
 - Updated calendar and schedule functionality with improved scrollable days
 - Standardized color scheme from pulse to blue throughout the app
 - Fixed week view navigation and date selection
@@ -91,5 +91,3 @@ Simply open [Lovable](https://lovable.dev/projects/35d72d2e-6e25-40e5-9b0c-c0d1a
 ## I want to use a custom domain - is that possible?
 
 We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
-
-<!-- Trigger Netlify deploy: June 24, 2025 - Removed scrollable week plan -->
