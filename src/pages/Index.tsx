@@ -60,7 +60,7 @@ const Index = () => {
       userAgent: navigator.userAgent
     });
     
-    // If in PWA mode or user is authenticated, don't show landing
+    // If in PWA mode, don't show landing
     if (isPwaMode) {
       setShowLanding(false);
     }
@@ -68,10 +68,12 @@ const Index = () => {
   
   // Update landing page visibility when auth state changes
   useEffect(() => {
-    if (!loading && user) {
-      // If user is authenticated, don't show landing
-      setShowLanding(false);
-  }
+    if (!loading) {
+      // If user is authenticated, don't show landing regardless of PWA status
+      if (user) {
+        setShowLanding(false);
+      }
+    }
   }, [loading, user]);
 
   // Initialize intersection observer to detect when elements enter viewport
@@ -145,35 +147,35 @@ const Index = () => {
     );
   }
 
+  // If user is authenticated, always redirect to dashboard
+  if (!loading && user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  
   // Redirect to login if in PWA mode and not authenticated
   if (!loading && isPwa && !user) {
     return <Navigate to="/login" replace />;
   }
   
-  // Redirect to dashboard if authenticated (regardless of mode)
-  if (!loading && user) {
-    return <Navigate to="/dashboard" replace />;
-  }
-  
   // If not in PWA mode and not authenticated, show landing page
   if (showLanding) {
-  return (
-    <div className="min-h-screen">
-      <Navbar />
-      <main className="space-y-4 sm:space-y-8"> {/* Reduced space on mobile */}
-        <Hero />
-        <HumanoidSection />
-        <SpecsSection />
-        <DetailsSection />
-        <ImageShowcaseSection />
-        <Features />
-        <Testimonials />
-        <BusinessStats />
-        <MadeByHumans />
-      </main>
-      <Footer />
-    </div>
-  );
+    return (
+      <div className="min-h-screen">
+        <Navbar />
+        <main className="space-y-4 sm:space-y-8"> {/* Reduced space on mobile */}
+          <Hero />
+          <HumanoidSection />
+          <SpecsSection />
+          <DetailsSection />
+          <ImageShowcaseSection />
+          <Features />
+          <Testimonials />
+          <BusinessStats />
+          <MadeByHumans />
+        </main>
+        <Footer />
+      </div>
+    );
   }
   
   // Fallback redirect to login if something unexpected happens
