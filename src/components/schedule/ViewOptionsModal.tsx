@@ -31,9 +31,9 @@ const ViewOptionsModal: React.FC<ViewOptionsModalProps> = ({
 
   const handleViewSelect = (view: ViewOptionsState['view']) => {
     try {
-      setOptions(prev => ({ ...prev, view }));
-      // Auto-apply changes when selecting a view
-      onApply({...options, view});
+    setOptions(prev => ({ ...prev, view }));
+    // Auto-apply changes when selecting a view
+    onApply({...options, view});
     } catch (error) {
       console.error("Error switching view:", error);
       // If there's an error, default to Day view which is more stable
@@ -130,7 +130,7 @@ const ViewOptionsModal: React.FC<ViewOptionsModalProps> = ({
             <button
               onClick={toggleWeekends}
               className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 ease-in-out ${
-                options.showWeekends ? 'bg-blue-500' : 'bg-gray-300'
+                options.showWeekends ? 'bg-blue-600' : 'bg-gray-300'
               }`}
             >
               <div
@@ -158,7 +158,7 @@ const ViewOptionsModal: React.FC<ViewOptionsModalProps> = ({
                   onClick={() => toggleTeamMember(member.id)}
                   className={`w-9 h-9 rounded-lg flex items-center justify-center ${
                     options.selectedTeamMembers.includes(member.id) 
-                      ? 'bg-blue-500 text-white' 
+                      ? 'bg-blue-600 text-white' 
                       : 'border border-gray-300'
                   }`}
                 >

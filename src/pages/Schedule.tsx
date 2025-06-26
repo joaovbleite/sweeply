@@ -234,9 +234,9 @@ const Schedule = () => {
     return (
       <div 
         className="px-0 pb-4 border-b border-gray-200 relative overflow-hidden"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
         onWheel={handleWheel}
       >
         {/* Week days carousel */}
@@ -254,10 +254,10 @@ const Schedule = () => {
               const isSelectedDay = isSameDay(day, currentDate);
               const isDayToday = isToday(day);
               
-              return (
+            return (
                 <div 
                   key={index}
-                  onClick={() => handleDateSelect(day)}
+                onClick={() => handleDateSelect(day)}
                   className="flex-1 flex flex-col items-center py-3 cursor-pointer"
                 >
                   <div className="text-sm text-gray-500 font-medium">
@@ -265,17 +265,17 @@ const Schedule = () => {
                   </div>
                   <div className={`w-8 h-8 flex items-center justify-center rounded-full mt-1
                     ${isSelectedDay 
-                      ? 'bg-[#307842] text-white' 
-                      : isDayToday 
-                        ? 'border-2 border-[#307842] text-[#307842]' 
+                      ? 'bg-blue-600 text-white' 
+                        : isDayToday
+                        ? 'border-2 border-blue-600 text-blue-600' 
                         : 'text-gray-800'
                     }
                   `}>
                     {format(day, 'd')}
                   </div>
                 </div>
-              );
-            })}
+            );
+          })}
           </motion.div>
         </AnimatePresence>
 
@@ -302,14 +302,18 @@ const Schedule = () => {
 
     // Ref for the scrollable container
     const hoursContainerRef = useRef<HTMLDivElement>(null);
+    
     // Scroll to current time on mount or when currentDate changes to today
     useEffect(() => {
-      if (isToday(currentDate) && hoursContainerRef.current) {
+      if (hoursContainerRef.current) {
         // Each hour row is about 80px tall
-        const scrollTo = currentHour * 80 + (currentMinute / 60) * 80 - 120; // Offset for header
+        const scrollTo = isToday(currentDate) 
+          ? currentHour * 80 + (currentMinute / 60) * 80 - 120 // Offset for header
+          : 0; // Start at top if not today
+        
         hoursContainerRef.current.scrollTo({ top: Math.max(scrollTo, 0), behavior: 'smooth' });
       }
-    }, [currentDate]);
+    }, [currentDate, hoursContainerRef.current]);
 
     // Calculate position for current time indicator
     const currentTimePosition = ((currentHour * 60 + currentMinute) / (24 * 60)) * 100;
@@ -334,8 +338,8 @@ const Schedule = () => {
                 className="absolute left-0 right-0 z-10 flex items-center pointer-events-none"
                 style={{ top: `${currentTimePosition}%` }}
               >
-                <div className="w-2 h-2 rounded-full bg-blue-500 ml-4"></div>
-                <div className="h-0.5 bg-blue-500 flex-1"></div>
+                <div className="w-2 h-2 rounded-full bg-blue-600 ml-4"></div>
+                <div className="h-0.5 bg-blue-600 flex-1"></div>
               </div>
             )}
             {/* Hours */}
@@ -355,7 +359,7 @@ const Schedule = () => {
                     <Link
                       key={job.id}
                       to={`/jobs/${job.id}`}
-                      className="block bg-blue-100 border-l-4 border-blue-500 p-2 m-1 rounded"
+                      className="block bg-blue-100 border-l-4 border-blue-600 p-2 m-1 rounded"
                     >
                       <div className="font-medium text-blue-800">{job.client?.name}</div>
                       <div className="text-sm text-gray-600 flex items-center mt-1">
@@ -376,61 +380,61 @@ const Schedule = () => {
   // Render List View with updated styling
   const renderListView = () => {
     try {
-      if (loading) {
-        return (
-          <div className="flex justify-center items-center h-40">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-          </div>
-        );
-      }
-
-      if (!dayJobs || dayJobs.length === 0) {
-        return (
-          <div className="flex flex-col items-center justify-center h-64 bg-[#f8f8f6]">
-            <p className="text-gray-600 font-medium">No visits scheduled today</p>
-          </div>
-        );
-      }
-
+    if (loading) {
       return (
-        <div className="bg-[#f8f8f6] p-4 flex-1 min-h-0 min-h-full">
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-lg font-semibold text-gray-800">
-              {user?.user_metadata?.full_name || 'Joao'}
-            </div>
-            <div className="text-sm font-medium text-gray-500">
-              {`0/${dayJobs?.length || 0}`}
-            </div>
-          </div>
-          
-          {(dayJobs || []).map(job => (
-            <Link
-              key={job.id}
-              to={`/jobs/${job.id}`}
-              className="block bg-white rounded-lg shadow-sm mb-4 overflow-hidden"
-            >
-              <div className="flex">
-                {/* Green vertical line */}
-                <div className="w-1.5 bg-green-600 self-stretch"></div>
-                
-                <div className="p-4 flex-1">
-                  <h3 className="text-lg font-bold text-gray-900">{job.title || 'Untitled Job'}</h3>
-                  <p className="text-base text-gray-800 mt-1">{job.client?.name || 'Unknown Client'}</p>
-                  <p className="text-base text-gray-700 mt-2">
-                    {job.scheduled_time 
-                      ? `${format(new Date(`2000-01-01T${job.scheduled_time}`), 'h:mm a')} - ${format(new Date(`2000-01-01T${job.scheduled_time}`).setHours(new Date(`2000-01-01T${job.scheduled_time}`).getHours() + 2), 'h:mm a')}`
-                      : 'No time specified'}
-                  </p>
-                  <p className="text-base text-gray-700 mt-1">{job.address || 'No address'}</p>
-                  {job.description && (
-                    <p className="text-base text-gray-700 mt-2">{job.description}</p>
-                  )}
-                </div>
-              </div>
-            </Link>
-          ))}
+        <div className="flex justify-center items-center h-40">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
       );
+    }
+
+      if (!dayJobs || dayJobs.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center h-64 bg-[#f8f8f6]">
+          <p className="text-gray-600 font-medium">No visits scheduled today</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="bg-[#f8f8f6] p-4 flex-1 min-h-0 min-h-full">
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-lg font-semibold text-gray-800">
+            {user?.user_metadata?.full_name || 'Joao'}
+          </div>
+          <div className="text-sm font-medium text-gray-500">
+            {`0/${dayJobs?.length || 0}`}
+          </div>
+        </div>
+        
+        {(dayJobs || []).map(job => (
+          <Link
+            key={job.id}
+            to={`/jobs/${job.id}`}
+            className="block bg-white rounded-lg shadow-sm mb-4 overflow-hidden"
+          >
+            <div className="flex">
+              {/* Blue vertical line (changed from green) */}
+              <div className="w-1.5 bg-blue-600 self-stretch"></div>
+              
+              <div className="p-4 flex-1">
+                <h3 className="text-lg font-bold text-gray-900">{job.title || 'Untitled Job'}</h3>
+                <p className="text-base text-gray-800 mt-1">{job.client?.name || 'Unknown Client'}</p>
+                <p className="text-base text-gray-700 mt-2">
+                  {job.scheduled_time 
+                    ? `${format(new Date(`2000-01-01T${job.scheduled_time}`), 'h:mm a')} - ${format(new Date(`2000-01-01T${job.scheduled_time}`).setHours(new Date(`2000-01-01T${job.scheduled_time}`).getHours() + 2), 'h:mm a')}`
+                    : 'No time specified'}
+                </p>
+                <p className="text-base text-gray-700 mt-1">{job.address || 'No address'}</p>
+                {job.description && (
+                  <p className="text-base text-gray-700 mt-2">{job.description}</p>
+                )}
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    );
     } catch (error) {
       console.error("Error rendering list view:", error);
       return (
@@ -493,12 +497,6 @@ const Schedule = () => {
         
       {/* Calendar View */}
       <div className="flex-1 flex flex-col">
-        {/* Fixed day initials above the scroller */}
-        <div className="grid grid-cols-7 text-center mb-2 px-4">
-          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => (
-            <div key={idx} className="text-sm text-gray-700 font-semibold">{day}</div>
-          ))}
-        </div>
         {/* Render the horizontal day scroller (without initials) */}
         {renderHorizontalDayScroller()}
         
