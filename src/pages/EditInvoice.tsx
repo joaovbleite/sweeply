@@ -10,6 +10,7 @@ import AppLayout from "@/components/AppLayout";
 import PageHeader from "@/components/ui/PageHeader";
 import { format } from "date-fns";
 import { useLocale } from "@/hooks/useLocale";
+import { teamManagementApi, TeamMember } from "@/lib/api/team-management";
 
 const EditInvoice = () => {
   const navigate = useNavigate();
@@ -22,12 +23,13 @@ const EditInvoice = () => {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [showClientMessage, setShowClientMessage] = useState(false);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   
   const [formData, setFormData] = useState<UpdateInvoiceInput>({
     invoice_title: "",
     due_date: "",
     issue_date: "",
-    salesperson: "",
+    worker: "",
     payment_terms: "",
     items: [],
     tax_rate: 0,
@@ -44,9 +46,10 @@ const EditInvoice = () => {
       
       try {
         setLoading(true);
-        const [invoiceData, clientsData] = await Promise.all([
+        const [invoiceData, clientsData, teamData] = await Promise.all([
           invoicesApi.getById(id),
-          clientsApi.getAll()
+          clientsApi.getAll(),
+          teamManagementApi.getActiveTeamMembers()
         ]);
         
         if (!invoiceData) {
@@ -57,6 +60,7 @@ const EditInvoice = () => {
         
         setInvoice(invoiceData);
         setClients(clientsData);
+        setTeamMembers(teamData);
         
         // Find selected client
         const client = clientsData.find(c => c.id === invoiceData.client_id);
@@ -69,7 +73,7 @@ const EditInvoice = () => {
           invoice_title: invoiceData.invoice_title || "For Services Rendered",
           due_date: invoiceData.due_date,
           issue_date: invoiceData.issue_date,
-          salesperson: invoiceData.salesperson || "",
+          worker: invoiceData.worker || "",
           payment_terms: invoiceData.payment_terms || "Net 30",
           items: invoiceData.items || [],
           tax_rate: invoiceData.tax_rate || 0,
@@ -280,19 +284,21 @@ const EditInvoice = () => {
             </div>
           </div>
 
-          {/* Salesperson */}
+          {/* Worker (formerly Salesperson) */}
           <div className="relative">
-            <label className="text-sm text-gray-600 font-medium absolute top-2 left-4">Salesperson</label>
+            <label className="text-sm text-gray-600 font-medium absolute top-2 left-4">Worker</label>
             <div className="flex items-center w-full">
               <select
-                value={formData.salesperson}
-                onChange={(e) => handleInputChange('salesperson', e.target.value)}
+                value={formData.worker}
+                onChange={(e) => handleInputChange('worker', e.target.value)}
                 className="w-full appearance-none pt-7 pb-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-800 shadow-sm"
               >
                 <option value="">Please select</option>
-                <option value="victor leite">Victor Leite</option>
-                <option value="john doe">John Doe</option>
-                <option value="jane smith">Jane Smith</option>
+                {teamMembers.map((member) => (
+                  <option key={member.id} value={member.member_name || member.member_email || member.id}>
+                    {member.member_name || member.member_email || 'Team Member'}
+                  </option>
+                ))}
               </select>
               <div className="absolute right-4 pointer-events-none">
                 <ChevronDown className="w-5 h-5 text-gray-600" />

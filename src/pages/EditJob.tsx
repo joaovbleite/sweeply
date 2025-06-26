@@ -49,7 +49,7 @@ const EditJob = () => {
     email: "",
     jobTitle: "",
     instructions: "",
-    salesperson: "",
+    worker: "",
     subtotal: 0,
     startTime: '',
     endTime: '',
@@ -94,7 +94,7 @@ const EditJob = () => {
           return;
         }
         setJob(jobData);
-
+        
         // Load clients
         const clientsData = await clientsApi.getAll();
         setClients(clientsData);
@@ -129,7 +129,7 @@ const EditJob = () => {
           email: client?.email || "",
           jobTitle: jobData.title || "",
           instructions: jobData.special_instructions || jobData.description || "",
-          salesperson: "",
+          worker: "",
           subtotal: jobData.estimated_price || 0,
           startTime: jobData.scheduled_time || '',
           endTime: '',
@@ -666,8 +666,8 @@ const EditJob = () => {
             <label className="text-sm text-gray-700 font-medium mb-1 block">Worker</label>
             <div className="relative">
               <select
-                value={formData.salesperson}
-                onChange={(e) => handleInputChange('salesperson', e.target.value)}
+                value={formData.worker}
+                onChange={(e) => handleInputChange('worker', e.target.value)}
                 className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
               >
                 <option value="">Please select</option>
@@ -865,8 +865,8 @@ const EditJob = () => {
             </div>
             <span className="text-xl font-bold text-[#22343C]">{startTime ? formatTimeDisplay(startTime) : '--:--'}</span>
             {showStartTimePicker && (
-              <input
-                type="time"
+                  <input
+                    type="time"
                 value={startTime}
                 onChange={e => { setStartTime(e.target.value); setShowStartTimePicker(false); }}
                 onBlur={() => setShowStartTimePicker(false)}
@@ -874,7 +874,7 @@ const EditJob = () => {
                 autoFocus
               />
             )}
-          </div>
+              </div>
           {/* End time box */}
           <div
             className="flex-1 border border-gray-300 rounded-lg p-3 flex flex-col items-center cursor-pointer relative"
@@ -890,10 +890,10 @@ const EditJob = () => {
                   <X className="w-4 h-4 text-[#5C6C74]" />
                 </button>
               )}
-            </div>
+              </div>
             <span className="text-xl font-bold text-[#22343C]">{formData.endTime ? formatTimeDisplay(formData.endTime) : '--:--'}</span>
             {showEndTimePicker && (
-              <input
+                  <input
                 type="time"
                 value={formData.endTime}
                 onChange={e => { setFormData(prev => ({ ...prev, endTime: e.target.value })); setShowEndTimePicker(false); }}
@@ -902,7 +902,7 @@ const EditJob = () => {
                 autoFocus
               />
             )}
-          </div>
+              </div>
         </div>
         
         {/* Arrival Time Section - Moved above Recurring */}
@@ -954,9 +954,9 @@ const EditJob = () => {
           >
             <div 
               className={`bg-white w-6 h-6 rounded-full shadow-md transform transition-transform duration-200 ease-in-out ${remindToInvoice ? 'translate-x-6' : 'translate-x-0'}`}
-                    />
-                </div>
-                </div>
+                  />
+              </div>
+            </div>
       </div>
 
       {/* Line Item Modal */}
@@ -983,12 +983,12 @@ const EditJob = () => {
             <div className="p-4">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-[#0C1B1F]">Arrival window</h2>
-                <button 
+                  <button
                   onClick={() => setShowArrivalTimeModal(false)}
                   className="p-2"
                 >
                   <X className="w-6 h-6 text-[#0C1B1F]" />
-                </button>
+                  </button>
               </div>
               
               <div className="mb-4">
@@ -1005,7 +1005,7 @@ const EditJob = () => {
                   
                   <div className="flex space-x-3 min-w-max px-1">
                     {["None", "15 min", "30 min", "1 hr", "2 hr", "3 hr"].map((duration) => (
-                      <button
+                  <button
                         key={duration}
                         onClick={() => setArrivalWindowDuration(duration.toLowerCase())}
                         className={`py-2 px-4 rounded-full text-sm font-medium whitespace-nowrap ${
@@ -1015,12 +1015,12 @@ const EditJob = () => {
                         }`}
                       >
                         {duration}
-                      </button>
+                  </button>
                     ))}
                   </div>
                 </div>
-              </div>
-              
+                </div>
+
               <div className="mb-4">
                 <h3 className="text-base font-medium mb-2 text-[#0C1B1F]">Arrival window style</h3>
                 
@@ -1032,12 +1032,12 @@ const EditJob = () => {
                     <div className="flex items-center">
                       <div className="mr-3 text-[#0C1B1F]">
                         <span className="inline-block w-5 h-5 text-center">↦</span>
-                      </div>
-                      <div>
+                </div>
+                <div>
                         <p className="font-medium text-sm text-[#0C1B1F]">Add window after start time</p>
                         <p className="text-xs text-[#5C6C74]">{formatTimeDisplay(startTime)} – {formatTimeDisplay(calculateEndTime())}</p>
-                      </div>
-                    </div>
+                </div>
+                </div>
                     <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
                       arrivalWindowStyle === "after" 
                         ? 'border-blue-600 bg-white' 
@@ -1060,8 +1060,8 @@ const EditJob = () => {
                 <div>
                         <p className="font-medium text-sm text-[#0C1B1F]">Center window on start time</p>
                         <p className="text-xs text-[#5C6C74]">6:00 PM – 7:00 PM</p>
-                      </div>
-                    </div>
+                </div>
+                </div>
                     <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
                       arrivalWindowStyle === "center" 
                         ? 'border-blue-600 bg-white' 
@@ -1089,9 +1089,9 @@ const EditJob = () => {
                         <path d="M1 5L5 9L13 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                     )}
-                  </div>
-                </div>
               </div>
+              </div>
+            </div>
               
               <button
                 onClick={handleSaveArrivalWindow}
@@ -1142,7 +1142,7 @@ const EditJob = () => {
               >
                 Save Changes
               </button>
-            </div>
+      </div>
           </div>
       </div>
       )}

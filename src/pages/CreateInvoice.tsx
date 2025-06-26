@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Search, User, MapPin, Phone, Mail, ChevronDown, Plus, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { invoicesApi } from "@/lib/api/invoices";
@@ -10,21 +10,24 @@ import AppLayout from "@/components/AppLayout";
 import PageHeader from "@/components/ui/PageHeader";
 import { format, addDays } from "date-fns";
 import { useLocale } from "@/hooks/useLocale";
+import { teamManagementApi, TeamMember } from "@/lib/api/team-management";
 
 const CreateInvoice = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { formatCurrency } = useLocale();
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [showClientMessage, setShowClientMessage] = useState(false);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   
   const [formData, setFormData] = useState<CreateInvoiceInput>({
     client_id: "",
     invoice_title: "For Services Rendered",
     due_date: format(addDays(new Date(), 30), 'yyyy-MM-dd'), // 30 days from now
     issue_date: format(new Date(), 'yyyy-MM-dd'),
-    salesperson: "",
+    worker: "",
     payment_terms: "Net 30",
     items: [{
       description: "",
@@ -41,17 +44,34 @@ const CreateInvoice = () => {
 
   // Load clients on mount
   useEffect(() => {
-    const loadClients = async () => {
+    const loadData = async () => {
       try {
-        const data = await clientsApi.getAll();
-        setClients(data);
+        setLoading(true);
+        const [clientsData, teamData] = await Promise.all([
+          clientsApi.getAll(),
+          teamManagementApi.getActiveTeamMembers()
+        ]);
+        
+        setClients(clientsData);
+        setTeamMembers(teamData);
+        
+        // Check if we have client ID from location state (e.g., coming from client detail page)
+        if (location.state?.clientId) {
+          const client = clientsData.find(c => c.id === location.state.clientId);
+          if (client) {
+            handleClientSelect(client);
+          }
+        }
       } catch (error) {
         console.error('Error loading clients:', error);
         toast.error("Failed to load clients");
-          }
+      } finally {
+        setLoading(false);
+      }
     };
-    loadClients();
-  }, []);
+    
+    loadData();
+  }, [location.state]);
 
   const handleClientSelect = (client: Client) => {
     setSelectedClient(client);
@@ -269,19 +289,21 @@ const CreateInvoice = () => {
             </div>
           </div>
 
-          {/* Salesperson */}
+          {/* Worker */}
           <div className="relative">
-            <label className="text-sm text-gray-500 absolute top-2 left-4">Salesperson</label>
+            <label className="text-sm text-gray-500 absolute top-2 left-4">Worker</label>
             <div className="flex items-center w-full">
               <select
-                value={formData.salesperson}
-                onChange={(e) => handleInputChange('salesperson', e.target.value)}
-                className="w-full appearance-none pt-7 pb-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
+                value={formData.worker}
+                onChange={(e) => handleInputChange('worker', e.target.value)}
+                className="w-full appearance-none pt-7 pb-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-800 shadow-sm"
               >
                 <option value="">Please select</option>
-                <option value="victor leite">victor leite</option>
-                <option value="john doe">John Doe</option>
-                <option value="jane smith">Jane Smith</option>
+                {teamMembers.map((member) => (
+                  <option key={member.id} value={member.member_name || member.member_email || member.id}>
+                    {member.member_name || member.member_email || 'Team Member'}
+                  </option>
+                ))}
               </select>
               <div className="absolute right-4 pointer-events-none">
                 <ChevronDown className="w-5 h-5 text-gray-500" />

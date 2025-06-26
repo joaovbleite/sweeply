@@ -9,6 +9,7 @@ import AppLayout from "@/components/AppLayout";
 import PageHeader from "@/components/ui/PageHeader";
 import { format } from "date-fns";
 import { useLocale } from "@/hooks/useLocale";
+import { teamManagementApi, TeamMember } from "@/lib/api/team-management";
 
 const EditQuote = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const EditQuote = () => {
   const [quote, setQuote] = useState<Quote | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [showClientMessage, setShowClientMessage] = useState(false);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   
   const [formData, setFormData] = useState<UpdateQuoteInput>({
     title: "",
@@ -41,9 +43,10 @@ const EditQuote = () => {
       
       try {
         setLoading(true);
-        const [quoteData, clientsData] = await Promise.all([
+        const [quoteData, clientsData, teamData] = await Promise.all([
           quotesApi.getById(id),
-          clientsApi.getAll()
+          clientsApi.getAll(),
+          teamManagementApi.getActiveTeamMembers()
         ]);
         
         if (!quoteData) {
@@ -54,6 +57,7 @@ const EditQuote = () => {
         
         setQuote(quoteData);
         setClients(clientsData);
+        setTeamMembers(teamData);
         
         // Find selected client
         const client = clientsData.find(c => c.id === quoteData.client_id);
@@ -274,9 +278,11 @@ const EditQuote = () => {
                 className="w-full appearance-none pt-7 pb-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-800 shadow-sm"
               >
                 <option value="">Please select</option>
-                <option value="victor leite">Victor Leite</option>
-                <option value="john doe">John Doe</option>
-                <option value="jane smith">Jane Smith</option>
+                {teamMembers.map((member) => (
+                  <option key={member.id} value={member.member_name || member.member_email || member.id}>
+                    {member.member_name || member.member_email || 'Team Member'}
+                  </option>
+                ))}
               </select>
               <div className="absolute right-4 pointer-events-none">
                 <ChevronDown className="w-5 h-5 text-gray-600" />

@@ -49,7 +49,7 @@ const AddJob = () => {
     email: "",
     jobTitle: "",
     instructions: "",
-    salesperson: "victor leite",
+    worker: "victor leite",
     subtotal: 0,
     startTime: '',
     endTime: '',
@@ -150,7 +150,7 @@ const AddJob = () => {
       email: "",
       jobTitle: "",
       instructions: "",
-      salesperson: "victor leite",
+      worker: "victor leite",
       subtotal: 0,
       startTime: startTime, // Use the rounded time
       endTime: '',
@@ -198,8 +198,8 @@ const AddJob = () => {
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => {
       const newData = {
-        ...prev,
-        [field]: value
+      ...prev,
+      [field]: value
       };
       setIsFormDirty(true);
       return newData;
@@ -359,8 +359,8 @@ const AddJob = () => {
     const newSubtotal = newLineItems.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
     setFormData(prev => {
       const newData = {
-        ...prev,
-        subtotal: newSubtotal
+      ...prev,
+      subtotal: newSubtotal
       };
       setIsFormDirty(true);
       return newData;
@@ -377,8 +377,8 @@ const AddJob = () => {
     const newSubtotal = newLineItems.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
     setFormData(prev => {
       const newData = {
-        ...prev,
-        subtotal: newSubtotal
+      ...prev,
+      subtotal: newSubtotal
       };
       setIsFormDirty(true);
       return newData;
@@ -400,8 +400,8 @@ const AddJob = () => {
     const newSubtotal = newLineItems.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
     setFormData(prev => {
       const newData = {
-        ...prev,
-        subtotal: newSubtotal
+      ...prev,
+      subtotal: newSubtotal
       };
       setIsFormDirty(true);
       return newData;
@@ -683,6 +683,32 @@ const AddJob = () => {
     </button>
   );
 
+  // Reset form data
+  const resetForm = () => {
+    setFormData({
+      clientId: "",
+      firstName: "",
+      lastName: "",
+      address: "",
+      phone: "",
+      email: "",
+      jobTitle: "",
+      instructions: "",
+      worker: "victor leite",
+      subtotal: 0,
+      startTime: '',
+      endTime: '',
+      arrivalWindow: '',
+      repeating: 'none',
+      service_type: 'regular',
+      property_type: 'residential',
+      custom_service_type_id: '',
+    });
+    setSelectedClient(null);
+    setSelectedDates([]);
+    setLineItems([]);
+  };
+
   return (
     <AppLayout hideBottomNav>
       {/* Page Header with Save button on the right */}
@@ -747,8 +773,8 @@ const AddJob = () => {
             <label className="text-sm text-gray-700 font-medium mb-1 block">Worker</label>
             <div className="relative">
               <select
-                value={formData.salesperson}
-                onChange={(e) => handleInputChange('salesperson', e.target.value)}
+                value={formData.worker}
+                onChange={(e) => handleInputChange('worker', e.target.value)}
                 className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
               >
                 <option value="">Please select</option>
@@ -902,7 +928,7 @@ const AddJob = () => {
         {/* Only show calendar if not scheduling for later */}
         {!scheduleForLater && (
           <div className="mb-4">
-            {/* Calendar */}
+        {/* Calendar */}
             <div className="flex items-center justify-between mb-4">
               <button onClick={goToPrevMonth} className="p-1 rounded-full hover:bg-gray-100">
                 <ChevronLeft className="w-6 h-6 text-gray-600" />
@@ -911,17 +937,17 @@ const AddJob = () => {
               <button onClick={goToNextMonth} className="p-1 rounded-full hover:bg-gray-100">
                 <ChevronRight className="w-6 h-6 text-gray-600" />
               </button>
-            </div>
-            
+          </div>
+
             <div className="grid grid-cols-7 gap-1">
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
                 <div key={day} className="text-center text-sm text-gray-500 font-medium py-1">
-                  {day}
-                </div>
-              ))}
-              
-              {generateCalendarDays().map((day, index) => (
-                <button
+                {day}
+              </div>
+            ))}
+
+            {generateCalendarDays().map((day, index) => (
+            <button 
                   key={index}
                   onClick={() => day.currentMonth && handleDaySelect(day.day)}
                   className={
@@ -930,11 +956,11 @@ const AddJob = () => {
                     ${day.currentMonth && selectedDates.includes(day.day) ? 'bg-blue-600 text-white hover:bg-blue-700' : ''}`
                   }
                   disabled={!day.currentMonth}
-                >
+            >
                   {day.day}
-                </button>
-              ))}
-            </div>
+            </button>
+            ))}
+          </div>
           </div>
         )}
 
@@ -951,8 +977,8 @@ const AddJob = () => {
             </div>
             <span className="text-lg font-bold text-[#22343C]">{startTime ? formatTimeDisplay(startTime) : '--:--'}</span>
             {showStartTimePicker && (
-              <input
-                type="time"
+                  <input
+                    type="time"
                 value={startTime}
                 onChange={e => { setStartTime(e.target.value); setShowStartTimePicker(false); }}
                 onBlur={() => setShowStartTimePicker(false)}
@@ -960,7 +986,7 @@ const AddJob = () => {
                 autoFocus
               />
             )}
-          </div>
+                </div>
           {/* End time box */}
           <div
             className="flex-1 border border-gray-300 rounded-lg p-2 flex flex-col items-center cursor-pointer relative"
@@ -979,8 +1005,8 @@ const AddJob = () => {
             </div>
             <span className="text-lg font-bold text-[#22343C]">{endTime ? formatTimeDisplay(endTime) : '--:--'}</span>
             {showEndTimePicker && (
-              <input
-                type="time"
+                  <input
+                    type="time"
                 value={endTime}
                 onChange={e => { setEndTime(e.target.value); setShowEndTimePicker(false); }}
                 onBlur={() => setShowEndTimePicker(false)}
@@ -988,8 +1014,8 @@ const AddJob = () => {
                 autoFocus
               />
             )}
-          </div>
-        </div>
+                </div>
+              </div>
 
         {/* Arrival Time Section - Moved above Recurring */}
         <div className="mb-4">
@@ -1001,7 +1027,7 @@ const AddJob = () => {
             >
               <Plus className="w-5 h-5" />
             </button>
-          </div>
+              </div>
           {formData.startTime && formData.arrivalWindow && formData.arrivalWindow !== "none" && (
             <div className="bg-gray-50 p-3 rounded-lg">
               <p className="text-gray-900">
@@ -1016,16 +1042,16 @@ const AddJob = () => {
         {selectedDates.length === 1 && (
           <div className="mb-8">
             <label className="text-sm text-gray-700 font-medium mb-1 block">Recurring</label>
-            <select
+                <select
               value={formData.repeating}
-              onChange={e => handleInputChange('repeating', e.target.value)}
+                  onChange={e => handleInputChange('repeating', e.target.value)}
               className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
-            >
+                >
               <option value="none">One-time job</option>
               <option value="recurring">Recurring job</option>
-            </select>
-          </div>
-        )}
+                </select>
+            </div>
+          )}
 
         {/* Invoicing Section - No divider before this */}
         <h2 className="text-xl text-gray-700 font-medium mb-4">Invoicing</h2>
