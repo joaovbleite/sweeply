@@ -14,7 +14,8 @@ import {
   Settings,
   LogOut,
   ChevronRight,
-  Info
+  Info,
+  Star
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
@@ -93,7 +94,23 @@ const More: React.FC = () => {
           {/* Menu Lists */}
           <div className="mb-8">
             <div>
-              {/* Removed Notifications Button */}
+              {/* AI Assistant Button */}
+              <Link 
+                to="/ai-chat"
+                className="flex items-center justify-between py-4 px-0 border-b border-gray-200"
+              >
+                <div className="flex items-center">
+                  <div className="w-5 h-5 mr-4 flex items-center justify-center">
+                    <Star className="w-5 h-5 text-[#0d3547]" />
+                  </div>
+                  <span className="text-[#0d3547] text-lg font-medium">AI Assistant</span>
+                </div>
+                <div className="text-gray-400">
+                  <ChevronRight className="w-6 h-6" />
+                </div>
+              </Link>
+              
+              {/* Support Button */}
               <Link 
                 to="/support"
                 className="flex items-center justify-between py-4 px-0 border-b border-gray-200"

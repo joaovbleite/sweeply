@@ -21,7 +21,9 @@ import {
   UserCheck,
   FileCheck,
   HelpCircle,
-  Globe
+  Globe,
+  Star,
+  Bell
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -243,6 +245,27 @@ const Dashboard = () => {
   return (
     <AppLayout>
       <div className={`${isMobile ? 'px-3 sm:px-4' : 'px-6 lg:px-8'} py-0 sm:py-4 md:py-6`}>
+        {/* Header with AI Assistant icon */}
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
+          <div className="flex items-center space-x-2">
+            <Link 
+              to="/ai-chat" 
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              aria-label="AI Assistant"
+            >
+              <Star className="w-5 h-5 text-gray-700" />
+            </Link>
+            <Link 
+              to="/notifications" 
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              aria-label="Notifications"
+            >
+              <Bell className="w-5 h-5 text-gray-700" />
+            </Link>
+          </div>
+        </div>
+        
         {/* Welcome Widget */}
         <div className={isMobile ? '' : 'mt-6'}>
           <WelcomeWidget />
