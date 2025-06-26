@@ -27,6 +27,7 @@ html, body {
 
 /* Status bar fix for iOS */
 @supports (-webkit-touch-callout: none) {
+  /* iOS-specific status bar fix */
   .ios-status-bar-fix {
     position: fixed;
     top: 0;
@@ -36,39 +37,45 @@ html, body {
     background-color: #FFFFFF;
     z-index: 9999;
   }
-}
-
-/* iOS-specific fixes for transparency and status bar issues */
-
-/* Force white background and prevent transparency */
-html, body {
-  background-color: #FFFFFF !important;
-}
-
-/* Status bar background fix */
-.ios-status-bar-fix {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: env(safe-area-inset-top);
-  background-color: #FFFFFF !important;
-  z-index: 9999;
+  
+  /* Force white background on the status bar area */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-top, 0px);
+    background-color: #FFFFFF;
+    z-index: 9998;
+  }
 }
 
 /* For PWA mode - force white status bar */
 @media (display-mode: standalone) {
   html {
-    background-color: #FFFFFF;
+    background-color: #FFFFFF !important;
   }
   
   body {
-    background-color: #FFFFFF;
+    background-color: #FFFFFF !important;
   }
   
   /* Ensure body starts below the status bar inset */
   body {
-    padding-top: env(safe-area-inset-top);
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  
+  /* Status bar background fix for standalone mode */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-top, 0px);
+    background-color: #FFFFFF !important;
+    z-index: 9999;
   }
 }
 

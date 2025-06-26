@@ -117,6 +117,12 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, hideBottomNav = false }
       {/* White background that extends to the top edge of the screen */}
       <div className="fixed inset-0 bg-white -z-10"></div>
       
+      {/* iOS status bar background fix */}
+      <div 
+        className="fixed top-0 left-0 right-0 bg-white z-[9999]" 
+        style={{ height: 'env(safe-area-inset-top, 0px)' }}
+      />
+      
       {/* Sidebar */}
       <aside 
         id="mobile-sidebar"
