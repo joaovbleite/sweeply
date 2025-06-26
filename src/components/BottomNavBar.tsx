@@ -30,7 +30,7 @@ const BottomNavBar: React.FC = () => {
     { id: "home", label: "Home", icon: Home, path: "/dashboard" },
     { id: "schedule", label: "Schedule", icon: Calendar, path: "/schedule" },
     { id: "add", label: "", icon: Plus, path: "#", action: () => setIsMenuOpen(!isMenuOpen) },
-    { id: "clients", label: "Hub", icon: User, path: "/clients" },
+    { id: "tasks", label: "Tasks", icon: Clipboard, path: "/tasks" },
     { id: "more", label: "More", icon: MoreHorizontal, path: "/more" }
   ];
 
@@ -199,15 +199,16 @@ const BottomNavBar: React.FC = () => {
             <Link
               key={item.id}
               to={item.path}
-              className="flex flex-col items-center justify-center"
+              className="flex flex-col items-center justify-center w-1/5 py-3"
+              onClick={item.action}
             >
               <Icon 
-                className={`w-6 h-6 mb-1 ${isActive ? 'text-[#0F2B28]' : 'text-[#4A5D5A]'}`} 
+                className={`w-5 h-5 ${isActive ? 'text-blue-600' : 'text-gray-500'}`} 
                 strokeWidth={2}
                 fill="none"
               />
               <span 
-                className={`text-xs font-medium ${isActive ? 'text-[#0F2B28]' : 'text-[#4A5D5A]'}`}
+                className={`text-xs mt-1 ${isActive ? 'text-blue-600 font-medium' : 'text-gray-500'}`}
               >
                 {item.label}
               </span>
