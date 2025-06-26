@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ChevronRight, ChevronLeft, X, ArrowUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocale } from '@/hooks/useLocale';
@@ -22,6 +22,37 @@ const BusinessHealthPage = ({ isOpen, onClose }: { isOpen: boolean, onClose: () 
     return `${startFormatted} - ${endFormatted}`;
   }, []);
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      // Save current scroll position
+      const scrollY = window.scrollY;
+      
+      // Lock the body scroll
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.overflowY = 'hidden';
+      
+      // Scroll modal content to top
+      const modalContent = document.getElementById('business-health-content');
+      if (modalContent) {
+        modalContent.scrollTop = 0;
+      }
+      
+      return () => {
+        // Unlock the body scroll when component unmounts
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        document.body.style.overflowY = '';
+        
+        // Restore scroll position
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
@@ -31,7 +62,7 @@ const BusinessHealthPage = ({ isOpen, onClose }: { isOpen: boolean, onClose: () 
         onBackClick={onClose}
       />
 
-      <div className="overflow-y-auto h-[calc(100vh-77px)] pb-20">
+      <div id="business-health-content" className="overflow-y-auto h-[calc(100vh-77px)] pb-20">
         {/* Clients Section */}
         <div className="px-4 py-5 border-b border-gray-200">
           <h2 className="text-xl font-bold text-[#1a2e35] mb-1">Clients</h2>
