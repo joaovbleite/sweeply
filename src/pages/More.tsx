@@ -14,7 +14,8 @@ import {
   Settings,
   LogOut,
   ChevronRight,
-  Info
+  Info,
+  Clipboard
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
@@ -93,6 +94,20 @@ const More: React.FC = () => {
           {/* Menu Lists */}
           <div className="mb-8">
             <div>
+              {/* Tasks Link */}
+              <Link 
+                to="/tasks"
+                className="flex items-center justify-between py-4 px-0 border-b border-gray-200"
+              >
+                <div className="flex items-center">
+                  <Clipboard className="w-5 h-5 mr-4 text-[#0d3547]" />
+                  <span className="text-[#0d3547] text-lg font-medium">Tasks</span>
+                </div>
+                <div className="text-gray-400">
+                  <ChevronRight className="w-6 h-6" />
+                </div>
+              </Link>
+
               {/* Removed Notifications Button */}
               <Link 
                 to="/support"
