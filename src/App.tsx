@@ -54,6 +54,7 @@ import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Tasks from "./pages/Tasks";
 import AddTask from "./pages/AddTask";
+import EditTask from "./pages/EditTask";
 import Refer from "./pages/Refer";
 import Subscription from "./pages/Subscription";
 import AddTestClient from "./pages/AddTestClient";
@@ -470,6 +471,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <AddTask />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/tasks/:id/edit" 
+        element={
+          <ProtectedRoute>
+            <EditTask />
           </ProtectedRoute>
         } 
       />

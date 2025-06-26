@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Plus, Users, Calendar, User, AlertTriangle, Flag, Clock, CheckCircle, X, Search } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ChevronLeft, ChevronRight, Plus, Users, Calendar, User, AlertTriangle, Flag, Clock, CheckCircle, X, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import AppLayout from "@/components/AppLayout";
 import PageHeader from "@/components/ui/PageHeader";
@@ -8,7 +8,7 @@ import { useLocale } from "@/hooks/useLocale";
 import { tasksApi } from "@/lib/api/tasks";
 import { clientsApi } from "@/lib/api/clients";
 import { Client } from "@/types/client";
-import { CreateTaskInput, TaskPriority, TaskStatus } from "@/types/task";
+import { Task, UpdateTaskInput, TaskPriority, TaskStatus } from "@/types/task";
 import { format, addDays, isToday } from "date-fns";
 import {
   Select,
@@ -33,17 +33,31 @@ import {
   SheetFooter,
   SheetClose,
 } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
-const AddTask = () => {
+const EditTask = () => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const { formatCurrency } = useLocale();
   
   const [clients, setClients] = useState<Client[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [showClientSelector, setShowClientSelector] = useState(false);
   const [showTeamSelector, setShowTeamSelector] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [task, setTask] = useState<Task | null>(null);
 
   // Team members (would be fetched from API in a real implementation)
   const teamMembers = [
@@ -52,7 +66,7 @@ const AddTask = () => {
     { id: "3", name: "John Doe", role: "Cleaner", avatar: "" },
   ];
 
-  const [formData, setFormData] = useState<CreateTaskInput>({
+  const [formData, setFormData] = useState<UpdateTaskInput>({
     title: "",
     description: "",
     status: "open",
@@ -62,20 +76,42 @@ const AddTask = () => {
     assignee_id: "",
   });
 
-  // Load clients on mount
+  // Load task and clients on mount
   useEffect(() => {
-    const loadClients = async () => {
+    const loadData = async () => {
       try {
-        const data = await clientsApi.getAll();
-        setClients(data);
+        setLoading(true);
+        
+        // Load task
+        if (id) {
+          const taskData = await tasksApi.getById(id);
+          if (taskData) {
+            setTask(taskData);
+            setFormData({
+              title: taskData.title,
+              description: taskData.description || "",
+              status: taskData.status,
+              priority: taskData.priority,
+              due_date: taskData.due_date || "",
+              client_id: taskData.client_id || "",
+              assignee_id: taskData.assignee_id || "",
+            });
+          }
+        }
+        
+        // Load clients
+        const clientsData = await clientsApi.getAll();
+        setClients(clientsData);
       } catch (error) {
-        console.error("Error loading clients:", error);
-        toast.error("Failed to load clients");
+        console.error("Error loading data:", error);
+        toast.error("Failed to load task data");
+      } finally {
+        setLoading(false);
       }
     };
 
-    loadClients();
-  }, []);
+    loadData();
+  }, [id]);
 
   const handleInputChange = (field: string, value: string | number) => {
     setFormData(prev => ({
@@ -107,16 +143,40 @@ const AddTask = () => {
       return;
     }
 
+    if (!id) {
+      toast.error("Task ID is missing");
+      return;
+    }
+
     try {
       setSaving(true);
-      await tasksApi.create(formData);
-      toast.success("Task created successfully!");
+      await tasksApi.update(id, formData);
+      toast.success("Task updated successfully!");
       navigate("/tasks");
     } catch (error) {
-      console.error("Error creating task:", error);
-      toast.error("Failed to create task");
+      console.error("Error updating task:", error);
+      toast.error("Failed to update task");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!id) {
+      toast.error("Task ID is missing");
+      return;
+    }
+
+    try {
+      setDeleting(true);
+      await tasksApi.delete(id);
+      toast.success("Task deleted successfully!");
+      navigate("/tasks");
+    } catch (error) {
+      console.error("Error deleting task:", error);
+      toast.error("Failed to delete task");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -219,19 +279,62 @@ const AddTask = () => {
 
   // Save button component for the header
   const SaveButton = (
-    <button
-      onClick={handleSubmit}
-      disabled={saving}
-      className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium"
-    >
-      {saving ? "Saving..." : "Save"}
-    </button>
+    <div className="flex gap-2">
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <button
+            className="bg-red-100 text-red-600 p-2 rounded-lg"
+          >
+            <Trash2 className="h-5 w-5" />
+          </button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Task</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this task? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-red-600 text-white hover:bg-red-700"
+            >
+              {deleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
+      <button
+        onClick={handleSubmit}
+        disabled={saving}
+        className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium"
+      >
+        {saving ? "Saving..." : "Save"}
+      </button>
+    </div>
   );
+
+  if (loading) {
+    return (
+      <AppLayout hideBottomNav>
+        <PageHeader 
+          title="Edit Task" 
+          onBackClick={() => navigate(-1)}
+        />
+        <div className="p-4 flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout hideBottomNav>
       <PageHeader 
-        title="New Task" 
+        title="Edit Task" 
         onBackClick={() => navigate(-1)}
         rightElement={SaveButton}
       />
@@ -522,9 +625,30 @@ const AddTask = () => {
             </SheetContent>
           </Sheet>
         </div>
+
+        {/* Task Activity Section */}
+        {task?.comments && task.comments.length > 0 && (
+          <>
+            <div className="w-full h-2 bg-gray-100 -mx-4 px-4 mb-3"></div>
+            <h2 className="text-base text-gray-700 font-medium mb-3">Activity</h2>
+            <div className="space-y-3">
+              {task.comments.map(comment => (
+                <div key={comment.id} className="p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="font-medium">{comment.user_name}</div>
+                    <div className="text-xs text-gray-500">
+                      {format(new Date(comment.created_at), "MMM d, h:mm a")}
+                    </div>
+                  </div>
+                  <p className="text-gray-700">{comment.text}</p>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </AppLayout>
   );
 };
 
-export default AddTask; 
+export default EditTask; 
