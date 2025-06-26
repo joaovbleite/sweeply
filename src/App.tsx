@@ -47,6 +47,7 @@ import TeamMemberDetail from "./pages/TeamMemberDetail";
 import Profile from "./pages/Profile";
 import PricingAssistant from "./pages/PricingAssistant";
 import NewQuote from "./pages/NewQuote";
+import EditQuote from "./pages/EditQuote";
 import Notifications from "./pages/Notifications";
 import InstallPrompt from "@/components/ui/InstallPrompt";
 import TermsOfService from "./pages/TermsOfService";
@@ -347,6 +348,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <NewQuote />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/quotes/:id/edit" 
+        element={
+          <ProtectedRoute>
+            <EditQuote />
           </ProtectedRoute>
         } 
       />

@@ -2,16 +2,15 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Search, User, MapPin, Phone, Mail, ChevronDown, Plus, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
-import { invoicesApi } from "@/lib/api/invoices";
+import { quotesApi, Quote, UpdateQuoteInput } from "@/lib/api/quotes";
 import { clientsApi } from "@/lib/api/clients";
 import { Client } from "@/types/client";
-import { Invoice, UpdateInvoiceInput } from "@/types/invoice";
 import AppLayout from "@/components/AppLayout";
 import PageHeader from "@/components/ui/PageHeader";
 import { format } from "date-fns";
 import { useLocale } from "@/hooks/useLocale";
 
-const EditInvoice = () => {
+const EditQuote = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { formatCurrency } = useLocale();
@@ -19,73 +18,69 @@ const EditInvoice = () => {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [invoice, setInvoice] = useState<Invoice | null>(null);
+  const [quote, setQuote] = useState<Quote | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [showClientMessage, setShowClientMessage] = useState(false);
   
-  const [formData, setFormData] = useState<UpdateInvoiceInput>({
-    invoice_title: "",
-    due_date: "",
-    issue_date: "",
-    salesperson: "",
-    payment_terms: "",
-    items: [],
-    tax_rate: 0,
-    discount_amount: 0,
+  const [formData, setFormData] = useState<UpdateQuoteInput>({
+    title: "",
+    description: "",
+    valid_until: "",
+    line_items: [],
+    discount: 0,
+    tax: 0,
     notes: "",
     terms: "",
-    footer_text: ""
+    worker: ""
   });
 
-  // Load invoice and clients on mount
+  // Load quote and clients on mount
   useEffect(() => {
     const loadData = async () => {
       if (!id) return;
       
       try {
         setLoading(true);
-        const [invoiceData, clientsData] = await Promise.all([
-          invoicesApi.getById(id),
+        const [quoteData, clientsData] = await Promise.all([
+          quotesApi.getById(id),
           clientsApi.getAll()
         ]);
         
-        if (!invoiceData) {
-          toast.error("Invoice not found");
-          navigate("/invoices");
+        if (!quoteData) {
+          toast.error("Quote not found");
+          navigate("/quotes");
           return;
         }
         
-        setInvoice(invoiceData);
+        setQuote(quoteData);
         setClients(clientsData);
         
         // Find selected client
-        const client = clientsData.find(c => c.id === invoiceData.client_id);
+        const client = clientsData.find(c => c.id === quoteData.client_id);
         if (client) {
           setSelectedClient(client);
         }
         
-        // Set form data from invoice
+        // Set form data from quote
         setFormData({
-          invoice_title: invoiceData.invoice_title || "For Services Rendered",
-          due_date: invoiceData.due_date,
-          issue_date: invoiceData.issue_date,
-          salesperson: invoiceData.salesperson || "",
-          payment_terms: invoiceData.payment_terms || "Net 30",
-          items: invoiceData.items || [],
-          tax_rate: invoiceData.tax_rate || 0,
-          discount_amount: invoiceData.discount_amount || 0,
-          notes: invoiceData.notes || "",
-          terms: invoiceData.terms || "Payment due within 30 days of invoice date.",
-          footer_text: invoiceData.footer_text || "Thank you for your business. Please contact us with any questions regarding this invoice."
+          title: quoteData.title || "Service Quote",
+          description: quoteData.description || "",
+          valid_until: quoteData.valid_until || "",
+          line_items: quoteData.line_items || [],
+          discount: quoteData.discount || 0,
+          tax: quoteData.tax || 0,
+          notes: quoteData.notes || "",
+          terms: quoteData.terms || "This quote is valid for 30 days from the date of issue.",
+          worker: quoteData.worker || ""
         });
         
         // Show client message if present
-        if (invoiceData.notes) {
+        if (quoteData.notes) {
           setShowClientMessage(true);
         }
       } catch (error) {
-        console.error('Error loading invoice:', error);
-        toast.error("Failed to load invoice");
+        console.error('Error loading quote:', error);
+        toast.error("Failed to load quote");
       } finally {
         setLoading(false);
       }
@@ -102,12 +97,7 @@ const EditInvoice = () => {
     }));
   };
 
-  const handleClientDataChange = (field: string, value: string) => {
-    // This would update client data for new clients
-    console.log(`Updating client ${field} to ${value}`);
-  };
-
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | number) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -115,48 +105,51 @@ const EditInvoice = () => {
   };
 
   const handleSaveChanges = async () => {
-    if (!id || !invoice) return;
+    if (!id || !quote) return;
     
     setSaving(true);
     try {
-      await invoicesApi.update(id, formData);
-      toast.success("Invoice updated successfully");
-      navigate("/invoices");
+      await quotesApi.update(id, formData);
+      toast.success("Quote updated successfully");
+      navigate("/quotes");
     } catch (error) {
-      console.error('Error updating invoice:', error);
-      toast.error("Failed to update invoice");
+      console.error('Error updating quote:', error);
+      toast.error("Failed to update quote");
     } finally {
       setSaving(false);
     }
   };
 
   const handleReviewAndSend = async () => {
-    if (!id || !invoice) return;
+    if (!id || !quote) return;
     
     setSaving(true);
     try {
-      await invoicesApi.update(id, formData);
-      await invoicesApi.markAsSent(id);
-      toast.success("Invoice updated and sent");
-      navigate("/invoices");
+      await quotesApi.update(id, formData);
+      await quotesApi.markAsSent(id);
+      toast.success("Quote updated and sent");
+      navigate("/quotes");
     } catch (error) {
-      console.error('Error updating invoice:', error);
-      toast.error("Failed to update invoice");
+      console.error('Error updating quote:', error);
+      toast.error("Failed to update quote");
     } finally {
       setSaving(false);
     }
   };
 
   const calculateSubtotal = () => {
-    return formData.items?.reduce((sum, item) => sum + (item.amount || 0), 0) || 0;
+    return formData.line_items?.reduce((sum, item) => {
+      const itemTotal = (item.quantity || 0) * (item.price || 0);
+      return sum + itemTotal;
+    }, 0) || 0;
   };
 
   const calculateTax = () => {
-    return calculateSubtotal() * (formData.tax_rate || 0) / 100;
+    return calculateSubtotal() * (formData.tax || 0) / 100;
   };
 
   const calculateTotal = () => {
-    return calculateSubtotal() + calculateTax() - (formData.discount_amount || 0);
+    return calculateSubtotal() - (formData.discount || 0) + calculateTax();
   };
 
   // Toggle client message section
@@ -189,14 +182,14 @@ const EditInvoice = () => {
     <AppLayout hideBottomNav>
       {/* Page Header with Send button on the right */}
       <PageHeader 
-        title="Edit Invoice" 
+        title="Edit Quote" 
         onBackClick={() => navigate(-1)}
         rightElement={SendButton}
       />
 
       <div className="px-4 pt-7 pb-32 flex-1 overflow-y-auto min-h-screen bg-white">
         {/* Billed To Section */}
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Billed to</h2>
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">Service for</h2>
         
         {/* Client Information */}
         {selectedClient && (
@@ -236,57 +229,48 @@ const EditInvoice = () => {
         <h2 className="text-xl font-semibold text-gray-800 mb-4">Overview</h2>
         
         <div className="space-y-4 mb-8">
-          {/* Invoice Title */}
+          {/* Quote Title */}
           <div className="relative">
-            <label className="text-sm text-gray-600 font-medium absolute top-2 left-4">Invoice title</label>
+            <label className="text-sm text-gray-600 font-medium absolute top-2 left-4">Quote title</label>
             <input
               type="text"
-              value={formData.invoice_title}
-              onChange={(e) => handleInputChange('invoice_title', e.target.value)}
+              value={formData.title}
+              onChange={(e) => handleInputChange('title', e.target.value)}
               className="w-full pt-7 pb-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 bg-white shadow-sm"
             />
           </div>
           
-          {/* Issue Date */}
+          {/* Description */}
           <div className="relative">
-            <label className="text-sm text-gray-600 font-medium absolute top-2 left-4">Issued</label>
+            <label className="text-sm text-gray-600 font-medium absolute top-2 left-4">Description</label>
+            <textarea
+              value={formData.description || ''}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+              className="w-full pt-7 pb-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 bg-white shadow-sm"
+              rows={3}
+            />
+          </div>
+
+          {/* Valid Until */}
+          <div className="relative">
+            <label className="text-sm text-gray-600 font-medium absolute top-2 left-4">Valid until</label>
             <div className="flex items-center w-full">
               <input
                 type="date"
-                value={formData.issue_date}
-                onChange={(e) => handleInputChange('issue_date', e.target.value)}
+                value={formData.valid_until || ''}
+                onChange={(e) => handleInputChange('valid_until', e.target.value)}
                 className="w-full pt-7 pb-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 bg-white shadow-sm"
               />
             </div>
           </div>
 
-          {/* Payment Terms */}
+          {/* Worker */}
           <div className="relative">
-            <label className="text-sm text-gray-600 font-medium absolute top-2 left-4">Payment due</label>
+            <label className="text-sm text-gray-600 font-medium absolute top-2 left-4">Worker</label>
             <div className="flex items-center w-full">
               <select
-                value={formData.payment_terms}
-                onChange={(e) => handleInputChange('payment_terms', e.target.value)}
-                className="w-full appearance-none pt-7 pb-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-800 shadow-sm"
-              >
-                <option value="Net 30">Net 30</option>
-                <option value="Net 15">Net 15</option>
-                <option value="Net 7">Net 7</option>
-                <option value="Due on Receipt">Due on Receipt</option>
-              </select>
-              <div className="absolute right-4 pointer-events-none">
-                <ChevronDown className="w-5 h-5 text-gray-600" />
-              </div>
-            </div>
-          </div>
-
-          {/* Salesperson */}
-          <div className="relative">
-            <label className="text-sm text-gray-600 font-medium absolute top-2 left-4">Salesperson</label>
-            <div className="flex items-center w-full">
-              <select
-                value={formData.salesperson}
-                onChange={(e) => handleInputChange('salesperson', e.target.value)}
+                value={formData.worker || ''}
+                onChange={(e) => handleInputChange('worker', e.target.value)}
                 className="w-full appearance-none pt-7 pb-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-800 shadow-sm"
               >
                 <option value="">Please select</option>
@@ -304,8 +288,8 @@ const EditInvoice = () => {
         {/* Separator - full width */}
         <div className="w-full h-3 bg-gray-100 -mx-4 mb-8"></div>
         
-        {/* Product / Service Section */}
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Product / Service</h2>
+        {/* Line Items Section */}
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">Services & Products</h2>
         
         {/* Line items Section */}
         <div className="flex items-center justify-between py-4 border-t border-b mb-4">
@@ -316,18 +300,18 @@ const EditInvoice = () => {
         </div>
 
         {/* Line Items List */}
-        {formData.items && formData.items.length > 0 ? (
+        {formData.line_items && formData.line_items.length > 0 ? (
           <div className="mb-6 space-y-3">
-            {formData.items.map((item, index) => (
-              <div key={index} className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
+            {formData.line_items.map((item, index) => (
+              <div key={item.id || index} className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
                 <div className="flex justify-between items-start mb-2">
                   <h4 className="font-medium text-gray-800">{item.description}</h4>
                   <span className="font-medium text-gray-800">
-                    {formatCurrency(item.amount || 0)}
+                    {formatCurrency((item.quantity || 0) * (item.price || 0))}
                   </span>
                 </div>
                 <div className="text-sm text-gray-600">
-                  {item.quantity} × {formatCurrency(item.rate || 0)}
+                  {item.quantity} × {formatCurrency(item.price || 0)}
                 </div>
               </div>
             ))}
@@ -349,12 +333,12 @@ const EditInvoice = () => {
           {/* Discount */}
           <div className="flex items-center justify-between py-4">
             <h3 className="text-lg font-medium text-gray-800">Discount</h3>
-            <span className="text-lg text-blue-600 font-medium">{formatCurrency(formData.discount_amount || 0)}</span>
+            <span className="text-lg text-blue-600 font-medium">{formatCurrency(formData.discount || 0)}</span>
           </div>
           
           {/* Tax */}
           <div className="flex items-center justify-between py-4">
-            <h3 className="text-lg font-medium text-gray-800">Tax ({formData.tax_rate || 0}%)</h3>
+            <h3 className="text-lg font-medium text-gray-800">Tax ({formData.tax || 0}%)</h3>
             <span className="text-lg text-blue-600 font-medium">{formatCurrency(calculateTax())}</span>
           </div>
         </div>
@@ -392,13 +376,13 @@ const EditInvoice = () => {
           )}
         </div>
         
-        {/* Contract / Disclaimer Section */}
+        {/* Terms Section */}
         <div className="border-b py-4 mb-8">
           <div className="flex justify-between items-center cursor-pointer">
-            <h3 className="text-lg font-semibold text-gray-800">Contract / Disclaimer</h3>
+            <h3 className="text-lg font-semibold text-gray-800">Terms & Conditions</h3>
             <ChevronRight className="w-6 h-6 text-blue-600" />
           </div>
-          <p className="mt-2 text-gray-700">{formData.footer_text}</p>
+          <p className="mt-2 text-gray-700">{formData.terms}</p>
         </div>
 
         {/* Save Button */}
@@ -416,4 +400,4 @@ const EditInvoice = () => {
   );
 };
 
-export default EditInvoice; 
+export default EditQuote; 
