@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Plus, Users, Calendar, User, AlertTriangle, Flag, Clock, CheckCircle, X, Search, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Users, Calendar, User, AlertTriangle, Flag, Clock, CheckCircle, X, Search, Trash2, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import AppLayout from "@/components/AppLayout";
 import PageHeader from "@/components/ui/PageHeader";
@@ -363,58 +363,40 @@ const EditTask = () => {
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div>
             <label className="text-sm text-gray-600 block mb-1">Status</label>
-            <Select
-              value={formData.status}
-              onValueChange={(value) => handleInputChange('status', value)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="open">Open</SelectItem>
-                <SelectItem value="in_progress">In Progress</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="relative">
+              <select
+                value={formData.status}
+                onChange={(e) => handleInputChange('status', e.target.value as TaskStatus)}
+                className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
+              >
+                <option value="open">Open</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <ChevronDown className="w-5 h-5 text-gray-700" />
+              </div>
+            </div>
           </div>
           
           <div>
             <label className="text-sm text-gray-600 block mb-1">Priority</label>
-            <Select
-              value={formData.priority}
-              onValueChange={(value) => handleInputChange('priority', value as TaskPriority)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select priority" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="urgent">
-                  <div className="flex items-center">
-                    <AlertTriangle className="h-4 w-4 text-red-600 mr-2" />
-                    <span>Urgent</span>
-                  </div>
-                </SelectItem>
-                <SelectItem value="high">
-                  <div className="flex items-center">
-                    <Flag className="h-4 w-4 text-orange-600 mr-2" />
-                    <span>High</span>
-                  </div>
-                </SelectItem>
-                <SelectItem value="medium">
-                  <div className="flex items-center">
-                    <Flag className="h-4 w-4 text-yellow-600 mr-2" />
-                    <span>Medium</span>
-                  </div>
-                </SelectItem>
-                <SelectItem value="low">
-                  <div className="flex items-center">
-                    <Flag className="h-4 w-4 text-green-600 mr-2" />
-                    <span>Low</span>
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="relative">
+              <select
+                value={formData.priority}
+                onChange={(e) => handleInputChange('priority', e.target.value as TaskPriority)}
+                className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
+              >
+                <option value="urgent">Urgent</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <ChevronDown className="w-5 h-5 text-gray-700" />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -424,7 +406,7 @@ const EditTask = () => {
         {/* Client Section */}
         <div className="flex items-center justify-between py-3 mb-2">
           <div className="flex items-center">
-            <User className="w-5 h-5 text-gray-700 mr-2" />
+            <User className="w-5 h-5 text-blue-600 mr-2" />
             <h3 className="text-base font-medium text-gray-800">Client</h3>
           </div>
           
@@ -452,7 +434,7 @@ const EditTask = () => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full p-3 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-600 h-5 w-5" />
                 </div>
                 
                 <div className="space-y-2 max-h-[50vh] overflow-y-auto">
@@ -498,7 +480,7 @@ const EditTask = () => {
           <Popover>
             <PopoverTrigger asChild>
               <div className="border border-gray-300 rounded-lg p-3 flex items-center cursor-pointer">
-                <Calendar className="w-5 h-5 text-gray-700 mr-2" />
+                <Calendar className="w-5 h-5 text-blue-600 mr-2" />
                 <div>
                   <h3 className="text-sm font-medium text-gray-800">Due Date</h3>
                   <p className="text-base text-gray-800">
@@ -559,7 +541,7 @@ const EditTask = () => {
         {/* Team Section */}
         <div className="flex items-center justify-between py-3 mb-4">
           <div className="flex items-center">
-            <Users className="w-5 h-5 text-gray-700 mr-2" />
+            <Users className="w-5 h-5 text-blue-600 mr-2" />
             <div>
               <h3 className="text-base font-medium text-gray-800">Assignee</h3>
               <p className="text-base text-gray-800">
