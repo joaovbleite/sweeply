@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import PageTransition from "@/components/ui/PageTransition";
 import StatusBarFix from "@/components/StatusBarFix";
@@ -72,16 +73,56 @@ const queryClient = new QueryClient({
   },
 });
 
+// Redirect component that checks auth state and redirects accordingly
+const AuthRedirect = () => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pulse-500"></div>
+      </div>
+    );
+  }
+  
+  // If user is logged in, redirect to dashboard
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  
+  // Otherwise show the waitlist page
+  return <WaitlistPage />;
+};
+
+// Login route with redirect if already logged in
+const LoginRoute = () => {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pulse-500"></div>
+      </div>
+    );
+  }
+  
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  
+  return <Login />;
+};
+
 // Create a wrapper component to handle the page transitions
 const AppRoutes = () => {
   const location = useLocation();
   
   return (
     <Routes location={location}>
-      <Route path="/" element={<WaitlistPage />} />
+      <Route path="/" element={<AuthRedirect />} />
       <Route path="/home" element={<Index />} />
       <Route path="/about" element={<About />} />
-      <Route path="/login" element={<Login />} />
+      <Route path="/login" element={<LoginRoute />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/terms-of-service" element={<TermsOfService />} />
       <Route path="/privacy-policy" element={<PrivacyPolicy />} />

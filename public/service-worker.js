@@ -1,7 +1,7 @@
 // Service Worker for Sweeply App
-// Handles push notifications and offline capabilities
+// Handles push notifications, offline capabilities, and authentication persistence
 
-const CACHE_NAME = 'sweeply-cache-v1';
+const CACHE_NAME = 'sweeply-cache-v2';
 const APP_URL = self.location.origin;
 
 // Assets to cache immediately
@@ -12,6 +12,13 @@ const CORE_ASSETS = [
   '/favicon.ico',
   '/android-chrome-192x192.png',
   '/favicon-32x32.png',
+];
+
+// Authentication-related paths that should not be cached
+const AUTH_PATHS = [
+  '/login',
+  '/signup',
+  '/api/auth/'
 ];
 
 // Install event - cache core assets
@@ -44,6 +51,58 @@ self.addEventListener('activate', (event) => {
   );
   // Claim clients so the service worker is in control immediately
   self.clients.claim();
+});
+
+// Fetch event - handle network requests and caching strategy
+self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+  
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') {
+    return;
+  }
+  
+  // Skip authentication-related paths (don't cache these)
+  if (AUTH_PATHS.some(path => url.pathname.includes(path))) {
+    return;
+  }
+  
+  // Special handling for the root path to ensure auth redirect works
+  if (url.pathname === '/' || url.pathname === '/index.html') {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => {
+          // If network fails, try to serve from cache
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
+  
+  // For other assets, use a cache-first strategy
+  event.respondWith(
+    caches.match(event.request)
+      .then((response) => {
+        // Return from cache if available
+        if (response) {
+          return response;
+        }
+        
+        // Otherwise fetch from network
+        return fetch(event.request)
+          .then((networkResponse) => {
+            // Cache the response for future use
+            if (networkResponse.ok && !url.pathname.includes('/api/')) {
+              const responseToCache = networkResponse.clone();
+              caches.open(CACHE_NAME)
+                .then((cache) => {
+                  cache.put(event.request, responseToCache);
+                });
+            }
+            return networkResponse;
+          });
+      })
+  );
 });
 
 // Push notification event handler
