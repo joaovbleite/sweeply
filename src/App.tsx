@@ -8,6 +8,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import PageTransition from "@/components/ui/PageTransition";
 import StatusBarFix from "@/components/StatusBarFix";
 import Index from "./pages/Index";
+import WaitlistPage from "./pages/WaitlistPage";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
@@ -77,7 +78,8 @@ const AppRoutes = () => {
   
   return (
     <Routes location={location}>
-      <Route path="/" element={<Index />} />
+      <Route path="/" element={<WaitlistPage />} />
+      <Route path="/home" element={<Index />} />
       <Route path="/about" element={<About />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
