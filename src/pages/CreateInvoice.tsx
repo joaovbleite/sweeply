@@ -171,6 +171,7 @@ const CreateInvoice = () => {
         title="New Invoice" 
         onBackClick={() => navigate(-1)}
         rightElement={SendButton}
+        compact
       />
 
       <div className="px-4 pt-7 pb-32 flex-1 overflow-y-auto min-h-screen bg-white">

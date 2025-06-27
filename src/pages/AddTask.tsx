@@ -234,6 +234,7 @@ const AddTask = () => {
         title="New Task" 
         onBackClick={() => navigate(-1)}
         rightElement={SaveButton}
+        compact
       />
 
       <div className="px-4 pt-3 pb-24 flex-1 overflow-y-auto bg-white">

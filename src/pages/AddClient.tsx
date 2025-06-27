@@ -170,6 +170,7 @@ const AddClient = () => {
       <PageHeader
         title="New Client"
         onBackClick={() => navigate(-1)}
+        compact
       />
 
       <div className="pt-12 px-4 pb-24 flex-1 overflow-y-auto min-h-screen bg-white">
