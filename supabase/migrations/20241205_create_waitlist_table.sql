@@ -23,13 +23,11 @@ CREATE POLICY waitlist_insert_policy ON waitlist
   TO authenticated, anon
   WITH CHECK (true);
 
--- Only allow admins to select, update, delete
+-- Only allow authenticated users to select, update, delete
 CREATE POLICY waitlist_admin_policy ON waitlist
   FOR ALL
   TO authenticated
-  USING (auth.jwt() ->> 'email' IN (
-    SELECT email FROM user_profiles WHERE is_admin = true
-  ));
+  USING (true);
 
 -- Create a function to update the updated_at timestamp
 CREATE OR REPLACE FUNCTION update_waitlist_updated_at()
