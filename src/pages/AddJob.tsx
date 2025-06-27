@@ -5,13 +5,14 @@ import { toast } from "sonner";
 import { clientsApi } from "@/lib/api/clients";
 import { jobsApi } from "@/lib/api/jobs";
 import { Client } from "@/types/client";
-import { ServiceType, PropertyType } from "@/types/job";
+import { ServiceType, PropertyType, RecurringFrequency } from "@/types/job";
 import AppLayout from "@/components/AppLayout";
 import PageHeader from "@/components/ui/PageHeader";
 import { useLocale } from "@/hooks/useLocale";
 import LineItemModal from "@/components/jobs/LineItemModal";
 import { teamManagementApi, TeamMember } from "@/lib/api/team-management";
 import { serviceTypesApi, ServiceType as CustomServiceType } from "@/lib/api/service-types";
+import { RecurringPattern } from "@/components/RecurringJobPattern";
 
 interface LineItem {
   description: string;
@@ -58,6 +59,12 @@ const AddJob = () => {
     service_type: 'regular' as ServiceType,
     property_type: 'residential' as PropertyType,
     custom_service_type_id: '',
+    recurring_pattern: {
+      is_recurring: false,
+      frequency: 'weekly' as RecurringFrequency,
+      daysOfWeek: [] as number[],
+      endType: 'never' as 'never' | 'date' | 'occurrences',
+    } as RecurringPattern,
   });
 
   // Add new state for arrival time
@@ -159,6 +166,12 @@ const AddJob = () => {
       service_type: 'regular' as ServiceType,
       property_type: 'residential' as PropertyType,
       custom_service_type_id: '',
+      recurring_pattern: {
+        is_recurring: false,
+        frequency: 'weekly' as RecurringFrequency,
+        daysOfWeek: [] as number[],
+        endType: 'never' as 'never' | 'date' | 'occurrences',
+      } as RecurringPattern,
     };
     
     setFormData(initialData);
@@ -183,19 +196,19 @@ const AddJob = () => {
 
   const handleClientSelect = (client: Client) => {
     setSelectedClient(client);
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       clientId: client.id,
       firstName: client.name.split(' ')[0] || '',
       lastName: client.name.split(' ').slice(1).join(' ') || '',
       address: client.address || '',
       phone: client.phone || '',
       email: client.email || ''
-    });
+    }));
   };
 
   // Function to check if form is dirty (modified)
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: any) => {
     setFormData(prev => {
       const newData = {
       ...prev,
@@ -291,6 +304,15 @@ const AddJob = () => {
         scheduled_date: scheduledDate,
         estimated_price: formData.subtotal,
         line_items: lineItemsData, // This is custom data that will be stored as JSON
+        
+        // Add recurring job data if applicable
+        is_recurring: formData.recurring_pattern.is_recurring,
+        recurring_frequency: formData.recurring_pattern.frequency,
+        recurring_days_of_week: formData.recurring_pattern.daysOfWeek,
+        recurring_day_of_month: formData.recurring_pattern.dayOfMonth,
+        recurring_end_type: formData.recurring_pattern.endType,
+        recurring_end_date: formData.recurring_pattern.endDate,
+        recurring_occurrences: formData.recurring_pattern.occurrences,
       };
 
       const createdJob = await jobsApi.create(jobData);
@@ -333,7 +355,16 @@ const AddJob = () => {
         scheduled_date: scheduledDate,
         estimated_price: formData.subtotal,
         line_items: lineItemsData, // This is custom data that will be stored as JSON
-        status: 'draft' as any // We're adding a custom status that's not in the type
+        status: 'draft' as any, // We're adding a custom status that's not in the type
+        
+        // Add recurring job data if applicable
+        is_recurring: formData.recurring_pattern.is_recurring,
+        recurring_frequency: formData.recurring_pattern.frequency,
+        recurring_days_of_week: formData.recurring_pattern.daysOfWeek,
+        recurring_day_of_month: formData.recurring_pattern.dayOfMonth,
+        recurring_end_type: formData.recurring_pattern.endType,
+        recurring_end_date: formData.recurring_pattern.endDate,
+        recurring_occurrences: formData.recurring_pattern.occurrences
       };
 
       const createdJob = await jobsApi.create(jobData);
@@ -703,10 +734,90 @@ const AddJob = () => {
       service_type: 'regular',
       property_type: 'residential',
       custom_service_type_id: '',
+      recurring_pattern: {
+        is_recurring: false,
+        frequency: 'weekly' as RecurringFrequency,
+        daysOfWeek: [] as number[],
+        endType: 'never' as 'never' | 'date' | 'occurrences',
+      } as RecurringPattern,
     });
     setSelectedClient(null);
     setSelectedDates([]);
     setLineItems([]);
+  };
+
+  // Function to get current day name
+  const getCurrentDayName = () => {
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const today = new Date();
+    return days[today.getDay()];
+  };
+
+  // Handle recurring pattern change
+  const handleRecurringPatternChange = (field: string, value: any) => {
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        recurring_pattern: {
+          ...prev.recurring_pattern,
+          [field]: value
+        }
+      };
+      
+      // If we're setting is_recurring to true, initialize with current day of week
+      if (field === 'is_recurring' && value === true) {
+        const today = new Date();
+        newData.recurring_pattern.daysOfWeek = [today.getDay()];
+        newData.recurring_pattern.recurring_days_of_week = [today.getDay()];
+      }
+      
+      setIsFormDirty(true);
+      return newData;
+    });
+  };
+
+  // Handle recurring option selection
+  const handleRecurringOptionChange = (option: string) => {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    
+    if (option === 'none') {
+      // One-time job
+      handleInputChange('repeating', 'none');
+      handleRecurringPatternChange('is_recurring', false);
+    } else if (option === 'weekly') {
+      // Weekly on current day
+      handleInputChange('repeating', 'recurring');
+      handleRecurringPatternChange('is_recurring', true);
+      handleRecurringPatternChange('frequency', 'weekly');
+      handleRecurringPatternChange('daysOfWeek', [dayOfWeek]);
+      handleRecurringPatternChange('recurring_days_of_week', [dayOfWeek]);
+    } else if (option === 'biweekly') {
+      // Biweekly on current day
+      handleInputChange('repeating', 'recurring');
+      handleRecurringPatternChange('is_recurring', true);
+      handleRecurringPatternChange('frequency', 'biweekly');
+      handleRecurringPatternChange('daysOfWeek', [dayOfWeek]);
+      handleRecurringPatternChange('recurring_days_of_week', [dayOfWeek]);
+    } else if (option === 'monthly') {
+      // Monthly on same day
+      handleInputChange('repeating', 'recurring');
+      handleRecurringPatternChange('is_recurring', true);
+      handleRecurringPatternChange('frequency', 'monthly');
+      handleRecurringPatternChange('dayOfMonth', today.getDate());
+      handleRecurringPatternChange('recurring_day_of_month', today.getDate());
+    } else if (option === 'quarterly') {
+      // Quarterly on same day
+      handleInputChange('repeating', 'recurring');
+      handleRecurringPatternChange('is_recurring', true);
+      handleRecurringPatternChange('frequency', 'quarterly');
+      handleRecurringPatternChange('dayOfMonth', today.getDate());
+      handleRecurringPatternChange('recurring_day_of_month', today.getDate());
+    } else if (option === 'custom') {
+      // Custom recurring pattern
+      handleInputChange('repeating', 'recurring');
+      handleRecurringPatternChange('is_recurring', true);
+    }
   };
 
   return (
@@ -1038,20 +1149,50 @@ const AddJob = () => {
           )}
         </div>
 
-        {/* Recurring Job Option */}
+        {/* Recurring Job Option - Enhanced */}
         {selectedDates.length === 1 && (
           <div className="mb-8">
             <label className="text-sm text-gray-700 font-medium mb-1 block">Recurring</label>
-                <select
-              value={formData.repeating}
-                  onChange={e => handleInputChange('repeating', e.target.value)}
+            <select
+              value={formData.repeating === 'none' ? 'none' : 
+                     formData.recurring_pattern.frequency === 'weekly' ? 'weekly' :
+                     formData.recurring_pattern.frequency === 'biweekly' ? 'biweekly' :
+                     formData.recurring_pattern.frequency === 'monthly' ? 'monthly' :
+                     formData.recurring_pattern.frequency === 'quarterly' ? 'quarterly' : 'custom'}
+              onChange={e => handleRecurringOptionChange(e.target.value)}
               className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
-                >
+            >
               <option value="none">One-time job</option>
-              <option value="recurring">Recurring job</option>
-                </select>
-            </div>
-          )}
+              <option value="weekly">Every week on {getCurrentDayName()}</option>
+              <option value="biweekly">Every 2 weeks on {getCurrentDayName()}</option>
+              <option value="monthly">Every month on day {new Date().getDate()}</option>
+              <option value="quarterly">Every 3 months on day {new Date().getDate()}</option>
+              <option value="custom">Custom recurring pattern...</option>
+            </select>
+
+            {/* Show custom recurring options if custom is selected */}
+            {formData.repeating === 'recurring' && formData.recurring_pattern.is_recurring && 
+             (formData.recurring_pattern.frequency !== 'weekly' && 
+              formData.recurring_pattern.frequency !== 'biweekly' && 
+              formData.recurring_pattern.frequency !== 'monthly' && 
+              formData.recurring_pattern.frequency !== 'quarterly' || 
+              formData.recurring_pattern.daysOfWeek?.length !== 1) && (
+              <div className="mt-4">
+                {/* This is where we would show the RecurringJobPattern component */}
+                <button
+                  onClick={() => {
+                    // In a real implementation, we would show a modal with the RecurringJobPattern component
+                    toast.info("Custom recurring pattern editor would open here");
+                  }}
+                  className="text-blue-600 text-sm flex items-center"
+                >
+                  <span>Edit custom recurring pattern</span>
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Invoicing Section - No divider before this */}
         <h2 className="text-xl text-gray-700 font-medium mb-4">Invoicing</h2>
