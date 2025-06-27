@@ -9,6 +9,7 @@ import Features from "@/components/Features";
 import Testimonials from "@/components/Testimonials";
 import BusinessStats from "@/components/Newsletter";
 import MadeByHumans from "@/components/MadeByHumans";
+import WaitlistForm from "@/components/WaitlistForm";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
@@ -172,6 +173,7 @@ const Index = () => {
           <Testimonials />
           <BusinessStats />
           <MadeByHumans />
+          <WaitlistForm />
         </main>
         <Footer />
       </div>
