@@ -44,10 +44,10 @@ const WelcomeWidget = () => {
   // Format today's date like "Wednesday, June 4th"
   const formattedDate = format(new Date(), "EEEE, MMMM do");
   
-  // Unified header for both mobile and desktop
+  // Unified header for both mobile and desktop - fixed to viewport like PageHeader
   return (
     <div className="dashboard-welcome-widget">
-      <div className="sticky top-0 left-0 right-0 z-30 bg-white">
+      <div className="fixed-header">
         <div className="flex items-center justify-between px-4 py-3">
           <p className="text-[#0d3547]/70 text-base">{formattedDate}</p>
           

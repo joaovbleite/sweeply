@@ -252,7 +252,7 @@ const Dashboard = () => {
         </div>
         
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-5 mt-3 sm:mt-5 md:mt-6 px-3 sm:px-4 md:px-6">
+        <div className="dashboard-content grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-5 mt-3 sm:mt-5 md:mt-6 px-3 sm:px-4 md:px-6">
           {stats.map((stat, index) => (
             <div 
               key={index} 
