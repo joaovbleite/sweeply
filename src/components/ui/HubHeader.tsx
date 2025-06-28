@@ -10,7 +10,7 @@ interface HubHeaderProps {
 const HubHeader: React.FC<HubHeaderProps> = ({ title, backLink }) => {
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-white pt-safe">
-      <div className="px-4 py-3 flex items-center justify-between border-b">
+      <div className="px-4 py-3 flex items-center justify-between">
         <div className="flex items-center">
           {backLink && (
             <Link to={backLink} className="mr-2">

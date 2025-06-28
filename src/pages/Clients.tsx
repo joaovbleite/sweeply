@@ -438,50 +438,8 @@ const Clients = () => {
 
   // Create add button based on active tab
   const getAddButton = () => {
-    switch (activeTab) {
-      case 'clients':
-        return (
-          <Link
-            to="/clients/new"
-            className="bg-[#3b82f6] text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add Client</span>
-          </Link>
-        );
-      case 'jobs':
-        return (
-          <Link
-            to="/jobs/new"
-            className="bg-[#3b82f6] text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add Job</span>
-          </Link>
-        );
-      case 'quotes':
-        return (
-          <Link
-            to="/quotes/new"
-            className="bg-[#3b82f6] text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            <span>New Quote</span>
-          </Link>
-        );
-      case 'invoices':
-        return (
-          <Link
-            to="/invoices/new"
-            className="bg-[#3b82f6] text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Create Invoice</span>
-          </Link>
-        );
-      default:
-        return null;
-    }
+    // Return null for all tabs to remove all Add buttons
+    return null;
   };
 
   // Get title based on active tab
@@ -569,22 +527,10 @@ const Clients = () => {
             </DropdownMenu>
           </div>
           
-          {/* Add button */}
-          {getAddButton()}
+          {/* Add button - removed */}
         </div>
 
-        {/* Quick Filters - Only show relevant filters based on active tab */}
-        {activeTab === 'clients' && (
-          <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
-            <button
-              onClick={exportClients}
-              className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 flex items-center gap-2 transition-colors text-sm ml-auto"
-            >
-              <Download className="w-4 h-4" />
-              <span>{t('common:export')}</span>
-            </button>
-          </div>
-        )}
+        {/* Quick Filters - Export button removed */}
 
         {/* Bulk Actions - Only show for clients tab */}
         {activeTab === 'clients' && selectedClients.size > 0 && (

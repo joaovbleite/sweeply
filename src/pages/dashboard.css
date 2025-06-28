@@ -7,10 +7,12 @@
   background-color: white;
 }
 
-/* Fixed header styles */
-.dashboard-welcome-widget .fixed {
+/* Sticky header styles */
+.dashboard-welcome-widget .sticky {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   padding-top: env(safe-area-inset-top, 0px); /* Handle iOS notch */
+  position: -webkit-sticky; /* For Safari */
+  position: sticky;
 }
 
 /* Only for mobile welcome widget */

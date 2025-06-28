@@ -76,8 +76,8 @@ const WelcomeWidget = () => {
   if (isMobile) {
     return (
       <div className="dashboard-welcome-widget">
-        {/* Header with date and icons - now sticky */}
-        <div className="fixed top-0 left-0 right-0 z-50 bg-white pt-safe pb-0 px-3 sm:px-4">
+        {/* Header with date and icons - now sticky to viewport */}
+        <div className="sticky top-0 left-0 right-0 z-50 bg-white pt-safe pb-0 px-3 sm:px-4 shadow-sm">
           <div className="flex items-center justify-between">
             <p className="text-[#0d3547]/70 text-base">{formattedDate}</p>
             
@@ -103,8 +103,8 @@ const WelcomeWidget = () => {
           </div>
         </div>
         
-        {/* Add padding to push content below the fixed header */}
-        <div className="pt-12">
+        {/* No need for extra padding since we're using sticky positioning */}
+        <div className="pt-2">
           {/* Greeting - smaller text size to fit on one line */}
           <h1 className="text-2xl font-bold text-[#0d3547] whitespace-nowrap overflow-hidden text-ellipsis">
             {getGreeting()}, {userName.split(' ')[0]}
