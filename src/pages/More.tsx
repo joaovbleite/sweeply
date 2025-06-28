@@ -38,6 +38,22 @@ const More: React.FC = () => {
     }
   };
 
+  // Define discover items for the More page
+  const moreDiscoverItems = [
+    {
+      title: "Apps & integrations",
+      subtitle: "Connect your favorite tools and services",
+      imageSrc: "https://i.postimg.cc/nLrhd0xY/image.png",
+      link: "/integrations"
+    },
+    {
+      title: "Marketing",
+      subtitle: "Promote your business and grow your client base",
+      imageSrc: "/placeholder.svg",
+      link: "https://sweeplypro.com"
+    }
+  ];
+
   return (
     <AppLayout>
       <div className="bg-[#F5F7FA] flex flex-col">
@@ -48,47 +64,31 @@ const More: React.FC = () => {
         />
 
         <div className="px-4 pb-20 pt-2 flex-1 overflow-y-auto">
-          {/* Feature Boxes */}
+          {/* Feature Boxes - Using DiscoverCard style but smaller height */}
           <div className="grid grid-cols-2 gap-4 mb-6">
-            <Link 
-              to="/integrations" 
-              className="flex flex-col items-start justify-between p-5 bg-[#EEF1F5] rounded-lg"
-            >
-              <div className="text-[#0d3547]">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M8 16H4V20H8V16Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M14 16H10V20H14V16Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M20 16H16V20H20V16Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M8 10H4V14H8V10Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M14 10H10V14H14V10Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M20 10H16V14H20V10Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M8 4H4V8H8V4Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M14 4H10V8H14V4Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M20 4H16V8H20V4Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <div className="mt-2">
-                <div className="text-xl font-bold text-[#0d3547]">Apps &</div>
-                <div className="text-xl font-bold text-[#0d3547]">integrations</div>
-              </div>
-            </Link>
-            
-            <a 
-              href="https://sweeplypro.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex flex-col items-start justify-between p-5 bg-[#EEF1F5] rounded-lg"
-            >
-              <div className="text-[#0d3547]">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M19.2049 10.3901C19.9862 10.9031 19.9862 12.0969 19.2049 12.6099L8.90485 18.9202C8.12354 19.4332 7.15485 18.8363 7.15485 17.9103V5.08968C7.15485 4.16371 8.12354 3.56683 8.90485 4.07984L19.2049 10.3901Z" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M4 4V20" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <div className="mt-2">
-                <div className="text-xl font-bold text-[#0d3547]">Marketing</div>
-              </div>
-            </a>
+            {moreDiscoverItems.map((item, index) => (
+              <Link 
+                key={index}
+                to={item.link}
+                className="relative aspect-[4/3] rounded-xl overflow-hidden block group transition-transform duration-200 ease-in-out hover:scale-105"
+              >
+                {/* Background image with subtle zoom effect on hover */}
+                <img 
+                  src={item.imageSrc} 
+                  alt={item.title} 
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" 
+                />
+                
+                {/* Dual gradient - from top and bottom for better text visibility */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/60"></div>
+                
+                {/* Title and subtitle at the top */}
+                <div className="absolute top-0 left-0 pt-4 px-4 w-full">
+                  <h3 className="text-white text-lg font-bold leading-tight mb-1 drop-shadow-sm">{item.title}</h3>
+                  <p className="text-white/90 text-xs leading-tight max-w-[90%] drop-shadow-sm">{item.subtitle}</p>
+                </div>
+              </Link>
+            ))}
           </div>
 
           {/* Menu Lists */}
