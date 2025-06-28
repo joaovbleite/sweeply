@@ -827,6 +827,7 @@ const AddJob = () => {
         title="New job" 
         onBackClick={() => navigate(-1)}
         rightElement={SaveButton}
+        compact
       />
 
       <div className="px-4 pt-7 pb-32 flex-1 overflow-y-auto min-h-screen bg-white">
