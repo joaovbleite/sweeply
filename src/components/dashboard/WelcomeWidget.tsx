@@ -77,8 +77,8 @@ const WelcomeWidget = () => {
     return (
       <div className="dashboard-welcome-widget">
         {/* Header with date and icons - now sticky to viewport */}
-        <div className="sticky top-0 left-0 right-0 z-50 bg-white pt-safe pb-0 px-3 sm:px-4 shadow-sm">
-          <div className="flex items-center justify-between">
+        <div className="sticky top-0 left-0 right-0 z-50 bg-white pt-safe">
+          <div className="flex items-center justify-between px-3 sm:px-4 pb-2">
             <p className="text-[#0d3547]/70 text-base">{formattedDate}</p>
             
             <div className="flex items-center gap-4">
@@ -104,7 +104,7 @@ const WelcomeWidget = () => {
         </div>
         
         {/* No need for extra padding since we're using sticky positioning */}
-        <div className="pt-2">
+        <div className="pt-2 px-3 sm:px-4">
           {/* Greeting - smaller text size to fit on one line */}
           <h1 className="text-2xl font-bold text-[#0d3547] whitespace-nowrap overflow-hidden text-ellipsis">
             {getGreeting()}, {userName.split(' ')[0]}
@@ -116,7 +116,7 @@ const WelcomeWidget = () => {
 
   // Enhanced desktop/laptop view
   return (
-    <div className="py-6 px-6 bg-white rounded-xl shadow-sm border border-gray-100">
+    <div className="py-6 px-6 bg-white rounded-xl shadow-sm">
       <div className="flex justify-between items-start">
         <div>
           {/* Date and Time */}

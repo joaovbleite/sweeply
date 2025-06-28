@@ -9,10 +9,17 @@
 
 /* Sticky header styles */
 .dashboard-welcome-widget .sticky {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding-top: env(safe-area-inset-top, 0px); /* Handle iOS notch */
   position: -webkit-sticky; /* For Safari */
   position: sticky;
+  padding-top: env(safe-area-inset-top, 0px); /* Handle iOS notch */
+  z-index: 50;
+  background-color: white;
+  transition: box-shadow 0.3s ease;
+}
+
+/* Add shadow when scrolling */
+.dashboard-welcome-widget .sticky.scrolled {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* Only for mobile welcome widget */

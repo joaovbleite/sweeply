@@ -21,7 +21,8 @@ import {
   UserCheck,
   FileCheck,
   HelpCircle,
-  Globe
+  Globe,
+  Plus
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -42,6 +43,8 @@ import TodayScheduleSlider from "@/components/dashboard/TodayScheduleSlider";
 import GettingStartedTodo from "@/components/dashboard/GettingStartedTodo";
 import { useIsMobile } from "@/hooks/use-mobile";
 import DiscoverCard from "@/components/dashboard/DiscoverCard";
+import { Button } from '@/components/ui/button';
+import './dashboard.css';
 // Import the map component with React.lazy for code splitting
 const DashboardMap = React.lazy(() => import("@/components/maps/DashboardMap"));
 
@@ -94,6 +97,7 @@ const Dashboard = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   // Get user's name from metadata or email
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'there';
@@ -218,6 +222,36 @@ const Dashboard = () => {
   const todaysJobsOnMapCount = useMemo(() => {
     return jobs.filter(job => job.address && isToday(new Date(job.scheduled_date))).length;
   }, [jobs]);
+
+  // Add scroll event listener to detect scrolling for header shadow
+  useEffect(() => {
+    const handleScroll = () => {
+      // Add shadow class when scrolled down more than 10px
+      if (window.scrollY > 10) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+  
+  // Pass the scroll state to the component via a data attribute
+  useEffect(() => {
+    const headerElement = document.querySelector('.dashboard-welcome-widget .sticky');
+    if (headerElement) {
+      if (isScrolled) {
+        headerElement.classList.add('scrolled');
+      } else {
+        headerElement.classList.remove('scrolled');
+      }
+    }
+  }, [isScrolled]);
 
   if (error) {
     return (
@@ -415,6 +449,17 @@ const Dashboard = () => {
           </>
         )}
       </div>
+      
+      {/* Add Job Button */}
+      {isMobile && (
+        <div className="fixed bottom-24 right-4 z-10">
+          <Link to="/add-job">
+            <Button size="icon" className="h-14 w-14 rounded-full bg-[#0d3547] hover:bg-[#0a2835] shadow-lg">
+              <Plus className="h-6 w-6" />
+            </Button>
+          </Link>
+        </div>
+      )}
     </AppLayout>
   );
 };
