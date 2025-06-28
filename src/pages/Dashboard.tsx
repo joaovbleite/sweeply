@@ -97,8 +97,7 @@ const Dashboard = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [isScrolled, setIsScrolled] = useState(false);
-
+  
   // Get user's name from metadata or email
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'there';
 
@@ -222,36 +221,6 @@ const Dashboard = () => {
   const todaysJobsOnMapCount = useMemo(() => {
     return jobs.filter(job => job.address && isToday(new Date(job.scheduled_date))).length;
   }, [jobs]);
-
-  // Add scroll event listener to detect scrolling for header shadow
-  useEffect(() => {
-    const handleScroll = () => {
-      // Add shadow class when scrolled down more than 10px
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-  
-  // Pass the scroll state to the component via a data attribute
-  useEffect(() => {
-    const headerElement = document.querySelector('.dashboard-welcome-widget .sticky');
-    if (headerElement) {
-      if (isScrolled) {
-        headerElement.classList.add('scrolled');
-      } else {
-        headerElement.classList.remove('scrolled');
-      }
-    }
-  }, [isScrolled]);
 
   if (error) {
     return (

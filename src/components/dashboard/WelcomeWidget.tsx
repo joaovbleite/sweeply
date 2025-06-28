@@ -44,64 +44,32 @@ const WelcomeWidget = () => {
   // Format today's date like "Wednesday, June 4th"
   const formattedDate = format(new Date(), "EEEE, MMMM do");
   
-  // If mobile, render the simplified header
-  if (isMobile) {
-    return (
-      <div className="dashboard-welcome-widget">
-        {/* Header with date and icons - sticky to viewport */}
-        <div className="sticky top-0 left-0 right-0 z-50 bg-white pt-safe">
-          <div className="flex items-center justify-between px-3 sm:px-4 pb-2">
-            <p className="text-[#0d3547]/70 text-base">{formattedDate}</p>
-            
-            <div className="flex items-center gap-4">
-              {/* Star Icon */}
-              <Link to="/ai-chat" className="bg-transparent">
-                <Sparkles className="w-5 h-5 text-[#0d3547]" />
-              </Link>
-              
-              {/* Notifications Bell */}
-              <Link 
-                to="/notifications"
-                className="relative bg-transparent"
-              >
-                <Bell className="w-5 h-5 text-[#0d3547]" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                )}
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Enhanced desktop/laptop view - simplified to match mobile
+  // Unified header for both mobile and desktop
   return (
-    <div className="py-4 px-6 bg-white">
-      <div className="flex items-center justify-between">
-        <p className="text-[#0d3547]/70 text-base">{formattedDate}</p>
-        
-        <div className="flex items-center gap-4">
-          {/* Star Icon */}
-          <Link to="/ai-chat" className="bg-transparent">
-            <Sparkles className="w-5 h-5 text-[#0d3547]" />
-          </Link>
+    <div className="dashboard-welcome-widget">
+      <div className="sticky top-0 left-0 right-0 z-30 bg-white">
+        <div className="flex items-center justify-between px-4 py-3">
+          <p className="text-[#0d3547]/70 text-base">{formattedDate}</p>
           
-          {/* Notifications Bell */}
-          <Link 
-            to="/notifications"
-            className="relative bg-transparent"
-          >
-            <Bell className="w-5 h-5 text-[#0d3547]" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
-          </Link>
+          <div className="flex items-center gap-4">
+            {/* Star Icon */}
+            <Link to="/ai-chat" className="bg-transparent">
+              <Sparkles className="w-5 h-5 text-[#0d3547]" />
+            </Link>
+            
+            {/* Notifications Bell */}
+            <Link 
+              to="/notifications"
+              className="relative bg-transparent"
+            >
+              <Bell className="w-5 h-5 text-[#0d3547]" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </Link>
+          </div>
         </div>
       </div>
     </div>
