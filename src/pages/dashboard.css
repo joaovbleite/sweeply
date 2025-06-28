@@ -7,6 +7,12 @@
   background-color: white;
 }
 
+/* Fixed header styles */
+.dashboard-welcome-widget .fixed {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding-top: env(safe-area-inset-top, 0px); /* Handle iOS notch */
+}
+
 /* Only for mobile welcome widget */
 @media (max-width: 768px) {
   .dashboard-welcome-widget {

@@ -76,35 +76,40 @@ const WelcomeWidget = () => {
   if (isMobile) {
     return (
       <div className="dashboard-welcome-widget">
-        {/* Header with date and icons */}
-        <div className="flex items-center justify-between mb-2 mt-2">
-          <p className="text-[#0d3547]/70 text-base">{formattedDate}</p>
-          
-          <div className="flex items-center gap-4">
-            {/* Star Icon */}
-            <Link to="/ai-chat" className="bg-transparent">
-              <Sparkles className="w-5 h-5 text-[#0d3547]" />
-            </Link>
+        {/* Header with date and icons - now sticky */}
+        <div className="fixed top-0 left-0 right-0 z-50 bg-white pt-safe pb-0 px-3 sm:px-4">
+          <div className="flex items-center justify-between">
+            <p className="text-[#0d3547]/70 text-base">{formattedDate}</p>
             
-            {/* Notifications Bell */}
-            <Link 
-              to="/notifications"
-              className="relative bg-transparent"
-            >
-              <Bell className="w-5 h-5 text-[#0d3547]" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              )}
-            </Link>
+            <div className="flex items-center gap-4">
+              {/* Star Icon */}
+              <Link to="/ai-chat" className="bg-transparent">
+                <Sparkles className="w-5 h-5 text-[#0d3547]" />
+              </Link>
+              
+              {/* Notifications Bell */}
+              <Link 
+                to="/notifications"
+                className="relative bg-transparent"
+              >
+                <Bell className="w-5 h-5 text-[#0d3547]" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </Link>
+            </div>
           </div>
         </div>
         
-        {/* Greeting - smaller text size to fit on one line */}
-        <h1 className="text-2xl font-bold text-[#0d3547] whitespace-nowrap overflow-hidden text-ellipsis">
-          {getGreeting()}, {userName.split(' ')[0]}
-        </h1>
+        {/* Add padding to push content below the fixed header */}
+        <div className="pt-12">
+          {/* Greeting - smaller text size to fit on one line */}
+          <h1 className="text-2xl font-bold text-[#0d3547] whitespace-nowrap overflow-hidden text-ellipsis">
+            {getGreeting()}, {userName.split(' ')[0]}
+          </h1>
+        </div>
       </div>
     );
   }
