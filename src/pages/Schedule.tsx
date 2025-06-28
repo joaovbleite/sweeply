@@ -305,17 +305,32 @@ const Schedule = () => {
     
     // Scroll to current time on mount or when currentDate changes to today
     useEffect(() => {
-      if (hoursContainerRef.current) {
-        // Each hour row is about 80px tall
-        const scrollTo = isToday(currentDate) 
-          ? currentHour * 80 + (currentMinute / 60) * 80 - 120 // Offset for header
-          : 0; // Start at top if not today
-        
-        hoursContainerRef.current.scrollTo({ top: Math.max(scrollTo, 0), behavior: 'smooth' });
+      // Only scroll if it's today's date
+      if (hoursContainerRef.current && isToday(currentDate)) {
+        // Wait for the component to fully render
+        setTimeout(() => {
+          if (hoursContainerRef.current) {
+            // Each hour row is about 80px tall
+            // Calculate position based on current hour and minute
+            // Subtract some offset to position the current time in the middle of the viewport
+            const hourHeight = 80; // Height of each hour row in pixels
+            const scrollPosition = (currentHour + currentMinute / 60) * hourHeight;
+            
+            // Get the container's height to calculate middle position
+            const containerHeight = hoursContainerRef.current.clientHeight;
+            const offsetToCenter = containerHeight / 2 - 40; // 40px buffer to show a bit above the current time
+            
+            // Scroll to the calculated position
+            hoursContainerRef.current.scrollTo({
+              top: Math.max(0, scrollPosition - offsetToCenter),
+              behavior: 'smooth'
+            });
+          }
+        }, 100); // Small delay to ensure DOM is ready
       }
-    }, [currentDate, hoursContainerRef.current]);
+    }, [currentDate]); // Only re-run when currentDate changes
 
-    // Calculate position for current time indicator
+    // Calculate position for current time indicator (percentage of the day)
     const currentTimePosition = ((currentHour * 60 + currentMinute) / (24 * 60)) * 100;
 
     return (
@@ -338,8 +353,8 @@ const Schedule = () => {
                 className="absolute left-0 right-0 z-10 flex items-center pointer-events-none"
                 style={{ top: `${currentTimePosition}%` }}
               >
-                <div className="w-2 h-2 rounded-full bg-blue-600 ml-4"></div>
-                <div className="h-0.5 bg-blue-600 flex-1"></div>
+                <div className="w-3 h-3 rounded-full bg-blue-600 ml-4 shadow-md animate-pulse"></div>
+                <div className="h-0.5 bg-blue-600 flex-1 ml-1"></div>
               </div>
             )}
             {/* Hours */}
