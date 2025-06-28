@@ -200,6 +200,14 @@ const AppRoutes = () => {
         } 
       />
       <Route 
+        path="/add-job" 
+        element={
+          <ProtectedRoute>
+            <AddJob />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
         path="/jobs/:id/edit" 
         element={
           <ProtectedRoute>

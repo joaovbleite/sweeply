@@ -293,7 +293,7 @@ const AddClient = () => {
                   <span className="text-gray-700">Receives text messages</span>
                   <button 
                     onClick={toggleReceivesSMS}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${receivesSMS ? 'bg-green-600' : 'bg-gray-300'}`}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full focus:outline-none ${receivesSMS ? 'bg-blue-600' : 'bg-gray-300'}`}
                   >
                     <span 
                       className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${receivesSMS ? 'translate-x-6' : 'translate-x-1'}`}
@@ -303,7 +303,7 @@ const AddClient = () => {
                 
                 {/* Add another phone number button */}
                 <button 
-                  className="text-green-600 font-medium text-left w-full py-2"
+                  className="text-blue-600 font-medium text-left w-full py-2"
                   onClick={() => toast.info("Multiple phone numbers coming soon")}
                 >
                   Add Another Phone Number
@@ -396,7 +396,7 @@ const AddClient = () => {
         <button
           onClick={handleSubmit}
           disabled={loading || !formData.name.trim()}
-          className="w-full py-4 bg-green-600 text-white font-medium rounded-lg disabled:opacity-70 flex items-center justify-center"
+          className="w-full py-4 bg-blue-600 text-white font-medium rounded-lg disabled:opacity-70 flex items-center justify-center"
         >
           {loading ? (
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>

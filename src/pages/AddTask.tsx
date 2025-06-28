@@ -162,9 +162,9 @@ const AddTask = () => {
         };
       case 'low':
         return { 
-          icon: <Flag className="h-4 w-4 text-green-600" />, 
+          icon: <Flag className="h-4 w-4 text-blue-600" />, 
           label: "Low", 
-          color: "text-green-600" 
+          color: "text-blue-600" 
         };
       default:
         return { 
@@ -192,9 +192,9 @@ const AddTask = () => {
         };
       case 'completed':
         return { 
-          icon: <CheckCircle className="h-4 w-4 text-green-600" />, 
+          icon: <CheckCircle className="h-4 w-4 text-blue-600" />, 
           label: "Completed", 
-          color: "text-green-600" 
+          color: "text-blue-600" 
         };
       case 'cancelled':
         return { 

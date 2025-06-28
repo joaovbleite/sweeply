@@ -611,13 +611,13 @@ const AddEmployee = () => {
                 {formData.certifications?.map((cert, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
                   >
                     {cert}
                     <button
                       type="button"
                       onClick={() => removeCertification(cert)}
-                      className="text-green-600 hover:text-green-800"
+                      className="text-blue-600 hover:text-blue-800"
                     >
                       ×
                     </button>
