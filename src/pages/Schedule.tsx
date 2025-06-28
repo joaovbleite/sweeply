@@ -376,82 +376,6 @@ const Schedule = () => {
       </div>
     );
   };
-
-  // Render List View with updated styling
-  const renderListView = () => {
-    try {
-      if (loading) {
-        return (
-          <div className="flex justify-center items-center h-40">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          </div>
-        );
-      }
-
-      if (!dayJobs || dayJobs.length === 0) {
-        return (
-          <div className="flex flex-col items-center justify-center h-64 bg-[#f8f8f6]">
-            <p className="text-gray-600 font-medium">No visits scheduled today</p>
-          </div>
-        );
-      }
-
-      return (
-        <div className="bg-[#f8f8f6] h-full overflow-y-auto">
-          <div className="flex items-center justify-between p-4 sticky top-0 bg-[#f8f8f6] z-10">
-            <div className="text-lg font-semibold text-gray-800">
-              {user?.user_metadata?.full_name || 'Joao'}
-            </div>
-            <div className="text-sm font-medium text-gray-500">
-              {`0/${dayJobs?.length || 0}`}
-            </div>
-          </div>
-          
-          <div className="p-4 pt-0">
-            {(dayJobs || []).map(job => (
-              <Link
-                key={job.id}
-                to={`/jobs/${job.id}`}
-                className="block bg-white rounded-lg shadow-sm mb-4 overflow-hidden"
-              >
-                <div className="flex">
-                  {/* Blue vertical line */}
-                  <div className="w-1.5 bg-blue-600 self-stretch"></div>
-                  
-                  <div className="p-4 flex-1">
-                    <h3 className="text-lg font-bold text-gray-900">{job.title || 'Untitled Job'}</h3>
-                    <p className="text-base text-gray-800 mt-1">{job.client?.name || 'Unknown Client'}</p>
-                    <p className="text-base text-gray-700 mt-2">
-                      {job.scheduled_time 
-                        ? `${format(new Date(`2000-01-01T${job.scheduled_time}`), 'h:mm a')} - ${format(new Date(`2000-01-01T${job.scheduled_time}`).setHours(new Date(`2000-01-01T${job.scheduled_time}`).getHours() + 2), 'h:mm a')}`
-                        : 'No time specified'}
-                    </p>
-                    <p className="text-base text-gray-700 mt-1">{job.address || 'No address'}</p>
-                    {job.description && (
-                      <p className="text-base text-gray-700 mt-2">{job.description}</p>
-                    )}
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      );
-    } catch (error) {
-      console.error("Error rendering list view:", error);
-      return (
-        <div className="flex flex-col items-center justify-center h-64 bg-[#f8f8f6]">
-          <p className="text-red-600 font-medium">Something went wrong displaying the list view</p>
-          <button 
-            onClick={() => setViewOptions(prev => ({ ...prev, view: 'Day' }))}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
-          >
-            Switch to Day View
-          </button>
-        </div>
-      );
-    }
-  };
   
   return (
     <AppLayout>
@@ -478,34 +402,14 @@ const Schedule = () => {
           }
         />
         
-      {/* View selector tabs */}
-      <div className="px-4 py-2">
-        <div className="w-full bg-gray-100 p-1 rounded-full flex">
-          {['Day', 'List'].map(view => (
-              <button 
-                key={view}
-              className={`flex-1 py-2 text-sm font-medium rounded-full transition-colors ${
-                  viewOptions.view === view 
-                    ? 'bg-white text-blue-600 shadow' 
-                    : 'text-gray-600'
-                }`}
-              onClick={() => setViewOptions(prev => ({ ...prev, view: view as 'Day' | 'List' }))}
-              >
-                {view}
-              </button>
-            ))}
-          </div>
-        </div>
-        
       {/* Calendar View */}
       <div className="flex-1 flex flex-col">
         {/* Render the horizontal day scroller (without initials) */}
         {renderHorizontalDayScroller()}
         
-        {/* Render the appropriate view based on viewOptions */}
+        {/* Render the day view */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          {viewOptions.view === 'Day' && renderDayView()}
-          {viewOptions.view === 'List' && renderListView()}
+          {renderDayView()}
         </div>
       </div>
 

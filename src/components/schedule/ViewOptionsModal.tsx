@@ -9,7 +9,7 @@ interface ViewOptionsModalProps {
 }
 
 export interface ViewOptionsState {
-  view: 'Day' | 'List';
+  view: 'Day';
   showUnscheduledAppointments: boolean;
   showWeekends: boolean;
   selectedTeamMembers: string[];
@@ -101,26 +101,6 @@ const ViewOptionsModal: React.FC<ViewOptionsModalProps> = ({
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-4 pb-6 pt-4">
-        {/* View Section */}
-        <div className="mt-4">
-          <h2 className="text-lg font-bold text-gray-800 mb-3">View</h2>
-          <div className="bg-gray-100 rounded-lg p-1 flex">
-            {['Day', 'List'].map((view) => (
-              <button
-                key={view}
-                className={`flex-1 py-2 rounded-lg text-center text-sm ${
-                  options.view === view 
-                    ? 'bg-white shadow-sm font-medium text-gray-800' 
-                    : 'text-gray-600'
-                }`}
-                onClick={() => handleViewSelect(view as ViewOptionsState['view'])}
-              >
-                {view}
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Toggle Options */}
         <div className="mt-6">
           <div className="flex items-center justify-between py-3 border-t">
