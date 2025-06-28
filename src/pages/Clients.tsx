@@ -42,7 +42,9 @@ import { Quote } from "@/lib/api/quotes";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import AppLayout from "@/components/AppLayout";
-import PageHeader from "@/components/ui/PageHeader";
+import HubHeader from "@/components/ui/HubHeader";
+import HubTabSwitcher from "@/components/ui/HubTabSwitcher";
+import HubSearchBar from "@/components/ui/HubSearchBar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -495,78 +497,40 @@ const Clients = () => {
 
   return (
     <AppLayout>
-      {/* Use PageHeader with dynamic title and button */}
-      <PageHeader
-        title={getTitle()}
-        rightElement={getAddButton()}
-        compact
-      />
+      {/* New Hub Header */}
+      <HubHeader title="Hub" />
+      
+      {/* Tab Switcher */}
+      <div className="pt-14"> {/* Add padding-top to account for the fixed header */}
+        <HubTabSwitcher 
+          tabs={[
+            { id: 'clients', label: 'Clients', icon: <Users className="w-4 h-4" /> },
+            { id: 'jobs', label: 'Jobs', icon: <LayoutList className="w-4 h-4" /> },
+            { id: 'quotes', label: 'Quotes', icon: <FileText className="w-4 h-4" /> },
+            { id: 'invoices', label: 'Invoices', icon: <Receipt className="w-4 h-4" /> }
+          ]}
+          activeTab={activeTab}
+          onTabChange={(tabId) => setActiveTab(tabId as 'clients' | 'jobs' | 'quotes' | 'invoices')}
+        />
+        
+        {/* Search Bar */}
+        <HubSearchBar 
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder={`Search ${activeTab}...`}
+        />
+      </div>
 
-      {/* Main content - with minimal padding to account for fixed header */}
-      <div className="pt-0 px-4 pb-20">
-        {/* Tabs Navigation */}
-        <div className="flex overflow-x-auto mb-6 border-b border-gray-200 no-scrollbar">
-          <button
-            onClick={() => setActiveTab('clients')}
-            className={`px-4 py-2 font-medium text-sm whitespace-nowrap flex items-center gap-2 ${
-              activeTab === 'clients' 
-                ? 'text-[#3b82f6] border-b-2 border-[#3b82f6]' 
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            Clients
-          </button>
-          <button
-            onClick={() => setActiveTab('jobs')}
-            className={`px-4 py-2 font-medium text-sm whitespace-nowrap flex items-center gap-2 ${
-              activeTab === 'jobs' 
-                ? 'text-[#3b82f6] border-b-2 border-[#3b82f6]' 
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <LayoutList className="w-4 h-4" />
-            Jobs
-          </button>
-          <button
-            onClick={() => setActiveTab('quotes')}
-            className={`px-4 py-2 font-medium text-sm whitespace-nowrap flex items-center gap-2 ${
-              activeTab === 'quotes' 
-                ? 'text-[#3b82f6] border-b-2 border-[#3b82f6]' 
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <FileText className="w-4 h-4" />
-            Quotes
-          </button>
-          <button
-            onClick={() => setActiveTab('invoices')}
-            className={`px-4 py-2 font-medium text-sm whitespace-nowrap flex items-center gap-2 ${
-              activeTab === 'invoices' 
-                ? 'text-[#3b82f6] border-b-2 border-[#3b82f6]' 
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <Receipt className="w-4 h-4" />
-            Invoices
-          </button>
-          </div>
-
-        {/* Search and Filters */}
-        <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search clients..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-          />
-          <div className="absolute right-2 top-1/2 -translate-y-1/2">
+      {/* Main content */}
+      <div className="px-4 pb-20">
+        {/* Filters and Actions */}
+        <div className="flex justify-between items-center my-4">
+          <div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <Filter className="h-4 w-4" />
+                <Button variant="outline" size="sm" className="flex items-center gap-1.5">
+                  <Filter className="h-3.5 w-3.5" />
+                  Filter
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56">
@@ -604,6 +568,9 @@ const Clients = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+          
+          {/* Add button */}
+          {getAddButton()}
         </div>
 
         {/* Quick Filters - Only show relevant filters based on active tab */}
