@@ -276,14 +276,14 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
-      <div className={`${isMobile ? 'px-3 sm:px-4' : 'px-6 lg:px-8'} py-0 sm:py-4 md:py-6`}>
-        {/* Welcome Widget */}
-        <div className={isMobile ? '' : 'mt-6'}>
+      <div className={`${isMobile ? 'px-0 sm:px-0' : 'px-0 lg:px-0'} py-0 sm:py-0 md:py-0`}>
+        {/* Welcome Widget (now just a header with date and icons) */}
+        <div className={isMobile ? '' : ''}>
           <WelcomeWidget />
         </div>
         
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-5 mt-3 sm:mt-5 md:mt-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-5 mt-3 sm:mt-5 md:mt-6 px-3 sm:px-4 md:px-6">
           {stats.map((stat, index) => (
             <div 
               key={index} 
@@ -321,7 +321,7 @@ const Dashboard = () => {
         {isMobile ? (
           <>
             {/* Today's Job Map for Mobile */}
-            <div className="mt-3 sm:mt-5 md:mt-6 -mx-3 sm:-mx-4 md:-mx-6">
+            <div className="mt-3 sm:mt-5 md:mt-6 -mx-0 sm:-mx-0 md:-mx-0">
               <div className="relative overflow-hidden" style={{ height: '350px' }}>
                 <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white to-transparent z-10 pointer-events-none"></div>
                 <Suspense fallback={<div id="map-loading" className="flex items-center justify-center h-full"><p>Loading map...</p></div>}>
@@ -333,7 +333,7 @@ const Dashboard = () => {
             </div>
 
             {/* Mobile Dashboard Sections */}
-            <div className="pb-24">
+            <div className="pb-24 px-3 sm:px-4">
               <div className="relative -mt-16 z-10">
                 <TodayScheduleSlider hasJobs={upcomingJobs.length > 0} />
               </div>
@@ -369,7 +369,7 @@ const Dashboard = () => {
         ) : (
           <>
             {/* Desktop Map with Schedule Overlay */}
-            <div className="relative mt-6 sm:mt-8 md:mt-10 rounded-xl overflow-hidden shadow-sm border border-gray-100">
+            <div className="relative mt-6 sm:mt-8 md:mt-10 rounded-xl overflow-hidden shadow-sm border border-gray-100 mx-6">
               {/* Map */}
               <div className="relative" style={{ height: '350px' }}>
                 <Suspense fallback={<div id="map-loading" className="flex items-center justify-center h-full"><p>Loading map...</p></div>}>

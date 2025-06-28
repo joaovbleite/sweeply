@@ -1,9 +1,7 @@
 /* Dashboard-specific style adjustments */
 .dashboard-welcome-widget {
   padding-top: 0 !important; /* Removed padding to eliminate transparent space */
-  padding-bottom: 3px;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-bottom: 0;
   background-color: white;
 }
 
@@ -11,6 +9,7 @@
 .dashboard-welcome-widget .sticky {
   position: -webkit-sticky; /* For Safari */
   position: sticky;
+  top: 0;
   padding-top: env(safe-area-inset-top, 0px); /* Handle iOS notch */
   z-index: 50;
   background-color: white;

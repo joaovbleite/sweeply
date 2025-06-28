@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { Bell, Sparkles, Calendar, Clock, Sun, Cloud, CloudRain, Zap } from 'lucide-react';
+import { Bell, Sparkles } from 'lucide-react';
 import { notificationsApi } from '@/lib/api/notifications';
 import { format } from 'date-fns';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -10,8 +10,6 @@ import '@/pages/dashboard.css'; // Import dashboard-specific styles
 const WelcomeWidget = () => {
   const { user } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
-  const [weather, setWeather] = useState({ temp: '', condition: 'Clear', icon: Sun });
-  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'there';
   const isMobile = useIsMobile();
   
   // Load unread notifications count
@@ -43,40 +41,14 @@ const WelcomeWidget = () => {
     }
   }, [user]);
 
-  // Simulate weather data - in a real app, you would fetch this from a weather API
-  useEffect(() => {
-    // Mock weather data
-    const weatherConditions = [
-      { temp: '72°F', condition: 'Sunny', icon: Sun },
-      { temp: '68°F', condition: 'Cloudy', icon: Cloud },
-      { temp: '65°F', condition: 'Rainy', icon: CloudRain },
-      { temp: '70°F', condition: 'Stormy', icon: Zap }
-    ];
-    
-    const randomWeather = weatherConditions[Math.floor(Math.random() * weatherConditions.length)];
-    setWeather(randomWeather);
-  }, []);
-  
-  // Get time-based greeting
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    if (hour < 21) return 'Good evening';
-    return 'Good night';
-  };
-
   // Format today's date like "Wednesday, June 4th"
   const formattedDate = format(new Date(), "EEEE, MMMM do");
   
-  // Get current time
-  const currentTime = format(new Date(), "h:mm a");
-
-  // If mobile, render the original widget
+  // If mobile, render the simplified header
   if (isMobile) {
     return (
       <div className="dashboard-welcome-widget">
-        {/* Header with date and icons - now sticky to viewport */}
+        {/* Header with date and icons - sticky to viewport */}
         <div className="sticky top-0 left-0 right-0 z-50 bg-white pt-safe">
           <div className="flex items-center justify-between px-3 sm:px-4 pb-2">
             <p className="text-[#0d3547]/70 text-base">{formattedDate}</p>
@@ -102,62 +74,30 @@ const WelcomeWidget = () => {
             </div>
           </div>
         </div>
-        
-        {/* No need for extra padding since we're using sticky positioning */}
-        <div className="pt-2 px-3 sm:px-4">
-          {/* Greeting - smaller text size to fit on one line */}
-          <h1 className="text-2xl font-bold text-[#0d3547] whitespace-nowrap overflow-hidden text-ellipsis">
-            {getGreeting()}, {userName.split(' ')[0]}
-          </h1>
-        </div>
       </div>
     );
   }
 
-  // Enhanced desktop/laptop view
+  // Enhanced desktop/laptop view - simplified to match mobile
   return (
-    <div className="py-6 px-6 bg-white rounded-xl shadow-sm">
-      <div className="flex justify-between items-start">
-        <div>
-          {/* Date and Time */}
-          <div className="flex items-center gap-2 text-gray-600 mb-2">
-            <Calendar className="w-4 h-4" />
-            <span>{formattedDate}</span>
-            <span className="mx-1">•</span>
-            <Clock className="w-4 h-4" />
-            <span>{currentTime}</span>
-          </div>
-          
-          {/* Greeting */}
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {getGreeting()}, {userName.split(' ')[0]}
-          </h1>
-          
-          {/* Welcome message */}
-          <p className="text-gray-600 max-w-lg">
-            Welcome to your dashboard. You have {unreadCount} unread {unreadCount === 1 ? 'notification' : 'notifications'}.
-            Here's an overview of your business today.
-          </p>
-        </div>
+    <div className="py-4 px-6 bg-white">
+      <div className="flex items-center justify-between">
+        <p className="text-[#0d3547]/70 text-base">{formattedDate}</p>
         
-        <div className="flex items-center gap-6">
-          {/* Weather Widget */}
-          <div className="bg-blue-50 p-3 rounded-lg text-center">
-            <div className="flex items-center justify-center mb-1">
-              <weather.icon className="w-6 h-6 text-blue-600 mr-2" />
-              <span className="font-medium text-blue-700">{weather.temp}</span>
-            </div>
-            <p className="text-xs text-blue-600">{weather.condition}</p>
-          </div>
+        <div className="flex items-center gap-4">
+          {/* Star Icon */}
+          <Link to="/ai-chat" className="bg-transparent">
+            <Sparkles className="w-5 h-5 text-[#0d3547]" />
+          </Link>
           
-          {/* Notifications */}
+          {/* Notifications Bell */}
           <Link 
             to="/notifications"
-            className="relative bg-gray-100 p-3 rounded-full hover:bg-gray-200 transition-colors"
+            className="relative bg-transparent"
           >
-            <Bell className="w-6 h-6 text-gray-700" />
+            <Bell className="w-5 h-5 text-[#0d3547]" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
