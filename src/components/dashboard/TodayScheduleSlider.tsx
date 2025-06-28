@@ -16,7 +16,7 @@ const TodayScheduleSlider: React.FC<TodayScheduleSliderProps> = ({ hasJobs }) =>
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-xl font-bold text-gray-900 pt-1.5">{t('dashboard:todaysSchedule')}</h3>
         <Link 
-          to="/calendar" 
+          to="/todays-appointments" 
           className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center"
         >
           {t('dashboard:viewAll')}

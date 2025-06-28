@@ -63,6 +63,7 @@ import Subscription from "./pages/Subscription";
 import AddTestClient from "./pages/AddTestClient";
 import AddTestJob from "./pages/AddTestJob";
 import AIChatPage from "./pages/AIChatPage";
+import TodaysAppointments from "./pages/TodaysAppointments";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -222,6 +223,16 @@ const AppRoutes = () => {
           <ProtectedRoute>
             <PageTransition>
               <Schedule />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/todays-appointments" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <TodaysAppointments />
             </PageTransition>
           </ProtectedRoute>
         } 
