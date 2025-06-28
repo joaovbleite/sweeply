@@ -558,68 +558,28 @@ const AddJob = () => {
 
   // Handle saving arrival window settings
   const handleSaveArrivalWindow = () => {
-    let finalStartTime = startTime;
-    let finalEndTime = calculateEndTime();
+    // Calculate arrival window based on settings
+    let arrivalWindowText = arrivalWindowDuration;
     
-    // If center window style is selected, adjust the start time
-    if (arrivalWindowStyle === "center" && arrivalWindowDuration !== "none") {
-      const [hours, minutes] = startTime.split(':').map(Number);
-      let durationInMinutes = 0;
-      
-      if (arrivalWindowDuration === "15 min") durationInMinutes = 15;
-      else if (arrivalWindowDuration === "30 min") durationInMinutes = 30;
-      else if (arrivalWindowDuration === "1 hr") durationInMinutes = 60;
-      else if (arrivalWindowDuration === "2 hr") durationInMinutes = 120;
-      else if (arrivalWindowDuration === "3 hr") durationInMinutes = 180;
-      
-      // Subtract half the duration from start time
-      const halfDuration = Math.floor(durationInMinutes / 2);
-      let adjustedHours = hours;
-      let adjustedMinutes = minutes - halfDuration;
-      
-      while (adjustedMinutes < 0) {
-        adjustedHours -= 1;
-        adjustedMinutes += 60;
-      }
-      if (adjustedHours < 0) adjustedHours += 24;
-      
-      finalStartTime = `${adjustedHours.toString().padStart(2, '0')}:${adjustedMinutes.toString().padStart(2, '0')}`;
-      
-      // Calculate end time (adjusted start time + full duration)
-      let endHours = adjustedHours;
-      let endMinutes = adjustedMinutes + durationInMinutes;
-      
-      while (endMinutes >= 60) {
-        endHours += 1;
-        endMinutes -= 60;
-      }
-      endHours = endHours % 24;
-      
-      finalEndTime = `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
-    }
-    
+    // Set the arrival window in the form data
     setFormData(prev => ({
       ...prev,
-      startTime: finalStartTime,
-      endTime: finalEndTime,
       arrivalWindow: arrivalWindowDuration
     }));
     
+    // Close the modal
     setShowArrivalTimeModal(false);
   };
 
-  // Handle opening the arrival time modal
+  // Directly set arrival window without showing modal
   const handleOpenArrivalTimeModal = () => {
-    // Initialize with current form data values if they exist
-    if (formData.startTime) {
-      setStartTime(formData.startTime);
-    }
-    
-    if (formData.arrivalWindow) {
-      setArrivalWindowDuration(formData.arrivalWindow);
-    }
-    
-    setShowArrivalTimeModal(true);
+    // Instead of showing the modal, directly set a 1 hr arrival window
+    setArrivalWindowDuration("1 hr");
+    setFormData(prev => ({
+      ...prev,
+      arrivalWindow: "1 hr"
+    }));
+    setIsFormDirty(true);
   };
 
   // Handle service type selection including custom types
@@ -1075,78 +1035,83 @@ const AddJob = () => {
           </div>
         )}
 
-        {/* Start/End time boxes, always shown below calendar/agenda and above Arrival Time */}
-        <div className="flex gap-3 mb-4">
-          {/* Start time box */}
-          <div
-            className="flex-1 border border-gray-300 rounded-lg p-2 flex flex-col items-center cursor-pointer relative"
-            onClick={() => setShowStartTimePicker(true)}
-          >
-            <div className="flex items-center gap-1">
-              <svg width="16" height="16" fill="none" stroke="#5C6C74" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-              <span className="text-sm font-medium text-[#5C6C74]">Start time</span>
-            </div>
-            <span className="text-lg font-bold text-[#22343C]">{startTime ? formatTimeDisplay(startTime) : '--:--'}</span>
-            {showStartTimePicker && (
-                  <input
-                    type="time"
-                value={startTime}
-                onChange={e => { setStartTime(e.target.value); setShowStartTimePicker(false); }}
-                onBlur={() => setShowStartTimePicker(false)}
-                className="absolute left-0 top-0 w-full h-full opacity-0 cursor-pointer"
-                autoFocus
-              />
-            )}
-                </div>
-          {/* End time box */}
-          <div
-            className="flex-1 border border-gray-300 rounded-lg p-2 flex flex-col items-center cursor-pointer relative"
-            onClick={() => setShowEndTimePicker(true)}
-          >
-            <div className="flex items-center gap-1 w-full justify-between px-1">
-              <span className="text-sm font-medium text-[#5C6C74]">End time</span>
-              {endTime && (
+        {/* Time and Arrival Window Section */}
+        <div className="mb-6">
+          <h3 className="text-base font-medium mb-2 text-[#0C1B1F]">Time</h3>
+          <div className="flex flex-col gap-4">
+            {/* Start Time */}
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Start time</label>
+              <div className="relative">
                 <button
-                  className="w-5 h-5 flex items-center justify-center rounded-full bg-[#F5F5F5] hover:bg-[#EDEDED]"
-                  onClick={e => { e.stopPropagation(); setEndTime(""); }}
+                  type="button"
+                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-left focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  onClick={() => setShowStartTimePicker(!showStartTimePicker)}
                 >
-                  <X className="w-3 h-3 text-[#5C6C74]" />
+                  {formatTimeDisplay(startTime)}
                 </button>
-              )}
-            </div>
-            <span className="text-lg font-bold text-[#22343C]">{endTime ? formatTimeDisplay(endTime) : '--:--'}</span>
-            {showEndTimePicker && (
+                {showStartTimePicker && (
                   <input
                     type="time"
-                value={endTime}
-                onChange={e => { setEndTime(e.target.value); setShowEndTimePicker(false); }}
-                onBlur={() => setShowEndTimePicker(false)}
-                className="absolute left-0 top-0 w-full h-full opacity-0 cursor-pointer"
-                autoFocus
-              />
-            )}
-                </div>
+                    value={startTime}
+                    onChange={e => { setStartTime(e.target.value); setShowStartTimePicker(false); }}
+                    onBlur={() => setShowStartTimePicker(false)}
+                    className="absolute left-0 top-0 w-full h-full opacity-0 cursor-pointer"
+                    autoFocus
+                  />
+                )}
               </div>
-
-        {/* Arrival Time Section - Moved above Recurring */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-4">
-            <label className="text-sm text-gray-700 font-medium mb-1 block">Arrival Time</label>
-            <button 
-              className="text-blue-600"
-              onClick={handleOpenArrivalTimeModal}
-            >
-              <Plus className="w-5 h-5" />
-            </button>
-              </div>
-          {formData.startTime && formData.arrivalWindow && formData.arrivalWindow !== "none" && (
-            <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-gray-900">
-                {formatTimeDisplay(formData.startTime)} - {formatTimeDisplay(formData.endTime || calculateEndTime())}
-                {formData.arrivalWindow && formData.arrivalWindow !== "none" && ` (${formData.arrivalWindow} window)`}
-              </p>
             </div>
-          )}
+
+            {/* End Time */}
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">End time</label>
+              <div className="relative">
+                <button
+                  type="button"
+                  className="w-full border border-gray-300 rounded-md py-2 px-3 text-left focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  onClick={() => setShowEndTimePicker(!showEndTimePicker)}
+                >
+                  {formatTimeDisplay(endTime)}
+                </button>
+                {showEndTimePicker && (
+                  <input
+                    type="time"
+                    value={endTime}
+                    onChange={e => { setEndTime(e.target.value); setShowEndTimePicker(false); }}
+                    onBlur={() => setShowEndTimePicker(false)}
+                    className="absolute left-0 top-0 w-full h-full opacity-0 cursor-pointer"
+                    autoFocus
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Arrival Window */}
+            <div>
+              <div className="flex justify-between items-center mb-1">
+                <label className="block text-sm font-medium text-gray-600">Arrival window</label>
+                <button
+                  type="button"
+                  className="text-blue-600 hover:text-blue-700 focus:outline-none"
+                  onClick={handleOpenArrivalTimeModal}
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="border border-gray-300 rounded-md py-2 px-3 text-gray-700">
+                {formData.startTime && formData.arrivalWindow && formData.arrivalWindow !== "none" && (
+                  <span>
+                    {formatTimeDisplay(startTime)}
+                    {formData.arrivalWindow && formData.arrivalWindow !== "none" && ` (${formData.arrivalWindow} window)`}
+                  </span>
+                )}
+                {(!formData.startTime || !formData.arrivalWindow || formData.arrivalWindow === "none") && (
+                  <span className="text-gray-400">Not set</span>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Recurring Job Option - Enhanced */}
@@ -1227,139 +1192,6 @@ const AddJob = () => {
         onClose={() => setShowLineItemModal(false)}
         onAddItem={handleAddLineItem}
       />
-
-      {/* Arrival Time Modal */}
-      {showArrivalTimeModal && (
-        <div 
-          className="fixed inset-0 z-[9999] bg-black bg-opacity-50 flex items-center justify-center"
-          style={{
-            position: 'fixed',
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-            overflow: 'hidden'
-          }}
-          onClick={(e) => e.target === e.currentTarget && setShowArrivalTimeModal(false)}
-        >
-          <div 
-            className="bg-white w-full max-w-md rounded-xl shadow-lg"
-            style={{
-              maxHeight: '90vh',
-              overflowY: 'auto',
-              paddingBottom: 'env(safe-area-inset-bottom, 16px)',
-              margin: '0 16px'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="p-4 pb-2">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-[#0C1B1F]">Arrival window</h2>
-                <button 
-                  onClick={() => setShowArrivalTimeModal(false)}
-                  className="p-2"
-                >
-                  <X className="w-6 h-6 text-[#0C1B1F]" />
-                </button>
-              </div>
-              
-              <div className="mb-4">
-                <p className="text-lg font-bold text-center text-[#0C1B1F]">
-                  {formatTimeDisplay(startTime)} – {formatTimeDisplay(calculateEndTime())}
-                </p>
-              </div>
-              
-              <div className="mb-4">
-                {/* Horizontal scrollable carousel for duration tabs */}
-                <div className="overflow-x-auto pb-2 -mx-2 px-2 relative">
-                  {/* Fade gradient on the right to indicate scrollability */}
-                  <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
-                  
-                  <div className="flex space-x-3 min-w-max px-1">
-                    {["None", "15 min", "30 min", "1 hr", "2 hr", "3 hr"].map((duration) => (
-                      <button
-                        key={duration}
-                        onClick={() => setArrivalWindowDuration(duration.toLowerCase())}
-                        className={`py-2 px-4 rounded-full text-sm font-medium whitespace-nowrap ${
-                          arrivalWindowDuration === duration.toLowerCase() 
-                            ? 'bg-[#002E3D] text-white' 
-                            : 'bg-[#EDEDED] text-[#0C1B1F]'
-                        }`}
-                      >
-                        {duration}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mb-4">
-                <h3 className="text-base font-medium mb-2 text-[#0C1B1F]">Arrival window style</h3>
-                
-                <div className="space-y-2">
-                  <div 
-                    className="flex items-center justify-between p-3 rounded-lg border border-[#DADADA]"
-                    onClick={() => setArrivalWindowStyle("after")}
-                  >
-                    <div className="flex items-center">
-                      <div className="mr-3 text-[#0C1B1F]">
-                        <span className="inline-block w-5 h-5 text-center">↦</span>
-                      </div>
-                      <div>
-                        <p className="font-medium text-sm text-[#0C1B1F]">Add window after start time</p>
-                        <p className="text-xs text-[#5C6C74]">{formatTimeDisplay(startTime)} – {formatTimeDisplay(calculateEndTime())}</p>
-                      </div>
-                    </div>
-                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                      arrivalWindowStyle === "after" 
-                        ? 'border-blue-600 bg-white' 
-                        : 'border-[#CCCCCC] bg-white'
-                    }`}>
-                      {arrivalWindowStyle === "after" && (
-                        <div className="w-3 h-3 rounded-full bg-blue-600" />
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div 
-                    className="flex items-center justify-between p-3 rounded-lg border border-[#DADADA]"
-                    onClick={() => {
-                      // Simply set the style without immediately calculating new times
-                      setArrivalWindowStyle("center");
-                    }}
-                  >
-                    <div className="flex items-center">
-                      <div className="mr-3 text-[#0C1B1F]">
-                        <span className="inline-block w-5 h-5 text-center">↔</span>
-                      </div>
-                      <div>
-                        <p className="font-medium text-sm text-[#0C1B1F]">Center window on start time</p>
-                        <p className="text-xs text-[#5C6C74]">{formatTimeDisplay(startTime)} – {formatTimeDisplay(calculateEndTime())}</p>
-                      </div>
-                    </div>
-                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                      arrivalWindowStyle === "center" 
-                        ? 'border-blue-600 bg-white' 
-                        : 'border-[#CCCCCC] bg-white'
-                    }`}>
-                      {arrivalWindowStyle === "center" && (
-                        <div className="w-3 h-3 rounded-full bg-blue-600" />
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <button
-                className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium mt-2"
-                onClick={handleSaveArrivalWindow}
-              >
-                Save
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Unsaved Changes Modal */}
       {showUnsavedModal && (
