@@ -5,16 +5,9 @@
   background-color: white;
 }
 
-/* Fixed header styles - similar to PageHeader in More page */
-.dashboard-welcome-widget .fixed-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+/* Ensure proper spacing for iOS safe areas */
+.sticky {
   padding-top: env(safe-area-inset-top, 0px); /* Handle iOS notch */
-  z-index: 50;
-  background-color: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Always show a subtle shadow */
 }
 
 /* Add padding to the top of the dashboard content to account for the fixed header */
@@ -24,7 +17,7 @@
 
 /* Only for mobile welcome widget */
 @media (max-width: 768px) {
-  .dashboard-welcome-widget {
+  .dashboard-content {
     padding-top: 0 !important;
   }
 } 

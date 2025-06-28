@@ -247,12 +247,10 @@ const Dashboard = () => {
     <AppLayout>
       <div className={`${isMobile ? 'px-0 sm:px-0' : 'px-0 lg:px-0'} py-0 sm:py-0 md:py-0`}>
         {/* Welcome Widget (now just a header with date and icons) */}
-        <div className={isMobile ? '' : ''}>
-          <WelcomeWidget />
-        </div>
+        <WelcomeWidget />
         
         {/* Stats Cards */}
-        <div className="dashboard-content grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-5 mt-3 sm:mt-5 md:mt-6 px-3 sm:px-4 md:px-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-5 mt-3 sm:mt-5 md:mt-6 px-3 sm:px-4 md:px-6">
           {stats.map((stat, index) => (
             <div 
               key={index} 

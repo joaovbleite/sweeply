@@ -44,32 +44,30 @@ const WelcomeWidget = () => {
   // Format today's date like "Wednesday, June 4th"
   const formattedDate = format(new Date(), "EEEE, MMMM do");
   
-  // Unified header for both mobile and desktop - fixed to viewport like PageHeader
+  // Replicate the exact structure of PageHeader used in the More page
   return (
-    <div className="dashboard-welcome-widget">
-      <div className="fixed-header">
-        <div className="flex items-center justify-between px-4 py-3">
-          <p className="text-[#0d3547]/70 text-base">{formattedDate}</p>
+    <div className="sticky top-0 left-0 right-0 z-30 bg-white shadow-sm">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+        <p className="text-[#0d3547]/70 text-base">{formattedDate}</p>
+        
+        <div className="flex items-center gap-4">
+          {/* Star Icon */}
+          <Link to="/ai-chat" className="bg-transparent">
+            <Sparkles className="w-5 h-5 text-[#0d3547]" />
+          </Link>
           
-          <div className="flex items-center gap-4">
-            {/* Star Icon */}
-            <Link to="/ai-chat" className="bg-transparent">
-              <Sparkles className="w-5 h-5 text-[#0d3547]" />
-            </Link>
-            
-            {/* Notifications Bell */}
-            <Link 
-              to="/notifications"
-              className="relative bg-transparent"
-            >
-              <Bell className="w-5 h-5 text-[#0d3547]" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              )}
-            </Link>
-          </div>
+          {/* Notifications Bell */}
+          <Link 
+            to="/notifications"
+            className="relative bg-transparent"
+          >
+            <Bell className="w-5 h-5 text-[#0d3547]" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </Link>
         </div>
       </div>
     </div>
