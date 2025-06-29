@@ -71,18 +71,18 @@ const More: React.FC = () => {
                 <Link 
                   key={index}
                   to={item.link}
-                  className="relative rounded-xl overflow-hidden block group transition-transform duration-200 ease-in-out hover:scale-105"
+                  className="relative rounded-xl overflow-hidden block group"
                   style={{ 
                     width: '280px', 
-                    aspectRatio: '4/3',
+                    height: '120px',
                     flexShrink: 0 
                   }}
                 >
-                  {/* Background image with subtle zoom effect on hover */}
+                  {/* Background image without hover zoom effect */}
                   <img 
                     src={item.imageSrc} 
                     alt={item.title} 
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" 
+                    className="w-full h-full object-cover" 
                   />
                   
                   {/* Dual gradient - from top and bottom for better text visibility */}
