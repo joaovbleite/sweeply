@@ -70,7 +70,7 @@ const BottomNavBar: React.FC = () => {
         onClick={() => setIsMenuOpen(false)}
       >
         <div 
-          className="floating-menu-container fixed left-1/2 -translate-x-1/2 bottom-24 z-50 flex flex-col-reverse items-center space-y-reverse space-y-3"
+          className="floating-menu-container fixed left-1/2 -translate-x-1/2 bottom-36 z-50 flex flex-col-reverse items-center space-y-reverse space-y-3"
           onClick={(e) => e.stopPropagation()}
         >
           {menuItems.map((item, index) => (
@@ -93,7 +93,7 @@ const BottomNavBar: React.FC = () => {
       <nav 
         className="fixed left-0 right-0 h-[72px] bg-white border-t border-gray-200 flex items-center justify-around px-4 z-40"
         style={{
-          bottom: '20px', // Position higher above the bottom of the screen (changed from 50px)
+          bottom: '80px', // Position higher above the bottom of the screen (increased from 20px to move it up)
           position: 'fixed', // Ensure it stays fixed
           transform: 'translateZ(0)', // Hardware acceleration for smoother fixed positioning
           willChange: 'transform', // Hint to browser for optimization
