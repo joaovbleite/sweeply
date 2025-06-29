@@ -416,17 +416,6 @@ const Dashboard = () => {
           </>
         )}
       </div>
-      
-      {/* Add Job Button */}
-      {isMobile && (
-        <div className="fixed bottom-24 right-4 z-10">
-          <Link to="/add-job">
-            <Button size="icon" className="h-14 w-14 rounded-full bg-[#0d3547] hover:bg-[#0a2835] shadow-lg">
-              <Plus className="h-6 w-6" />
-            </Button>
-          </Link>
-        </div>
-      )}
     </AppLayout>
   );
 };
