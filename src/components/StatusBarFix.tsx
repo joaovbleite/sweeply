@@ -6,15 +6,25 @@ import React, { useEffect } from 'react';
  */
 const StatusBarFix: React.FC = () => {
   useEffect(() => {
-    // Set meta tag for iOS status bar
+    // Set meta tag for iOS status bar - use light content for better visibility
     const metaTag = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]') || 
                     document.createElement('meta');
     
     metaTag.setAttribute('name', 'apple-mobile-web-app-status-bar-style');
-    metaTag.setAttribute('content', 'default'); // Use default for white status bar
+    metaTag.setAttribute('content', 'white'); // Use white status bar to match app theme
     
     if (!metaTag.parentNode) {
       document.head.appendChild(metaTag);
+    }
+    
+    // Add theme-color meta tag for Android devices
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]') || 
+                          document.createElement('meta');
+    themeColorMeta.setAttribute('name', 'theme-color');
+    themeColorMeta.setAttribute('content', '#FFFFFF'); // White theme color
+    
+    if (!themeColorMeta.parentNode) {
+      document.head.appendChild(themeColorMeta);
     }
     
     // Add viewport-fit=cover to ensure content extends under the status bar

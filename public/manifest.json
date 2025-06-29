@@ -6,7 +6,7 @@
   "scope": "https://sweeplypro.app/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#3b82f6",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "src": "/favicon-16x16.png",
