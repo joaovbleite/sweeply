@@ -505,7 +505,7 @@ const Clients = () => {
       {/* Main content - with minimal padding to account for fixed header */}
       <div className="pt-0 px-4 pb-20">
         {/* Tabs Navigation */}
-        <div className="flex overflow-x-auto mb-2 border-b border-gray-200 no-scrollbar">
+        <div className="flex overflow-x-auto mt-[-10px] border-b border-gray-200 no-scrollbar">
           <button
             onClick={() => setActiveTab('clients')}
             className={`px-4 py-2 font-medium text-sm whitespace-nowrap flex items-center gap-2 ${

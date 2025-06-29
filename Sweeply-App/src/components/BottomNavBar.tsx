@@ -88,15 +88,15 @@ const BottomNavBar: React.FC = () => {
         </div>
       </div>
       
-      {/* Blur/Fade effect extending below the toolbar */}
+      {/* Enhanced blur effect extending well below the toolbar */}
       <div 
-        className="fixed left-0 right-0 bottom-0 z-30"
+        className="fixed left-0 right-0 bottom-0 z-20"
         style={{
-          height: '180px', // Extends well below the toolbar
-          background: 'linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.9) 40%, white)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          pointerEvents: 'none' // So it doesn't interfere with touch events
+          height: '250px', // Significantly larger to extend well below the toolbar
+          background: 'linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.85) 30%, white)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          pointerEvents: 'none', // So it doesn't interfere with touch events
         }}
       />
       
@@ -104,7 +104,7 @@ const BottomNavBar: React.FC = () => {
       <nav 
         className="fixed left-0 right-0 h-[72px] bg-white/70 backdrop-blur-xl border-t border-gray-200 shadow-xl flex items-center justify-around px-4 z-40 mx-2 rounded-2xl"
         style={{
-          bottom: '80px', // Position higher above the bottom of the screen (increased from 20px to move it up)
+          bottom: '80px', // Position higher above the bottom of the screen
           position: 'fixed', // Ensure it stays fixed
           transform: 'translateZ(0)', // Hardware acceleration for smoother fixed positioning
           willChange: 'transform', // Hint to browser for optimization
