@@ -98,6 +98,20 @@ const More: React.FC = () => {
               <Link 
                 to="/tasks"
                 className="flex items-center justify-between py-4 px-0 border-b border-gray-200"
+              <Link 
+                to="/business-health"
+                className="flex items-center justify-between py-4 px-0 border-b border-gray-200"
+              >
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-4 text-[#0d3547]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 12H7.5L9.5 6L14.5 18L16.5 12H21" stroke="#0d3547" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <span className="text-[#0d3547] text-lg font-medium">Business Health</span>
+                </div>
+                <div className="text-gray-400">
+                  <ChevronRight className="w-6 h-6" />
+                </div>
+              </Link>
               >
                 <div className="flex items-center">
                   <Clipboard className="w-5 h-5 mr-4 text-[#0d3547]" />

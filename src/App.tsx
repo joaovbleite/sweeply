@@ -41,6 +41,7 @@ import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import MobileSettings from "./pages/MobileSettings";
 import More from "./pages/More";
+import BusinessHealth from "./pages/BusinessHealth";
 import Support from "./pages/Support";
 import Company from "./pages/Company";
 import Preferences from "./pages/Preferences";
@@ -143,6 +144,16 @@ const AppRoutes = () => {
           <ProtectedRoute>
             <PageTransition>
               <Dashboard />
+            </PageTransition>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/business-health" 
+        element={
+          <ProtectedRoute>
+            <PageTransition>
+              <BusinessHealth />
             </PageTransition>
           </ProtectedRoute>
         } 

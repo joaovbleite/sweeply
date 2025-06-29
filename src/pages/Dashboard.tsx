@@ -38,7 +38,7 @@ import { Invoice } from "@/types/invoice";
 import { format, isToday, startOfDay, endOfDay, subDays, startOfWeek, endOfWeek } from "date-fns";
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import WelcomeWidget from "@/components/dashboard/WelcomeWidget";
-import BusinessHealth from "@/components/dashboard/BusinessHealth";
+import BusinessHealthWidget from "@/components/dashboard/BusinessHealth";
 import TodayScheduleSlider from "@/components/dashboard/TodayScheduleSlider";
 import GettingStartedTodo from "@/components/dashboard/GettingStartedTodo";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -305,7 +305,7 @@ const Dashboard = () => {
                 <TodayScheduleSlider hasJobs={upcomingJobs.length > 0} />
               </div>
               <GettingStartedTodo />
-              <BusinessHealth />
+              <BusinessHealthWidget />
               <div className="mt-6 mb-4">
                 <h3 className="text-lg font-bold text-gray-900 mb-3 px-1">Discover</h3>
                 <div className="flex overflow-x-auto space-x-4 -mx-3 sm:-mx-4 px-3 sm:px-4 pb-4">
