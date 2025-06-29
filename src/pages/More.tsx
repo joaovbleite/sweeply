@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Grid,
@@ -27,6 +27,8 @@ import { notificationService } from "@/lib/services/notificationService";
 const More: React.FC = () => {
   const { t } = useTranslation(['settings', 'common']);
   const { user, signOut } = useAuth();
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const autoScrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleLogout = async () => {
     try {
@@ -66,6 +68,62 @@ const More: React.FC = () => {
     }
   ];
 
+  // Auto-scroll carousel every 4 seconds
+  useEffect(() => {
+    const scrollCarousel = () => {
+      if (carouselRef.current) {
+        const scrollAmount = 280 + 16; // card width + spacing
+        const currentScroll = carouselRef.current.scrollLeft;
+        const maxScroll = carouselRef.current.scrollWidth - carouselRef.current.clientWidth;
+        
+        // If we're at the end, scroll back to the beginning
+        if (currentScroll >= maxScroll - 10) {
+          carouselRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          // Otherwise scroll to the next card
+          carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+      }
+    };
+
+    // Set up the interval for auto-scrolling
+    autoScrollIntervalRef.current = setInterval(scrollCarousel, 4000);
+
+    // Clear interval on component unmount
+    return () => {
+      if (autoScrollIntervalRef.current) {
+        clearInterval(autoScrollIntervalRef.current);
+      }
+    };
+  }, []);
+
+  // Pause auto-scroll when user is interacting with the carousel
+  const handleMouseEnter = () => {
+    if (autoScrollIntervalRef.current) {
+      clearInterval(autoScrollIntervalRef.current);
+    }
+  };
+
+  // Resume auto-scroll when user stops interacting
+  const handleMouseLeave = () => {
+    if (autoScrollIntervalRef.current) {
+      clearInterval(autoScrollIntervalRef.current);
+    }
+    autoScrollIntervalRef.current = setInterval(() => {
+      if (carouselRef.current) {
+        const scrollAmount = 280 + 16; // card width + spacing
+        const currentScroll = carouselRef.current.scrollLeft;
+        const maxScroll = carouselRef.current.scrollWidth - carouselRef.current.clientWidth;
+        
+        if (currentScroll >= maxScroll - 10) {
+          carouselRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+      }
+    }, 4000);
+  };
+
   return (
     <AppLayout>
       <div className="bg-[#F5F7FA] flex flex-col">
@@ -77,7 +135,14 @@ const More: React.FC = () => {
 
         <div className="px-4 pb-20 pt-2 flex-1 overflow-y-auto">
           {/* Feature Boxes - Carousel style with partially visible second box */}
-          <div className="overflow-x-auto pb-4 mb-6 -mx-4 px-4 scrollbar-hide">
+          <div 
+            className="overflow-x-auto pb-4 mb-6 -mx-4 px-4 scrollbar-hide" 
+            ref={carouselRef}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onTouchStart={handleMouseEnter}
+            onTouchEnd={handleMouseLeave}
+          >
             <div className="flex space-x-4 w-max">
               {moreDiscoverItems.map((item, index) => (
                 <Link 
