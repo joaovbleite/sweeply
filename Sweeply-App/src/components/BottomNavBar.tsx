@@ -91,12 +91,13 @@ const BottomNavBar: React.FC = () => {
       
       {/* Bottom Navigation Bar - Fixed at bottom with proper padding */}
       <nav 
-        className="fixed left-0 right-0 h-[72px] bg-white/80 backdrop-blur-md border-t border-gray-200 shadow-lg flex items-center justify-around px-4 z-40 mx-2 rounded-2xl"
+        className="fixed left-0 right-0 h-[72px] bg-white/70 backdrop-blur-xl border-t border-gray-200 shadow-xl flex items-center justify-around px-4 z-40 mx-2 rounded-2xl"
         style={{
           bottom: '80px', // Position higher above the bottom of the screen (increased from 20px to move it up)
           position: 'fixed', // Ensure it stays fixed
           transform: 'translateZ(0)', // Hardware acceleration for smoother fixed positioning
           willChange: 'transform', // Hint to browser for optimization
+          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
         }}
       >
         {navItems.map((item) => {
