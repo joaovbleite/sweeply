@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   Grid,
@@ -28,7 +28,8 @@ const More: React.FC = () => {
   const { t } = useTranslation(['settings', 'common']);
   const { user, signOut } = useAuth();
   const carouselRef = useRef<HTMLDivElement>(null);
-  const autoScrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const handleLogout = async () => {
     try {
@@ -68,61 +69,53 @@ const More: React.FC = () => {
     }
   ];
 
-  // Auto-scroll carousel every 4 seconds
+  // Auto-scroll carousel
   useEffect(() => {
-    const scrollCarousel = () => {
-      if (carouselRef.current) {
-        const scrollAmount = 280 + 16; // card width + spacing
-        const currentScroll = carouselRef.current.scrollLeft;
-        const maxScroll = carouselRef.current.scrollWidth - carouselRef.current.clientWidth;
+    if (!isPaused && carouselRef.current) {
+      const interval = setInterval(() => {
+        const nextIndex = (currentIndex + 1) % moreDiscoverItems.length;
+        setCurrentIndex(nextIndex);
         
-        // If we're at the end, scroll back to the beginning
-        if (currentScroll >= maxScroll - 10) {
-          carouselRef.current.scrollTo({ left: 0, behavior: 'smooth' });
-        } else {
-          // Otherwise scroll to the next card
-          carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        // Calculate scroll position
+        if (carouselRef.current) {
+          const boxWidth = 280; // Width of each box
+          const spacing = 16; // Space between boxes (space-x-4 = 1rem = 16px)
+          const scrollPosition = nextIndex * (boxWidth + spacing);
+          carouselRef.current.scrollTo({
+            left: scrollPosition,
+            behavior: 'smooth'
+          });
+        }
+      }, 4000); // 4 seconds interval
+      
+      return () => clearInterval(interval);
+    }
+  }, [currentIndex, isPaused, moreDiscoverItems.length]);
+
+  // Handle manual scroll to update the current index
+  useEffect(() => {
+    const handleScroll = () => {
+      if (carouselRef.current) {
+        const scrollLeft = carouselRef.current.scrollLeft;
+        const boxWidth = 280;
+        const spacing = 16;
+        const newIndex = Math.round(scrollLeft / (boxWidth + spacing));
+        
+        // Only update if different to avoid infinite loop
+        if (newIndex !== currentIndex && newIndex >= 0 && newIndex < moreDiscoverItems.length) {
+          setCurrentIndex(newIndex);
         }
       }
     };
 
-    // Set up the interval for auto-scrolling
-    autoScrollIntervalRef.current = setInterval(scrollCarousel, 4000);
-
-    // Clear interval on component unmount
-    return () => {
-      if (autoScrollIntervalRef.current) {
-        clearInterval(autoScrollIntervalRef.current);
-      }
-    };
-  }, []);
-
-  // Pause auto-scroll when user is interacting with the carousel
-  const handleMouseEnter = () => {
-    if (autoScrollIntervalRef.current) {
-      clearInterval(autoScrollIntervalRef.current);
+    const carouselElement = carouselRef.current;
+    if (carouselElement) {
+      carouselElement.addEventListener('scroll', handleScroll);
+      return () => {
+        carouselElement.removeEventListener('scroll', handleScroll);
+      };
     }
-  };
-
-  // Resume auto-scroll when user stops interacting
-  const handleMouseLeave = () => {
-    if (autoScrollIntervalRef.current) {
-      clearInterval(autoScrollIntervalRef.current);
-    }
-    autoScrollIntervalRef.current = setInterval(() => {
-      if (carouselRef.current) {
-        const scrollAmount = 280 + 16; // card width + spacing
-        const currentScroll = carouselRef.current.scrollLeft;
-        const maxScroll = carouselRef.current.scrollWidth - carouselRef.current.clientWidth;
-        
-        if (currentScroll >= maxScroll - 10) {
-          carouselRef.current.scrollTo({ left: 0, behavior: 'smooth' });
-        } else {
-          carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-        }
-      }
-    }, 4000);
-  };
+  }, [currentIndex, moreDiscoverItems.length]);
 
   return (
     <AppLayout>
@@ -136,19 +129,22 @@ const More: React.FC = () => {
         <div className="px-4 pb-20 pt-2 flex-1 overflow-y-auto">
           {/* Feature Boxes - Carousel style with partially visible second box */}
           <div 
-            className="overflow-x-auto pb-4 mb-6 -mx-4 px-4 scrollbar-hide" 
+            className="overflow-x-auto pb-4 mb-6 -mx-4 px-4 scrollbar-hide scroll-smooth"
             ref={carouselRef}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            onTouchStart={handleMouseEnter}
-            onTouchEnd={handleMouseLeave}
+            onTouchStart={() => setIsPaused(true)}
+            onTouchEnd={() => setIsPaused(false)}
+            onMouseDown={() => setIsPaused(true)}
+            onMouseUp={() => setIsPaused(false)}
+            onMouseLeave={() => setIsPaused(false)}
           >
             <div className="flex space-x-4 w-max">
               {moreDiscoverItems.map((item, index) => (
                 <Link 
                   key={index}
                   to={item.link}
-                  className="relative rounded-xl overflow-hidden block group"
+                  className={`relative rounded-xl overflow-hidden block transition-opacity duration-300 ${
+                    index === currentIndex ? "opacity-100" : "opacity-90"
+                  }`}
                   style={{ 
                     width: '280px', 
                     height: '120px',
@@ -173,6 +169,29 @@ const More: React.FC = () => {
                 </Link>
               ))}
             </div>
+          </div>
+
+          {/* Carousel indicators */}
+          <div className="flex justify-center gap-1.5 mb-6">
+            {moreDiscoverItems.map((_, index) => (
+              <button
+                key={index}
+                className={`w-2 h-2 rounded-full ${
+                  index === currentIndex ? "bg-blue-500" : "bg-gray-300"
+                }`}
+                onClick={() => {
+                  setCurrentIndex(index);
+                  if (carouselRef.current) {
+                    const boxWidth = 280;
+                    const spacing = 16;
+                    carouselRef.current.scrollTo({
+                      left: index * (boxWidth + spacing),
+                      behavior: 'smooth'
+                    });
+                  }
+                }}
+              />
+            ))}
           </div>
 
           {/* Menu Lists */}
