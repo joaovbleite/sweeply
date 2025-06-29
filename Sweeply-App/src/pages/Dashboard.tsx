@@ -222,16 +222,16 @@ const Dashboard = () => {
   return (
     <AppLayout>
       <div className={`${isMobile ? 'px-3 sm:px-4' : 'px-6 lg:px-8'} py-0 sm:py-4 md:py-6`}>
-        {/* Welcome Widget */}
-        <div className={isMobile ? '' : 'mt-6'}>
-          <WelcomeWidget />
-        </div>
-        
         {/* Time-based Greeting */}
-        <div className="mt-4 mb-1">
-          <h2 className="text-xl font-semibold text-gray-800">
+        <div className="mt-2 mb-4">
+          <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">
             {getGreeting()}, {firstName}
           </h2>
+        </div>
+        
+        {/* Welcome Widget */}
+        <div className={isMobile ? '' : 'mt-4'}>
+          <WelcomeWidget />
         </div>
         
         {/* Stats Cards */}
