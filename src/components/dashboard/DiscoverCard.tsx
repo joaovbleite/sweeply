@@ -13,13 +13,13 @@ const DiscoverCard: React.FC<DiscoverCardProps> = ({ imageSrc, title, subtitle, 
   return (
     <a
       href={actionLink}
-      className="relative aspect-square rounded-2xl overflow-hidden block group transition-transform duration-200 ease-in-out hover:scale-105"
+      className="relative aspect-square rounded-2xl overflow-hidden block"
     >
-      {/* Background image with subtle zoom effect on hover */}
+      {/* Background image without zoom effect */}
       <img 
         src={imageSrc} 
         alt={title} 
-        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" 
+        className="w-full h-full object-cover" 
       />
       
       {/* Dual gradient - from top and bottom for better text visibility */}
@@ -33,7 +33,7 @@ const DiscoverCard: React.FC<DiscoverCardProps> = ({ imageSrc, title, subtitle, 
       
       {/* Action button at the bottom */}
       <div className="absolute bottom-4 right-4">
-        <button className="bg-white/20 text-white text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1 backdrop-blur-sm group-hover:bg-white/30 transition-colors">
+        <button className="bg-white/20 text-white text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1 backdrop-blur-sm transition-colors">
           {actionText}
           <ArrowRight className="w-3.5 h-3.5" />
         </button>

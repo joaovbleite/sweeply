@@ -51,6 +51,18 @@ const More: React.FC = () => {
       subtitle: "Promote your business and grow your client base",
       imageSrc: "/placeholder.svg",
       link: "https://sweeplypro.com"
+    },
+    {
+      title: "Refer a Friend",
+      subtitle: "Share Sweeply with other pros and get rewarded",
+      imageSrc: "/placeholder.svg",
+      link: "/refer"
+    },
+    {
+      title: "Help Center",
+      subtitle: "Get answers to your questions",
+      imageSrc: "/placeholder.svg",
+      link: "/support"
     }
   ];
 
@@ -88,8 +100,8 @@ const More: React.FC = () => {
                   {/* Dual gradient - from top and bottom for better text visibility */}
                   <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/60"></div>
                   
-                  {/* Title and subtitle at the top */}
-                  <div className="absolute top-0 left-0 pt-4 px-4 w-full">
+                  {/* Title and subtitle at the bottom */}
+                  <div className="absolute bottom-0 left-0 pb-4 px-4 w-full">
                     <h3 className="text-white text-lg font-bold leading-tight mb-1 drop-shadow-sm">{item.title}</h3>
                     <p className="text-white/90 text-xs leading-tight max-w-[90%] drop-shadow-sm">{item.subtitle}</p>
                   </div>
