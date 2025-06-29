@@ -26,7 +26,7 @@ const BottomNavBar: React.FC = () => {
     { id: "home", label: "Home", icon: Home, path: "/dashboard" },
     { id: "schedule", label: "Schedule", icon: Calendar, path: "/schedule" },
     { id: "add", label: "", icon: Plus, path: "#", action: () => setIsMenuOpen(!isMenuOpen) },
-    { id: "clients", label: "Clients", icon: User, path: "/clients" },
+    { id: "clients", label: "Hub", icon: User, path: "/clients" },
     { id: "more", label: "More", icon: MoreHorizontal, path: "/more" }
   ];
 
@@ -35,7 +35,6 @@ const BottomNavBar: React.FC = () => {
     { id: "client", label: "Client", icon: User, action: () => navigate("/clients/new") },
     { id: "quote", label: "Quote", icon: FileEdit, action: () => navigate("/quotes/new") },
     { id: "invoice", label: "Invoice", icon: FileText, action: () => navigate("/invoices/new") },
-    { id: "expense", label: "Expense", icon: DollarSign, action: () => navigate("/expenses/new") },
   ];
 
   useEffect(() => {
@@ -88,6 +87,18 @@ const BottomNavBar: React.FC = () => {
           ))}
         </div>
       </div>
+      
+      {/* Blur/Fade effect extending below the toolbar */}
+      <div 
+        className="fixed left-0 right-0 bottom-0 z-30"
+        style={{
+          height: '180px', // Extends well below the toolbar
+          background: 'linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.9) 40%, white)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          pointerEvents: 'none' // So it doesn't interfere with touch events
+        }}
+      />
       
       {/* Bottom Navigation Bar - Fixed at bottom with proper padding */}
       <nav 
