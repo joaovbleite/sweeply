@@ -151,7 +151,7 @@ const BottomNavBar: React.FC = () => {
       
       {/* Bottom Navigation Bar - Fixed at bottom with proper padding */}
       <nav 
-        className="fixed left-0 right-0 h-[72px] bg-white border-t border-gray-200 flex items-center justify-around px-4 z-40"
+        className="fixed left-0 right-0 h-[72px] bg-white/80 backdrop-blur-md border-t border-gray-200 shadow-lg flex items-center justify-around px-4 z-40 mx-2 rounded-2xl"
         style={{
           bottom: '80px', // Position higher above the bottom of the screen (increased from 20px to move it up)
           position: 'fixed', // Ensure it stays fixed
