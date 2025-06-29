@@ -69,28 +69,12 @@ const BottomNavBar: React.FC = () => {
       iconColor: "text-blue-600"
     },
     { 
-      id: "expense", 
-      label: "Expense", 
-      icon: DollarSign, 
-      action: () => navigate("/expenses/new"),
-      color: "bg-green-50",
-      iconColor: "text-green-600"
-    },
-    { 
       id: "task", 
       label: "Task", 
       icon: Clipboard, 
       action: () => navigate("/add-task"),
       color: "bg-blue-50",
       iconColor: "text-blue-600"
-    },
-    { 
-      id: "request", 
-      label: "Request", 
-      icon: Download, 
-      action: () => navigate("/requests/new"),
-      color: "bg-amber-50",
-      iconColor: "text-amber-600"
     }
   ];
   
