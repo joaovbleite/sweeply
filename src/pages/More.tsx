@@ -64,31 +64,38 @@ const More: React.FC = () => {
         />
 
         <div className="px-4 pb-20 pt-2 flex-1 overflow-y-auto">
-          {/* Feature Boxes - Using DiscoverCard style but smaller height */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            {moreDiscoverItems.map((item, index) => (
-              <Link 
-                key={index}
-                to={item.link}
-                className="relative aspect-[4/3] rounded-xl overflow-hidden block group transition-transform duration-200 ease-in-out hover:scale-105"
-              >
-                {/* Background image with subtle zoom effect on hover */}
-                <img 
-                  src={item.imageSrc} 
-                  alt={item.title} 
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" 
-                />
-                
-                {/* Dual gradient - from top and bottom for better text visibility */}
-                <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/60"></div>
-                
-                {/* Title and subtitle at the top */}
-                <div className="absolute top-0 left-0 pt-4 px-4 w-full">
-                  <h3 className="text-white text-lg font-bold leading-tight mb-1 drop-shadow-sm">{item.title}</h3>
-                  <p className="text-white/90 text-xs leading-tight max-w-[90%] drop-shadow-sm">{item.subtitle}</p>
-                </div>
-              </Link>
-            ))}
+          {/* Feature Boxes - Carousel style with partially visible second box */}
+          <div className="overflow-x-auto pb-4 mb-6 -mx-4 px-4 scrollbar-hide">
+            <div className="flex space-x-4 w-max">
+              {moreDiscoverItems.map((item, index) => (
+                <Link 
+                  key={index}
+                  to={item.link}
+                  className="relative rounded-xl overflow-hidden block group transition-transform duration-200 ease-in-out hover:scale-105"
+                  style={{ 
+                    width: '280px', 
+                    aspectRatio: '4/3',
+                    flexShrink: 0 
+                  }}
+                >
+                  {/* Background image with subtle zoom effect on hover */}
+                  <img 
+                    src={item.imageSrc} 
+                    alt={item.title} 
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" 
+                  />
+                  
+                  {/* Dual gradient - from top and bottom for better text visibility */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/60"></div>
+                  
+                  {/* Title and subtitle at the top */}
+                  <div className="absolute top-0 left-0 pt-4 px-4 w-full">
+                    <h3 className="text-white text-lg font-bold leading-tight mb-1 drop-shadow-sm">{item.title}</h3>
+                    <p className="text-white/90 text-xs leading-tight max-w-[90%] drop-shadow-sm">{item.subtitle}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
 
           {/* Menu Lists */}
