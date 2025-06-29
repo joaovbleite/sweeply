@@ -394,47 +394,50 @@ const Schedule = () => {
   
   return (
     <AppLayout>
-      {/* Page Header with Month as title */}
+      <div className="bg-[#F5F7FA] flex flex-col h-full">
+        {/* Page Header with Month as title */}
         <PageHeader
-        title={format(currentDate, 'MMMM')}
+          title={format(currentDate, 'MMMM')}
+          compact
           rightElement={
-          <div className="flex items-center gap-2">
-            <button
-              onClick={goToToday}
-              className="p-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-              aria-label="Calendar"
-            >
-              <CalendarIcon className="w-4 h-4" />
+            <div className="flex items-center gap-2">
+              <button
+                onClick={goToToday}
+                className="p-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                aria-label="Calendar"
+              >
+                <CalendarIcon className="w-4 h-4" />
               </button>
-            <button
-              onClick={openViewOptionsModal}
-              className="p-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-              aria-label={t('calendar:settings')}
-            >
-              <Settings className="w-4 h-4" />
+              <button
+                onClick={openViewOptionsModal}
+                className="p-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                aria-label={t('calendar:settings')}
+              >
+                <Settings className="w-4 h-4" />
               </button>
             </div>
           }
         />
         
-      {/* Calendar View */}
-      <div className="flex-1 flex flex-col">
-        {/* Render the horizontal day scroller (without initials) */}
-        {renderHorizontalDayScroller()}
-        
-        {/* Render the day view */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {renderDayView()}
+        {/* Calendar View */}
+        <div className="flex-1 flex flex-col">
+          {/* Render the horizontal day scroller (without initials) */}
+          {renderHorizontalDayScroller()}
+          
+          {/* Render the day view */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {renderDayView()}
+          </div>
         </div>
-      </div>
 
-      {/* View Options Modal */}
-      <ViewOptionsModal
-        isOpen={isViewOptionsModalOpen}
-        onClose={closeViewOptionsModal}
-        onApply={applyViewOptions}
-        initialOptions={viewOptions}
-      />
+        {/* View Options Modal */}
+        <ViewOptionsModal
+          isOpen={isViewOptionsModalOpen}
+          onClose={closeViewOptionsModal}
+          onApply={applyViewOptions}
+          initialOptions={viewOptions}
+        />
+      </div>
     </AppLayout>
   );
 };
