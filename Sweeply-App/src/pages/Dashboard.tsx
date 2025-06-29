@@ -96,6 +96,17 @@ const Dashboard = () => {
 
   // Get user's name from metadata or email
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'there';
+  
+  // Get first name only
+  const firstName = userName.split(' ')[0];
+
+  // Get greeting based on time of day
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  };
 
   // Load dashboard data
   const loadDashboardData = async () => {
@@ -214,6 +225,13 @@ const Dashboard = () => {
         {/* Welcome Widget */}
         <div className={isMobile ? '' : 'mt-6'}>
           <WelcomeWidget />
+        </div>
+        
+        {/* Time-based Greeting */}
+        <div className="mt-4 mb-1">
+          <h2 className="text-xl font-semibold text-gray-800">
+            {getGreeting()}, {firstName}
+          </h2>
         </div>
         
         {/* Stats Cards */}
