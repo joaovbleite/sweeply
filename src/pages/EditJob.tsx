@@ -100,7 +100,7 @@ const EditJob = () => {
         
         // Identify missing fields
         const missing: Record<string, boolean> = {};
-        if (!jobData.title || jobData.title === 'New Job') missing.jobTitle = true;
+        if (!jobData.title) missing.jobTitle = true;
         if (!jobData.client_id) missing.clientId = true;
         if (!jobData.scheduled_time) missing.startTime = true;
         if (!jobData.arrival_window_start) missing.arrivalWindowStart = true;
@@ -108,7 +108,7 @@ const EditJob = () => {
         if (!jobData.address) missing.address = true;
         if (!jobData.description) missing.description = true;
         if (!jobData.special_instructions) missing.instructions = true;
-        if (jobData.estimated_price === 0) missing.price = true;
+        if (jobData.estimated_price === 0 || jobData.estimated_price === undefined) missing.price = true;
         if (!jobData.line_items || jobData.line_items.length === 0) missing.lineItems = true;
         
         setMissingFields(missing);
@@ -606,7 +606,7 @@ const EditJob = () => {
 
   // Helper function to get field class name with missing indicator
   const getFieldClassName = (fieldName: string, baseClassName: string): string => {
-    return `${baseClassName} ${isMissingField(fieldName) ? 'border-red-300 bg-red-50' : 'border-gray-300'}`;
+    return `${baseClassName} ${isMissingField(fieldName) ? 'border-red-500 bg-red-50' : 'border-gray-300'}`;
   };
 
   // Helper function to render field with missing indicator
@@ -617,7 +617,7 @@ const EditJob = () => {
         {element}
         {isMissing && (
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center">
-            <div className="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center">
+            <div className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center">
               <span className="text-white text-xs font-bold">!</span>
             </div>
           </div>
@@ -664,7 +664,7 @@ const EditJob = () => {
             </div>
             <div className="ml-3">
               <p className="text-sm text-amber-700">
-                Some fields were missing when this job was created. Fields marked with red need your attention.
+                <strong>Some information is missing in this job.</strong> Fields highlighted in red need your attention. Please fill them in to complete the job details.
               </p>
             </div>
           </div>

@@ -160,25 +160,22 @@ export const jobsApi = {
       throw new Error('User not authenticated');
     }
 
-    // No strict validation - provide defaults for missing fields
-    const defaultClientId = jobData.client_id || '00000000-0000-0000-0000-000000000000'; // Use a placeholder UUID
-
-    // Build the insert data object more explicitly with defaults for everything
+    // Build the insert data object with minimal required fields
     const insertData: any = {
-      client_id: defaultClientId,
-      title: jobData.title || 'New Job',
-      service_type: jobData.service_type || 'regular',
-      property_type: jobData.property_type || 'residential',
-      scheduled_date: jobData.scheduled_date || new Date().toISOString().split('T')[0], // Default to today
+      client_id: jobData.client_id,
+      title: jobData.title,
+      service_type: jobData.service_type,
+      property_type: jobData.property_type,
+      scheduled_date: jobData.scheduled_date,
       status: jobData.status || 'scheduled',
       user_id: user.id,
       is_recurring: jobData.is_recurring || false,
-      description: jobData.description || '',
-      special_instructions: jobData.special_instructions || '',
-      estimated_price: jobData.estimated_price || 0,
     };
 
-    // Add optional fields only if they have values
+    // Only add fields if they have values (no defaults)
+    if (jobData.description) insertData.description = jobData.description;
+    if (jobData.special_instructions) insertData.special_instructions = jobData.special_instructions;
+    if (jobData.estimated_price !== undefined) insertData.estimated_price = jobData.estimated_price;
     if (jobData.scheduled_time) insertData.scheduled_time = jobData.scheduled_time;
     if (jobData.estimated_duration) insertData.estimated_duration = jobData.estimated_duration;
     if (jobData.address) insertData.address = jobData.address;
@@ -190,28 +187,15 @@ export const jobsApi = {
     if (jobData.house_type) insertData.house_type = jobData.house_type;
     if (jobData.recurring_frequency) insertData.recurring_frequency = jobData.recurring_frequency;
     if (jobData.recurring_end_date) insertData.recurring_end_date = jobData.recurring_end_date;
-    
-    // Add arrival window information
     if (jobData.arrival_window_start) insertData.arrival_window_start = jobData.arrival_window_start;
     if (jobData.arrival_window_end) insertData.arrival_window_end = jobData.arrival_window_end;
     
     // Add line items if provided
     if (jobData.line_items && jobData.line_items.length > 0) {
       insertData.line_items = jobData.line_items;
-      
-      // Calculate total estimated price from line items if not already set
-      if (jobData.estimated_price === undefined) {
-        insertData.estimated_price = jobData.line_items.reduce(
-          (sum, item) => sum + (item.price * (item.quantity || 1)), 
-          0
-        );
-      }
-    } else {
-      // Ensure line_items is at least an empty array
-      insertData.line_items = [];
     }
 
-    console.log('Creating job with cleaned data:', insertData);
+    console.log('Creating job with data:', insertData);
 
     try {
       const { data, error } = await supabase
@@ -272,10 +256,6 @@ export const jobsApi = {
         .insert({
           ...jobData,
           client_id: client.id,
-          title: jobData.title || 'New Job',
-          service_type: jobData.service_type || 'regular',
-          property_type: jobData.property_type || 'residential',
-          scheduled_date: jobData.scheduled_date || new Date().toISOString().split('T')[0],
           status: jobData.status || 'scheduled',
         })
         .select('*')

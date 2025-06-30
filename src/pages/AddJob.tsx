@@ -285,7 +285,6 @@ const AddJob = () => {
   };
 
   const handleSubmit = async () => {
-    // Remove strict validation checks - allow job creation regardless of missing fields
     // Only validate the date selection since it's needed for scheduling
     if (!selectedDates.length) {
       toast.error("Please select a scheduled date");
@@ -307,32 +306,48 @@ const AddJob = () => {
         price: item.price
       }));
 
-      // Create job data object - ensure all fields have default values
+      // Create job data object without default values
       const jobData: CreateJobInput = {
-        client_id: formData.clientId || (clients.length > 0 ? clients[0].id : ''), // Use first client as fallback
-        title: formData.jobTitle || 'New Job', // Default title if empty
-        description: formData.instructions || '',
-        special_instructions: formData.instructions || '',
-        service_type: formData.service_type || 'regular',
-        property_type: formData.property_type || 'residential',
+        client_id: formData.clientId,
+        title: formData.jobTitle,
+        service_type: formData.service_type,
+        property_type: formData.property_type,
         scheduled_date: scheduledDate,
-        estimated_price: formData.subtotal || 0,
-        line_items: lineItemsData.length > 0 ? lineItemsData : [], // Ensure it's always an array
-        
-        // Add arrival window information with fallbacks
-        scheduled_time: startTime || '12:00',
-        arrival_window_start: startTime || '12:00',
-        arrival_window_end: endTime || '13:00',
-        
-        // Add recurring job data with safe defaults
-        is_recurring: false, // Default to non-recurring
-        recurring_frequency: 'weekly' as RecurringFrequency,
-        recurring_days_of_week: [],
-        recurring_day_of_month: 1,
-        recurring_end_type: 'never',
-        recurring_end_date: undefined,
-        recurring_occurrences: undefined
       };
+
+      // Only add fields if they have values
+      if (formData.instructions) {
+        jobData.description = formData.instructions;
+        jobData.special_instructions = formData.instructions;
+      }
+      
+      if (formData.subtotal > 0) {
+        jobData.estimated_price = formData.subtotal;
+      }
+      
+      if (lineItemsData.length > 0) {
+        jobData.line_items = lineItemsData;
+      }
+      
+      if (startTime) {
+        jobData.scheduled_time = startTime;
+        jobData.arrival_window_start = startTime;
+      }
+      
+      if (endTime) {
+        jobData.arrival_window_end = endTime;
+      }
+      
+      // Add recurring job data only if it's recurring
+      if (formData.recurring_pattern.is_recurring) {
+        jobData.is_recurring = true;
+        jobData.recurring_frequency = formData.recurring_pattern.frequency;
+        jobData.recurring_days_of_week = formData.recurring_pattern.daysOfWeek;
+        jobData.recurring_day_of_month = formData.recurring_pattern.dayOfMonth;
+        jobData.recurring_end_type = formData.recurring_pattern.endType;
+        jobData.recurring_end_date = formData.recurring_pattern.endDate;
+        jobData.recurring_occurrences = formData.recurring_pattern.occurrences;
+      }
 
       console.log('Submitting job data:', jobData);
       const createdJob = await jobsApi.create(jobData);
@@ -344,52 +359,20 @@ const AddJob = () => {
       navigate("/jobs");
     } catch (error) {
       console.error('Error creating job:', error);
-      
-      // Try to create a minimal job if the regular creation failed
-      try {
-        console.log('Attempting to create minimal job...');
-        const minimalJobData: CreateJobInput = {
-          client_id: formData.clientId || (clients.length > 0 ? clients[0].id : ''),
-          title: 'New Job',
-          service_type: 'regular' as ServiceType,
-          property_type: 'residential' as PropertyType,
-          scheduled_date: new Date().toISOString().split('T')[0],
-          description: '',
-          special_instructions: '',
-          estimated_price: 0,
-          line_items: [],
-          scheduled_time: '12:00',
-          arrival_window_start: '12:00',
-          arrival_window_end: '13:00',
-          is_recurring: false,
-          recurring_frequency: 'weekly' as RecurringFrequency,
-          recurring_days_of_week: [],
-          recurring_day_of_month: 1,
-          recurring_end_type: 'never',
-          status: 'scheduled'
-        };
-        
-        const createdJob = await jobsApi.create(minimalJobData);
-        console.log('Minimal job created successfully:', createdJob);
-        setIsFormDirty(false);
-        toast.success("Job created with minimal information!");
-        navigate("/jobs");
-      } catch (fallbackError) {
-        console.error('Even minimal job creation failed:', fallbackError);
-        toast.error("Could not create job. Please try again later.");
-      }
+      toast.error("Could not create job. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleSaveAsDraft = async () => {
-    // Similar to handleSubmit but with draft status
     try {
       setIsSubmitting(true);
 
       // Format the date for the API (use current date if none selected)
-      const scheduledDate = selectedDates.length > 0 ? new Date(currentMonth.getFullYear(), currentMonth.getMonth(), selectedDates[0]).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+      const scheduledDate = selectedDates.length > 0 
+        ? new Date(currentMonth.getFullYear(), currentMonth.getMonth(), selectedDates[0]).toISOString().split('T')[0] 
+        : new Date().toISOString().split('T')[0];
 
       // Prepare line items data
       const lineItemsData = lineItems.map(item => ({
@@ -398,28 +381,49 @@ const AddJob = () => {
         price: item.price
       }));
 
-      // Create job data object
-      const jobData = {
-        client_id: formData.clientId || (clients.length > 0 ? clients[0].id : ''),
-        title: formData.jobTitle || 'Draft Job',
-        description: formData.instructions,
-        special_instructions: formData.instructions,
-        service_type: formData.service_type,
-        property_type: formData.property_type,
+      // Create job data object - minimal version
+      const jobData: any = {
+        client_id: formData.clientId,
         scheduled_date: scheduledDate,
-        estimated_price: formData.subtotal,
-        line_items: lineItemsData, // This is custom data that will be stored as JSON
-        status: 'draft' as any, // We're adding a custom status that's not in the type
-        
-        // Add recurring job data if applicable
-        is_recurring: formData.recurring_pattern.is_recurring,
-        recurring_frequency: formData.recurring_pattern.frequency,
-        recurring_days_of_week: formData.recurring_pattern.daysOfWeek,
-        recurring_day_of_month: formData.recurring_pattern.dayOfMonth,
-        recurring_end_type: formData.recurring_pattern.endType,
-        recurring_end_date: formData.recurring_pattern.endDate,
-        recurring_occurrences: formData.recurring_pattern.occurrences
+        status: 'draft',
       };
+      
+      // Only add fields if they have values
+      if (formData.jobTitle) {
+        jobData.title = formData.jobTitle;
+      }
+      
+      if (formData.instructions) {
+        jobData.description = formData.instructions;
+        jobData.special_instructions = formData.instructions;
+      }
+      
+      if (formData.service_type) {
+        jobData.service_type = formData.service_type;
+      }
+      
+      if (formData.property_type) {
+        jobData.property_type = formData.property_type;
+      }
+      
+      if (formData.subtotal > 0) {
+        jobData.estimated_price = formData.subtotal;
+      }
+      
+      if (lineItemsData.length > 0) {
+        jobData.line_items = lineItemsData;
+      }
+      
+      // Add recurring job data if applicable
+      if (formData.recurring_pattern.is_recurring) {
+        jobData.is_recurring = true;
+        jobData.recurring_frequency = formData.recurring_pattern.frequency;
+        jobData.recurring_days_of_week = formData.recurring_pattern.daysOfWeek;
+        jobData.recurring_day_of_month = formData.recurring_pattern.dayOfMonth;
+        jobData.recurring_end_type = formData.recurring_pattern.endType;
+        jobData.recurring_end_date = formData.recurring_pattern.endDate;
+        jobData.recurring_occurrences = formData.recurring_pattern.occurrences;
+      }
 
       const createdJob = await jobsApi.create(jobData);
 
