@@ -74,6 +74,7 @@ const Clients = () => {
   const [jobsLoading, setJobsLoading] = useState(false);
   const [quotesLoading, setQuotesLoading] = useState(false);
   const [invoicesLoading, setInvoicesLoading] = useState(false);
+  const [tasksLoading, setTasksLoading] = useState(false);
   
   // Filter states
   const [searchQuery, setSearchQuery] = useState("");
@@ -83,10 +84,11 @@ const Clients = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState<'name' | 'created_at' | 'updated_at'>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [activeTab, setActiveTab] = useState<'clients' | 'jobs' | 'quotes' | 'invoices'>('clients');
+  const [activeTab, setActiveTab] = useState<'clients' | 'jobs' | 'quotes' | 'invoices' | 'tasks'>('clients');
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [selectedQuoteStatus, setSelectedQuoteStatus] = useState<string | null>(null);
   const [selectedInvoiceStatus, setSelectedInvoiceStatus] = useState<string | null>(null);
+  const [selectedTaskStatus, setSelectedTaskStatus] = useState<string | null>(null);
   
   // Client-specific data
   const [clientJobs, setClientJobs] = useState<Record<string, number>>({});
@@ -109,6 +111,9 @@ const Clients = () => {
         break;
       case 'invoices':
         loadInvoices();
+        break;
+      case 'tasks':
+        // Add task loading logic when implemented
         break;
     }
   }, [activeTab]);
@@ -449,6 +454,7 @@ const Clients = () => {
       case 'jobs': return 'Jobs';
       case 'quotes': return 'Quotes';
       case 'invoices': return 'Invoices';
+      case 'tasks': return 'Tasks';
       default: return 'Clients';
     }
   };
@@ -465,10 +471,11 @@ const Clients = () => {
             { id: 'clients', label: 'Clients', icon: <Users className="w-4 h-4" /> },
             { id: 'jobs', label: 'Jobs', icon: <LayoutList className="w-4 h-4" /> },
             { id: 'quotes', label: 'Quotes', icon: <FileText className="w-4 h-4" /> },
-            { id: 'invoices', label: 'Invoices', icon: <Receipt className="w-4 h-4" /> }
+            { id: 'invoices', label: 'Invoices', icon: <Receipt className="w-4 h-4" /> },
+            { id: 'tasks', label: 'Tasks', icon: <CheckSquare className="w-4 h-4" /> }
           ]}
           activeTab={activeTab}
-          onTabChange={(tabId) => setActiveTab(tabId as 'clients' | 'jobs' | 'quotes' | 'invoices')}
+          onTabChange={(tabId) => setActiveTab(tabId as 'clients' | 'jobs' | 'quotes' | 'invoices' | 'tasks')}
         />
         
         {/* Search Bar */}
@@ -1021,7 +1028,7 @@ const Clients = () => {
               </div>
             )}
           </>
-        ) : (
+        ) : activeTab === 'invoices' ? (
           // Invoices tab with real data
           <>
             {invoicesLoading ? (
@@ -1179,7 +1186,31 @@ const Clients = () => {
           </div>
             )}
           </>
-        )}
+        ) : activeTab === 'tasks' ? (
+          // Tasks List Content
+          <>
+            {tasksLoading ? (
+              <div className="flex justify-center items-center h-64 bg-white rounded-xl shadow-sm">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#3b82f6]"></div>
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+                <CheckSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Tasks Coming Soon</h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  Task management will be available soon. Stay tuned!
+                </p>
+                <Link
+                  to="/tasks"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#3b82f6] text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
+                >
+                  <Plus className="w-4 h-4" />
+                  Create a Task
+                </Link>
+              </div>
+            )}
+          </>
+        ) : null}
 
         {/* Results Summary - Only show for clients tab */}
         {activeTab === 'clients' && !loading && filteredAndSortedClients.length > 0 && (
