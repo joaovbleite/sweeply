@@ -58,6 +58,8 @@ import {
   DropdownMenuCheckboxItem
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { tasksApi } from "@/lib/api/tasks";
+import { Task } from "@/types/task";
 
 const Clients = () => {
   const { user } = useAuth();
@@ -68,6 +70,7 @@ const Clients = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   
   // UI states
   const [loading, setLoading] = useState(true);
@@ -127,7 +130,7 @@ const Clients = () => {
         loadInvoices();
         break;
       case 'tasks':
-        // Add task loading logic when implemented
+        loadTasks();
         break;
     }
   }, [activeTab]);
@@ -259,6 +262,19 @@ const Clients = () => {
       toast.error('Failed to load invoices');
     } finally {
       setInvoicesLoading(false);
+    }
+  };
+
+  const loadTasks = async () => {
+    try {
+      setTasksLoading(true);
+      const data = await tasksApi.getAll();
+      setTasks(data);
+    } catch (error) {
+      console.error('Error loading tasks:', error);
+      toast.error('Failed to load tasks');
+    } finally {
+      setTasksLoading(false);
     }
   };
 
@@ -1216,15 +1232,111 @@ const Clients = () => {
               <div className="flex justify-center items-center h-64 bg-white rounded-xl shadow-sm">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#3b82f6]"></div>
               </div>
+            ) : tasks.length > 0 ? (
+              <div className="bg-white rounded-xl shadow-sm">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-3 px-4 font-medium text-gray-600">Title</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-600">Status</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-600">Priority</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-600">Due Date</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-600">Client</th>
+                        <th className="text-right py-3 px-4 font-medium text-gray-600">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {tasks.map((task) => {
+                        // Get status display details
+                        const statusDetails = (() => {
+                          switch (task.status) {
+                            case 'open':
+                              return { color: 'bg-blue-100 text-blue-800', label: 'Open' };
+                            case 'in_progress':
+                              return { color: 'bg-yellow-100 text-yellow-800', label: 'In Progress' };
+                            case 'completed':
+                              return { color: 'bg-green-100 text-green-800', label: 'Completed' };
+                            case 'cancelled':
+                              return { color: 'bg-gray-100 text-gray-800', label: 'Cancelled' };
+                            default:
+                              return { color: 'bg-gray-100 text-gray-800', label: task.status };
+                          }
+                        })();
+
+                        // Get priority display details
+                        const priorityDetails = (() => {
+                          switch (task.priority) {
+                            case 'urgent':
+                              return { color: 'bg-red-100 text-red-800', label: 'Urgent' };
+                            case 'high':
+                              return { color: 'bg-orange-100 text-orange-800', label: 'High' };
+                            case 'medium':
+                              return { color: 'bg-yellow-100 text-yellow-800', label: 'Medium' };
+                            case 'low':
+                              return { color: 'bg-green-100 text-green-800', label: 'Low' };
+                            default:
+                              return { color: 'bg-gray-100 text-gray-800', label: task.priority };
+                          }
+                        })();
+
+                        // Format due date
+                        const formattedDueDate = task.due_date 
+                          ? new Date(task.due_date).toLocaleDateString() 
+                          : 'No due date';
+
+                        return (
+                          <tr key={task.id} className="border-b hover:bg-gray-50">
+                            <td className="py-3 px-4">
+                              <div className="font-medium text-gray-900">{task.title}</div>
+                              {task.description && (
+                                <div className="text-sm text-gray-500 truncate max-w-xs">
+                                  {task.description}
+                                </div>
+                              )}
+                            </td>
+                            <td className="py-3 px-4">
+                              <span className={`px-2 py-1 rounded-full text-xs ${statusDetails.color}`}>
+                                {statusDetails.label}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4">
+                              <span className={`px-2 py-1 rounded-full text-xs ${priorityDetails.color}`}>
+                                {priorityDetails.label}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-gray-600">{formattedDueDate}</td>
+                            <td className="py-3 px-4">
+                              {task.client ? (
+                                <div className="text-gray-900">{task.client.name}</div>
+                              ) : (
+                                <span className="text-gray-500">No client</span>
+                              )}
+                            </td>
+                            <td className="py-3 px-4 text-right">
+                              <Link
+                                to={`/tasks/${task.id}`}
+                                className="text-blue-600 hover:text-blue-800 font-medium text-sm"
+                              >
+                                View
+                              </Link>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             ) : (
               <div className="bg-white rounded-xl shadow-sm p-8 text-center">
                 <CheckSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Tasks Coming Soon</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Tasks Yet</h3>
                 <p className="text-sm text-gray-600 mb-4">
-                  Task management will be available soon. Stay tuned!
+                  Create your first task to start managing your work more efficiently.
                 </p>
                 <Link
-                  to="/tasks"
+                  to="/add-task"
                   className="inline-flex items-center gap-2 px-4 py-2 bg-[#3b82f6] text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
                 >
                   <Plus className="w-4 h-4" />
