@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams, useLocation, useBeforeUnload } from "react-router-dom";
-import { Search, User, MapPin, Phone, Mail, Plus, ChevronDown, ChevronLeft, ChevronRight, Users, Loader2, X } from "lucide-react";
+import { Search, User, MapPin, Phone, Mail, Plus, ChevronDown, ChevronLeft, ChevronRight, Users, Loader2, X, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { clientsApi } from "@/lib/api/clients";
 import { jobsApi } from "@/lib/api/jobs";
@@ -77,6 +77,9 @@ const EditJob = () => {
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
 
+  // Add state to track missing fields
+  const [missingFields, setMissingFields] = useState<Record<string, boolean>>({});
+
   // Load job, clients, and team members on component mount
   useEffect(() => {
     const loadData = async () => {
@@ -94,6 +97,21 @@ const EditJob = () => {
           return;
         }
         setJob(jobData);
+        
+        // Identify missing fields
+        const missing: Record<string, boolean> = {};
+        if (!jobData.title || jobData.title === 'New Job') missing.jobTitle = true;
+        if (!jobData.client_id) missing.clientId = true;
+        if (!jobData.scheduled_time) missing.startTime = true;
+        if (!jobData.arrival_window_start) missing.arrivalWindowStart = true;
+        if (!jobData.arrival_window_end) missing.arrivalWindowEnd = true;
+        if (!jobData.address) missing.address = true;
+        if (!jobData.description) missing.description = true;
+        if (!jobData.special_instructions) missing.instructions = true;
+        if (jobData.estimated_price === 0) missing.price = true;
+        if (!jobData.line_items || jobData.line_items.length === 0) missing.lineItems = true;
+        
+        setMissingFields(missing);
         
         // Load clients
         const clientsData = await clientsApi.getAll();
@@ -581,6 +599,33 @@ const EditJob = () => {
     }
   };
 
+  // Helper function to check if a field is missing
+  const isMissingField = (fieldName: string): boolean => {
+    return !!missingFields[fieldName];
+  };
+
+  // Helper function to get field class name with missing indicator
+  const getFieldClassName = (fieldName: string, baseClassName: string): string => {
+    return `${baseClassName} ${isMissingField(fieldName) ? 'border-red-300 bg-red-50' : 'border-gray-300'}`;
+  };
+
+  // Helper function to render field with missing indicator
+  const renderFieldWithIndicator = (fieldName: string, element: React.ReactNode): React.ReactNode => {
+    const isMissing = isMissingField(fieldName);
+    return (
+      <div className="relative">
+        {element}
+        {isMissing && (
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center">
+            <div className="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center">
+              <span className="text-white text-xs font-bold">!</span>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   if (loadingJob) {
     return (
       <AppLayout>
@@ -611,27 +656,46 @@ const EditJob = () => {
         rightElement={SaveButton}
       />
 
+      {Object.keys(missingFields).length > 0 && (
+        <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mx-4 mt-2">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <AlertCircle className="h-5 w-5 text-amber-400" />
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-amber-700">
+                Some fields were missing when this job was created. Fields marked with red need your attention.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="px-4 pt-7 pb-32 flex-1 overflow-y-auto min-h-screen bg-white">
         {/* Overview Section */}
         <h2 className="text-xl text-gray-700 font-medium mb-4">Overview</h2>
         
         <div className="space-y-4 mb-8">
-                <input
-                  type="text"
-                value={formData.jobTitle}
-                onChange={(e) => handleInputChange('jobTitle', e.target.value)}
-                placeholder="Job title"
-                className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-              />
+          {renderFieldWithIndicator('jobTitle',
+            <input
+              type="text"
+              value={formData.jobTitle}
+              onChange={(e) => handleInputChange('jobTitle', e.target.value)}
+              placeholder="Job title"
+              className={getFieldClassName('jobTitle', 'w-full p-4 rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900')}
+            />
+          )}
           
-                <textarea
-            value={formData.instructions}
-            onChange={(e) => handleInputChange('instructions', e.target.value)}
-            placeholder="Instructions"
-                className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-            rows={4}
-                />
-            </div>
+          {renderFieldWithIndicator('instructions',
+            <textarea
+              value={formData.instructions}
+              onChange={(e) => handleInputChange('instructions', e.target.value)}
+              placeholder="Instructions"
+              className={getFieldClassName('instructions', 'w-full p-4 rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900')}
+              rows={4}
+            />
+          )}
+        </div>
 
         {/* Client Selection Section */}
         <div className="mb-8">
@@ -647,7 +711,7 @@ const EditJob = () => {
                     const client = clients.find(c => c.id === e.target.value);
                   if (client) handleClientSelect(client);
                   }}
-                className="w-full p-4 border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+                className={getFieldClassName('clientId', 'w-full p-4 border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900')}
               >
                 <option value="">Select a client</option>
                 {clients.map(client => (
@@ -668,7 +732,7 @@ const EditJob = () => {
               <select
                 value={formData.worker}
                 onChange={(e) => handleInputChange('worker', e.target.value)}
-                className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
+                className={getFieldClassName('worker', 'w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900')}
               >
                 <option value="">Please select</option>
                 {teamMembers.map((member) => (
@@ -705,7 +769,7 @@ const EditJob = () => {
             <select
               value={formData.custom_service_type_id ? `custom_${formData.custom_service_type_id}` : formData.service_type}
               onChange={handleServiceTypeChange}
-              className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
+              className={getFieldClassName('service_type', 'w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900')}
               style={{ position: 'relative', zIndex: 10 }}
               disabled={loadingServiceTypes}
             >
@@ -742,7 +806,7 @@ const EditJob = () => {
             <select
               value={formData.property_type}
               onChange={(e) => handleInputChange('property_type', e.target.value as PropertyType)}
-              className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
+              className={getFieldClassName('property_type', 'w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900')}
             >
               <option value="residential">Residential</option>
               <option value="commercial">Commercial</option>
@@ -933,7 +997,7 @@ const EditJob = () => {
             <select
               value={formData.repeating}
               onChange={e => handleInputChange('repeating', e.target.value)}
-              className="w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900"
+              className={getFieldClassName('repeating', 'w-full p-4 pr-10 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white text-gray-900')}
             >
               <option value="none">One-time job</option>
               <option value="recurring">Recurring job</option>
