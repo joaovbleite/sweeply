@@ -189,6 +189,10 @@ export const jobsApi = {
     if (jobData.recurring_frequency) insertData.recurring_frequency = jobData.recurring_frequency;
     if (jobData.recurring_end_date) insertData.recurring_end_date = jobData.recurring_end_date;
     
+    // Add arrival window information
+    if (jobData.arrival_window_start) insertData.arrival_window_start = jobData.arrival_window_start;
+    if (jobData.arrival_window_end) insertData.arrival_window_end = jobData.arrival_window_end;
+    
     // Add line items if provided
     if (jobData.line_items && jobData.line_items.length > 0) {
       insertData.line_items = jobData.line_items;

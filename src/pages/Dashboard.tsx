@@ -214,7 +214,18 @@ const Dashboard = () => {
     const today = new Date();
     return jobs
       .filter(job => isToday(new Date(job.scheduled_date)))
-      .sort((a, b) => new Date(a.scheduled_date).getTime() - new Date(b.scheduled_date).getTime())
+      .sort((a, b) => {
+        // First sort by time if available
+        if (a.scheduled_time && b.scheduled_time) {
+          return a.scheduled_time.localeCompare(b.scheduled_time);
+        } else if (a.scheduled_time) {
+          return -1; // a has time, b doesn't, so a comes first
+        } else if (b.scheduled_time) {
+          return 1; // b has time, a doesn't, so b comes first
+        }
+        // If no time available, sort by creation date
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      })
       .slice(0, 5); // Show only next 5 jobs
   }, [jobs]);
 

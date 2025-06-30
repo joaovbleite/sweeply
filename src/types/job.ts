@@ -118,6 +118,10 @@ export interface CreateJobInput {
   special_instructions?: string;
   access_instructions?: string;
   
+  // Arrival window information
+  arrival_window_start?: string;
+  arrival_window_end?: string;
+  
   // Commercial fields
   square_footage?: number;
   number_of_floors?: number;

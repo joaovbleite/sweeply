@@ -305,6 +305,11 @@ const AddJob = () => {
         estimated_price: formData.subtotal,
         line_items: lineItemsData, // This is custom data that will be stored as JSON
         
+        // Add arrival window information
+        scheduled_time: startTime,
+        arrival_window_start: startTime,
+        arrival_window_end: endTime,
+        
         // Add recurring job data if applicable
         is_recurring: formData.recurring_pattern.is_recurring,
         recurring_frequency: formData.recurring_pattern.frequency,
@@ -323,7 +328,7 @@ const AddJob = () => {
       navigate("/jobs");
     } catch (error) {
       console.error('Error creating job:', error);
-      toast.error("Failed to create job. Please try again.");
+      toast.error("Failed to create job");
     } finally {
       setIsSubmitting(false);
     }

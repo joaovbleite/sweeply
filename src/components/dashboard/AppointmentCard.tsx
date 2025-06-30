@@ -22,9 +22,10 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
   // Format arrival window (example: "6:30 - 7:30 PM")
   const formatArrivalWindow = () => {
     if (!job.arrival_window_start || !job.arrival_window_end) {
+      // If no arrival window is set, use scheduled_time or default text
       return job.scheduled_time ? 
         `At ${format(new Date(`2000-01-01T${job.scheduled_time}`), 'h:mm a')}` : 
-        'Arriving soon';
+        'Arriving today'; // Default text when no time information is available
     }
     
     const startTime = format(new Date(`2000-01-01T${job.arrival_window_start}`), 'h:mm');
@@ -38,7 +39,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
         {/* Top row with client name and icons */}
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="font-bold text-lg text-black">{job.client?.name || 'Unknown Client'}</h3>
+            <h3 className="font-bold text-lg text-black">{job.client?.name || 'Client'}</h3>
             <p className="font-medium text-[15px] text-[#757575]">{job.title || job.service_type || 'Service'}</p>
           </div>
           

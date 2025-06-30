@@ -23,12 +23,20 @@ const TodaysAppointments = () => {
     const loadJobs = async () => {
       try {
         setLoading(true);
-        const jobsData = await jobsApi.getAll({ show_instances: true });
-        // Filter for today's jobs only
-        const todaysJobs = jobsData.filter(job => {
-          const jobDate = new Date(job.scheduled_date);
-          return isToday(jobDate);
-        });
+        // Use the dedicated getToday API method if available, otherwise filter manually
+        let todaysJobs;
+        try {
+          // Try to use the dedicated API method first
+          todaysJobs = await jobsApi.getToday();
+        } catch (error) {
+          console.log('Falling back to manual filtering for today\'s jobs');
+          // Fallback to manual filtering
+          const jobsData = await jobsApi.getAll({ show_instances: true });
+          todaysJobs = jobsData.filter(job => {
+            const jobDate = new Date(job.scheduled_date);
+            return isToday(jobDate);
+          });
+        }
         setJobs(todaysJobs);
       } catch (error) {
         console.error('Error loading jobs:', error);
