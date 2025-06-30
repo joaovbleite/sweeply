@@ -4,19 +4,44 @@ import { Client, CreateClientInput, UpdateClientInput } from '@/types/client';
 export const clientsApi = {
   // Get all clients for the current user
   async getAll(isActive?: boolean) {
-    let query = supabase
-      .from('clients')
-      .select('*')
-      .order('name', { ascending: true });
-
-    if (isActive !== undefined) {
-      query = query.eq('is_active', isActive);
-    }
-
-    const { data, error } = await query;
+    console.log('Getting all clients, isActive filter:', isActive);
     
-    if (error) throw error;
-    return data as Client[];
+    try {
+      // Get the current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        console.error('User not authenticated in getAll clients');
+        throw new Error('User not authenticated');
+      }
+      
+      console.log('Fetching clients for user_id:', user.id);
+      
+      // Build the query
+      let query = supabase
+        .from('clients')
+        .select('*')
+        .eq('user_id', user.id) // Ensure we only get clients for the current user
+        .order('name', { ascending: true });
+
+      // Apply active filter if provided
+      if (isActive !== undefined) {
+        query = query.eq('is_active', isActive);
+      }
+
+      const { data, error } = await query;
+      
+      if (error) {
+        console.error('Error fetching clients:', error);
+        throw error;
+      }
+      
+      console.log(`Retrieved ${data?.length || 0} clients`);
+      return data as Client[];
+    } catch (error) {
+      console.error('Error in getAll clients:', error);
+      throw error;
+    }
   },
 
   // Get a single client by ID
@@ -35,20 +60,41 @@ export const clientsApi = {
   async create(input: CreateClientInput) {
     const { data: { user } } = await supabase.auth.getUser();
     
-    if (!user) throw new Error('User not authenticated');
+    if (!user) {
+      console.error('User not authenticated');
+      throw new Error('User not authenticated');
+    }
 
-    const { data, error } = await supabase
-      .from('clients')
-      .insert({
-        ...input,
-        user_id: user.id,
-        client_type: input.client_type || 'residential'
-      })
-      .select()
-      .single();
+    console.log('Creating client with user_id:', user.id);
     
-    if (error) throw error;
-    return data as Client;
+    try {
+      const { data, error } = await supabase
+        .from('clients')
+        .insert({
+          ...input,
+          user_id: user.id,
+          client_type: input.client_type || 'residential',
+          is_active: true // Ensure is_active is set to true for new clients
+        })
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Supabase error creating client:', error);
+        throw error;
+      }
+      
+      if (!data) {
+        console.error('No data returned after client creation');
+        throw new Error('Failed to create client: No data returned');
+      }
+      
+      console.log('Client created successfully:', data);
+      return data as Client;
+    } catch (error) {
+      console.error('Error in create client:', error);
+      throw error;
+    }
   },
 
   // Update a client

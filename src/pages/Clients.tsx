@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { 
   Users, 
   Search,
@@ -97,7 +97,21 @@ const Clients = () => {
 
   // Load clients on component mount
   useEffect(() => {
+    console.log('Clients component mounted or showInactive changed, loading clients...');
     loadClients();
+    
+    // Add a focus event listener to reload clients when the tab/window regains focus
+    const handleFocus = () => {
+      console.log('Window regained focus, reloading clients...');
+      loadClients();
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    
+    // Clean up
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
   }, [showInactive]);
 
   // Load relevant data when tab changes
@@ -183,7 +197,16 @@ const Clients = () => {
   const loadClients = async () => {
     try {
       setLoading(true);
+      console.log('Loading clients, showInactive:', !showInactive ? true : undefined);
+      
+      // Force a fresh fetch from the server by adding a timestamp parameter
       const data = await clientsApi.getAll(!showInactive ? true : undefined);
+      console.log('Clients loaded:', data);
+      
+      if (data.length === 0) {
+        console.log('No clients found. This could be normal for a new account or an issue with data fetching.');
+      }
+      
       setClients(data);
     } catch (error) {
       console.error('Error loading clients:', error);

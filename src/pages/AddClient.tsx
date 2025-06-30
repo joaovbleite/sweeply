@@ -154,7 +154,9 @@ const AddClient = () => {
     setLoading(true);
 
     try {
-      await clientsApi.create(formData);
+      console.log('Submitting client data:', formData);
+      const newClient = await clientsApi.create(formData);
+      console.log('Client created successfully:', newClient);
       toast.success("Client added successfully!");
       navigate("/clients");
     } catch (error) {
