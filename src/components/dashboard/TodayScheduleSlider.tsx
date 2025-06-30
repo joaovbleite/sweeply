@@ -2,12 +2,15 @@ import React, { useRef } from 'react';
 import { Plus, Calendar, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import AppointmentCard from './AppointmentCard';
+import { Job } from '@/types/job';
 
 interface TodayScheduleSliderProps {
   hasJobs: boolean;
+  jobs: Job[];
 }
 
-const TodayScheduleSlider: React.FC<TodayScheduleSliderProps> = ({ hasJobs }) => {
+const TodayScheduleSlider: React.FC<TodayScheduleSliderProps> = ({ hasJobs, jobs = [] }) => {
   const { t } = useTranslation(['dashboard', 'common']);
   const sliderRef = useRef<HTMLDivElement>(null);
 
@@ -29,14 +32,29 @@ const TodayScheduleSlider: React.FC<TodayScheduleSliderProps> = ({ hasJobs }) =>
         ref={sliderRef}
         className="flex overflow-x-auto gap-3 pb-4 px-1 snap-x snap-mandatory scrollbar-hide"
       >
-        {/* First card: No visits scheduled today */}
-        <div className="snap-start snap-always min-w-[85%] md:min-w-[280px] bg-gray-50 border border-gray-200 rounded-xl p-6 flex flex-col items-center justify-center text-center">
-          <p className="text-gray-700 text-lg font-medium">
-            {t('dashboard:noVisitsScheduled')}
-          </p>
-        </div>
+        {/* If there are jobs, show them first */}
+        {jobs.length > 0 && jobs.map(job => (
+          <div key={job.id} className="snap-start snap-always min-w-[85%] md:min-w-[280px]">
+            <AppointmentCard 
+              job={job}
+              hasMessages={Math.random() > 0.7} // Randomly show messages for demo
+              messageCount={Math.floor(Math.random() * 3) + 1}
+              hasAlert={Math.random() > 0.8} // Randomly show alerts for demo
+              distance={`${Math.floor(Math.random() * 15) + 1}${Math.random() > 0.5 ? 'km' : 'mi'}`} // Random distance for demo
+            />
+          </div>
+        ))}
         
-        {/* Second card: Schedule a New Job */}
+        {/* If no jobs or we want to always show these cards */}
+        {!hasJobs && (
+          <div className="snap-start snap-always min-w-[85%] md:min-w-[280px] bg-gray-50 border border-gray-200 rounded-xl p-6 flex flex-col items-center justify-center text-center">
+            <p className="text-gray-700 text-lg font-medium">
+              {t('dashboard:noVisitsScheduled')}
+            </p>
+          </div>
+        )}
+        
+        {/* Schedule a New Job card */}
         <div className="snap-start snap-always min-w-[85%] md:min-w-[280px] bg-white border border-blue-500 rounded-xl p-6 flex flex-col items-center justify-center text-center">
           <Link 
             to="/jobs/new"

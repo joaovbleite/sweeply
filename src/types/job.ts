@@ -47,6 +47,8 @@ export interface Job {
   estimated_duration?: number; // in minutes
   actual_start_time?: string; // ISO datetime string
   actual_end_time?: string; // ISO datetime string
+  arrival_window_start?: string; // HH:MM format
+  arrival_window_end?: string; // HH:MM format
   
   // Pricing
   estimated_price?: number;
