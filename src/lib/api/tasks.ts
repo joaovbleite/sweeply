@@ -88,36 +88,49 @@ export const tasksApi = {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
-      throw new Error('User not authenticated');
+      console.error('Authentication error: User not authenticated');
+      throw new Error('User not authenticated. Please log in again.');
     }
     
-    const newTask = {
-      id: uuidv4(),
-      ...taskData,
-      status: taskData.status || 'open',
-      priority: taskData.priority || 'medium',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      user_id: user.id
-    };
-    
-    const { data, error } = await supabase
-      .from('tasks')
-      .insert([newTask])
-      .select(`
-        *,
-        client:clients(id, name),
-        job:jobs(id, title),
-        assignee:profiles(id, name, avatar_url)
-      `)
-      .single();
-    
-    if (error) {
-      console.error('Error creating task:', error);
-      throw new Error('Failed to create task');
+    try {
+      const newTask = {
+        id: uuidv4(),
+        ...taskData,
+        status: taskData.status || 'open',
+        priority: taskData.priority || 'medium',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        user_id: user.id
+      };
+      
+      const { data, error } = await supabase
+        .from('tasks')
+        .insert([newTask])
+        .select(`
+          *,
+          client:clients(id, name),
+          job:jobs(id, title),
+          assignee:profiles(id, name, avatar_url)
+        `)
+        .single();
+      
+      if (error) {
+        console.error('Error creating task:', error);
+        if (error.code === '42501') {
+          throw new Error('Permission denied: You do not have permission to create tasks');
+        }
+        throw new Error(`Failed to create task: ${error.message}`);
+      }
+      
+      if (!data) {
+        throw new Error('Failed to create task: No data returned');
+      }
+      
+      return data;
+    } catch (error: any) {
+      console.error('Unexpected error creating task:', error);
+      throw error;
     }
-    
-    return data;
   },
   
   // Update an existing task

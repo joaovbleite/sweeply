@@ -1,13 +1,14 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User } from '@supabase/supabase-js';
-import { getCurrentUser, onAuthStateChange, signOut as supabaseSignOut } from '@/lib/supabase';
+import { getCurrentUser, onAuthStateChange, signOut as supabaseSignOut, supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  refreshAuth: () => Promise<User | null>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -24,6 +25,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  // Function to refresh authentication
+  const refreshAuth = async (): Promise<User | null> => {
+    try {
+      const { data, error } = await supabase.auth.refreshSession();
+      
+      if (error) {
+        console.error('Error refreshing session:', error);
+        setUser(null);
+        return null;
+      }
+      
+      setUser(data.user);
+      return data.user;
+    } catch (error) {
+      console.error('Unexpected error refreshing auth:', error);
+      setUser(null);
+      return null;
+    }
+  };
 
   useEffect(() => {
     // Check current user on mount
@@ -66,7 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signOut, refreshAuth }}>
       {children}
     </AuthContext.Provider>
   );

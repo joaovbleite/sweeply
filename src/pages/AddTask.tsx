@@ -10,6 +10,7 @@ import { clientsApi } from "@/lib/api/clients";
 import { Client } from "@/types/client";
 import { CreateTaskInput, TaskPriority, TaskStatus } from "@/types/task";
 import { format, addDays, isToday } from "date-fns";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Select,
   SelectContent,
@@ -37,6 +38,7 @@ import {
 const AddTask = () => {
   const navigate = useNavigate();
   const { formatCurrency } = useLocale();
+  const { refreshAuth } = useAuth();
   
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(false);
@@ -109,12 +111,31 @@ const AddTask = () => {
 
     try {
       setSaving(true);
+      
+      // Refresh auth session before creating task
+      const user = await refreshAuth();
+      if (!user) {
+        toast.error("Authentication error. Please log in again.");
+        setTimeout(() => navigate("/login"), 2000);
+        return;
+      }
+      
       await tasksApi.create(formData);
       toast.success("Task created successfully!");
       navigate("/tasks");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating task:", error);
-      toast.error("Failed to create task");
+      
+      // Show more specific error messages
+      if (error.message.includes('not authenticated')) {
+        toast.error("Authentication error. Please log in again.");
+        // Redirect to login page after a short delay
+        setTimeout(() => navigate("/login"), 2000);
+      } else if (error.message.includes('Permission denied')) {
+        toast.error("Permission denied. You don't have access to create tasks.");
+      } else {
+        toast.error(error.message || "Failed to create task");
+      }
     } finally {
       setSaving(false);
     }
