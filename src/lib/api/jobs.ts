@@ -160,14 +160,23 @@ export const jobsApi = {
       throw new Error('User not authenticated');
     }
 
+    // Validate required fields
+    if (!jobData.client_id) {
+      throw new Error('Client ID is required');
+    }
+    
+    if (!jobData.scheduled_date) {
+      throw new Error('Scheduled date is required');
+    }
+
     // Build the insert data object more explicitly
     const insertData: any = {
       client_id: jobData.client_id,
-      title: jobData.title,
-      service_type: jobData.service_type,
+      title: jobData.title || 'New Job',
+      service_type: jobData.service_type || 'regular',
       property_type: jobData.property_type || 'residential', // Default value
       scheduled_date: jobData.scheduled_date,
-      status: 'scheduled',
+      status: jobData.status || 'scheduled',
       user_id: user.id,
       is_recurring: jobData.is_recurring || false,
     };
@@ -176,7 +185,7 @@ export const jobsApi = {
     if (jobData.description) insertData.description = jobData.description;
     if (jobData.scheduled_time) insertData.scheduled_time = jobData.scheduled_time;
     if (jobData.estimated_duration) insertData.estimated_duration = jobData.estimated_duration;
-    if (jobData.estimated_price) insertData.estimated_price = jobData.estimated_price;
+    if (jobData.estimated_price !== undefined) insertData.estimated_price = jobData.estimated_price;
     if (jobData.address) insertData.address = jobData.address;
     if (jobData.special_instructions) insertData.special_instructions = jobData.special_instructions;
     if (jobData.access_instructions) insertData.access_instructions = jobData.access_instructions;
@@ -198,7 +207,7 @@ export const jobsApi = {
       insertData.line_items = jobData.line_items;
       
       // Calculate total estimated price from line items if not already set
-      if (!jobData.estimated_price) {
+      if (jobData.estimated_price === undefined) {
         insertData.estimated_price = jobData.line_items.reduce(
           (sum, item) => sum + (item.price * (item.quantity || 1)), 
           0
@@ -208,22 +217,31 @@ export const jobsApi = {
 
     console.log('Creating job with cleaned data:', insertData);
 
-    const { data, error } = await supabase
-      .from('jobs')
-      .insert(insertData)
-      .select('*')
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('jobs')
+        .insert(insertData)
+        .select('*')
+        .single();
 
-    if (error) {
-      console.error('Supabase error creating job:', error);
-      console.error('Error code:', error.code);
-      console.error('Error details:', error.details);
-      console.error('Error message:', error.message);
-      console.error('Error hint:', error.hint);
+      if (error) {
+        console.error('Supabase error creating job:', error);
+        console.error('Error code:', error.code);
+        console.error('Error details:', error.details);
+        console.error('Error message:', error.message);
+        console.error('Error hint:', error.hint);
+        throw new Error(error.message || 'Failed to create job');
+      }
+
+      if (!data) {
+        throw new Error('No data returned from job creation');
+      }
+
+      return data;
+    } catch (error: any) {
+      console.error('Exception creating job:', error);
       throw new Error(error.message || 'Failed to create job');
     }
-
-    return data;
   },
 
   // Update an existing job

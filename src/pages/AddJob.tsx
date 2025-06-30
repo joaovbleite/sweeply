@@ -293,34 +293,40 @@ const AddJob = () => {
         price: item.price
       }));
 
-      // Create job data object
+      // Create job data object - ensure all required fields have values
       const jobData = {
         client_id: formData.clientId,
-        title: formData.jobTitle,
-        description: formData.instructions,
-        special_instructions: formData.instructions,
-        service_type: formData.service_type,
-        property_type: formData.property_type,
+        title: formData.jobTitle || 'New Job', // Default title if empty
+        description: formData.instructions || '',
+        special_instructions: formData.instructions || '',
+        service_type: formData.service_type || 'regular',
+        property_type: formData.property_type || 'residential',
         scheduled_date: scheduledDate,
-        estimated_price: formData.subtotal,
-        line_items: lineItemsData, // This is custom data that will be stored as JSON
+        estimated_price: formData.subtotal || 0,
+        line_items: lineItemsData.length > 0 ? lineItemsData : [], // Ensure it's always an array
         
-        // Add arrival window information
-        scheduled_time: startTime,
-        arrival_window_start: startTime,
-        arrival_window_end: endTime,
+        // Add arrival window information with fallbacks
+        scheduled_time: startTime || '12:00',
         
-        // Add recurring job data if applicable
-        is_recurring: formData.recurring_pattern.is_recurring,
-        recurring_frequency: formData.recurring_pattern.frequency,
-        recurring_days_of_week: formData.recurring_pattern.daysOfWeek,
-        recurring_day_of_month: formData.recurring_pattern.dayOfMonth,
-        recurring_end_type: formData.recurring_pattern.endType,
-        recurring_end_date: formData.recurring_pattern.endDate,
-        recurring_occurrences: formData.recurring_pattern.occurrences,
+        // Only add these if they have values to avoid database constraints
+        ...(startTime ? { arrival_window_start: startTime } : {}),
+        ...(endTime ? { arrival_window_end: endTime } : {}),
+        
+        // Add recurring job data if applicable, with defaults
+        is_recurring: formData.recurring_pattern?.is_recurring || false,
+        ...(formData.recurring_pattern?.is_recurring ? {
+          recurring_frequency: formData.recurring_pattern.frequency || 'weekly',
+          recurring_days_of_week: formData.recurring_pattern.daysOfWeek || [],
+          recurring_day_of_month: formData.recurring_pattern.dayOfMonth,
+          recurring_end_type: formData.recurring_pattern.endType || 'never',
+          recurring_end_date: formData.recurring_pattern.endDate,
+          recurring_occurrences: formData.recurring_pattern.occurrences
+        } : {})
       };
 
+      console.log('Submitting job data:', jobData);
       const createdJob = await jobsApi.create(jobData);
+      console.log('Job created successfully:', createdJob);
 
       // Reset form dirty state after successful submission
       setIsFormDirty(false);
@@ -328,7 +334,7 @@ const AddJob = () => {
       navigate("/jobs");
     } catch (error) {
       console.error('Error creating job:', error);
-      toast.error("Failed to create job");
+      toast.error("Failed to create job. Please check all required fields.");
     } finally {
       setIsSubmitting(false);
     }

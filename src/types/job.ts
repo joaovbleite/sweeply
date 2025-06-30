@@ -117,6 +117,7 @@ export interface CreateJobInput {
   address?: string;
   special_instructions?: string;
   access_instructions?: string;
+  status?: JobStatus;
   
   // Arrival window information
   arrival_window_start?: string;
